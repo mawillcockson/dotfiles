@@ -1,0 +1,49 @@
+config:
+  backup: true
+  banner: true
+  create: true
+  dotpath: dotfiles
+  keepdot: false
+  link_dotfile_default: nolink
+  link_on_import: nolink
+  longkey: false
+dotfiles:
+  f_init.vim:
+    src: config/nvim/init.vim
+    dst: ~/.config/nvim/init.vim
+  f_config_0:
+    src: config/tilda/config_0
+    dst: ~/.config/tilda/config_0
+  f_tmux.service:
+    src: config/systemd/user/tmux.service
+    dst: ~/.config/systemd/user/tmux.service
+  f_c-].sh:
+    src: tmux/C-].sh
+    dst: ~/.tmux/C-].sh
+  f_tmux.conf:
+    src: tmux.conf
+    dst: ~/.tmux.conf
+  f_gitconfig:
+    src: gitconfig
+    dst: ~/.gitconfig
+  f_zshrc:
+    src: zshrc
+    dst: ~/.zshrc
+  f_gpg.conf:
+    src: gnupg/gpg.conf
+    dst: ~/.gnupg/gpg.conf
+  f_scdaemon.conf:
+    src: gnupg/scdaemon.conf
+    dst: ~/.gnupg/scdaemon.conf
+profiles:
+  small-laptop:
+    dotfiles:
+    - f_init.vim
+    - f_config_0
+    - f_tmux.service
+    - f_c-].sh
+    - f_tmux.conf
+    - f_gitconfig
+    - f_zshrc
+    - f_gpg.conf
+    - f_scdaemon.conf

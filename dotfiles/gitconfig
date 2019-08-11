@@ -1,0 +1,14 @@
+[push]
+	default = simple
+	gpgSign = if-asked
+[user]
+	name = Matthew Willcockson
+	email = matthew@willcockson.us
+	signingKey = 0xA5A7E106D69D1115
+[gc]
+	pruneExpire = never
+	worktreePruneExpire = never
+	reflogExpire = never
+	reflogExpireUnreachable = never
+[commit]
+	gpgsign = true
