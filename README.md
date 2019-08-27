@@ -10,13 +10,19 @@ This repository uses [dotdrop][], and subsequently is a lot easier to use with [
 
 ## Setup
 
+
+For distribution-specific setup, see the appropriate INSTALL file:
+
+ - [Debian](~/INSTALL_debian.md)
+
 The config files contain calls to [cURL][], and will not work without it.
 
 ```
 read -p "Install latest Python, git, and curl, then press enter"
-python -m pip --user install pipx
+python -m pip install --user pipx
+python -m pipx ensurepath
+source ~/.profile
 pipx install dotdrop
-pipx ensurepath
 mkdir ~/projects
 git clone git@github.com:mawillcockson/dotfiles.git projects/dotfiles
 alias dotdrop='dotdrop --cfg=~/projects/dotfiles/config.yaml'
