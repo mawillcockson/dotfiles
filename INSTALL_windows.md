@@ -27,7 +27,7 @@ msiexec /package pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENA
 
 Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should have been set by the command, and so no dialogue boxes should pop up, and once the installation is finished, any windows should close automatically.
 
-Once done, the new version of powershell should be available by running the command `pwsh`, however the installation process did not update the current session with information on where to find the new program, so we'll do that now:
+Once done, the new version of powershell should be available by running the command `pwsh`, however the installation process did not update the current session with information on where to find the new program, [so we'll do that now][pwsh-reload]:
 
 ```
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -223,6 +223,7 @@ Now that all that's done, we can [continue with the installation.](./README.md#s
 [powershell]: <https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-5.1>
 [scoop]: <https://github.com/lukesampson/scoop>
 [pscore6]: <https://aka.ms/pscore6>
+[pwsh-reload]: <https://stackoverflow.com/a/31845512>
 [ps-execpolicy]: <https://docs.microsoft.com/en-us/PowerShell/module/microsoft.PowerShell.core/about/about_execution_policies?view=PowerShell-6>
 [configure-gpg-agent]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Configuration.html>
 [restart-gpg-agent]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Protocol.html#Agent-Protocol>
