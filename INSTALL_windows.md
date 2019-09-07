@@ -6,26 +6,28 @@ It would probably be easier to use GUI tools built for windows, as opposed to li
 
 # Getting the repository
 
-In order to get the repository we need git and gnupg.
+In order to get the repository we need [git][] and [gnupg][].
 
-Windows now comes with OpenSSH, but it listens on a named pipe, not a Unix domain socket, which is what gnupg uses, so we need a program to shuttle between the two.
+Windows now comes with [OpenSSH][], but it listens on a [named pipe][named-pipe], not a [Unix domain socket][af-unix], which is what gnupg uses, so we need a program to shuttle between the two.
 
 We also need a program to help automate downloading and managing all these programs.
+
+To get all of this set up, we'll use [Windows PowerShell][PowerShell].
 
 Unless noted, all commands are run in order, in one [PowerShell][] session.
 
 ## [PowerShell Core 6 (Optional)][pscore6]
 
-It would be nice to grab [PowerShell Core 6][pscore6], though this is optional.
+It would be nice to grab [PowerShell Core 6][pscore6], though this is optional, and does require administrative privaleges, currently, as it install this globally.
 
-From PowerShell:
+To get PowerShell 6, run the following commands from PowerShell:
 
 ```
-Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v6.2.2/PowerShell-6.2.2-win-x64.msi -OutFile PowerShell PowerShell-6.2.2-win-x64.msi
+Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v6.2.2/PowerShell-6.2.2-win-x64.msi -OutFile PowerShell-6.2.2-win-x64.msi
 msiexec /package PowerShell-6.2.2-win-x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1
 ```
 
-Click through the dialogue boxes that pop up.
+Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should be set on the command line, and so no dialogue boxes should pop up, and once the installatino is finished, any windows should close automatically.
 
 Once done, close the current PowerShell window, and open a new one by running `pwsh` to continue.
 
@@ -39,10 +41,15 @@ In PowerShell:
 
 ```
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Then, we will install scoop:
+
+```
 iwr -useb get.scoop.sh | iex
 ```
 
-Then we'll install the programs scoop needs, as well as the ones we need.
+Next, we'll install the programs scoop needs for the additional features we require, as well as the programs we need.
 
 ```
 scoop install aria2 git
@@ -50,9 +57,11 @@ scoop bucket add extras
 scoop install gnupg wsl-ssh-pageant
 ```
 
-## Configuring GnuPG
+## Configuring [GnuPG][]
 
-Now we insert the OpenPGP-compatible card or security key, and gnupg should see it:
+Before we begin configuring [GnuPG][], we need to make sure it can read our OpenPGP-compatible card or security key.
+
+To test this, first insert the key/card, and gnupg should see it:
 
 ```
 gpg-connect-agent updatestartuptty /bye
@@ -74,14 +83,14 @@ gpg-connect-agent: error sending standard options: No agent running
 
 _Just rerun the_ `gpg-connect-agent updatestartuptty /bye` _command_.
 
-Then we need to [restart the gpg-agent][restart-gpg-agent] [with PuTTY support][gpg-putty].
+Then we need to [configure `gpg-agent`][configure-gpg-agent] [with PuTTY support][gpg-putty], then [restart `gpg-agent`][restart-gpg-agent].
 
 Instead of regular SSH support, I chose [PuTTY][] support as the tooling for connecting the [OpenSSh built into Windows][win32-openssh] to gnupg [is currently one of the only avenues to get the two to talk][openssh-gpg-connect], and it allows the use of PuTTY with the same authentication mechanism.
 
-To enable putty support in gpg-agent, either edit the file indicated by the following command:
+To enable putty support in gpg-agent, either edit the file indicated by the following command (this file might not exist and may need to be created):
 
 ```
-[System.Web.HttpUtility]::UrlDecode((gpgconf --list-components | Select-String -Pattern gpg-agent | %{ $a=$_.Line.Split(':')[2]; $a}))
+(gpgconf --list-dirs socketdir) + "\gpg-agen.conf"
 ```
 
 And put the string `enable-putty-support` on a single line in the file, or run the following command:
@@ -103,7 +112,7 @@ Now, `wsl-ssh-pageant` is needed to bridge `ssh` and `gpg-agent`.
 The [default name][default-win-pipe] of the [named pipe][named-pipe] is `\\.\pipe\openssh-ssh-agent`, but we'll use a different one to make things more confusing:
 
 ```
-$env:SSH_SUTH_SOCK = "\\.\pipe\ssh-pageant"
+Set-Item -Path Env:SSH_AUTH_SOCK -Value "\\.\pipe\ssh-pageant"
 [Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', $env:SSH_AUTH_SOCK, 'User')
 ```
 
@@ -141,6 +150,12 @@ If the window pops up briefly, before closing by itself, something is wrong. The
 wsl-ssh-pageant.exe -systray -winssh "\\.\pipe\ssh-pageant" -wsl (gpgconf --list-dirs agent-ssh-socket)
 ```
 
+Finally, we can restart `gpg-agent`:
+
+```
+gpg-connect-agent updatestartuptty /bye
+```
+
 ## Testing and finale
 
 Now ssh should be able to see the keys on the key/card:
@@ -149,16 +164,47 @@ Now ssh should be able to see the keys on the key/card:
 
 This is the most important part, and if this shows an error message about connecting to an agent, a bad response from an agent, or just nothing, then please make prolific use of your search engine of choice.
 
+To download the repository, git should be able to talk with GitHub. To test this, [the following should print out a short message][github-test-ssh]:
+
+```
+ssh -T git@github.com
+```
+
+To then get `git` to be able to use the `ssh` client configured for interacting with `gpg-agent`, [set the `GIT_SSH` environment variable][git-ssh]:
+
+```
+Set-Item -Path Env:GIT_SSH -Value (scoop which ssh)
+[Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', $env:GIT_SSH, 'User')
+```
+
+To get git to use the correct `gpg` program, [set that in the global git config][git-gpg]:
+
+```
+git config --global gpg.program (scoop which gpg)
+```
+
+# Return to regular install
+
+Now that all that's done, we can [continue with the installation.](./README.md#setup)
 
 
+
+[git]: <https://git-scm.com/>
+[gnupg]: <https://www.gnupg.org/>
+[OpenSSH]: <https://www.openssh.com/>
+[af-unix]: <http://man7.org/linux/man-pages/man7/unix.7.html>
 [powershell]: <https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-5.1>
 [scoop]: <https://github.com/lukesampson/scoop>
 [pscore6]: <https://aka.ms/pscore6>
 [ps-execpolicy]: <https://docs.microsoft.com/en-us/PowerShell/module/microsoft.PowerShell.core/about/about_execution_policies?view=PowerShell-6>
-[restart-gpg-agent]: 
-[gpg-putty]: 
+[configure-gpg-agent]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Configuration.html>
+[restart-gpg-agent]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Protocol.html#Agent-Protocol>
+[gpg-putty]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html#option-_002d_002denable_002dssh_002dsupport>
 [PuTTY]: <https://www.chiark.greenend.org.uk/~sgtatham/putty/>
 [win32-openssh]: <https://github.com/PowerShell/openssh-portable>
 [openssh-gpg-connect]: <https://github.com/PowerShell/Win32-OpenSSH/issues/827>
 [default-win-pipe]: <https://github.com/PowerShell/Win32-OpenSSH/issues/1136#issuecomment-500549297>
 [named-pipe]: <https://docs.microsoft.com/en-us/windows/win32/ipc/named-pipes>
+[github-test-ssh]: <https://help.github.com/en/articles/testing-your-ssh-connection>
+[git-ssh]: <https://git-scm.com/book/en/v2/Git-Internals-Environment-Variables#_miscellaneous>
+[git-gpg]: <https://stackoverflow.com/a/43393650>
