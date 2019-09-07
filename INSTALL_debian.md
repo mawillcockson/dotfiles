@@ -1,13 +1,17 @@
 # Add created user to sudo group
 
-Login as root
+During installation, the root account password is set, and a "normal" user is created. This normal user is going to be the one we use day-to-day, and I prefer to do system administration from this account through sudo for sudo's auditing capabilities.
+
+So, we must make sure this user is setup for these tasks. To make those changes, it's easier to log in as root to do them in bulk.
+
+Login as root.
+
+It's a good bet that the user created during install was assigned uid `1000`. If not, sub in correct username.
 
 ```
 export REG_USER=$(awk -F ':' '$3 == 1000' /etc/passwd | sed -E 's/([a-z]+).*$/\1/')
 usermod -a -G sudo "${REG_USER}"
 ```
-
-It's a good bet that the user created during install was assigned uid `1000`. If not, sub in correct username.
 
 # Install packages
 
