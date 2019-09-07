@@ -10,15 +10,27 @@ This repository uses [dotdrop][], and subsequently is a lot easier to use with [
 
 ## Setup
 
+In order to use this repository to set up an environment, the tools it depends on must be installed, namely [git][] and [python][]. Additionally, some setup of the environment is required prior to using this repository. _Note: In the future, this setup process may be automated by tooling included in this repository_
 
-For distribution-specific setup, see the appropriate INSTALL file:
+Each operating system has its own way of setting all of this up, which is hopefully described in its own file, listed here:
 
- - [Debian](~/INSTALL_debian.md)
+ - [Debian](./INSTALL_debian.md)
+ - [Arch Linux](./INSTALL_archlinux.md)
+ - [Windows](./INSTALL_windows.md)
+ - [Cygwin](./INSTALL_cygwin.md)
+ - [MSYS2 / Git Bash](./INSTALL_gitbash.md)
+ - [Windows Subsystem for Linux](./INSTALL_wsl.md)
+ - [FreeBSD](./INSTALL_freebsd.md)
 
-The config files contain calls to [cURL][], and will not work without it.
+Once those steps have been taken, the rest of the process is fairly straight-forward, and largely platform independent.
+
+### Continue
+
+The setup files contain calls to [cURL][], and will not work without it. The [distribution-specific setup files](./README.md#setup) should contain instructions on how to get this program so that the setup files in this repository know where to locate it, for each platform.
+
+The rest of the setup process should be able to be completed by running the following commands in a console or shell session:
 
 ```
-read -p "Install latest Python, git, and curl, then press enter"
 python -m pip install --user pipx
 python -m pipx ensurepath
 source ~/.profile
@@ -45,6 +57,7 @@ I use the following software:
 [dotfiles]: <https://wiki.archlinux.org/index.php/Dotfiles>
 [dotdrop]: <https://github.com/deadc0de6/dotdrop>
 [Python]: <https://www.python.org/>
+[git]: <https://git-scm.com/>
 [cURL]: <https://curl.haxx.se/>
 [NeoVim]: <https://neovim.io/>
 [tmux]: <https://github.com/tmux/tmux>
