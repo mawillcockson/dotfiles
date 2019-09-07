@@ -2,23 +2,21 @@
 
 By far the most difficult setup has been Windows, and forcing the use of command-line Unix tools.
 
-It would probably be easier to use GUI tools built for windows, as opposed to lifting the entire setup from other operating systems, and transplanting it to Windows.
+It would probably have been easier to have used GUI tools built for windows, as opposed to having attempted to lift the entire setup from other operating systems, and transplant it to Windows.
 
 # Getting the repository
 
-In order to get the repository we need [git][] and [gnupg][].
+In order to get and use the repository we need [`git`][git], [`gpg`][gnupg], and [`python`][python].
 
-Windows now comes with [OpenSSH][], but it listens on a [named pipe][named-pipe], not a [Unix domain socket][af-unix], which is what gnupg uses, so we need a program to shuttle between the two.
+All three of these can be downloaded and installed using [scoop][], which we will download an install in a following section.
 
-We also need a program to help automate downloading and managing all these programs.
+We also need a program to help automate downloading and managing all these programs. In this case, we'll use [Windows PowerShell][PowerShell].
 
-To get all of this set up, we'll use [Windows PowerShell][PowerShell].
-
-Unless noted, all commands are run in order, in one [PowerShell][] session.
+Unless noted, all commands are run in order, in one [PowerShell][] session. Some variables may be set in one section, and then used in later sections, and the later sections may not work if the PowerShell session is closed and reopened.
 
 ## [PowerShell Core][pscore6]
 
-While not strictly necessary, having the latest and greatest [PowerShell Core][pscore6] would be nice. This process does require administrative privaleges, currently, as it install this globally.
+While not strictly necessary, having the latest and greatest [PowerShell Core][pscore6] would be nice. This process does require administrative privaleges, currently, as it install this for all users.
 
 To get PowerShell Core, run the following commands from PowerShell:
 
@@ -27,23 +25,38 @@ To get PowerShell Core, run the following commands from PowerShell:
 msiexec /package pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1
 ```
 
-Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should be set on the command line, and so no dialogue boxes should pop up, and once the installatino is finished, any windows should close automatically.
+Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should have been set by the command, and so no dialogue boxes should pop up, and once the installation is finished, any windows should close automatically.
 
-Once done, close the current PowerShell window, and open a new one by running `pwsh` to continue.
+Once done, the new version of powershell should be available by running the command `pwsh`, however the installation process did not update the current session with information on where to find the new program, so we'll do that now:
 
-If any part of this process did not work, replace any use of `pwsh` with `powershell`.
+```
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+```
+
+Then we can run:
+
+```
+pwsh
+```
+
+If any part of this process did not work, or produced errors, or if the account does not have administrative privaledges, replace any use of `pwsh` with `powershell` in all further sections.
 
 ## [scoop][]
 
 We will use [scoop][] for package management.
 
-In order to install [scoop][], we need to set the execution policy in PowerShell. I don't know about the [security implications of this][ps-execpolicy].
+In order to get [scoop][], we will use the [the installation steps given in the README][scoop-installation]. If this links to something that is old, check the [main repository README][scoop-readme] for up-to-date instructions.
 
-In PowerShell:
+In order to be able install [scoop][], we need to set the execution policy in PowerShell. [This has security implications][ps-execpolicy].
+
+To do this, in the same PowerShell session, run:
 
 ```
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+A short message should pop up. Agree by typing `Y`, then pressing <kbd>Enter</kbd>.  
+_Note: If nothing pops up, the execution policy is already set appropriately_
 
 Then, we will install scoop:
 
@@ -59,7 +72,7 @@ scoop bucket add extras
 scoop install gnupg wsl-ssh-pageant
 ```
 
-## Configuring [GnuPG][]
+## Testing [GnuPG][]
 
 Before we begin configuring [GnuPG][], we need to make sure it can read our OpenPGP-compatible card or security key.
 
@@ -85,14 +98,18 @@ gpg-connect-agent: error sending standard options: No agent running
 
 _Just rerun the_ `gpg-connect-agent updatestartuptty /bye` _command_.
 
-Then we need to [configure `gpg-agent`][configure-gpg-agent] [with PuTTY support][gpg-putty], then [restart `gpg-agent`][restart-gpg-agent].
+## Configuring [GnuPG][]
 
-Instead of regular SSH support, I chose [PuTTY][] support as the tooling for connecting the [OpenSSh built into Windows][win32-openssh] to gnupg [is currently one of the only avenues to get the two to talk][openssh-gpg-connect], and it allows the use of PuTTY with the same authentication mechanism.
+Now that we know that `gpg` can see the key/card, we can [configure `gpg-agent`][configure-gpg-agent] [with PuTTY support][gpg-putty], then [restart `gpg-agent`][restart-gpg-agent], as described in this section.
 
-To enable putty support in gpg-agent, either edit the file indicated by the following command (this file might not exist and may need to be created):
+Instead of regular SSH support, I chose [PuTTY][] support as the tooling for connecting the [OpenSSH suite built into Windows 10][win32-openssh] to gnupg [is currently one of the only avenues to get the two to talk][openssh-gpg-connect], and it allows the use of PuTTY with the same authentication mechanism.
+
+One thing to note as a result of this setup is that, since [OpenSSH has been shipped with Windows 10 since autumn 2018][windows-ssh-info], this setup won't work exactly as expected on any version prior to this, or versions lacking this OpenSSH suite.
+
+To enable putty support in `gpg-agent`, either edit the file indicated by the following command (this file might not exist and may need to be created):
 
 ```
-(gpgconf --list-dirs socketdir) + "\gpg-agen.conf"
+(gpgconf --list-dirs socketdir) + "\gpg-agent.conf"
 ```
 
 And put the string `enable-putty-support` on a single line in the file, or run the following command:
@@ -109,7 +126,9 @@ gpg-connect-agent reloadagent /bye
 
 ## Bridge GnuPG and Win32-OpenSSH
 
-Now, `wsl-ssh-pageant` is needed to bridge `ssh` and `gpg-agent`.
+The OpenSSH suite shipped with Windows listens on a [named pipe][named-pipe], instead of a [Unix domain socket][af-unix], which is what gnupg uses, so we need a program to shuttle between the two.
+
+`wsl-ssh-pageant` can bridge `ssh` and `gpg-agent`.
 
 The [default name][default-win-pipe] of the [named pipe][named-pipe] is `\\.\pipe\openssh-ssh-agent`, but we'll use a different one to make things more confusing:
 
@@ -132,11 +151,11 @@ gpg-connect-agent killagent /bye
 
 We'll bring it back after we start `wsl-ssh-pageant`.
 
-Before starting `wsl-ssh-pageant`, it's important to note that the command below run `wsl-ssh-pageant` in its own background process, which needs to be running each time `git` or `ssh` need to talke with `gpg-agent`. A step for setting this command to run on logon is pending.
+Before starting `wsl-ssh-pageant`, it's important to note that the command below runs `wsl-ssh-pageant` in its own background process, which needs to be running each time `git` or `ssh` need to talk with `gpg-agent`. A step for setting this command to run on login is pending.
 
 The good news is that this process is detached from PowerShell, and closing PowerShell will not close this process, or prevent `wsl-ssh-pageant` from working with other PowerShell or console sessions.
 
-Also, having `wsl-ssh-pageant` running does not appear to impede the use of both PuTTY and Windows' native ssh client from both using the keys stored on the key/card.
+Also, having `wsl-ssh-pageant` running does not appear to impede the use of both PuTTY and Windows' native `ssh` client from both using the keys stored on the key/card.
 
 So to start `wsl-ssh-pageant`, run:
 
@@ -160,13 +179,15 @@ gpg-connect-agent updatestartuptty /bye
 
 ## Testing and finale
 
-Now ssh should be able to see the keys on the key/card:
+Now `ssh` should be able to see the keys on the key/card.
+
+To test this, make sure the key/card is inserted, and run:
 
 `ssh-add -L`
 
 This is the most important part, and if this shows an error message about connecting to an agent, a bad response from an agent, or just nothing, then please make prolific use of your search engine of choice.
 
-To download the repository, git should be able to talk with GitHub. To test this, [the following should print out a short message][github-test-ssh]:
+To download the repository, `git` should be able to talk with GitHub. To test this, [the following should print out a short message][github-test-ssh]:
 
 ```
 ssh -T git@github.com
@@ -179,7 +200,7 @@ Set-Item -Path Env:GIT_SSH -Value (scoop which ssh)
 [Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', $env:GIT_SSH, 'User')
 ```
 
-To get git to use the correct `gpg` program, [set that in the global git config][git-gpg]:
+To get `git` to use the correct `gpg` program, [set that in the global git config][git-gpg]:
 
 ```
 git config --global gpg.program (scoop which gpg)
@@ -193,6 +214,10 @@ Now that all that's done, we can [continue with the installation.](./README.md#s
 
 [git]: <https://git-scm.com/>
 [gnupg]: <https://www.gnupg.org/>
+[python]: <https://www.python.org>
+[ssh]: <https://en.wikipedia.org/wiki/Secure_Shell>
+[scoop-installation]: <https://github.com/lukesampson/scoop/tree/3e55a70971c5ff0d035daa54ca5dfab95dfaaa1d#installation>
+[scoop-readme]: <https://github.com/lukesampson/scoop/blob/master/README.md>
 [OpenSSH]: <https://www.openssh.com/>
 [af-unix]: <http://man7.org/linux/man-pages/man7/unix.7.html>
 [powershell]: <https://docs.microsoft.com/en-us/powershell/scripting/overview?view=powershell-5.1>
@@ -201,6 +226,7 @@ Now that all that's done, we can [continue with the installation.](./README.md#s
 [ps-execpolicy]: <https://docs.microsoft.com/en-us/PowerShell/module/microsoft.PowerShell.core/about/about_execution_policies?view=PowerShell-6>
 [configure-gpg-agent]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Configuration.html>
 [restart-gpg-agent]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Protocol.html#Agent-Protocol>
+[windows-ssh-info]: <https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview>
 [gpg-putty]: <https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html#option-_002d_002denable_002dssh_002dsupport>
 [PuTTY]: <https://www.chiark.greenend.org.uk/~sgtatham/putty/>
 [win32-openssh]: <https://github.com/PowerShell/openssh-portable>
