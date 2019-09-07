@@ -16,15 +16,15 @@ To get all of this set up, we'll use [Windows PowerShell][PowerShell].
 
 Unless noted, all commands are run in order, in one [PowerShell][] session.
 
-## [PowerShell Core 6][pscore6]
+## [PowerShell Core][pscore6]
 
-While not strictly necessary, having the latest and greatest [PowerShell Core 6][pscore6] would be nice. This process does require administrative privaleges, currently, as it install this globally.
+While not strictly necessary, having the latest and greatest [PowerShell Core][pscore6] would be nice. This process does require administrative privaleges, currently, as it install this globally.
 
-To get PowerShell 6, run the following commands from PowerShell:
+To get PowerShell Core, run the following commands from PowerShell:
 
 ```
-Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/download/v6.2.2/PowerShell-6.2.2-win-x64.msi -OutFile PowerShell-6.2.2-win-x64.msi
-msiexec /package PowerShell-6.2.2-win-x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1
+((iwr -useb https://api.github.com/repos/PowerShell/PowerShell/releases/latest).Content -split "," | Select-String -Pattern "https.*x64.msi").Line -match "https.*msi" | %{ iwr -useb $Matches.0 -outf pwsh_x64.msi }
+msiexec /package pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1
 ```
 
 Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should be set on the command line, and so no dialogue boxes should pop up, and once the installatino is finished, any windows should close automatically.
