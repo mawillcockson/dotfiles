@@ -177,6 +177,12 @@ Set-Item -Path Env:GIT_SSH -Value (scoop which ssh)
 [Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', $env:GIT_SSH, 'User')
 ```
 
+To get git to use the correct `gpg` program, [set that in the global git config][git-gpg]:
+
+```
+git config --global gpg.program (scoop which gpg)
+```
+
 # Return to regular install
 
 Now that all that's done, we can [continue with the installation.](./README.md#setup)
@@ -201,3 +207,4 @@ Now that all that's done, we can [continue with the installation.](./README.md#s
 [named-pipe]: <https://docs.microsoft.com/en-us/windows/win32/ipc/named-pipes>
 [github-test-ssh]: <https://help.github.com/en/articles/testing-your-ssh-connection>
 [git-ssh]: <https://git-scm.com/book/en/v2/Git-Internals-Environment-Variables#_miscellaneous>
+[git-gpg]: <https://stackoverflow.com/a/43393650>
