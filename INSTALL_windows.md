@@ -16,9 +16,9 @@ To get all of this set up, we'll use [Windows PowerShell][PowerShell].
 
 Unless noted, all commands are run in order, in one [PowerShell][] session.
 
-## [PowerShell Core 6 (Optional)][pscore6]
+## [PowerShell Core 6][pscore6]
 
-It would be nice to grab [PowerShell Core 6][pscore6], though this is optional, and does require administrative privaleges, currently, as it install this globally.
+While not strictly necessary, having the latest and greatest [PowerShell Core 6][pscore6] would be nice. This process does require administrative privaleges, currently, as it install this globally.
 
 To get PowerShell 6, run the following commands from PowerShell:
 
@@ -30,6 +30,8 @@ msiexec /package PowerShell-6.2.2-win-x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPEN
 Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should be set on the command line, and so no dialogue boxes should pop up, and once the installatino is finished, any windows should close automatically.
 
 Once done, close the current PowerShell window, and open a new one by running `pwsh` to continue.
+
+If any part of this process did not work, replace any use of `pwsh` with `powershell`.
 
 ## [scoop][]
 
@@ -130,27 +132,27 @@ gpg-connect-agent killagent /bye
 
 We'll bring it back after we start `wsl-ssh-pageant`.
 
-Before starting `wsl-ssh-pageant`, it's important to note that the command below causes a window to pop up. This window is running `wsl-ssh-pageant`, and closing it stops the process.
+Before starting `wsl-ssh-pageant`, it's important to note that the command below run `wsl-ssh-pageant` in its own background process, which needs to be running each time `git` or `ssh` need to talke with `gpg-agent`. A step for setting this command to run on logon is pending.
 
-The good news is that this window is detached form PowerShell, and closing PowerShell will not close this window, or prevent `wsl-ssh-pageant` from working with other PowerShell or console sessions.
+The good news is that this process is detached from PowerShell, and closing PowerShell will not close this process, or prevent `wsl-ssh-pageant` from working with other PowerShell or console sessions.
 
 Also, having `wsl-ssh-pageant` running does not appear to impede the use of both PuTTY and Windows' native ssh client from both using the keys stored on the key/card.
 
 So to start `wsl-ssh-pageant`, run:
 
 ```
-start-process -filepath wsl-ssh-pageant.exe -ArgumentList ('-winssh','ssh-pageant','-wsl',(gpgconf --list-dirs agent-ssh-socket))
+pwsh -Command "start-process -filepath wsl-ssh-pageant.exe -ArgumentList ('-systray','-winssh','ssh-pageant','-wsl',(gpgconf --list-dirs agent-ssh-socket)) -WindowStyle hidden"
 ```
 
-Feel free to minimize the window that pops up, making sure not to close it. If it is closed, rerun the command.
+The success of this command is indicated by a new icon appearing in the system tray.
 
-If the window pops up briefly, before closing by itself, something is wrong. The error can be viewed by running the command in the current console, as opposed to spawning a new one:
+If the icon pops up briefly, before closing by itself, or does not appear at all, something is wrong. The error can be viewed by running the command in the current console, as opposed to spawning a new process:
 
 ```
 wsl-ssh-pageant.exe -systray -winssh "\\.\pipe\ssh-pageant" -wsl (gpgconf --list-dirs agent-ssh-socket)
 ```
 
-Finally, we can restart `gpg-agent`:
+Finally, if `wsl-ssh-pageant` is running, we can restart `gpg-agent`:
 
 ```
 gpg-connect-agent updatestartuptty /bye
