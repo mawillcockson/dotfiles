@@ -197,7 +197,7 @@ To then get `git` to be able to use the `ssh` client configured for interacting 
 
 ```
 Set-Item -Path Env:GIT_SSH -Value (scoop which ssh)
-[Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', $env:GIT_SSH, 'User')
+[Environment]::SetEnvironmentVariable('GIT_SSH', $env:GIT_SSH, 'User')
 ```
 
 To get `git` to use the correct `gpg` program, [set that in the global git config][git-gpg]:
