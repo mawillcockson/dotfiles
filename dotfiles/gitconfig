@@ -3,7 +3,7 @@
 	gpgSign = if-asked
 [user]
 	name = Matthew Willcockson
-	email = matthew@willcockson.us
+	email = matthew@willcockson.family
 	signingKey = 0xA5A7E106D69D1115
 [gc]
 	pruneExpire = never
