@@ -7,6 +7,10 @@ config:
   link_dotfile_default: nolink
   link_on_import: nolink
   longkey: false
+actions:
+  gpgdiff: >-
+    curl -s https://raw.githubusercontent.com/drduh/config/master/gpg.conf |
+    git diff --no-index -- dotfiles/gnupg/gpg.conf -
 dotfiles:
   f_init.vim:
     src: config/nvim/init.vim
