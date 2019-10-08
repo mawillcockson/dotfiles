@@ -8,7 +8,7 @@ It would probably have been easier to have used GUI tools built for windows, as 
 
 In order to get and use the repository we need [`git`][git], [`gpg`][gnupg], and [`python`][python].
 
-All three of these can be downloaded and installed using [scoop][], which we will download an install in a following section.
+All three of these can be downloaded and installed using [scoop][], which we will download and install in a following section.
 
 We also need a program to help automate downloading and managing all these programs. In this case, we'll use [Windows PowerShell][PowerShell].
 
