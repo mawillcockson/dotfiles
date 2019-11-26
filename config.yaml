@@ -40,14 +40,20 @@ dotfiles:
     src: gnupg/scdaemon.conf
     dst: ~/.gnupg/scdaemon.conf
 profiles:
+  minimal:
+    dotfiles:
+      - f_tmux.conf
+      - f_gitconfig
+      - f_init.vim
   small-laptop:
+    include:
+      - minimal
     dotfiles:
     - f_init.vim
     - f_config_0
     - f_tmux.service
     - f_c-].sh
-    - f_tmux.conf
-    - f_gitconfig
     - f_zshrc
-    - f_gpg.conf
     - f_scdaemon.conf
+  pb11:
+    dotfiles:
