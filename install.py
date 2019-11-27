@@ -18,11 +18,21 @@ if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"
 
 # Make a venv
 venv_dir = (current_dir / ".venv").absolute()
+setup_script = (current_dir / "tasks.py").absolute()
 print(f"Installing virtual environment for Python into '{venv_dir}'")
 
 if venv_dir in Path(sys.executable).parents or venv_dir.exists():
-    print(f"""It looks like there may already be a virtual environment installed in '{venv_dir}'.
-This command is 
+    print(
+        f"""It looks like there may already be a virtual environment installed in '{venv_dir}'.
+This command creates a virtual environment from scratch.
+If one is already created, but the command "dotdrop" can't be found, run
+
+python {setup_script}
+
+to finish the installation""",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 import venv
 
@@ -49,7 +59,6 @@ if not ret.returncode == 0:
 print(ret.stdout)
 
 # Handoff to invoke script
-setup_script = (current_dir / "tasks.py").absolute()
 print(f"Running rest of install with {setup_script}")
 
 if not setup_script.exists():

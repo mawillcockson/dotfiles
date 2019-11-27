@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 
 try:
@@ -9,6 +11,7 @@ except ImportError as err:
 @task
 def setup_gpg(ctx, clean=False):
     print(f"Setting up GnuPG{' and cleaning' if clean else ''}")
+    ctx.run("uname -a")
 
 
 #python -m pip install --user pipx
