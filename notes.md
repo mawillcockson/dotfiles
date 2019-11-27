@@ -375,3 +375,29 @@ Upgrading major versions of Python requires care. All Python tools and libraries
 
 - pipenv Pipfile and caches
 - pipx as in previous note
+
+---
+
+I think I would want the setup script(s) to ask about which profile should be used, and continue on their way if yes, and if no, walk through buiding a custom profile, with questions asking about software setups instead of individual files:
+
+- vim or nvim?
+  - if nvim, full vim IDE or just simple `set ts=4 sw=4 expandtab` etc?
+- pipenv?
+- tmux?
+- install my frequently used packages and apps?
+
+I think it'd be handy to have it be able to start from a list of profiles, as well, defaulting to "minimal".
+
+Once the profile is built, `dotdrop` can be run to populate everything.
+
+I think I'd want a few utility scripts to be able to do more complex things, like configuring GnuPG on various platforms, and allow these to be run independently as best as possible, possibly calling dotdrop with custom options to place just the files those actions require.
+
+I also would want an uninstall.py that is able to remove all the files added to the system, replacing them with the `.dotdropbak` versions where possible, even so far as to `git clean -f` the repo (mostly so I have an excuse to double fork a shell process so the uninstaller can uninstall itself, along with the Python executable it's using to run).
+
+The extreme example is to track which files are opened in anything except read mode using Python's auditing system and setting a hook for `open` events: <https://docs.python.org/3/library/audit_events.html#audit-events-table>
+
+This could be used to at least keep track of which files are written, which files are appended to, etc, so during the uninstall, all touched files can be listed.
+
+One advantage of using dotdrop for file manipulation is we can `remove` files.
+
+It would be ideal to have an uninstall that's very good at uninstalling.

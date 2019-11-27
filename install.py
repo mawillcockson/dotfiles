@@ -17,29 +17,48 @@ if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"
     sys.exit(1)
 
 # Make a venv
+venv_dir = (current_dir / ".venv").absolute()
+print(f"Installing virtual environment for Python into '{venv_dir}'")
+
+if venv_dir in Path(sys.executable).parents or venv_dir.exists():
+    print(f"""It looks like there may already be a virtual environment installed in '{venv_dir}'.
+This command is 
+
 import venv
 
 venv.EnvBuilder(
     # clear=True,
     clear=False,
     with_pip=True,
-).create(str(current_dir / ".venv"))
+).create(str(venv_dir))
 
 # Install invoke
+print(f"Installing invoke module into {venv_dir}")
 
 from subprocess import run
 
 venv_python = str((current_dir / ".venv" / "bin" / "python").absolute())
-ret = run([venv_python, "-m", "pip", "install", "invoke"], capture_output=True)
+ret = run(
+    [venv_python, "-m", "pip", "install", "invoke"], capture_output=True, text=True
+)
 
 if not ret.returncode == 0:
     print(f"Error installing invoke:\n{ret.stderr}", file=sys.stderr)
     sys.exit(1)
 
-# Handoff to invoke script
+print(ret.stdout)
 
-setup_script = (current_dir / "invoke_tasks.py").absolute()
+# Handoff to invoke script
+setup_script = (current_dir / "tasks.py").absolute()
+print(f"Running rest of install with {setup_script}")
+
 if not setup_script.exists():
     print(f"Cannot find file '{setup_script.name}'", file=sys.stderr)
 
-run([venv_python, str(setup_script)], stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, close_fds=True)
+run(
+    [venv_python, str(setup_script)],
+    stdin=sys.stdin,
+    stdout=sys.stdout,
+    stderr=sys.stderr,
+    close_fds=True,
+)

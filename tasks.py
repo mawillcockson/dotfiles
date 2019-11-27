@@ -1,12 +1,14 @@
 import sys
 
 try:
-    import invoke
-finally:
-    print("Cannot import invoke.\nPlease run install.py first, or report this error", file=sys.stderr)
+    from invoke import task
+except ImportError as err:
+    print(f"Cannot import invoke.\nPlease run install.py first, or report this error\n{err}", file=sys.stderr)
     sys.exit(1)
 
-
+@task
+def setup_gpg(ctx, clean=False):
+    print(f"Setting up GnuPG{' and cleaning' if clean else ''}")
 
 
 #python -m pip install --user pipx

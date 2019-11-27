@@ -13,3 +13,5 @@
 	reflogExpireUnreachable = never
 [commit]
 	gpgsign = yes
+[clean]
+	requireForce = yes
