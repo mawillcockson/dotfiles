@@ -6,17 +6,21 @@ Critiques can be left in comments, issues, and PRs, or delivered by carrier pige
 
 # If this [README](./README.md) is still up to date
 
-This repository uses [dotdrop][], and subsequently is a lot easier to use with [Python][] installed.
+This repository uses [dotdrop][], and requires Python.
 
 ## Setup
 
-In order to use this repository to set up an environment, the tools it depends on must be installed, namely [git][] and [python][]. Additionally, some setup of the environment is required prior to using this repository. _Note: In the future, this setup process may be automated by tooling included in this repository_
+In order to use this repository to set up an environment, the tools it depends on must be installed, namely [Python][].
 
 Each operating system has its own way of setting all of this up, which is hopefully described in its own file, listed here:
 
- - [Debian](./INSTALL_debian.md)
- - [Arch Linux](./INSTALL_archlinux.md)
+
  - [Windows](./INSTALL_windows.md)
+ - [Debian](./INSTALL_debian.md)
+
+These are platforms I would like to support:
+
+ - [Arch Linux](./INSTALL_archlinux.md)
  - [Cygwin](./INSTALL_cygwin.md)
  - [MSYS2 / Git Bash](./INSTALL_gitbash.md)
  - [Windows Subsystem for Linux](./INSTALL_wsl.md)
@@ -26,9 +30,11 @@ Once those steps have been taken, the rest of the process is fairly straight-for
 
 ### Continue
 
-The setup files contain calls to [cURL][], and will not work without it. The [distribution-specific setup files](./README.md#setup) should contain instructions on how to get this program so that the setup files in this repository know where to locate it, for each platform.
+The rest of the setup process is automated by the `install.py` script, which can now be executed, either typing `python install.py` at a terminal, or by double-clicking the file.
 
-The rest of the setup process should be able to be completed by running the following commands in a console or shell session:
+This script will attempt to install and run [`dotdrop`][dotdrop]. It uses [Python packages][python-packages] to do this, and will create a `.venv` folder in this downloaded repository to store them.
+
+Other packages will be installed, and the environment will be changed to align with my preferences. To use only the dotfiles, install and used `dotdrop` without running `install.py` or any of the associated scripts.
 
 ```
 python -m pip install --user pipx
@@ -57,8 +63,7 @@ I use the following software:
 [dotfiles]: <https://wiki.archlinux.org/index.php/Dotfiles>
 [dotdrop]: <https://github.com/deadc0de6/dotdrop>
 [Python]: <https://www.python.org/>
-[git]: <https://git-scm.com/>
-[cURL]: <https://curl.haxx.se/>
+[python-packages]: <https://pypi.org/help/#packages>
 [NeoVim]: <https://neovim.io/>
 [tmux]: <https://github.com/tmux/tmux>
 [gnupg2]: <https://gnupg.org/>

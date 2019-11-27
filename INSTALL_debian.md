@@ -1,93 +1,24 @@
-# Add created user to sudo group
+# Debian
 
-During installation, the root account password is set, and a "normal" user is created. This normal user is going to be the one we use day-to-day, and I prefer to do system administration from this account through sudo for sudo's auditing capabilities.
+The standard [Debian installation process][install-debian] sets the root password and creates a second, non-root user.
 
-So, we must make sure this user is setup for these tasks. To make those changes, it's easier to log in as root to do them in bulk.
+These dotfiles are designed to be used from a regular, non-root account. Additionally, the more a root account is modified, the greater the chance those modifications will interfere with using the account for resolving problems.
 
-Login as root.
+# Install [Python][]
 
-It's a good bet that the user created during install was assigned uid `1000`. If not, sub in correct username.
+Debian does come with `python3`, but is missing `pip` and `venv`. These can be installed with the following:
 
-```
-export REG_USER=$(awk -F ':' '$3 == 1000' /etc/passwd | sed -E 's/([a-z]+).*$/\1/')
-usermod -a -G sudo "${REG_USER}"
-```
-
-# Install packages
-
- - neovim
- - curl
- - gnupg2
- - scdaemon
- - pcscd
- - keepass2
- - xdotool
- - tmux
- - python3-pip (Debian does come with python3, but it doesn't have pip)
- - python3-venv
- - git
-
-Edit the [`sources.list`][apt-sources] file to add the repositories for keepass and other tools.
-
-`sed -E 's/(^deb.*$)/\1 contrib non-free/' /etc/apt/sources.list > /etc/apt/sources.list`
-
-Update package lists and install tmux
-
-`apt-get update && apt-get install tmux -y`
-
-In one tmux pane, install required package before upgrading system, and open another pane as the regular user for when the tools are installed so the following steps can be performed as the system is upgraded.
-The pane installing and upgrading will automatically close once the process finishes, even if an error occured.
-
-`tmux -2 new-session "su -l ${REG_USER}" \; split-window 'apt-get install neovim curl gnupg2 scdaemon pcscd keepass2 xdotool python3-pip python3-venv git && apt-get dist-upgrade -y'`
-
-# Set up gnupg
-
-Download PGP key
-
-`gpg --recv-key "C00F E73F 1CC4 39D6 2D7E  C571 AA5E 96DD 8DD1 9233"`
-
-Download suggested config
-
-`curl -Ls https://raw.githubusercontent.com/drduh/config/master/gpg.conf > ~/.gnupg/gpg.conf`
-
-Mark key as ultimately trusted
-
-`gpg --edit-key matthew`
-
-and on the following screen
-
-```
-trust
-5
-y
-quit
+```sh
+apt-get install python3-{pip,venv}
 ```
 
-Start agent with SSH support
+Using `apt-get` requires administrative privileges. `su` or `sudo` can be used to run the above command as `root`.
 
-`gpg-agent --enable-ssh-support && export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)`
+# Finish
 
-Should now see output for both of the following commands
-
-```
-gpg --card-status
-ssh-add -L
-```
-
-# Prepare dotdrop installation
-
-Clone this repository, and set an alias for python3 as Debian defaults to python2.
-
-```
-mkdir -p ~/projects
-git clone --depth 1 --single-branch git@github.com:mawillcockson/dotfiles.git ~/projects/dotfiles
-alias python=python3
-```
-
-# Done
-
-May continue with [rest of setup](~/README.md)
+Now that `python -m pip --version` works, [the rest of the instructions can be followed](./README.md#continue).
 
 
 
-[apt-sources]: <https://wiki.debian.org/SourcesList>
+[install-debian]: <
+[python]

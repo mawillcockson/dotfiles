@@ -13,7 +13,7 @@ actions:
     git diff --no-index -- dotfiles/gnupg/gpg.conf -
 dotfiles:
   f_init.vim:
-    src: config/nvim/init.vim
+    src: config/nvim/init.vim.j2
     dst: ~/.config/nvim/init.vim
   f_config_0:
     src: config/tilda/config_0
@@ -39,15 +39,21 @@ dotfiles:
   f_scdaemon.conf:
     src: gnupg/scdaemon.conf
     dst: ~/.gnupg/scdaemon.conf
+  f_profile:
+    src: profile.j2
+    dst: ~/.profile
+variables:
+  full_vim: false
 profiles:
   minimal:
     dotfiles:
-      - f_tmux.conf
-      - f_gitconfig
-      - f_init.vim
+    - f_tmux.conf
+    - f_gitconfig
+    - f_init.vim
+    - f_profile
   small-laptop:
     include:
-      - minimal
+    - minimal
     dotfiles:
     - f_init.vim
     - f_config_0
@@ -55,5 +61,10 @@ profiles:
     - f_c-].sh
     - f_zshrc
     - f_scdaemon.conf
+    variables:
+      full_vim: true
   pb11:
+    include:
+    - minimal
     dotfiles:
+    - f_gpg.conf

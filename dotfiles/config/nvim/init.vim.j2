@@ -7,6 +7,7 @@ set number
 set undofile
 colorscheme desert
 
+{%@@ if full_vim @@%}
 " Install vim-plug
 if empty(glob('~/.vim/autoload/plug.vim'))
     silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -59,3 +60,4 @@ let g:localvimrc_whitelist='/home/mw/projects/'
 " For Plug 'neomake/neomake'
 " Don't set this. Instead, use `pipenv run nvim` or `pipenv shell --fancy`
 " let g:python3_host_prog = '/home/mw/.local/share/virtualenvs/mw-C00ZcD88/bin/python'
+{%@@ endif @@%}
