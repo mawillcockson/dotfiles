@@ -368,3 +368,10 @@ Now that all that's done, we can [continue with the installation.](./README.md#s
 # Notes for Debian
 
 Need to check if the default install still doesn't add the secondary user to the `sudo` group, or otherwise give it access to using `sudo`.
+
+# Notes for Python
+
+Upgrading major versions of Python requires care. All Python tools and libraries need to have their state saved, and then their caches cleared and to be reinstalled:
+
+- pipenv Pipfile and caches
+- pipx as in previous note

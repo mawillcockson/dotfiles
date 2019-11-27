@@ -9,7 +9,6 @@ from pathlib import Path
 current_dir = Path(".")
 
 # If there isn't a "dotfiles" and a "README.md" file/folder in this directory, we're not in "dotfiles"
-
 if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"])):
     print(
         f"This file needs to be run from the repository it's a part of, but it was run from\n{current_dir.cwd()}",
@@ -21,17 +20,17 @@ if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"
 import venv
 
 venv.EnvBuilder(
-        #clear=True,
-        clear=False,
-        with_pip=True,
-).create( str(current_dir/".venv") )
+    # clear=True,
+    clear=False,
+    with_pip=True,
+).create(str(current_dir / ".venv"))
 
 # Install invoke
 
 from subprocess import run
 
-venv_python = current_dir/".venv"/"bin"/"python"
-ret = run([str(venv_python.absolute()), "-m", "pip", "install", "invoke"], capture_output=True)
+venv_python = str((current_dir / ".venv" / "bin" / "python").absolute())
+ret = run([venv_python, "-m", "pip", "install", "invoke"], capture_output=True)
 
 if not ret.returncode == 0:
     print(f"Error installing invoke:\n{ret.stderr}", file=sys.stderr)
@@ -39,3 +38,8 @@ if not ret.returncode == 0:
 
 # Handoff to invoke script
 
+setup_script = (current_dir / "invoke_tasks.py").absolute()
+if not setup_script.exists():
+    print(f"Cannot find file '{setup_script.name}'", file=sys.stderr)
+
+run([venv_python, str(setup_script)], stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, close_fds=True)
