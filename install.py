@@ -20,8 +20,23 @@ if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"
 # Make a venv
 import venv
 
-venv.EnvBuilder(clear=True, with_pip=True).create(str(current_dir/".venv"))
+venv.EnvBuilder(
+        #clear=True,
+        clear=False,
+        with_pip=True,
+).create( str(current_dir/".venv") )
 
 # Install invoke
 
+from subprocess import run
+
+venv_python = current_dir/".venv"/"bin"/"python"
+ret = run([str(venv_python.absolute()), "-m", "pip", "install", "invoke"], capture_output=True)
+
+if not ret.returncode == 0:
+    print(f"Error installing invoke:\n{ret.stderr}", file=sys.stderr)
+    sys.exit(1)
+
 # Handoff to invoke script
+
+
