@@ -39,4 +39,3 @@ if not ret.returncode == 0:
 
 # Handoff to invoke script
 
-
