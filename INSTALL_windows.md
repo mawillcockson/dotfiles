@@ -1,8 +1,8 @@
-# The Windows hurdle
+# Overview
 
-By far the most difficult setup has been Windows, and forcing the use of command-line Unix tools.
+The goal of this process will be to get [Python][] installed, so that the rest of the install can be automated.
 
-It would probably have been easier to have used GUI tools built for windows, as opposed to having attempted to lift the entire setup from other operating systems, and transplant it to Windows.
+If you already have installed, you can skip to [the setup.][./README.md#setup] However, some of the tools I use rely on having [PowerShell][] set up the way this guide sets it up.
 
 # Getting the repository
 
@@ -10,32 +10,53 @@ In order to get and use the repository we need [`git`][git], [`gpg`][gnupg], and
 
 All three of these can be downloaded and installed using [scoop][], which we will download an install in a following section.
 
-We also need a program to help automate downloading and managing all these programs. In this case, we'll use [Windows PowerShell][PowerShell].
+We also need a program to help automate downloading and installing all these programs. We'll use [Windows PowerShell][PowerShell] for this.
 
-Unless noted, all commands are run in order, in one [PowerShell][] session. Some variables may be set in one section, and then used in later sections, and the later sections may not work if the PowerShell session is closed and reopened.
+This document should describe the necessary steps to reproduce the environment I use, and each step is accompanied by a PowerShell snippet that _should_ perform the listed actions. These snippets are intended to be run one at a time, one after another, all in one session. Some of them ask for the sessions to be closed and restarted, and others set variables that are used in subsequent steps, and if the window is closed and reopened accidentally, some steps may not work.
+
+If something this guide relies on has changed, the instructions should still describe the appropriate actions that can be performed, and this guide can be used with very minimal interaction with PowerShell. Unfortunately, the accompanying PowerShell snippets may not work. If this happens, feel free to [open an issue on this project][project-issue] by [following the instructions from GitHub][github-issues-howto], which does require creating a free [GitHub account][github-account].
 
 ## [PowerShell Core][pscore6]
 
-While not strictly necessary, having the latest and greatest [PowerShell Core][pscore6] would be nice. This process does require administrative privaleges, currently, as it install this for all users.
+While not strictly necessary, having the latest and greatest [PowerShell Core][pscore6] makes the rest of these steps easier. Currently, the PowerShell snippet for this step requires administrative privaleges, as it installs PowerShell for all users.
 
-To get PowerShell Core, run the following commands from PowerShell:
+To get PowerShell Core, we'll follow [Microsoft's instructions,][pscore-install] which generically ask to visit the [GitHub releases page for PowerShell Core,][pscore-releases] and download an install the package for the latest stable release for your platform.
 
+If we want to do this from PowerShell, [and are on versions of Windows earlier than Windows 10][tls-pre10], depending on the version, we need to take some extra steps first [to enable the TLS protocol by modifying the Windows Registry][enable-tls-registry]:
+
+```powershell
+md "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2"
+md "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server"
+md "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client"
+ 
+new-itemproperty -path "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server" -name "Enabled" -value 1 -PropertyType "DWord"
+new-itemproperty -path "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server" -name "DisabledByDefault" -value 0 -PropertyType "DWord"
+new-itemproperty -path "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" -name "Enabled" -value 1 -PropertyType "DWord"
+new-itemproperty -path "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client" -name "DisabledByDefault" -value 0 -PropertyType "DWord"
+
+reg add HKLM\SOFTWARE\Microsoft\.NETFramework\v4.0.30319 /v SystemDefaultTlsVersions /t REG_DWORD /d 1 /f /reg:64
 ```
-((iwr -useb https://api.github.com/repos/PowerShell/PowerShell/releases/latest).Content -split "," | Select-String -Pattern "https.*x64.msi").Line -match "https.*msi" | %{ iwr -useb $Matches.0 -outf pwsh_x64.msi }
-msiexec /package pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1
+
+To do this from an existing PowerShell, we need to do some extra steps first to enable the use of `https` to download the file from GitHub [if we are on versions of Windows earlier than Windows 10][tls-pre10], [using PowerShell][pwsh-tls]. Fortunately, PowerShell Core includes this functionality, so once it is installed, everything else should work, regardless of the age of the system.
+
+To do all this, [open a PowerShell session][open-pwsh] and run the following commands:
+
+```powershell
+((iwr -useb https://api.github.com/repos/PowerShell/PowerShell/releases/latest).Content -split "," | Select-String -Pattern "https.*x64.msi" | Select-Object -first 1).Line -match "https.*msi" | %{ iwr -useb $Matches.0 -outf $Env:TEMP\pwsh_x64.msi }
+start-process -filepath cmd.exe -argumentlist ('/c', 'echo Installing PowerShell Core... && echo Waiting for PowerShell to close && timeout /t 3 /nobreak && msiexec /package %TEMP%\pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1 && pwsh -Command "rm $Env:TEMP\pwsh_x64.msi; start-process -filepath pwsh" && exit'); exit
 ```
 
 Click on the dialogue box that pops up, asking for permission to perform the installation. All of the options for the installation should have been set by the command, and so no dialogue boxes should pop up, and once the installation is finished, any windows should close automatically.
 
 Once done, the new version of powershell should be available by running the command `pwsh`, however the installation process did not update the current session with information on where to find the new program, [so we'll do that now][pwsh-reload]:
 
-```
+```powershell
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 ```
 
 Then we can run:
 
-```
+```powershell
 pwsh
 ```
 
@@ -212,6 +233,14 @@ Now that all that's done, we can [continue with the installation.](./README.md#s
 
 
 
+[enable-tls-registry]: <https://palmarg.wordpress.com/2014/06/09/enabling-tls-1-2-using-powershell/>
+[pwsh-tls]: <https://docs.microsoft.com/en-us/security/solving-tls1-problem#update-windows-powershell-scripts-or-related-registry-settings>
+[tls-pre10]: <https://docs.microsoft.com/en-us/security/solving-tls1-problem#ensuring-support-for-tls-12-across-deployed-operating-systems>
+[pscore-install]: <https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-6#installing-the-msi-package>
+[open-pwsh]: <https://docs.microsoft.com/en-us/powershell/scripting/getting-started/starting-windows-powershell>
+[project-issue]: <https://github.com/mawillcockson/dotfiles/issues/new>
+[github-issues-howto]: <https://help.github.com/en/articles/creating-an-issue>
+[github-account]: <https://github.com/join?return_to=https%3A%2F%2Fgithub.com%2Fmawillcockson%2Fdotfiles>
 [git]: <https://git-scm.com/>
 [gnupg]: <https://www.gnupg.org/>
 [python]: <https://www.python.org>
