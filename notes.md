@@ -431,3 +431,17 @@ Install and execute apps from Python packages.
 The `greenlet` package required by the `neovim` python package require [Build Tools for Visua Studio](https://visualstudio.microsoft.com/downloads/) before it can be built.
 
 The Build Tools must be downloaded and installed before `pipenv install neovim`.
+
+Currently, there are lots of ways to detect which platform is being used.
+
+The obvious one would be to use things from the `platform`, `os`, and `sys` modules in the Python standard library, but I imagine these don't capture the true nuance of the beast.
+
+The platform module first tries `os.name`, and if that fails, [uses the `subprocess` module to run commands on the system](https://github.com/python/cpython/blob/master/Lib/platform.py#L766). One of the comments in there points to [a very old website that thankfully was successfully captured exactly _once_ by WayBack in 2009](https://web.archive.org/web/20090829052909/http://www.geocities.com/rick_lively/MANUALS/ENV/MSWIN/PROCESSI.HTM). Seriously, [the internet is mercurial and ephemeral](https://xkcd.com/1909/).
+
+[The docs](https://docs.python.org/3.7/library/platform.html#platform.linux_distribution) suggest the [`distro`](https://github.com/nir0s/distro) module for Linux differentiation, but it's [Windows, MacOS](https://github.com/nir0s/distro/issues/177), and [BSD](https://github.com/nir0s/distro/blob/cdfe85d15bd366820db6a1cfdc6cf9a0a5de7e37/distro.py#L163) detection leave gaps.
+
+Ansible [bundles `distro`](https://github.com/ansible/ansible/tree/106c7885b86b42223c07851dccaeb8de25c19fc4/lib/ansible/module_utils/distro), but also uses its own custom distro-file parsing to augment and fill in gaps from `platform`, [but implements its own slightly different parsing](https://github.com/ansible/ansible/blob/1d91e0311918d63f1aecfc6ce67596f4808a4976/lib/ansible/module_utils/facts/system/distribution.py#L496), it seems.
+
+SaltStack [relies on the `platform` module](https://github.com/saltstack/salt/blob/cc913911f96b792e1c9fc9bb2f665842d41f4da4/salt/grains/core.py#L1624), but also has some very nice platform detection, including [interesting Windows hardware detection](https://github.com/saltstack/salt/blob/cc913911f96b792e1c9fc9bb2f665842d41f4da4/salt/grains/core.py#L1248) with technet links sourcing the methodology.
+
+Most importantly, the `venv` module chooses whether to call the directory in which it stores `python.exe` `Scripts` or `bin` by [checking `sys.platform == "win32"`](https://github.com/python/cpython/blob/1df65f7c6c00dfae9286c7a58e1b3803e3af33e5/Lib/venv/__init__.py#L120), so we gotta use that to make sure we find the correct directories.

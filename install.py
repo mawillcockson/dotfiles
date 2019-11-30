@@ -47,7 +47,12 @@ print(f"Installing invoke module into {venv_dir}")
 
 from subprocess import run
 
-venv_python = str((current_dir / ".venv" / "bin" / "python").absolute())
+# https://github.com/python/cpython/blob/1df65f7c6c00dfae9286c7a58e1b3803e3af33e5/Lib/venv/__init__.py#L120
+if sys.platform == "win32":
+    venv_python = str((venv_dir / "Scripts" / "python.exe").absolute())
+else:
+    venv_python = str((venv_dir / "bin" / "python").absolute())
+
 ret = run(
     [venv_python, "-m", "pip", "install", "invoke"], capture_output=True, text=True
 )
