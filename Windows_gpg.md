@@ -2,13 +2,13 @@
 
 The goal of this process will be to get [Python][] installed, so that the rest of the install can be automated.
 
-If you already have installed, you can skip to [the setup.][./README.md#setup] However, some of the tools I use rely on having [PowerShell][] set up the way this guide sets it up.
+If you already have [Python][], you can skip to [the setup.][./README.md#setup] However, some of the tools I use rely on having [PowerShell][] set up the way this guide sets it up.
 
 # Getting the repository
 
 In order to get and use the repository we need [`git`][git], [`gpg`][gnupg], and [`python`][python].
 
-All three of these can be downloaded and installed using [scoop][], which we will download an install in a following section.
+All three of these can be downloaded and installed using [scoop][], which we will download and install in a following section.
 
 We also need a program to help automate downloading and installing all these programs. We'll use [Windows PowerShell][PowerShell] for this.
 

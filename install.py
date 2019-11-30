@@ -18,7 +18,7 @@ if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"
 
 # Make a venv
 venv_dir = (current_dir / ".venv").absolute()
-setup_script = (current_dir / "tasks.py").absolute()
+setup_script = (current_dir / "setup.py").absolute()
 print(f"Installing virtual environment for Python into '{venv_dir}'")
 
 if venv_dir in Path(sys.executable).parents or venv_dir.exists():

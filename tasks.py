@@ -3,10 +3,12 @@
 import sys
 
 try:
-    from invoke import task
+    from invoke import task, Program
 except ImportError as err:
     print(f"Cannot import invoke.\nPlease run install.py first, or report this error\n{err}", file=sys.stderr)
     sys.exit(1)
+
+program = Program(name="setup", version="0.0.1")
 
 @task
 def setup_gpg(ctx, clean=False):

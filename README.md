@@ -30,11 +30,11 @@ Once those steps have been taken, the rest of the process is fairly straight-for
 
 ### Continue
 
-The rest of the setup process is automated by the `install.py` script, which can now be executed, by either typing `python install.py` at a terminal, or by double-clicking the file.
+The rest of the setup process is automated by the [`install.py`](./install.py) script, which can now be executed, by either typing `python install.py` at a terminal, or by double-clicking the file.
 
 This script will attempt to install and run [`dotdrop`][dotdrop]. It uses [Python packages][python-packages] to do this, and will create a `.venv` folder in this downloaded repository to store them.
 
-Other packages will be installed, and the environment will be changed to align with my preferences. To use only the dotfiles, install and use `dotdrop` without running `install.py` or any of the associated scripts.
+Other packages will be installed, and the environment will be changed to align with my preferences. To use only the dotfiles, install and use `dotdrop` without running [`install.py`](./install.py). Unfortunately, some of the dotfiles have actions that set environment variables and modify existing files to make the dotfile useful.
 
 ## Contents
 

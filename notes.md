@@ -401,3 +401,33 @@ This could be used to at least keep track of which files are written, which file
 One advantage of using dotdrop for file manipulation is we can `remove` files.
 
 It would be ideal to have an uninstall that's very good at uninstalling.
+
+# On Windows
+
+`scoop` python uses version-specific script folders in appdata: `appdata\roaming\python\python38\scripts\`
+
+These folders need to be added to `$Env:PATH` in order to work.
+
+Also, be careful with conficts if Cygwin is in the `$Env:PATH`:
+
+```powershell
+PS C:\Users\mawil> pipx
+Program 'pipx' failed to run: No application is associated with the specified file for this operationAt line:1 char:1   + pipx
++ ~~~~.
+At line:1 char:1
++ pipx
++ ~~~~
++ CategoryInfo          : ResourceUnavailable: (:) [], ApplicationFailedException
++ FullyQualifiedErrorId : NativeCommandFailed
+
+PS C:\Users\mawil> pipx.exe
+usage: pipx [-h] [--version]
+            {install,inject,upgrade,upgrade-all,uninstall,uninstall-all,reinstall-all,list,run,runpip,ensurepath,completions}
+            ...
+
+Install and execute apps from Python packages.
+```
+
+The `greenlet` package required by the `neovim` python package require [Build Tools for Visua Studio](https://visualstudio.microsoft.com/downloads/) before it can be built.
+
+The Build Tools must be downloaded and installed before `pipenv install neovim`.
