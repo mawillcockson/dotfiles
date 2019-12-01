@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 default_install_dir = "~/projects/dotfiles"
 
-def install_git_windows():
+def install_git_windows(ctx):
     print("installing git")
     import time
     time.sleep(5)
@@ -57,54 +57,59 @@ def create_venv(directory: Path) -> Path:
     if len(lib_dirs) < 1:
         print(f"Could not find an lib folders in {venv_dir}", file=sys.stderr)
         sys.exit(1)
-    site_folders = [(p/"site_packages") for p in lib_dirs if (p/"site_packages").is_dir()]
+    site_folders = [(p/"site-packages") for p in lib_dirs if (p/"site-packages").is_dir()]
     python_ver = f"python{sys.version_info.major}{sys.version_info.minor}"
-    site_folders.extend( (p/python_ver/"site_packages") for p in lib_dirs if (p/python_ver/"site_packages").is_dir() )
+    site_folders.extend( (p/python_ver/"site-packages") for p in lib_dirs if (p/python_ver/"site-packages").is_dir() )
     sys.path.extend(map(str, site_folders))
 
     try:
         import invoke
     except ImportError as err:
         print(f"Can't find installed invoke package:\n{err}", file=sys.stderr)
+        print(sys.path)
         sys.exit(1)
 
     return venv_python
 
 def ensure_venv(directory: str) -> Path:
+    project_dir = Path()
     if not directory:
-        venv_dir = Path(default_install_dir).expanduser()
+        project_dir = Path(default_install_dir).expanduser()
     elif not Path(directory).is_dir():
         try:
-            venv_dir = Path(directory)
-            venv_dir.mkdir(parents=True, exist_ok=True)
+            project_dir = Path(directory)
+            project_dir.mkdir(parents=True, exist_ok=True)
         except FileExistsError as err:
             print(f"{directory} appears to already exist, and is not a directory", file=sys.stderr)
             sys.exit(1)
 
 
-    return create_venv(venv_dir)
+    return create_venv(project_dir)
+
+def parse_args() -> None:
+    import argparse
+    parser = argparse.ArgumentParser(prog=sys.argv[0], description="Installs tools needed to use github.com/mawillcockson/dotfiles")
+    parser.add_argument("directory", default="~/projects/dotfiles", help="Directory that will contain the .venv directory for this environment")
+    options = parser.parse_args()
+    ensure_venv(options.directory)
 
 if __name__ == "__main__":
     try:
         import invoke
     except ImportError as err:
-        import argparse
-
-        parser = argparse.ArgumentParser(prog=sys.argv[0], description="Installs tools needed to use github.com/mawillcockson/dotfiles")
-        
-        parser.add_argument("directory", default="~/projects/dotfiles", help="Directory that will contain the .venv directory for this environment")
-
-        options = parser.parse_args()
-
-        ensure_venv(options.dir)
+        need_invoke = True
     
+    if need_invoke:
+        parse_args()
+        
     from invoke import task, Program, Config, Collection
     from invoke.config import merge_dicts
     import re
     namespace = Collection()
-    for name in globals():
-        if re.match(r"install.*", name) and type(globals()[name]).__name__ == "function":
-            namespace.add_task(task(globals()[name]))
+    globs = dict(globals())
+    for name in globs:
+        if re.match(r"install.*", name) and callable(globs[name]):
+            namespace.add_task(task(globs[name]))
     own_name = Path(sys.argv[0]).stem
     class SetupConfig(Config):
         prefix = own_name
@@ -116,4 +121,4 @@ if __name__ == "__main__":
             return merge_dicts(base=base_defaults, updates=overrides)
 
     program = Program(name="setup", namespace=namespace, config_class=SetupConfig, version="0.0.1")
-    program.run()
+    program.run(argv=[])
