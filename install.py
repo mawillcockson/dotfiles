@@ -1,78 +1,119 @@
 #!/usr/bin/env python
 
 import sys
-
-# Where are the dotfiles?
-
 from pathlib import Path
+default_install_dir = "~/projects/dotfiles"
 
-current_dir = Path(".")
+def install_git_windows():
+    print("installing git")
+    import time
+    time.sleep(5)
+    print("Installed git")
 
-# If there isn't a "dotfiles" and a "README.md" file/folder in this directory, we're not in "dotfiles"
-if not all(map(Path.exists, [current_dir / "dotfiles", current_dir / "README.md"])):
-    print(
-        f"This file needs to be run from the repository it's a part of, but it was run from\n{current_dir.cwd()}",
-        file=sys.stderr,
+def create_venv(directory: Path) -> Path:
+    # Make a venv
+    venv_dir = (directory / ".venv").absolute()
+    print(f"Installing virtual environment for Python into '{venv_dir}'")
+
+    if venv_dir in Path(sys.executable).parents or venv_dir.exists():
+        print(f"Using existing .venv in\n{venv_dir}")
+    else:
+        import venv
+
+        venv.create(
+            env_dir=venv_dir,
+            clear=False,
+            with_pip=True,
+        )
+
+    # Install invoke
+    print(f"Installing invoke module into {venv_dir}")
+
+    from subprocess import run
+
+    # The venv module uses this same platform detection test to decide whether to use /Scripts or /bin
+    # https://github.com/python/cpython/blob/1df65f7c6c00dfae9286c7a58e1b3803e3af33e5/Lib/venv/__init__.py#L120
+    if sys.platform == "win32":
+        venv_python = (venv_dir / "Scripts" / "python.exe").absolute()
+    else:
+        venv_python = (venv_dir / "bin" / "python").absolute()
+    
+    if not venv_python.is_file(): # Also tests for existence
+        print(f"{venv_dir} exists but cannot find python{'.exe' if sys.platform == 'win32' else ''}", file=sys.stderr)
+        sys.exit(1)
+
+    ret = run(
+        [str(venv_python), "-m", "pip", "install", "invoke"], capture_output=True, text=True
     )
-    sys.exit(1)
 
-# Make a venv
-venv_dir = (current_dir / ".venv").absolute()
-setup_script = (current_dir / "setup.py").absolute()
-print(f"Installing virtual environment for Python into '{venv_dir}'")
+    if not ret.returncode == 0:
+        print(f"Error installing invoke:\n{ret.stderr}", file=sys.stderr)
+        sys.exit(1)
 
-if venv_dir in Path(sys.executable).parents or venv_dir.exists():
-    print(
-        f"""It looks like there may already be a virtual environment installed in '{venv_dir}'.
-This command creates a virtual environment from scratch.
-If one is already created, but the command "dotdrop" can't be found, run
+    print(ret.stdout)
 
-python {setup_script}
+    # Find the site-packages
+    lib_dirs = [x for x in venv_dir.iterdir() if x.is_dir() and x.name in ["Lib", "lib", "lib64"]]
+    if len(lib_dirs) < 1:
+        print(f"Could not find an lib folders in {venv_dir}", file=sys.stderr)
+        sys.exit(1)
+    site_folders = [(p/"site_packages") for p in lib_dirs if (p/"site_packages").is_dir()]
+    python_ver = f"python{sys.version_info.major}{sys.version_info.minor}"
+    site_folders.extend( (p/python_ver/"site_packages") for p in lib_dirs if (p/python_ver/"site_packages").is_dir() )
+    sys.path.extend(map(str, site_folders))
 
-to finish the installation""",
-        file=sys.stderr,
-    )
-    sys.exit(1)
+    try:
+        import invoke
+    except ImportError as err:
+        print(f"Can't find installed invoke package:\n{err}", file=sys.stderr)
+        sys.exit(1)
 
-import venv
+    return venv_python
 
-venv.EnvBuilder(
-    # clear=True,
-    clear=False,
-    with_pip=True,
-).create(str(venv_dir))
+def ensure_venv(directory: str) -> Path:
+    if not directory:
+        venv_dir = Path(default_install_dir).expanduser()
+    elif not Path(directory).is_dir():
+        try:
+            venv_dir = Path(directory)
+            venv_dir.mkdir(parents=True, exist_ok=True)
+        except FileExistsError as err:
+            print(f"{directory} appears to already exist, and is not a directory", file=sys.stderr)
+            sys.exit(1)
 
-# Install invoke
-print(f"Installing invoke module into {venv_dir}")
 
-from subprocess import run
+    return create_venv(venv_dir)
 
-# https://github.com/python/cpython/blob/1df65f7c6c00dfae9286c7a58e1b3803e3af33e5/Lib/venv/__init__.py#L120
-if sys.platform == "win32":
-    venv_python = str((venv_dir / "Scripts" / "python.exe").absolute())
-else:
-    venv_python = str((venv_dir / "bin" / "python").absolute())
+if __name__ == "__main__":
+    try:
+        import invoke
+    except ImportError as err:
+        import argparse
 
-ret = run(
-    [venv_python, "-m", "pip", "install", "invoke"], capture_output=True, text=True
-)
+        parser = argparse.ArgumentParser(prog=sys.argv[0], description="Installs tools needed to use github.com/mawillcockson/dotfiles")
+        
+        parser.add_argument("directory", default="~/projects/dotfiles", help="Directory that will contain the .venv directory for this environment")
 
-if not ret.returncode == 0:
-    print(f"Error installing invoke:\n{ret.stderr}", file=sys.stderr)
-    sys.exit(1)
+        options = parser.parse_args()
 
-print(ret.stdout)
+        ensure_venv(options.dir)
+    
+    from invoke import task, Program, Config, Collection
+    from invoke.config import merge_dicts
+    import re
+    namespace = Collection()
+    for name in globals():
+        if re.match(r"install.*", name) and type(globals()[name]).__name__ == "function":
+            namespace.add_task(task(globals()[name]))
+    own_name = Path(sys.argv[0]).stem
+    class SetupConfig(Config):
+        prefix = own_name
 
-# Handoff to invoke script
-print(f"Running rest of install with {setup_script}")
+        @staticmethod
+        def global_defaults():
+            base_defaults = Config.global_defaults()
+            overrides = {"tasks": {"collection_name": own_name}}
+            return merge_dicts(base=base_defaults, updates=overrides)
 
-if not setup_script.exists():
-    print(f"Cannot find file '{setup_script.name}'", file=sys.stderr)
-
-run(
-    [venv_python, str(setup_script)],
-    stdin=sys.stdin,
-    stdout=sys.stdout,
-    stderr=sys.stderr,
-    close_fds=True,
-)
+    program = Program(name="setup", namespace=namespace, config_class=SetupConfig, version="0.0.1")
+    program.run()

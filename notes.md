@@ -445,3 +445,51 @@ Ansible [bundles `distro`](https://github.com/ansible/ansible/tree/106c7885b86b4
 SaltStack [relies on the `platform` module](https://github.com/saltstack/salt/blob/cc913911f96b792e1c9fc9bb2f665842d41f4da4/salt/grains/core.py#L1624), but also has some very nice platform detection, including [interesting Windows hardware detection](https://github.com/saltstack/salt/blob/cc913911f96b792e1c9fc9bb2f665842d41f4da4/salt/grains/core.py#L1248) with technet links sourcing the methodology.
 
 Most importantly, the `venv` module chooses whether to call the directory in which it stores `python.exe` `Scripts` or `bin` by [checking `sys.platform == "win32"`](https://github.com/python/cpython/blob/1df65f7c6c00dfae9286c7a58e1b3803e3af33e5/Lib/venv/__init__.py#L120), so we gotta use that to make sure we find the correct directories.
+
+# Direction
+
+I think there's a couple problems that can best be solved architecturally. Plus a general reorganization of the repository.
+
+So the first problem is that I want to use the `setup.py` file as a single file that can be run, that expects `invoke` to be available.
+
+While it's not a big deal to try to recreate the things that `Scripts/Activate.ps1` does, and add a `VIRTUAL_ENV` environment variable, and add `.venv` to the front of `$Env:PATH`, it seems finicky.
+
+I think a better solution would be to augment `install.py` to be able to do this:
+
+```sh
+$ python -c 'from urllib.request import urlopen;exec(urlopen("https://raw.githubusercontent.com/mawillcockson/dotfiles/dev/install.py").read().decode("utf-8"))'
+```
+
+This would complicate things, as my desired end state would be to have the repository downloaded and "run".
+
+I would probably want it to be able to take an argument, so I'd probably change it to look like:
+
+```sh
+$ python -c 'from urllib.request import urlopen;r=urlopen("https://raw.githubusercontent.com/mawillcockson/dotfiles/dev/install.py").read();f=open("install.py","wb");f.write(r);f.close();print(r.decode("utf-8"))' | python - dotfiles
+$ # This is equivalent to
+$ curl https://raw.githubusercontent.com/mawillcockson/dotfiles/dev/install.py | tee install.py | python - dotfiles
+$ # but some platforms do not have cURL in their base install, and don't have a platform to easily install it, namely Windows
+$ # or, in two steps
+$ python -c 'from urllib.request import urlopen;r=urlopen("https://raw.githubusercontent.com/mawillcockson/dotfiles/dev/install.py").read();f=open("install.py","wb");f.write(r);f.close()'
+$ python install.py dotfiles
+```
+
+That way, it can be rerun with just `python install.py dotfiles`, and can more easily take arguments.
+
+The second problem is that I would want to be able to call a utility from any context to setup `GnuPG`. On other platforms, this is trivial to do, but in Windows, best that can be done is add a script to the path. I would like the way its interacted with to be (largely) platform independent, so I believe that behooves me to follow [these instructions from `invoke`](https://docs.pyinvoke.org/en/1.3/concepts/library.html) and make my own cli tool that can be installed with a `pipx install git+https://github.com/mawillcockson.dotfiles@master#egg=tool_name&subdirectory=tool_name` to make sure it's updated properly, outside of the repository version.
+
+This has the problem that the `install.py` file must _at least_ install `pipx` and `git`.
+
+I mean, it's assumed the repository is downloaded somehow already. It might be better to just install locally:
+
+```sh
+pipx install dotfiles/tool_name
+```
+
+This has the advantage of only needing to install pipx, which can be done with a (supposedly) platform independent `python -m pip install --user -U pipx`. I would, though, need to actually install `git` anyways, as the only way someone would get the repo is by downloading a zip off GitHub. The tool would then need to be able to convert it to a repo where `git pull` updates everything, with nice post-pull hooks to `pipx update-all` and such.
+
+It might be worth it on the use side to automate installing `git`, as that'd be challenging, and would mean the `install.py` script would have the framework in place for feature creep. Also, the repo could be cloned on its own, without having to munge with adding it after.
+
+I think I'll go the easy route and use the stdlib `platform` module to only implement on the platforms I need 🤷‍♀️
+
+This is good to understand: <https://medium.com/python-pandemonium/a-trap-of-shell-true-in-the-subprocess-module-6db7fc66cdfd>
