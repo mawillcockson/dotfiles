@@ -15,8 +15,8 @@ In order to use this repository to set up an environment, the tools it depends o
 Each operating system has its own way of setting all of this up, which is hopefully described in its own file, listed here:
 
 
- - [Windows](./INSTALL_windows.md)
- - [Debian](./INSTALL_debian.md)
+ - [Windows](./docs/INSTALL_windows.md)
+ - [Debian](./docs/INSTALL_debian.md)
 
 These are platforms I would like to support:
 

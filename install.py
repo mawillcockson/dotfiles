@@ -121,4 +121,4 @@ if __name__ == "__main__":
             return merge_dicts(base=base_defaults, updates=overrides)
 
     program = Program(name="setup", namespace=namespace, config_class=SetupConfig, version="0.0.1")
-    program.run(argv=[])
+    program.run(argv=["install.py", "install-git-windows"])
