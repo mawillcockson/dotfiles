@@ -493,3 +493,7 @@ It might be worth it on the use side to automate installing `git`, as that'd be 
 I think I'll go the easy route and use the stdlib `platform` module to only implement on the platforms I need 🤷‍♀️
 
 This is good to understand: <https://medium.com/python-pandemonium/a-trap-of-shell-true-in-the-subprocess-module-6db7fc66cdfd>
+
+The preferred way to programmatically import modules from files is [described in the docs for `importlib`!](https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly)
+
+Also, if we want to check if a module is importable, [we can do it this way](https://docs.python.org/3/library/importlib.html#checking-if-a-module-can-be-imported), but at least in the case ov `invoke`, we actually do want to import it, so `try: ... catch Import Error: ...` does work.
