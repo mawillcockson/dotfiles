@@ -13,9 +13,9 @@ try:
 except ImportError as err:
     print(
         "Cannot find Python venv module\n"
-        "If on Debian, please install it with either of\n"
-        "sudo apt-get install python3-venv\n"
-        "su -c 'apt-get install python3-venv'",
+        "If on Debian, please install it with either of:\n"
+        "su -c 'apt-get install python3-venv'\n",
+        "sudo apt-get install python3-venv",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -25,7 +25,6 @@ except ImportError as err:
 default_install_dir: str = "~/projects/dotfiles"
 PROG_NAME: str = "install"
 TASK_FUNC_PREFIX: str = "atask"
-#DEFAULT_INSTALL_CLI: list = "--install=all --profile=".split()
 
 ### Tasks to execute with invoke ###
 
@@ -39,38 +38,11 @@ def atask_install_git_windows(ctx):
 
 ### Setup and argument parsing ###
 
-
-def ensure_invoke() -> None:
-    ### Realized we don't need this: we're loading invoke, invoke will handle all the sys.argv
-    ## Parse arguments with argparse since invoke hasn't been found
-    #parser = argparse.ArgumentParser(
-    #    prog=PROG_NAME,
-    #    description="Installs tools needed to use github.com/mawillcockson/dotfiles",
-    #)
-    #parser.add_argument(
-    #    "directory",
-    #    default="~/projects/dotfiles",
-    #    help="Directory that will contain the .venv directory for this environment",
-    #)
-    #directory = parser.parse_args().directory
-
-    #project_dir = Path()
-    #if not directory:
-    #    project_dir = Path(default_install_dir).expanduser()
-    #elif not Path(directory).is_dir():
-    #    try:
-    #        project_dir = Path(directory)
-    #        project_dir.mkdir(parents=True, exist_ok=True)
-    #    except FileExistsError as err:
-    #        print(
-    #            f"{directory} appears to already exist, and is not a directory",
-    #            file=sys.stderr,
-    #        )
-    #        sys.exit(1)
-
+def ensure_invoke() -> tempfile.TemporaryDirectory:
     ## Make a venv
     # Must make a variable to hold the TemopraryDirectory; wrapping it in Path() effectively deletes it,
-    # as Path() discards it, and the dir is removed upon deletion of the object
+    # as passing the call to TemporaryDirectory directly to Path() discards it once Path drops a reference to it,
+    # and the dir is removed upon deletion of the object
     temp_dir = tempfile.TemporaryDirectory()
     venv_dir = Path(temp_dir.name)
     print(f"Installing virtual environment for Python into '{venv_dir}'")
@@ -130,36 +102,24 @@ def ensure_invoke() -> None:
     )
     sys.path.extend(map(str, site_folders))
 
-    ## I wish this worked, but it doesn't easily work for folders
-    # invoke_dirs = list( filter(lambda p: "invoke" in map(lambda p: str(p.name), p.iterdir()), site_folders) )
-    # if len(invoke_dirs) < 1:
-    #    print("Can' find the invoke directory", file=sys.stderr)
-    #    sys.exit(1)
-
-    ## Import module manually
-    # spec = importlib.util.spec_from_file_location("invoke", invoke_dirs[0]/"invoke")
-    # if not spec:
-    #    print("Python failed to import invoke", file=sys.stderr)
-    #    sys.exit(1)
-    # module = importlib.util.module_from_spec(spec)
-    # if not spec:
-    #    print("Python failed to import invoke", file=sys.stderr)
-    #    sys.exit(1)
-    # sys.modules["invoke"] = module
-
+    # importlib.util.spec_from_file_location() supposedly can confirm if a module exists at a location,
+    # but importlib.util.module_from_spec() loads only a single file, whereas the import statement does more?
+    # Anyways, we're going to be import invoke anyways, so doing the real thing is the best way to test.
     try:
         import invoke
     except ImportError as err:
         print(f"Can't import invoke package:\n{err}", file=sys.stderr)
         print(sys.path)
         sys.exit(1)
+    
+    return temp_dir
 
 
 def main() -> None:
-    # This says importlib.util.find_spec() can test if a movule is importable:
+    # This says importlib.util.find_spec() can test if a module is currently importable:
     # https://docs.python.org/3/library/importlib.html#importlib.util.find_spec
     if not importlib.util.find_spec("invoke"):
-        ensure_invoke()
+        temp_dir = ensure_invoke()
 
     from invoke import task, Program, Config, Collection
     from invoke.config import merge_dicts
@@ -171,7 +131,7 @@ def main() -> None:
             namespace.add_task(task(globs[name]))
 
     class SetupConfig(Config):
-        prefix = PROG_NAME
+        prefix: str = PROG_NAME
 
         @staticmethod
         def global_defaults():
@@ -182,7 +142,6 @@ def main() -> None:
     program = Program(
         name=PROG_NAME, namespace=namespace, config_class=SetupConfig, version="0.0.1"
     )
-    #program.run(argv=[PROG_NAME, *DEFAULT_INSTALL_CLI])
     program.run()
 
 if __name__ == "__main__":

@@ -497,3 +497,6 @@ This is good to understand: <https://medium.com/python-pandemonium/a-trap-of-she
 The preferred way to programmatically import modules from files is [described in the docs for `importlib`!](https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly)
 
 Also, if we want to check if a module is importable, [we can do it this way](https://docs.python.org/3/library/importlib.html#checking-if-a-module-can-be-imported), but at least in the case ov `invoke`, we actually do want to import it, so `try: ... catch Import Error: ...` does work.
+
+
+I'd like `install.py` and `eggord` to keep a `config.yaml` file, or a `progress.ini` file since that's something the std library can handle, that keeps track of everything that's selected, so that in case the process is halted, a "Would you like to continue where you left off?" can be done if the same command is entered.
