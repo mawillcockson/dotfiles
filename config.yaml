@@ -7,6 +7,10 @@ config:
   link_dotfile_default: nolink
   link_on_import: nolink
   longkey: false
+actions:
+  gpgdiff: >-
+    curl -s https://raw.githubusercontent.com/drduh/config/master/gpg.conf |
+    git diff --no-index -- dotfiles/gnupg/gpg.conf -
 dotfiles:
   f_init.vim:
     src: config/nvim/init.vim
@@ -36,14 +40,20 @@ dotfiles:
     src: gnupg/scdaemon.conf
     dst: ~/.gnupg/scdaemon.conf
 profiles:
+  minimal:
+    dotfiles:
+      - f_tmux.conf
+      - f_gitconfig
+      - f_init.vim
   small-laptop:
+    include:
+      - minimal
     dotfiles:
     - f_init.vim
     - f_config_0
     - f_tmux.service
     - f_c-].sh
-    - f_tmux.conf
-    - f_gitconfig
     - f_zshrc
-    - f_gpg.conf
     - f_scdaemon.conf
+  pb11:
+    dotfiles:

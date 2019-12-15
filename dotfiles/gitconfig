@@ -6,9 +6,10 @@
 	email = matthew@willcockson.family
 	signingKey = 0xA5A7E106D69D1115
 [gc]
+	auto = 0
 	pruneExpire = never
 	worktreePruneExpire = never
 	reflogExpire = never
 	reflogExpireUnreachable = never
 [commit]
-	gpgsign = true
+	gpgsign = yes
