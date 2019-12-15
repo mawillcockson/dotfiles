@@ -20,7 +20,7 @@ While not strictly necessary, having the latest and greatest [PowerShell Core][p
 
 To get PowerShell Core, run the following commands from PowerShell:
 
-```
+```powershell
 ((iwr -useb https://api.github.com/repos/PowerShell/PowerShell/releases/latest).Content -split "," | Select-String -Pattern "https.*x64.msi").Line -match "https.*msi" | %{ iwr -useb $Matches.0 -outf pwsh_x64.msi }
 msiexec /package pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1
 ```
@@ -29,13 +29,13 @@ Click on the dialogue box that pops up, asking for permission to perform the ins
 
 Once done, the new version of powershell should be available by running the command `pwsh`, however the installation process did not update the current session with information on where to find the new program, [so we'll do that now][pwsh-reload]:
 
-```
+```powershell
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 ```
 
 Then we can run:
 
-```
+```powershell
 pwsh
 ```
 
@@ -51,7 +51,7 @@ In order to be able install [scoop][], we need to set the execution policy in Po
 
 To do this, in the same PowerShell session, run:
 
-```
+```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
@@ -60,13 +60,13 @@ _Note: If nothing pops up, the execution policy is already set appropriately_
 
 Then, we will install scoop:
 
-```
+```powershell
 iwr -useb get.scoop.sh | iex
 ```
 
 Next, we'll install the programs scoop needs for the additional features we require, as well as the programs we need.
 
-```
+```powershell
 scoop install aria2 git
 scoop bucket add extras
 scoop install gnupg wsl-ssh-pageant
@@ -78,7 +78,7 @@ Before we begin configuring [GnuPG][], we need to make sure it can read our Open
 
 To test this, first insert the key/card, and gnupg should see it:
 
-```
+```powershell
 gpg-connect-agent updatestartuptty /bye
 gpg --card-status
 gpg-connect-agent "keyinfo --list" /bye
@@ -86,7 +86,7 @@ gpg-connect-agent "keyinfo --list" /bye
 
 _Note: Sometimes,_ `gpg-agent` _might fail to start, and show messages like:_
 
-```
+```powershell
 gpg-connect-agent: waiting for the agent to come up ... (5s)
 gpg-connect-agent: waiting for the agent to come up ... (4s)
 gpg-connect-agent: waiting for the agent to come up ... (3s)
@@ -108,7 +108,7 @@ One thing to note as a result of this setup is that, since [OpenSSH has been shi
 
 To enable putty support in `gpg-agent`, either edit the file indicated by the following command (this file might not exist and may need to be created):
 
-```
+```powershell
 (gpgconf --list-dirs socketdir) + "\gpg-agent.conf"
 ```
 
@@ -120,7 +120,7 @@ Either way, putty support is permanently enabled.
 
 Now that putty support is enabled, reload `gpg-agent`:
 
-```
+```powershell
 gpg-connect-agent reloadagent /bye
 ```
 
@@ -132,20 +132,20 @@ The OpenSSH suite shipped with Windows listens on a [named pipe][named-pipe], in
 
 The [default name][default-win-pipe] of the [named pipe][named-pipe] is `\\.\pipe\openssh-ssh-agent`, but we'll use a different one to make things more confusing:
 
-```
+```powershell
 Set-Item -Path Env:SSH_AUTH_SOCK -Value "\\.\pipe\ssh-pageant"
 [Environment]::SetEnvironmentVariable('SSH_AUTH_SOCK', $env:SSH_AUTH_SOCK, 'User')
 ```
 
 Unfortunately, for reasons not known to me, `wsl-ssh-pageant` doesn't like being second to the party when using a socket file. In other words, `wsl-ssh-pageant` gives the following error if `gpg-agent` is already running before `wsl-ssh-pageant` is started:
 
-```
+```powershell
 Could not open socket $Env:USERPROFILE\AppData\Roaming\gnupg\S.gpg-agent.ssh, error 'listen unix $Env:USERPROFILE\AppData\Roaming\gnupg\S.gpg-agent.ssh: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.'
 ```
 
 So we stop `gpg-agent`:
 
-```
+```powershell
 gpg-connect-agent killagent /bye
 ```
 
@@ -159,7 +159,7 @@ Also, having `wsl-ssh-pageant` running does not appear to impede the use of both
 
 So to start `wsl-ssh-pageant`, run:
 
-```
+```powershell
 pwsh -Command "start-process -filepath wsl-ssh-pageant.exe -ArgumentList ('-systray','-winssh','ssh-pageant','-wsl',(gpgconf --list-dirs agent-ssh-socket)) -WindowStyle hidden"
 ```
 
@@ -167,13 +167,13 @@ The success of this command is indicated by a new icon appearing in the system t
 
 If the icon pops up briefly, before closing by itself, or does not appear at all, something is wrong. The error can be viewed by running the command in the current console, as opposed to spawning a new process:
 
-```
+```powershell
 wsl-ssh-pageant.exe -systray -winssh "\\.\pipe\ssh-pageant" -wsl (gpgconf --list-dirs agent-ssh-socket)
 ```
 
 Finally, if `wsl-ssh-pageant` is running, we can restart `gpg-agent`:
 
-```
+```powershell
 gpg-connect-agent updatestartuptty /bye
 ```
 
@@ -189,20 +189,20 @@ This is the most important part, and if this shows an error message about connec
 
 To download the repository, `git` should be able to talk with GitHub. To test this, [the following should print out a short message][github-test-ssh]:
 
-```
+```powershell
 ssh -T git@github.com
 ```
 
 To then get `git` to be able to use the `ssh` client configured for interacting with `gpg-agent`, [set the `GIT_SSH` environment variable][git-ssh]:
 
-```
+```powershell
 Set-Item -Path Env:GIT_SSH -Value (scoop which ssh)
 [Environment]::SetEnvironmentVariable('GIT_SSH', $env:GIT_SSH, 'User')
 ```
 
 To get `git` to use the correct `gpg` program, [set that in the global git config][git-gpg]:
 
-```
+```powershell
 git config --global gpg.program (scoop which gpg)
 ```
 
