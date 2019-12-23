@@ -180,6 +180,15 @@ Then, we remove the socket file that `gpg-agent` creates so that `wsl-ssh-pagean
 Remove-Item -ErrorAction Ignore (gpgconf --list-dirs agent-ssh-socket)
 ```
 
+Lastly, we also make sure git knows where to find the `ssh` and `gpg` programs by running the following commands:
+
+```powershell
+git config --global core.sshCommand ((gcm ssh).Path -replace "\\","\\")
+# Tell git that the ssh program is OpenSSH: https://git-scm.com/docs/git-config#Documentation/git-config.txt-sshvariant
+git config --global ssh.variant ssh
+git config --global gpg.program ((gcm gpg).Path -replace "\\","\\")
+```
+
 Before starting `wsl-ssh-pageant`, it's important to note that the command below runs `wsl-ssh-pageant` in its own background process, which needs to be running each time `git` or `ssh` need to talk with `gpg-agent`. A step for setting this command to run on login is pending.
 
 The good news is that this process is detached from PowerShell, and closing PowerShell will not close this process, or prevent `wsl-ssh-pageant` from working with other PowerShell or console sessions.

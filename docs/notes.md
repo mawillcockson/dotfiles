@@ -513,8 +513,11 @@ The `Appx` family of powershell commands can install Microsoft Store apps:
 Get-Command -Noun AppxPackage
 ```
 
-Something like this is required to make sure git is configured to use the correct `ssh`. `Path` needs to be escaped:
+This is required to make sure git is configured to use the correct `ssh` and `gpg`. `Path` needs to be escaped:
 
 ```powershell
-git config --global core.sshCommand (gcm ssh).Path
+git config --global core.sshCommand ((gcm ssh).Path -replace "\\","\\")
+# Tell git that the ssh program is OpenSSH: https://git-scm.com/docs/git-config#Documentation/git-config.txt-sshvariant
+git config --global ssh.variant ssh
+git config --global gpg.program ((gcm gpg).Path -replace "\\","\\")
 ```
