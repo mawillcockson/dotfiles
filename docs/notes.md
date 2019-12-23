@@ -500,3 +500,21 @@ Also, if we want to check if a module is importable, [we can do it this way](htt
 
 
 I'd like `install.py` and `eggord` to keep a `config.yaml` file, or a `progress.ini` file since that's something the std library can handle, that keeps track of everything that's selected, so that in case the process is halted, a "Would you like to continue where you left off?" can be done if the same command is entered.
+
+This adds the directory the powershell profle is in to `$PATH`:
+
+```powershell
+$Env:PATH += (Split-Path -Parent $Profile)
+```
+
+The `Appx` family of powershell commands can install Microsoft Store apps:
+
+```powershell
+Get-Command -Noun AppxPackage
+```
+
+Something like this is required to make sure git is configured to use the correct `ssh`. `Path` needs to be escaped:
+
+```powershell
+git config --global core.sshCommand (gcm ssh).Path
+```

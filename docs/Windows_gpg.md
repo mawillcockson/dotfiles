@@ -42,7 +42,7 @@ To do this from an existing PowerShell, we need to do some extra steps first to 
 To do all this, [open a PowerShell session][open-pwsh] and run the following commands:
 
 ```powershell
-((iwr -useb https://api.github.com/repos/PowerShell/PowerShell/releases/latest).Content -split "," | Select-String -Pattern "https.*x64.msi" | Select-Object -first 1).Line -match "https.*msi" | %{ iwr -useb $Matches.0 -outf $Env:TEMP\pwsh_x64.msi }
+((iwr -useb https://api.github.com/repos/PowerShell/PowerShell/releases/latest).Content -split "," | Select-String -Pattern "https.*x64.msi" | Select-Object -first 1).Line -match "https.*msi" | %{ iwr -useb $Matches[0] -outf $Env:TEMP\pwsh_x64.msi }
 start-process -filepath cmd.exe -argumentlist ('/c', 'echo Installing PowerShell Core... && echo Waiting for PowerShell to close && timeout /t 3 /nobreak && msiexec /package %TEMP%\pwsh_x64.msi /qB ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 ENABLE_PSREMOTING=0 REGISTER_MANIFEST=1 && pwsh -Command "rm $Env:TEMP\pwsh_x64.msi; start-process -filepath pwsh" && exit'); exit
 ```
 
@@ -135,7 +135,9 @@ To enable putty support in `gpg-agent`, either edit the file indicated by the fo
 
 And put the string `enable-putty-support` on a single line in the file, or run the following command:
 
-`echo "enable-putty-support:0:1" | gpgconf --change-options gpg-agent`
+```powershell
+echo "enable-putty-support:0:1" | gpgconf --change-options gpg-agent
+```
 
 Either way, putty support is permanently enabled.
 
@@ -171,6 +173,12 @@ gpg-connect-agent killagent /bye
 ```
 
 We'll bring it back after we start `wsl-ssh-pageant`.
+
+Then, we remove the socket file that `gpg-agent` creates so that `wsl-ssh-pageant` can create that file:
+
+```powershell
+Remove-Item -ErrorAction Ignore (gpgconf --list-dirs agent-ssh-socket)
+```
 
 Before starting `wsl-ssh-pageant`, it's important to note that the command below runs `wsl-ssh-pageant` in its own background process, which needs to be running each time `git` or `ssh` need to talk with `gpg-agent`. A step for setting this command to run on login is pending.
 
