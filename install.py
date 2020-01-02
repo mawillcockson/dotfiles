@@ -29,6 +29,9 @@ TASK_FUNC_PREFIX: str = "atask"
 ### Tasks to execute with invoke ###
 
 
+def atask_main(ctx):
+    print("Running tasks...")
+
 def atask_install_git_windows(ctx):
     print("installing git")
     import time
@@ -130,6 +133,10 @@ def main() -> None:
     namespace = Collection()
     globs = dict(globals())
     for name in globs:
+        # If there's a function named TASK_FUNC_PREFIX_main, mark it as the default, unless one has already
+        # been marked as such
+        if re.match(f"^{TASK_FUNC_PREFIX}_main$", name) and callable(globs[name]) and not namespace.default:
+            namespace.add_task(task(globs[name]), default=True)
         if re.match(f"^{TASK_FUNC_PREFIX}.*", name) and callable(globs[name]):
             namespace.add_task(task(globs[name]))
 

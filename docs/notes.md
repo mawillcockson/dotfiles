@@ -552,3 +552,9 @@ tmux source-file ~/.tmux.conf
 ```
 
 But I'm not 100% sure this does this in the current session.
+
+## invoke
+
+Default tasks: <https://github.com/pyinvoke/invoke/blob/0cd18cf64e8e8d441ea6fe300d3b2651c90e5588/invoke/program.py#L528>
+
+I feel very silly. It's in the docs: <http://docs.pyinvoke.org/en/1.3/api/collection.html#invoke.collection.Collection.add_task>
