@@ -72,3 +72,8 @@ profiles:
     - minimal
     dotfiles:
     - f_gpg.conf
+  big-laptop:
+    include:
+    - minimal
+    dotfiles:
+    - f_zshrc

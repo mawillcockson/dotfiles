@@ -32,11 +32,13 @@ TASK_FUNC_PREFIX: str = "atask"
 def atask_install_git_windows(ctx):
     print("installing git")
     import time
+
     time.sleep(5)
     print("Installed git")
 
 
 ### Setup and argument parsing ###
+
 
 def ensure_invoke() -> tempfile.TemporaryDirectory:
     ## Make a venv
@@ -89,12 +91,13 @@ def ensure_invoke() -> tempfile.TemporaryDirectory:
         if x.is_dir() and x.name in ["Lib", "lib", "lib64"]
     ]
     if len(lib_dirs) < 1:
-        print(f"Could not find an lib folders in {venv_dir}", file=sys.stderr)
+        print(f"Could not find any lib folders in {venv_dir}", file=sys.stderr)
         sys.exit(1)
     site_folders = [
         (p / "site-packages") for p in lib_dirs if (p / "site-packages").is_dir()
     ]
-    python_ver = f"python{sys.version_info.major}{sys.version_info.minor}"
+    # On some platforms, and intermediate "python3.7" folder is used: /tmp/tmp2tcvye33/lib/python3.7/site-packages
+    python_ver = f"python{sys.version_info.major}.{sys.version_info.minor}"
     site_folders.extend(
         (p / python_ver / "site-packages")
         for p in lib_dirs
@@ -111,7 +114,7 @@ def ensure_invoke() -> tempfile.TemporaryDirectory:
         print(f"Can't import invoke package:\n{err}", file=sys.stderr)
         print(sys.path)
         sys.exit(1)
-    
+
     return temp_dir
 
 
@@ -143,6 +146,7 @@ def main() -> None:
         name=PROG_NAME, namespace=namespace, config_class=SetupConfig, version="0.0.1"
     )
     program.run()
+
 
 if __name__ == "__main__":
     main()

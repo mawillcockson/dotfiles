@@ -1,6 +1,8 @@
 [push]
 	default = simple
 	gpgSign = if-asked
+[tag]
+    gpgSign = yes
 [user]
 	name = Matthew Willcockson
 	email = matthew@willcockson.family
@@ -11,6 +13,8 @@
 	worktreePruneExpire = never
 	reflogExpire = never
 	reflogExpireUnreachable = never
+[core]
+    logAllRefUpdates = true
 [commit]
 	gpgsign = yes
 [clean]

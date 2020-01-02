@@ -2,7 +2,7 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH="/home/mw/.oh-my-zsh"
+export ZSH="/home/mw/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -62,7 +62,7 @@ ZSH_THEME="gentoo"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git tmux)
+plugins=(git tmux vi-mode)
 
 # TMUX
 ZSH_TMUX_AUTOSTART=true
@@ -128,8 +128,8 @@ source ~/.profile
 #prompt redhat
 
 # Aliases
-alias vim=nvim
-alias acpi="cat /sys/class/power_supply/BAT1/capacity"
+#alias vim=nvim # Is nvim installed
+#alias acpi="cat /sys/class/power_supply/BAT1/capacity" # only on small-laptop; need better solution anyways
 # Please look at :h provider-python in nvim instead for setting up nvim with access to its needed neovim pypi package
 #
 # NVim needs access to the PyPI package neovim
@@ -138,15 +138,19 @@ alias acpi="cat /sys/class/power_supply/BAT1/capacity"
 # let g:python3_host_prog = 'PATH/TO/VIRTUALENV/bin/python'
 # Then within the virtualenv, pip install neovim
 #alias nvim="pipenv run nvim" # Creates new project in each new directory
+# Even setting to "PIPENV_PIPFILE=~/Pipfile pipenv run nvim" only works if the Pipfile, pipenv, and neovim are installed
 
 # GPG configuration for Yubikey and SSH
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="/run/user/$UID/gnupg/S.gpg-agent.ssh"
 gpg-connect-agent updatestartuptty /bye
+# This needs to be automated -^
 
 # Golang configuration
-export GOPATH="$HOME/projects/go"
-export PATH=$PATH:$HOME/projects/go/bin
+#export GOPATH="$HOME/projects/go"
+#export PATH=$PATH:$HOME/projects/go/bin
+# Only when I want to work with Go
 
 # Enable UTF-8 in console for Linux
-unicode_start
+#unicode_start
+# Use more intelligently

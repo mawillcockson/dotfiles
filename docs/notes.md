@@ -521,3 +521,34 @@ git config --global core.sshCommand ((gcm ssh).Path -replace "\\","\\")
 git config --global ssh.variant ssh
 git config --global gpg.program ((gcm gpg).Path -replace "\\","\\")
 ```
+# Debian gpg
+
+```sh
+apt-get install -y gnupg
+gpg --recv-key EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115
+# place gpg-agent.conf
+# place oh-my-zsh and .zshrc
+chsh -s $(which zsh) # Or have oh-my-zsh do it
+source .zshrc
+
+```
+
+For the backlog is how to get a Python program to behave properly when [`exec`-ed](https://www.computerhope.com/unix/bash/exec.htm), as in to hold a shell terminal/pty/whatever, and recreate some basic functionality of [xon.sh](https://xon.sh), which is awesome.
+
+Secondly, being able to, from a Python program, fork, pass on filedescriptors for the current terminal/pty/etc, and die. Essentially, reimplimenting the behaviour of `exec`. If a python script can do this, then the install would look like:
+
+```sh
+python install.py
+# console gui
+user@laptop ~>
+```
+
+This would allow easy reloading of the whole environment. Alternatively, if commands like `source` can be injected into the shell that ran `python install.py`, so that you don't have to restart the shell, or manually type `source ~/.profile`.
+
+A much lower bar would be getting the active tmux session to reload and source it's configuration file after updating it. I believe that would be:
+
+```sh
+tmux source-file ~/.tmux.conf
+```
+
+But I'm not 100% sure this does this in the current session.
