@@ -40,7 +40,7 @@ This file can be downloaded by [viewing it on GitHub and selecting `Save Page As
 Alternatively, with [Python][] installed, the following command will download the file:
 
 ```sh
-python -c "import sys;raise SystemExit('Python 3.7 or higher required') if sys.version_info>=(3,7) else '';from urllib.request import urlopen as o;r=o('https://raw.githubusercontent.com/mawillcockson/dotfiles/dev/install.py').read();f=open('install.py','wb');f.write(r);f.close()"
+python -c "import sys;sys.exit('Python 3.7 or higher required') if sys.version_info<=(3,7) else '';from urllib.request import urlopen as o;r=o('https://raw.githubusercontent.com/mawillcockson/dotfiles/dev/install.py').read();f=open('install.py','wb');f.write(r);f.close()"
 ```
 
 To start the installation, run the file, double-click it, or, if the above command was used to download the file, from the same terminal type the following command:
