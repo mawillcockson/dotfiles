@@ -558,3 +558,87 @@ But I'm not 100% sure this does this in the current session.
 Default tasks: <https://github.com/pyinvoke/invoke/blob/0cd18cf64e8e8d441ea6fe300d3b2651c90e5588/invoke/program.py#L528>
 
 I feel very silly. It's in the docs: <http://docs.pyinvoke.org/en/1.3/api/collection.html#invoke.collection.Collection.add_task>
+
+---
+
+# Uninstallation
+
+Need a good way to keep track of platform-specific uninstall instructions.
+
+# bigl
+
+## [poetry][]
+
+Install with:
+
+```sh
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+```
+
+Uninstall by:
+
+```sh
+python get-poetry.py --uninstall
+```
+
+Script version used:
+
+<https://raw.githubusercontent.com/python-poetry/poetry/00c9e49c8ec71e8c9686e637b611d0def79f1414/get-poetry.py>
+
+## [rustup][]
+
+Install with:
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+## [nuitka][]
+
+Install with:
+
+```sh
+CODENAME=`grep UBUNTU_CODENAME /etc/os-release | cut -d= -f2`
+if [ ["$CODENAME"] = ""]
+then
+   CODENAME=`lsb_release -c -s`
+fi;
+wget -O - http://nuitka.net/deb/archive.key.gpg | apt-key add -
+echo >/etc/apt/sources.list.d/nuitka.list "deb http://nuitka.net/deb/stable/$CODENAME $CODENAME main"
+apt-get update
+apt-get install nuitka
+```
+
+My version:
+
+```sh
+wget -O- https://nuitka.net/deb/archive.key.gpg | sudo apt-key add -
+export CODENAME="$(lsb_release -c -s)"
+echo "deb http://nuitka.net/deb/stable/${CODENAME} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/nuitka.list
+sudo apt update
+sudo apt install nuitka ccache icecc distcc clang
+pipx install clcache
+```
+
+Installed as above, `nuitka` has difficulty picking up the correct python version.
+
+Uninstalled above with:
+
+```sh
+sudo apt remove nuitka -y
+sudo apt autoremove -y
+```
+
+Installed with `pipx`, which had been installed with a `pyenv`-managed version of Python:
+
+```sh
+pyenv shell 3.8.4
+python -m pip install --user -U pip pipx
+python -m pipx ensurepath
+source ~/.zshrc
+for pkg in nuitka clcache ; do pipx install $pkg ; done
+```
+
+
+[poetry]: <https://python-poetry.org/docs/> "poetry documentation"
+[rustup]: <https://github.com/rust-lang/rustup/blob/master/README.md#other-installation-methods> "rustup installation methods"
