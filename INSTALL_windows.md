@@ -1,9 +1,16 @@
-# The Windows hurdle
+# Windows Setup
 
-By far the most difficult setup has been Windows, and forcing the use of command-line Unix tools.
+Python can be installed using the Microsoft Store App. The easiest way is to open [PowerShell][] and run the command:
 
-It would probably have been easier to have used GUI tools built for windows, as opposed to having attempted to lift the entire setup from other operating systems, and transplant it to Windows.
+```powershell
+python -c "print('installed')"
+```
 
+If it's installed, it'll print `installed`. If not, it'll open the Microsoft Store App, through which Python can be installed.
+
+With Python installed, [continue with the rest of the steps.](./README.md#continue)
+
+<!--
 # Getting the repository
 
 In order to get and use the repository we need [`git`][git], [`gpg`][gnupg], and [`python`][python].
@@ -209,7 +216,7 @@ git config --global gpg.program (scoop which gpg)
 # Return to regular install
 
 Now that all that's done, we can [continue with the installation.](./README.md#setup)
-
+-->
 
 
 [git]: <https://git-scm.com/>
