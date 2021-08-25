@@ -24,7 +24,7 @@ In a terminal session (PowerShell, bash, etc.):
 python -c "import urllib.request as q,sys;r=q.urlopen('https://github.com/mawillcockson/dotfiles/raw/main/install_dotfiles.py');c=r.read().decode();r.close();sys.exit(exec(c))"
 ```
 
-> _Note: `pip` is installed twice to make sure even very old versions of `pip` are upgraded to the latest_
+> _Note: if there's an SSL error, run `iwr -useb https://github.com`, then try again_
 
 ## Contents
 
