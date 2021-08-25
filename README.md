@@ -20,16 +20,8 @@ The remaining steps are platform independent.
 
 In a terminal session (PowerShell, bash, etc.):
 
-```
-python -m pip install --user --upgrade pip
-python -m pip install --user --upgrade pip
-python -m pip install --user pipx
-python -m pipx ensurepath
-python -m pipx install dotdrop
-mkdir -p ~/projects
-git clone git@github.com:mawillcockson/dotfiles.git ~/projects/dotfiles
-alias dotdrop='dotdrop --cfg=~/projects/dotfiles/config.yaml'
-dotdrop install
+```sh
+python -c "import urllib.request as q,sys;r=q.urlopen('https://github.com/mawillcockson/dotfiles/raw/main/install_dotfiles.py');c=r.read().decode();r.close();sys.exit(exec(c))"
 ```
 
 > _Note: `pip` is installed twice to make sure even very old versions of `pip` are upgraded to the latest_

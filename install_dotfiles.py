@@ -13,170 +13,351 @@ Steps:
  - Download repository
  - Run dotdrop from the repo
 """
-import sys
 import os
-from shutil import which
-from subprocess import run, PIPE, STDOUT, CompletedProcess, CalledProcessError, Popen, TimeoutExpired
-from typing import List, Dict, Optional
-from time import sleep
+import sys
 from pathlib import Path
+from shutil import which
+from subprocess import (
+    PIPE,
+    STDOUT,
+    CalledProcessError,
+    CompletedProcess,
+    Popen,
+    TimeoutExpired,
+    run,
+)
+from tempfile import TemporaryDirectory
+from time import sleep
+from typing import Dict, List, Optional
 from unittest.mock import patch
+from urllib.request import urlopen
 
-
-WINDOWS = sys.platform.startswith(("win", "cygwin")) or (sys.platform == "cli" and os.name == "nt")
+WINDOWS = sys.platform.startswith(("win", "cygwin")) or (
+    sys.platform == "cli" and os.name == "nt"
+)
 UNIX = sys.platform.startswith(("linux", "freebsd", "openbsd"))
 MACOS = sys.platform.startswith("darwin")
-UPDATED_ENVIRONMENT = {}
 
 
 if WINDOWS:
     import winreg
 
-    powershell_str = which("powershell")
-    powershell_path = Path(powershell_str).resolve()
-    if not (powershell_str and powershell_path.is_file()):
-        raise FileNotFoundError(f"powershell not found at '{powershell_str}' or '{powershell_path}'")
-    SHELL = powershell_path
 
+class Installer:
+    UPDATED_ENVIRONMENT: Dict[str, str] = {}
+    SHELL: Optional[Path] = None
+    _SCOOP_INSTALLED = False
+    _PIP_INSTALLED = False
+    TEMP_DIR: Optional[Path] = None
+    PIP_DIR: Optional[Path] = None
+    VIRTUALENV_INSTALL_DIR: Optional[Path] = None
+    VENV_DIR: Optional[Path] = None
+    CACHE_DIR: Optional[Path] = None
+    PYTHON_EXECUTABLE: str = sys.executable
 
-def get_sys_env(name):
-    # from:
-    # https://stackoverflow.com/a/38546615
-    key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, r"System\CurrentControlSet\Control\Session Manager\Environment")
-    return winreg.QueryValueEx(key, name)[0]
+    def __init__(self, temp_dir: Path) -> None:
+        if WINDOWS:
+            import winreg
 
-def get_user_env(name):
-    # from:
-    # https://stackoverflow.com/a/38546615
-    key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Environment")
-    return winreg.QueryValueEx(key, name)[0]
+            powershell_str = which("powershell")
+            powershell_path = Path(powershell_str).resolve()
+            if not (powershell_str and powershell_path.is_file()):
+                raise FileNotFoundError(
+                    f"powershell not found at '{powershell_str}' or '{powershell_path}'"
+                )
+            self.SHELL = powershell_path
 
+        self.REPOSITORY_DIR = Path("~/projects/dotfiles/").expanduser().resolve()
+        self.TEMP_DIR = temp_dir
+        assert self.TEMP_DIR.is_dir()
+        self.PIP_DIR = self.TEMP_DIR / "pip"
+        self.PIP_DIR.mkdir(exist_ok=True)
+        self.VIRTUALENV_INSTALL_DIR = self.TEMP_DIR / "virtualenv"
+        self.VIRTUALENV_INSTALL_DIR.mkdir(exist_ok=True)
+        self.VENV_DIR = self.TEMP_DIR / "venv"
+        self.VENV_DIR.mkdir(exist_ok=True)
+        self.CACHE_DIR = self.TEMP_DIR / "cache"
+        self.CACHE_DIR.mkdir(exist_ok=True)
+        self._PIP_INSTALLED = (
+            self.cmd([self.PYTHON_EXECUTABLE, "-m", "pip", "--version"]).returncode == 0
+        )
+        self._PIP_INSTALLED = False
 
-def cmd(args: List[str], stdin: str = "") -> CompletedProcess:
-    print(f"running -> {args!r}")
-    if UPDATED_ENVIRONMENT:
-        with patch.dict("os.environ", values=UPDATED_ENVIRONMENT) as patched_env:
-            result = run(args, stdin=(stdin or PIPE), stderr=STDOUT, stdout=PIPE, check=False, env=patched_env)
-    else:
-        result = run(args, stdin=(stdin or PIPE), stderr=STDOUT, stdout=PIPE, check=False)
-    print(result.stdout.decode() or "")
-    return result
-
-
-def shell(code: str) -> CompletedProcess:
-    print(f'shell -> "{code}"')
-    if UPDATED_ENVIRONMENT:
-        with patch.dict("os.environ", values=UPDATED_ENVIRONMENT) as patched_env:
-            result = run(code, text=True, capture_output=True, check=False, shell=True, executable=str(SHELL) or None, env=patched_env)
-    else:
-        result = run(code, text=True, capture_output=True, check=False, shell=True, executable=str(SHELL) or None)
-
-    print(f"{result.stdout or ''}\n{result.stderr or ''}")
-    return result
-
-
-def scoop(args: str) -> CompletedProcess:
+    def get_user_env(self, name: str) -> Optional[str]:
         if not WINDOWS:
-            raise Exception("not running scoop when not on Windows")
+            raise NotImplementedError(
+                "can only update environment variables on Windows for now"
+            )
 
-        result = shell(f"scoop {args}")
+        with winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER) as root:
+            with winreg.OpenKey(root, "Environment", 0, winreg.KEY_ALL_ACCESS) as key:
+                value, _ = winreg.QueryValueEx(key, name)
+
+                return value
+
+    def cmd(self, args: List[str], stdin: str = "") -> CompletedProcess:
+        print(f"running -> {args!r}")
+        if self.UPDATED_ENVIRONMENT:
+            with patch.dict(
+                "os.environ", values=self.UPDATED_ENVIRONMENT
+            ) as patched_env:
+                result = run(
+                    args,
+                    stdin=(stdin or PIPE),
+                    stderr=STDOUT,
+                    stdout=PIPE,
+                    check=False,
+                    env=patched_env,
+                )
+        else:
+            result = run(
+                args, stdin=(stdin or PIPE), stderr=STDOUT, stdout=PIPE, check=False
+            )
+
+        print(result.stdout.decode() or "")
+        return result
+
+    def shell(self, code: str) -> CompletedProcess:
+        print(f'shell -> "{code}"')
+        if self.UPDATED_ENVIRONMENT:
+            with patch.dict(
+                "os.environ", values=self.UPDATED_ENVIRONMENT
+            ) as patched_env:
+                result = run(
+                    code,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                    shell=True,
+                    executable=str(self.SHELL) or None,
+                    env=patched_env,
+                )
+        else:
+            result = run(
+                code,
+                text=True,
+                capture_output=True,
+                check=False,
+                shell=True,
+                executable=str(self.SHELL) or None,
+            )
+
+        print(f"{result.stdout or ''}\n{result.stderr or ''}")
+        return result
+
+    def scoop(args: str) -> CompletedProcess:
+        if not (WINDOWS and self._SCOOP_INSTALLED):
+            raise Exception(
+                "not running scoop when not on Windows or scoop not installed"
+            )
+
+        result = self.shell(f"scoop {args}")
         result.check_returncode()
         return result
 
-
-def install_dependencies() -> None:
-    if MACOS or UNIX:
-        raise NotImplementedError("only WINDOWS support")
-
-    if WINDOWS:
-        # implicitly installs dependencies
-        install_scoop()
-
-    for dependency_check in (["git", "--version"], ["python", "--version"], ["python", "-m", "pip", "--version"]):
+    def bootstrap_async(self) -> None:
         try:
-            cmd(dependency_check).check_returncode()
-        except CalledProcessError as err:
-            raise Exception(f"dependency '{dependency_check!r}' was not found") from err
+            import virtualenv
+        except ImportError:
+            self.bootstrap_virtualenv()
 
+        import virtualenv  # isort:skip
 
-def install_scoop() -> None:
-    if not WINDOWS:
-        raise Exception("not installing scoop when not on Windows")
+        session = virtualenv.cli_run([str(self.VENV_DIR), "--clear", "--download"])
+        if WINDOWS:
+            venv_python = self.VENV_DIR / "Scripts" / "python.exe"
+            venv_modules = self.VENV_DIR / "Lib" / "site-packages"
+        else:
+            raise NotImplementedError("only Windows supported right now")
 
-    # Check if scoop is already installed
-    UPDATED_ENVIRONMENT["PATH"] = get_user_env("PATH")
+        if not (venv_python and venv_python.is_file()):
+            raise Exception(
+                f"could not find a virtual environment python at '{venv_python}'"
+            )
 
-    result = shell("scoop which scoop")
-    print(f"returncode -> {result.returncode}")
-    error_msg = "is not recognized as the name of"
-    if error_msg in result.stdout or error_msg in result.stderr or result.returncode != 0:
-        # Set PowerShell's Execution Policy
-        args = [str(SHELL), "-c", "& {Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser}"]
-        print(f"running -> {args!r}")
+        assert venv_modules.is_dir(), f"missing directory '{venv_modules}'"
 
-        set_executionpolicy = Popen(args, text=True)
-        print("waiting...")
-        sleep(2)
-        try:
-            stdout, stderr = set_executionpolicy.communicate("A", timeout=2)
-        except TimeoutExpired:
-            set_executionpolicy.kill()
-            stdout, stderr = set_executionpolicy.communicate()
+        self.PYTHON_EXECUTABLE = str(venv_python)
+        sys.path.insert(0, str(venv_modules))
 
-        print(f"{stdout or ''}\n{stderr or ''}")
+        # Install trio
+        self.pip(["install", "trio"])
+        import trio  # isort:skip
 
-        print("waiting again...")
-        sleep(2)
+        self.main()
 
-        result = cmd([str(SHELL), "-c", "& {Get-ExecutionPolicy}"])
-        if not "RemoteSigned" in result.stdout.decode():
-            raise Exception("could not set PowerShell Execution Policy")
+    def bootstrap_virtualenv(self) -> None:
+        if not self._PIP_INSTALLED:
+            self.bootstrap_pip()
 
+        self.VIRTUALENV_INSTALL_DIR.mkdir(exist_ok=True)
+        self.pip(
+            ["install", "virtualenv", "--target", str(self.VIRTUALENV_INSTALL_DIR)]
+        )
+        sys.path.insert(0, str(self.VIRTUALENV_INSTALL_DIR))
+        import virtualenv  # isort:skip
 
-        # Install Scoop
-        result = cmd([str(SHELL), "-c", "iwr -useb https://get.scoop.sh | iex"])
-        if not "scoop was installed successfully!" in result.stdout.decode().lower():
-            raise Exception("scoop was not installed")
+    def bootstrap_pip(self) -> None:
+        if self._PIP_INSTALLED:
+            return
 
-        UPDATED_ENVIRONMENT["PATH"] = get_user_env("PATH")
+        # NOTE: On Windows, the SSL certificates for some reason aren't
+        # available until a web request is made that absolutely requires
+        # them
+        # If it's a truly fresh install, then any urlopen() call to an
+        # https:// url will fail with an SSL context error:
+        # >> ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate
+        self.shell("iwr -useb https://bootstrap.pypa.io")
 
-    
-    installed_apps = scoop("list").stdout
-    for requirement in ["git", "aria2", "python"]:
-        if requirement in installed_apps:
-            continue
+        # https://pip.pypa.io/en/stable/installation/#get-pip-py
+        get_pip_file = self.CACHE_DIR / "get_pip.py"
+        get_pip_file.touch()
+        with get_pip_file.open(mode="wb") as file:
+            with urlopen("https://bootstrap.pypa.io/get-pip.py") as request:
+                while request.peek(1):
+                    file.write(request.read(8192))
 
-        scoop(f"install {requirement}")
+        # NOTE: pip forces the --user flag on Microsoft Store Pythons:
+        # https://stackoverflow.com/q/63783587
+        self.cmd(
+            [
+                self.PYTHON_EXECUTABLE,
+                str(get_pip_file),
+                "--target",
+                str(self.PIP_DIR),
+                "--no-user",
+            ]
+        )
+        sys.path.insert(0, str(self.PIP_DIR))
+        self.UPDATED_ENVIRONMENT["PYTHONPATH"] = str(self.PIP_DIR)
+        self._PIP_INSTALLED = True
 
-    wanted_buckets = ["extras"]
-    added_buckets = scoop("bucket list").stdout
-    for bucket in wanted_buckets:
-        if bucket in added_buckets:
-            continue
+    def pip(self, args: List[str]) -> None:
+        if not self._PIP_INSTALLED:
+            self.bootstrap_pip()
 
-        scoop(f"bucket add {bucket}")
+        # NOTE: pip forces the --user flag on Microsoft Store Pythons:
+        # https://stackoverflow.com/q/63783587
+        self.cmd([self.PYTHON_EXECUTABLE, "-m", "pip", *args, "--no-user"])
 
+    def install_scoop(self) -> None:
+        if not WINDOWS:
+            raise Exception("not installing scoop when not on Windows")
 
-def main() -> None:
-    # Install dependencies
-    if not which("git") or cmd(["git", "--version"]):
-        install_dependencies()
+        # Check if scoop is already installed
+        self.UPDATED_ENVIRONMENT["PATH"] = self.get_user_env("PATH")
 
-    # Clone repository
-    repository_dir = Path("~/projects/dotfiles/").expanduser().resolve()
-    repository_dir.mkdir(parents=True, exist_ok=True)
+        result = self.shell("scoop which scoop")
+        print(f"returncode -> {result.returncode}")
+        error_msg = "is not recognized as the name of"
+        if (
+            error_msg in result.stdout
+            or error_msg in result.stderr
+            or result.returncode != 0
+        ):
+            # Set PowerShell's Execution Policy
+            args = [
+                str(SHELL),
+                "-c",
+                "& {Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser}",
+            ]
+            print(f"running -> {args!r}")
 
-    git_status = cmd(["git", "-C", str(repository_dir), "status"])
-    if git_status.returncode != 0:
-        result = cmd(["git", "clone", "https://github.com/mawillcockson/dotfiles.git", str(repository_dir)])
-        result.check_returncode()
+            set_executionpolicy = Popen(args, text=True)
+            print("waiting...")
+            sleep(2)
+            try:
+                stdout, stderr = set_executionpolicy.communicate("A", timeout=2)
+            except TimeoutExpired:
+                set_executionpolicy.kill()
+                stdout, stderr = set_executionpolicy.communicate()
 
-    # Check if repository is clean
-        #raise Exception("dotfiles installed but perhaps there are uncommitted changes")
+            print(f"{stdout or ''}\n{stderr or ''}")
 
-    # Setup dotfiles
-    raise NotImplementedError("setup dotfiles")
+            print("waiting again...")
+            sleep(2)
+
+            result = cmd([str(SHELL), "-c", "& {Get-ExecutionPolicy}"])
+            if not "RemoteSigned" in result.stdout.decode():
+                raise Exception("could not set PowerShell Execution Policy")
+
+            # Install Scoop
+            result = self.cmd(
+                [str(self.SHELL), "-c", "iwr -useb https://get.scoop.sh | iex"]
+            )
+            if (
+                not "scoop was installed successfully!"
+                in result.stdout.decode().lower()
+            ):
+                raise Exception("scoop was not installed")
+
+            self.UPDATED_ENVIRONMENT["PATH"] = self.get_user_env("PATH")
+            self._SCOOP_INSTALLED = True
+
+        installed_apps = self.scoop("list").stdout
+        for requirement in ["git", "aria2"]:
+            if requirement in installed_apps:
+                continue
+
+            self.scoop(f"install {requirement}")
+
+        wanted_buckets = ["extras"]
+        added_buckets = self.scoop("bucket list").stdout
+        for bucket in wanted_buckets:
+            if bucket in added_buckets:
+                continue
+
+            self.scoop(f"bucket add {bucket}")
+
+    def main(self) -> None:
+        import trio
+
+        sys.exit("Not implemented yet")
+
+        # Install dulwich
+        self.pip(["install", "dulwich"])
+        import dulwich  # isort:skip
+
+        # Install rest of dependencies
+        if MACOS or UNIX:
+            raise NotImplementedError("only Windows support")
+
+        if WINDOWS:
+            # implicitly installs git as well
+            self.install_scoop()
+            self.scoop("install python")
+
+        for dependency_check in (["git", "--version"], ["python", "--version"]):
+            try:
+                cmd(dependency_check).check_returncode()
+            except CalledProcessError as err:
+                raise Exception(
+                    f"dependency '{dependency_check!r}' was not found"
+                ) from err
+
+        # Clone repository
+        self.REPOSITORY_DIR.mkdir(parents=True, exist_ok=True)
+
+        git_status = cmd(["git", "-C", str(self.REPOSITORY_DIR), "status"])
+        if git_status.returncode != 0:
+            result = cmd(
+                [
+                    "git",
+                    "clone",
+                    "https://github.com/mawillcockson/dotfiles.git",
+                    str(self.REPOSITORY_DIR),
+                ]
+            )
+            result.check_returncode()
+
+        # Check if repository is clean
+        # NOTE: dulwich helpful here
+        # raise Exception("dotfiles installed but perhaps there are uncommitted changes")
+
+        # Setup dotfiles
+        raise NotImplementedError("setup dotfiles")
 
 
 if __name__ == "__main__":
-    main()
+    with TemporaryDirectory() as temp_dir:
+        Installer(Path(temp_dir).resolve(strict=True)).bootstrap_async()
