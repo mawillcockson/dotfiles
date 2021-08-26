@@ -323,28 +323,28 @@ class Installer:
         cmd_str = f"{process_type} -> {args_str}"
         print(cmd_str)
 
-        if self.UPDATED_ENVIRONMENT:
-            with patch.dict(
-                "os.environ", values=self.UPDATED_ENVIRONMENT
-            ) as patched_env:
-                return await trio.run_process(
-                    args,
-                    stdin=None,
-                    shell=shell,
-                    executable=str(self.SHELL) or None if shell else None,
-                    check=check,
-                    env=patched_env,
-                )
+        # NOTE::FUTURE trio.run_process() cannot both capture stdout/stderr AND mirror it
+        # This copies from trio.run_process():
+        # https://github.com/python-trio/trio/blob/v0.19.0/trio/_subprocess.py#L587-L643
 
-        # Trio magically copies stdout and stderr streams to sys.stdout and sys.stderr!
-        return await trio.run_process(
-            args,
-            stdin=None,
-            shell=shell,
-            executable=str(self.SHELL) or None if shell else None,
-            env=self.UPDATED_ENVIRONMENT or None,
-            check=check,
-        )
+        with patch.dict(
+            "os.environ", values=self.UPDATED_ENVIRONMENT
+        ) as patched_env:
+            async with await trio.open_process(
+                args,
+                stdin=None,
+                stdout=PIPE,
+                stderr=STDOUT,
+                shell=shell,
+                executable=str(self.SHELL) or None if shell else None,
+                check=check,
+                env=patched_env,
+                ) as process:
+                data: bytes = process.stdout.receive_some()
+                while process.returncode == None:
+                    try:
+                        data += process.stdout.receive_some()
+
 
     async def shell(self, code: str, check: bool = True) -> CompletedProcess:
         return await self.cmd(code, check=check, shell=True, process_type="shell")
