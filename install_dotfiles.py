@@ -182,7 +182,8 @@ class Bootstrapper:
 
         # Install trio
         self.pip(["install", "trio"])
-        import trio as trio_module # isort:skip
+        import trio as trio_module  # isort:skip
+
         global trio
         trio = trio_module
 
@@ -321,6 +322,19 @@ class Installer:
 
         cmd_str = f"{process_type} -> {args_str}"
         print(cmd_str)
+
+        if self.UPDATED_ENVIRONMENT:
+            with patch.dict(
+                "os.environ", values=self.UPDATED_ENVIRONMENT
+            ) as patched_env:
+                return await trio.run_process(
+                    args,
+                    stdin=None,
+                    shell=shell,
+                    executable=str(self.SHELL) or None if shell else None,
+                    check=check,
+                    env=patched_env,
+                )
 
         # Trio magically copies stdout and stderr streams to sys.stdout and sys.stderr!
         return await trio.run_process(
