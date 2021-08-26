@@ -39,30 +39,45 @@ async def powershell():
 
 async def watcher_example() -> None:
     stdout_reference: Dict[str, bytes] = {"stdout": b""}
+    watcher_send_channel, watcher_receive_channel = trio.open_memory_channel(0)
+    printer_send_channel, printer_receive_channel = trio.open_memory_channel(0)
 
-    async def watcher_copier(
+    async def printer(
+        stdout_channel: MemoryReceiveChannel, print_buffer: BufferedWriter
+    ) -> None:
+        async with stdout_channel:
+            async for chunk in stdout_channel:
+                try:
+                    print_buffer.write(chunk)
+                except BlockingIOError:
+                    pass
+
+    async def copier(
         stdout_stream: ReceiveStream,
+        watcher_channel: MemorySendChannel,
+        printer_channel: MemorySendChannel,
+    ) -> None:
+        async with stdout_stream, watcher_channel, printer_channel:
+            async for chunk in stdout_stream:
+                await watcher_channel.send(chunk)
+                await printer_channel.send(chunk)
+
+    async def watcher_recorder(
+        stdout_channel: MemoryReceiveChannel,
         ref_dict: Dict[str, bytes],
-        print_stream: BufferedWriter,
         stdin_stream: SendStream,
         expect: bytes,
         response: bytes,
-        process: Process,
     ) -> None:
         response_sent = False
-        async with stdout_stream, stdin_stream:
-            async for chunk in stdout_stream:
+        async with stdout_channel, stdin_stream:
+            async for chunk in stdout_channel:
                 ref_dict["stdout"] += chunk
-                print_stream.write(chunk)
-                print_stream.flush()
                 if not response_sent and expect in ref_dict["stdout"]:
                     print("sending response...", flush=True)
                     await stdin_stream.send_all(response)
                     response_sent = True
                     print("finished sending response...", flush=True)
-
-                if process.returncode != None:
-                    return
 
     async with await trio.open_process(
         [
@@ -81,14 +96,16 @@ print("process says thanks", flush=True)
 
         async with trio.open_nursery() as nursery:
             nursery.start_soon(
-                watcher_copier,
-                process.stdout,
+                copier, process.stdout, watcher_send_channel, printer_send_channel
+            )
+            nursery.start_soon(printer, printer_receive_channel, sys.stdout.buffer)
+            nursery.start_soon(
+                watcher_recorder,
+                watcher_receive_channel,
                 stdout_reference,
-                sys.stdout.buffer,
                 process.stdin,
                 b"hello",
                 b"hi\n",
-                process,
             )
 
             await process.wait()
