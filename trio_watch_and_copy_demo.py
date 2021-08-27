@@ -6,11 +6,11 @@ from io import BufferedWriter
 from pathlib import Path
 from shutil import which
 from subprocess import PIPE, STDOUT
-from typing import Deque, Dict, List
+from typing import Deque, Dict, List, Tuple
 
 import trio
 from trio import Event, MemoryReceiveChannel, MemorySendChannel, Process
-from trio._abc import ReceiveStream, SendStream
+from trio.abc import ReceiveStream, SendStream
 
 
 async def watcher_example(
@@ -24,11 +24,17 @@ async def watcher_example(
     ), "process_total_time must be long enough for process_hello_time to elapse"
     process_wait_time = process_total_time - process_hello_time
     stdout_reference: Dict[str, bytes] = {"stdout": b""}
-    watcher_send_channel, watcher_receive_channel = trio.open_memory_channel(0)
-    printer_send_channel, printer_receive_channel = trio.open_memory_channel(0)
+    watcher_channels: "Tuple[MemorySendChannel[bytes], MemoryReceiveChannel[bytes]]" = (
+        trio.open_memory_channel(0)
+    )
+    printer_channels: "Tuple[MemorySendChannel[bytes], MemoryReceiveChannel[bytes]]" = (
+        trio.open_memory_channel(0)
+    )
+    watcher_send_channel, watcher_receive_channel = watcher_channels
+    printer_send_channel, printer_receive_channel = printer_channels
 
     async def printer(
-        stdout_channel: MemoryReceiveChannel, print_buffer: BufferedWriter
+        stdout_channel: "MemoryReceiveChannel[bytes]", print_buffer: BufferedWriter
     ) -> None:
         async with stdout_channel:
             async for chunk in stdout_channel:
@@ -40,8 +46,8 @@ async def watcher_example(
 
     async def copier(
         stdout_stream: ReceiveStream,
-        watcher_channel: MemorySendChannel,
-        printer_channel: MemorySendChannel,
+        watcher_channel: "MemorySendChannel[bytes]",
+        printer_channel: "MemorySendChannel[bytes]",
     ) -> None:
         async with stdout_stream, watcher_channel, printer_channel:
             async for chunk in stdout_stream:
@@ -49,7 +55,7 @@ async def watcher_example(
                 await watcher_channel.send(chunk)
 
     async def watcher_recorder(
-        stdout_channel: MemoryReceiveChannel,
+        stdout_channel: "MemoryReceiveChannel[bytes]",
         ref_dict: Dict[str, bytes],
         stdin_stream: SendStream,
         expect: bytes,
@@ -101,18 +107,24 @@ print("process says thanks", flush=True)
 
         async with trio.open_nursery() as nursery:
             nursery.start_soon(
-                copier, process.stdout, watcher_send_channel, printer_send_channel
+                partial(
+                    copier, process.stdout, watcher_send_channel, printer_send_channel
+                )
             )
-            nursery.start_soon(printer, printer_receive_channel, sys.stdout.buffer)
             nursery.start_soon(
-                watcher_recorder,
-                watcher_receive_channel,
-                stdout_reference,
-                process.stdin,
-                b"hello",
-                b"hi\n",
-                expect_timeout,
-                process,
+                partial(printer, printer_receive_channel, sys.stdout.buffer)
+            )
+            nursery.start_soon(
+                partial(
+                    watcher_recorder,
+                    watcher_receive_channel,
+                    stdout_reference,
+                    process.stdin,
+                    b"hello",
+                    b"hi\n",
+                    expect_timeout,
+                    process,
+                ),
             )
 
             with trio.move_on_after(total_timeout):
