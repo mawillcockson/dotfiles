@@ -9,35 +9,20 @@ from subprocess import PIPE, STDOUT
 from typing import Deque, Dict, List
 
 import trio
-from trio import MemoryReceiveChannel, MemorySendChannel, Process
+from trio import Event, MemoryReceiveChannel, MemorySendChannel, Process
 from trio._abc import ReceiveStream, SendStream
 
 
-async def powershell():
-    stdout_chunks: List[bytes] = []
-
-    async with await trio.open_process(
-        ";Start-Sleep -Milliseconds 200;".join(f'Write-Host "{i}"' for i in range(3)),
-        stdin=None,
-        stdout=PIPE,
-        stderr=STDOUT,
-        shell=True,
-        executable=which("powershell"),
-    ) as process:
-
-        while process.returncode == None:
-            chunk = await process.stdout.receive_some()
-            if chunk:
-                sys.stdout.buffer.write(chunk)
-                sys.stdout.buffer.flush()
-                stdout_chunks.append(chunk)
-
-    process.stdout = b"".join(stdout_chunks)
-
-    print(f"recorded stdout:\n{process.stdout.decode()}")
-
-
-async def watcher_example() -> None:
+async def watcher_example(
+    process_hello_time: float = 0.0,
+    process_total_time: float = 0.01,
+    expect_timeout: float = 1.0,
+    total_timeout: float = 1.0,
+) -> None:
+    assert (
+        process_total_time > process_hello_time >= 0
+    ), "process_total_time must be long enough for process_hello_time to elapse"
+    process_wait_time = process_total_time - process_hello_time
     stdout_reference: Dict[str, bytes] = {"stdout": b""}
     watcher_send_channel, watcher_receive_channel = trio.open_memory_channel(0)
     printer_send_channel, printer_receive_channel = trio.open_memory_channel(0)
@@ -51,6 +36,7 @@ async def watcher_example() -> None:
                     print_buffer.write(chunk)
                 except BlockingIOError:
                     pass
+                print_buffer.flush()
 
     async def copier(
         stdout_stream: ReceiveStream,
@@ -59,8 +45,8 @@ async def watcher_example() -> None:
     ) -> None:
         async with stdout_stream, watcher_channel, printer_channel:
             async for chunk in stdout_stream:
-                await watcher_channel.send(chunk)
                 await printer_channel.send(chunk)
+                await watcher_channel.send(chunk)
 
     async def watcher_recorder(
         stdout_channel: MemoryReceiveChannel,
@@ -68,24 +54,43 @@ async def watcher_example() -> None:
         stdin_stream: SendStream,
         expect: bytes,
         response: bytes,
+        timeout: float,
+        process: Process,
     ) -> None:
         response_sent = False
         async with stdout_channel, stdin_stream:
-            async for chunk in stdout_channel:
-                ref_dict["stdout"] += chunk
-                if not response_sent and expect in ref_dict["stdout"]:
-                    print("sending response...", flush=True)
-                    await stdin_stream.send_all(response)
-                    response_sent = True
-                    print("finished sending response...", flush=True)
+            with trio.move_on_after(timeout):
+                async for chunk in stdout_channel:
+                    ref_dict["stdout"] += chunk
+                    if not response_sent and expect in ref_dict["stdout"]:
+                        print("watcher sending response...", flush=True)
+                        await stdin_stream.send_all(response)
+                        response_sent = True
+                        print("watcher finished sending response...", flush=True)
+
+            if response_sent:
+                # the timeout expired, but the response was sent, so keep going
+                # and let total timeout expire
+                async for chunk in stdout_channel:
+                    ref_dict["stdout"] += chunk
+
+        if process.returncode == None:
+            print("watcher expect timeout")
+            process.kill()
 
     async with await trio.open_process(
         [
             sys.executable,
             "-c",
-            """
+            f"""
+import time
+print("process thinking...", flush=True)
+print("process waiting for {process_hello_time} seconds", flush=True)
+time.sleep({process_hello_time:f})
 print("process says hello", flush=True)
-print(f"process received: {input()}", flush=True)
+print(f"process received: {{input()}}", flush=True)
+print("process waiting for {process_wait_time} seconds", flush=True)
+time.sleep({process_wait_time})
 print("process says thanks", flush=True)
 """,
         ],
@@ -106,70 +111,55 @@ print("process says thanks", flush=True)
                 process.stdin,
                 b"hello",
                 b"hi\n",
+                expect_timeout,
+                process,
             )
 
-            await process.wait()
+            with trio.move_on_after(total_timeout):
+                await process.wait()
+
+            if process.returncode == None:
+                print("total timeout")
+                process.kill()
 
     stdout = stdout_reference["stdout"].decode()
 
     print(f"recorded stdout:\n{stdout}")
 
 
-async def main(args):
-    stdout_chunks: List[bytes] = []
-    copy_queue: Deque[bytes] = deque()
-
-    async def recorder(
-        in_stream: ReceiveStream, chunks: List[bytes], queue: Deque[bytes]
-    ) -> None:
-        async with in_stream:
-            async for chunk in in_stream:
-                chunks.append(chunk)
-                queue.appendleft(chunk)
-
-    async def copier(
-        process: Process, out_stream: BufferedWriter, queue: Deque[bytes]
-    ) -> None:
-        while process.returncode == None:
-            if queue:
-                out_stream.write(queue.pop())
-                out_stream.flush()
-            await trio.sleep(0)
-
-    async with await trio.open_process(
-        args,
-        stdin=None,
-        stdout=PIPE,
-        stderr=STDOUT,
-    ) as process:
-
-        async with trio.open_nursery() as nursery:
-            nursery.start_soon(recorder, process.stdout, stdout_chunks, copy_queue)
-            nursery.start_soon(copier, process, sys.stdout.buffer, copy_queue)
-
-            await process.wait()
-
-    process.stdout = b"".join(stdout_chunks)
-
-    print(f"recorded stdout:\n{process.stdout.decode()}")
-
-
 if __name__ == "__main__":
-    args = [
-        sys.executable,
-        "-c",
-        """
-from time import sleep
-for i in range(3):
-    print(i, flush=True)
-    sleep(0.2)
-""",
-    ]
     print("regular")
-    subprocess.run(args)
-
-    print("trio")
-    trio.run(partial(main, args))
-
-    print("watcher")
     trio.run(watcher_example)
+
+    print("no timeout")
+    trio.run(
+        partial(
+            watcher_example,
+            process_hello_time=5.0,
+            process_total_time=10.0,
+            expect_timeout=7.0,
+            total_timeout=15.0,
+        )
+    )
+
+    print("expect timeout")
+    trio.run(
+        partial(
+            watcher_example,
+            process_hello_time=5.0,
+            process_total_time=10.0,
+            expect_timeout=4.9,
+            total_timeout=15.0,
+        )
+    )
+
+    print("total timeout")
+    trio.run(
+        partial(
+            watcher_example,
+            process_hello_time=5.0,
+            process_total_time=10.0,
+            expect_timeout=7.0,
+            total_timeout=9.9,
+        )
+    )
