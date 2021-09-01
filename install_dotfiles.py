@@ -514,12 +514,12 @@ class Installer:
             ]
             print(f"running -> {args!r}")
 
-            with trio.move_on_after(1000):
+            with trio.move_on_after(7):
                 async with Expect.open_process(
                     args, env_additions=self.UPDATED_ENVIRONMENT
                 ) as expect:
 
-                    with trio.move_on_after(1000):
+                    with trio.move_on_after(2):
                         await expect.expect(
                             watch_for=b'(default is "N"):',
                             respond_with=b"A",
@@ -548,9 +548,10 @@ class Installer:
                 raise Exception("scoop was not installed")
 
             self.UPDATED_ENVIRONMENT["PATH"] = win_get_user_env("PATH")
+            self._SCOOP_INSTALLED = True
 
         installed_apps = (await self.scoop("list")).stdout.decode()
-        for requirement in ["git", "aria2", "python"]:
+        for requirement in ["aria2", "git", "python"]:
             if requirement in installed_apps:
                 continue
 
@@ -584,14 +585,11 @@ class Installer:
         ## Clone dotfiles repository
         self.REPOSITORY_DIR.mkdir(parents=True, exist_ok=True)
 
-        # Check if there's an existing repository, and if that repository is
-        # clean
-        await self.pip(["install", "dulwich"])
-        from dulwich import porcelain, errors as dulwich_errors  # isort:skip
-
-        try:
-            repo_status = porcelain.status(str(self.REPOSITORY_DIR))
-        except dulwich_errors.NotGitRepository:
+        # Check if there's an existing repository, and if that repository is clean
+        # NOTE::FUTURE dulwich does not support submodules
+        # https://github.com/dulwich/dulwich/issues/506
+        repo_status = await self.cmd(["git", "-C", str(self.REPOSITORY_DIR), "status", "--porcelain"], check=False)
+        if "not a git repository" in repo_status.stdout.decode().lower():
             await self.cmd(
                 [
                     "git",
@@ -601,36 +599,24 @@ class Installer:
                     str(self.REPOSITORY_DIR),
                 ]
             )
-            repo_status = porcelain.status(str(self.REPOSITORY_DIR))
 
         # Three scenarios:
         # - Repo exists and is completely clean and up to date
         # - Repo exists and there are uncommitted changes
         # - Repo exists and there are un-pushed changes
         #
-        # The last one can be helped with dulwich, or complex git commands, like:
+        # The last one can be helped with dulwich if issue 506 is resolved, or
+        # complex git commands, like:
         # https://stackoverflow.com/a/6133968
-        #
-        # I'm reluctant to rely too much on dulwich, as I don't know how likely
-        # it is to be kept up to date with git regularly, or how long it will be.
-        # It's amazing it exists, but I'm not sure how much I can rely on it,
-        # and this script is less about doing everything 100%, and more about
-        # failing predictably.
         #
         # For now I'm saying "deal with it manually"
 
         # - Repo exists and there are changes
-        if any((*repo_status.staged.values(), repo_status.unstaged)):
-            raise Exception(
-                f"dotfiles repository may already be at '{self.REPOSITORY_DIR}', which has uncommitted changes"
-            )
 
-        # NOTE: optimistically try to pull in new upstream changes; could fail in innumerous ways
-        await self.cmd(["git", "-C", str(self.REPOSITORY_DIR), "pull"])
+        # NOTE: optimistically try to pull in new upstream changes; could fail in numerous ways
+        await self.cmd(["git", "-C", str(self.REPOSITORY_DIR), "pull", "--ff-only"])
 
         # Run dotdrop
-        print("done")
-        sys.exit(0)
         raise NotImplementedError("setup dotfiles")
 
 
