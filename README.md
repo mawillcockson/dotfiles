@@ -6,13 +6,15 @@ Critiques or improvements can be left in comments, issues, and PRs, or delivered
 
 ## Setup
 
-While the scripts in the [`dotfiles`](./dotfiles/) directory can sometimes be used by themselves, this repository uses [`dotdrop`][dotdrop] for managing the files, and requires [Python][] to be installed (with `pip`).
+While the files in the [`dotfiles`](./dotfiles/) directory can sometimes be used by themselves, this repository uses [`dotdrop`][dotdrop] for managing the files, and is designed to work with that.
 
 OS-specific Python installation instructions and other pre-requisites may be listed in one of the following:
 
  - [Debian](./INSTALL_debian.md)
  - [Arch Linux](./INSTALL_archlinux.md)
  - [Windows](./INSTALL_windows.md)
+
+In general, [Python][] and [`git`][git] are required.
 
 The remaining steps are platform independent.
 
@@ -24,17 +26,15 @@ In a terminal session (PowerShell, bash, etc.):
 python -c "import urllib.request as q,sys;r=q.urlopen('https://github.com/mawillcockson/dotfiles/raw/main/install_dotfiles.py');c=r.read().decode();r.close();sys.exit(exec(c))"
 ```
 
-> _Note: if there's an SSL error, run `iwr -useb https://github.com`, then try again_
-
 ## Contents
 
 I use the following software:
 
 - [NeoVim][]
-- [tmux][]
 - [gnupg2][]
-- [oh-my-zsh][]
 - Linux
+  - [oh-my-zsh][]
+  - [tmux][]
   - [openbox][]
   - [vim-plug][]
   - [tilda][]
@@ -43,7 +43,6 @@ I use the following software:
 [dotdrop]: <https://github.com/deadc0de6/dotdrop>
 [Python]: <https://www.python.org/>
 [git]: <https://git-scm.com/>
-[cURL]: <https://curl.haxx.se/>
 [NeoVim]: <https://neovim.io/>
 [tmux]: <https://github.com/tmux/tmux>
 [gnupg2]: <https://gnupg.org/>

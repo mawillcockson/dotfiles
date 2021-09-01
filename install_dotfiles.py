@@ -15,7 +15,7 @@ Steps:
 """
 import os
 import sys
-import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 from shutil import which
 from subprocess import (
@@ -35,8 +35,11 @@ from urllib.request import urlopen
 trio = None
 
 if TYPE_CHECKING:
+    from io import BufferedWriter
+    from typing import AsyncIterator, List, Tuple, Union
+
     import trio
-    from trio import Process
+    from trio import MemoryReceiveChannel, MemorySendChannel, Process
 
 WINDOWS = sys.platform.startswith(("win", "cygwin")) or (
     sys.platform == "cli" and os.name == "nt"
@@ -49,7 +52,7 @@ if WINDOWS:
     import winreg
 
 
-def get_user_env(name: str) -> Optional[str]:
+def win_get_user_env(name: str) -> Optional[str]:
     if not WINDOWS:
         raise NotImplementedError(
             "can only update environment variables on Windows for now"
@@ -60,6 +63,158 @@ def get_user_env(name: str) -> Optional[str]:
             value, _ = winreg.QueryValueEx(key, name)
 
             return value
+
+
+# pylint: disable=too-many-instance-attributes,too-many-arguments
+class Expect:
+    """
+    Manages running a process as a subprocess, and communicating with it, while
+    echoing its output
+    """
+
+    # From:
+    # https://github.com/mawillcockson/dotfiles/blob/08e973f122b66ceadb009379dfed018a4b9e4eea/trio_watch_and_copy_demo.py
+    # Which is inspired by:
+    # https://github.com/python-trio/trio/blob/v0.19.0/trio/_subprocess.py#L587-L643
+
+    def __init__(
+        self,
+        process: "Process",
+        printer_send_channel: "MemorySendChannel[bytes]",
+        printer_receive_channel: "MemoryReceiveChannel[bytes]",
+        notifier_send_channel: "MemorySendChannel[bytes]",
+        opened_notifier_receive_channel: "MemoryReceiveChannel[bytes]",
+        print_buffer: "BufferedWriter" = sys.stdout.buffer,  # type: ignore
+    ):
+        self.process = process
+        self.printer_send_channel = printer_send_channel
+        self.printer_receive_channel = printer_receive_channel
+        self.notifier_send_channel = notifier_send_channel
+        self.opened_notifier_receive_channel = opened_notifier_receive_channel
+        self.print_buffer = print_buffer
+        self.stdout: bytes = b""
+        self.response_sent = False
+
+    # NOTE: may be able to be combined with copier_recorder()
+    async def printer(
+        self,
+    ) -> None:
+        "echoes the process' output, dropping data if necessary"
+        if not self.process:
+            raise Exception("missing process; was this called inside a with statement?")
+
+        async with self.printer_receive_channel:
+            async for chunk in self.printer_receive_channel:
+                try:
+                    self.print_buffer.write(chunk)
+                except BlockingIOError:
+                    pass
+                self.print_buffer.flush()
+
+    async def copier_recorder(
+        self,
+    ) -> None:
+        """
+        records the process' stdout, and mirrors it to printer()
+
+        also sends notifications to expect() every time the process prints
+        something
+        """
+        if not self.process:
+            raise Exception("missing process; was this called inside a with statement?")
+
+        assert (
+            self.process.stdout is not None
+        ), "process must be opened with stdout=PIPE and stderr=STDOUT"
+
+        async with self.process.stdout, self.printer_send_channel, self.notifier_send_channel:
+            async for chunk in self.process.stdout:
+                # print(f"seen chunk: '{chunk!r}'", flush=True) # debug
+                self.stdout += chunk
+                await self.printer_send_channel.send(chunk)
+
+                # send notification
+                # if it's full, that's fine: if expect() is run, it'll see
+                # there's a "pending" notification and check stdout, then wait
+                # for another notification
+                try:
+                    self.notifier_send_channel.send_nowait(b"")
+                except trio.WouldBlock:
+                    pass
+                except trio.BrokenResourceError as err:
+                    print(f"cause '{err.__cause__}'")
+                    raise err
+
+    async def expect(
+        self,
+        watch_for: bytes,
+        respond_with: bytes,
+    ) -> None:
+        """
+        called inside Expect.open_process()'s with block to watch for, and
+        respond to, the process' output
+        """
+        if not self.process:
+            raise Exception("missing process; was this called inside a with statement?")
+
+        assert self.process.stdin is not None, "process must be opened with stdin=PIPE"
+
+        # NOTE: This could be improved to show which responses were sent, and which
+        # weren't
+        self.response_sent = False
+        async with self.opened_notifier_receive_channel.clone() as notifier_receive_channel:
+            # print("expect --> opened notifier channel", flush=True) # debug
+            async for _ in notifier_receive_channel:
+                # print("expect --> received chunk notification", flush=True) # debug
+                if not self.response_sent and watch_for in self.stdout:
+                    # print("expect --> sending response...", flush=True) # debug
+                    await self.process.stdin.send_all(respond_with)
+                    self.response_sent = True
+                    # print("expect --> response sent", flush=True) # debug
+
+    @classmethod
+    @asynccontextmanager
+    async def open_process(
+        cls, args: "Union[str, List[str]]", env_additions: Dict[str, str] = {}
+    ) -> "AsyncIterator[Expect]":
+        """
+        entry point for using Expect()
+
+        opens the process, opens a nursery, and starts the copier and printer
+
+        this waits until the process is finished, so wrapping in a
+        trio.move_on_after() is good to use as a timeout
+        """
+        printer_channels: (
+            "Tuple[MemorySendChannel[bytes], MemoryReceiveChannel[bytes]]"
+        ) = trio.open_memory_channel(1)
+        printer_send_channel, printer_receive_channel = printer_channels
+        notifier_channels: (
+            "Tuple[MemorySendChannel[bytes], MemoryReceiveChannel[bytes]]"
+        ) = trio.open_memory_channel(0)
+        notifier_send_channel, notifier_receive_channel = notifier_channels
+
+        async with notifier_receive_channel:
+
+            with patch.dict("os.environ", values=env_additions) as patched_env:
+                async with await trio.open_process(
+                    args, stdin=PIPE, stdout=PIPE, stderr=STDOUT, env=patched_env
+                ) as process:
+                    async with trio.open_nursery() as nursery:
+                        expect = cls(
+                            process=process,
+                            printer_send_channel=printer_send_channel,
+                            printer_receive_channel=printer_receive_channel,
+                            notifier_send_channel=notifier_send_channel,
+                            opened_notifier_receive_channel=notifier_receive_channel,
+                        )
+                        nursery.start_soon(expect.copier_recorder)
+                        nursery.start_soon(expect.printer)
+
+                        yield expect
+
+                        # print("waiting for process") # debug
+                        await expect.process.wait()
 
 
 class Bootstrapper:
@@ -76,8 +231,6 @@ class Bootstrapper:
 
     def __init__(self, temp_dir: Path) -> None:
         if WINDOWS:
-            import winreg
-
             powershell_str = which("powershell")
             powershell_path = Path(powershell_str).resolve()
             if not (powershell_str and powershell_path.is_file()):
@@ -104,23 +257,15 @@ class Bootstrapper:
 
     def cmd(self, args: List[str], stdin: str = "") -> CompletedProcess:
         print(f"running -> {args!r}")
-        if self.UPDATED_ENVIRONMENT:
-            with patch.dict(
-                "os.environ", values=self.UPDATED_ENVIRONMENT
-            ) as patched_env:
-                result = run(
-                    args,
-                    stdin=(stdin or PIPE),
-                    stderr=STDOUT,
-                    stdout=PIPE,
-                    check=False,
-                    env=patched_env,
-                )
-        else:
+        with patch.dict("os.environ", values=self.UPDATED_ENVIRONMENT) as patched_env:
             result = run(
-                args, stdin=(stdin or PIPE), stderr=STDOUT, stdout=PIPE, check=False
+                args,
+                stdin=(stdin or PIPE),
+                stderr=STDOUT,
+                stdout=PIPE,
+                check=False,
+                env=patched_env,
             )
-
         print(result.stdout.decode() or "")
         return result
 
@@ -265,6 +410,7 @@ class Installer:
         "pip": "{0}",
         "scoop": "{0}",
     }
+    REPO_URL = "https://github.com/mawillcockson/dotfiles.git"
 
     def __init__(
         self,
@@ -299,7 +445,46 @@ class Installer:
         self.PYTHON_EXECUTABLE = python_executable
         self.UPDATED_ENVIRONMENT.update(updated_environment)
 
-    async def scoop(args: str) -> CompletedProcess:
+    async def cmd(
+        self,
+        args: List[str],
+        check: bool = True,
+        process_type: str = "cmd",
+    ) -> "Expect":
+
+        args_str = self.PROCESS_TYPES.get(
+            process_type, self.PROCESS_TYPES["cmd"]
+        ).format(args)
+
+        cmd_str = f"{process_type} -> {args_str}"
+        print(cmd_str)
+
+        async with Expect.open_process(
+            args,
+            env_additions=self.UPDATED_ENVIRONMENT,
+        ) as expect:
+            pass
+
+        if check and expect.process.returncode != 0:
+            raise CalledProcessError("returncode is not 0")
+
+        return expect
+
+    async def pip(self, args: List[str]) -> "Expect":
+        return await self.cmd(
+            [self.PYTHON_EXECUTABLE, "-m", "pip", *args, "--no-user"],
+            process_type="pip",
+        )
+
+    async def shell(
+        self, code: str, check: bool = True, process_type: str = "shell"
+    ) -> "Expect":
+        # NOTE: "{shell} -c {script}" works with powershell, sh (bash, dash, etc), not sure about other platforms
+        return await self.cmd(
+            [str(self.SHELL), "-c", code], check=check, process_type=process_type
+        )
+
+    async def scoop(self, args: str) -> "Expect":
         if not (WINDOWS and self._SCOOP_INSTALLED):
             raise Exception(
                 "not running scoop when not on Windows or scoop not installed"
@@ -307,58 +492,20 @@ class Installer:
 
         return await self.shell(f"scoop {args}", check=True, process_type="scoop")
 
-    async def cmd(
-        self,
-        args: Union[str, List[str]],
-        check: bool = True,
-        shell: bool = False,
-        process_type: str = "cmd",
-    ) -> CompletedProcess:
-        args_str = self.PROCESS_TYPES.get(
-            process_type, self.PROCESS_TYPES["cmd"]
-        ).format(args)
-        if shell:
-            assert isinstance(args, str), "args must be a string of code for the shell"
-
-        cmd_str = f"{process_type} -> {args_str}"
-        print(cmd_str)
-
-        # NOTE::FUTURE trio.run_process() cannot both capture stdout/stderr AND mirror it
-        # This copies from trio.run_process():
-        # https://github.com/python-trio/trio/blob/v0.19.0/trio/_subprocess.py#L587-L643
-
-        with patch.dict(
-            "os.environ", values=self.UPDATED_ENVIRONMENT
-        ) as patched_env:
-            async with await trio.open_process(
-                args,
-                stdin=None,
-                stdout=PIPE,
-                stderr=STDOUT,
-                shell=shell,
-                executable=str(self.SHELL) or None if shell else None,
-                check=check,
-                env=patched_env,
-                ) as process:
-                data: bytes = process.stdout.receive_some()
-                while process.returncode == None:
-                    try:
-                        data += process.stdout.receive_some()
-
-
-    async def shell(self, code: str, check: bool = True) -> CompletedProcess:
-        return await self.cmd(code, check=check, shell=True, process_type="shell")
-
     async def install_scoop(self) -> None:
         if not WINDOWS:
             raise Exception("not installing scoop when not on Windows")
 
         # Check if scoop is already installed
-        self.UPDATED_ENVIRONMENT["PATH"] = get_user_env("PATH")
+        self.UPDATED_ENVIRONMENT["PATH"] = win_get_user_env("PATH")
 
-        process = await self.shell("scoop which scoop", check=False)
-        error_msg = "is not recognized as the name of"
-        if error_msg in process.stdout.decode() or process.returncode != 0:
+        expect = await self.shell("scoop which scoop", check=False)
+        self._SCOOP_INSTALLED = (
+            "is not recognized as the name of" not in expect.stdout.decode()
+            and expect.process.returncode == 0
+        )
+
+        if not self._SCOOP_INSTALLED:
             # Set PowerShell's Execution Policy
             args = [
                 str(self.SHELL),
@@ -367,23 +514,21 @@ class Installer:
             ]
             print(f"running -> {args!r}")
 
-            async with await trio.open_process(
-                args, stdin=PIPE, stdout=PIPE, stderr=STDOUT, check=False, timeout=2
-            ) as set_executionpolicy:
-                # Wait for warning message or process completion or timeout
-                data: bytes = await set_executionpolicy.stdio.receive_some()
-                expect = '(default is "N"):'.encode()
-                while expect not in data or set_executionpolicy.returncode == None:
-                    data += await set_executionpolicy.stdio.receive_some()
+            with trio.move_on_after(1000):
+                async with Expect.open_process(
+                    args, env_additions=self.UPDATED_ENVIRONMENT
+                ) as expect:
 
-                if expect not in data and set_executionpolicy.returncode != None:
-                    raise Exception("Set-ExecutionPolicy message never received")
+                    with trio.move_on_after(1000):
+                        await expect.expect(
+                            watch_for=b'(default is "N"):',
+                            respond_with=b"A",
+                        )
 
-                # respond to warning message with encoded "A"
-                await set_executionpolicy.stdio.send_all("A".encode())
-
-                # wait for process completion or timeout
-                await set_executionpolicy.wait()
+            # NOTE: don't have to check if the response was sent, because
+            # sometimes the execution policy is set without ever sending a
+            # response (i.e. if the execution policy was already set).
+            # Instead, just check if the policy is set correctly.
 
             result = await self.cmd(
                 [str(self.SHELL), "-c", "& {Get-ExecutionPolicy}"], check=False
@@ -392,56 +537,45 @@ class Installer:
                 raise Exception("could not set PowerShell Execution Policy")
 
             # Install Scoop
-            result = self.cmd(
-                [str(self.SHELL), "-c", "iwr -useb https://get.scoop.sh | iex"]
+            result = await self.cmd(
+                [str(self.SHELL), "-c", "& {iwr -useb https://get.scoop.sh | iex}"]
             )
-            if (
-                not "scoop was installed successfully!"
-                in result.stdout.decode().lower()
+            stdout = result.stdout.decode().lower()
+            if not (
+                "scoop was installed successfully!" in stdout
+                or "scoop is already installed" in stdout
             ):
                 raise Exception("scoop was not installed")
 
-            self.UPDATED_ENVIRONMENT["PATH"] = get_user_env("PATH")
-            self._SCOOP_INSTALLED = True
+            self.UPDATED_ENVIRONMENT["PATH"] = win_get_user_env("PATH")
 
-        installed_apps = self.scoop("list").stdout.decode()
-        for requirement in ["git", "aria2"]:
+        installed_apps = (await self.scoop("list")).stdout.decode()
+        for requirement in ["git", "aria2", "python"]:
             if requirement in installed_apps:
                 continue
 
-            self.scoop(f"install {requirement}")
+            await self.scoop(f"install {requirement}")
 
         wanted_buckets = ["extras"]
-        added_buckets = self.scoop("bucket list").stdout.decode()
+        added_buckets = (await self.scoop("bucket list")).stdout.decode()
         for bucket in wanted_buckets:
             if bucket in added_buckets:
                 continue
 
-            self.scoop(f"bucket add {bucket}")
-
-    async def pip(self, args: List[str]) -> CompletedProcess:
-        return await self.cmd(
-            [self.PYTHON_EXECUTABLE, "-m", "pip", *args, "--no-user"],
-            process_type="pip",
-        )
+            await self.scoop(f"bucket add {bucket}")
 
     async def main(self) -> None:
-        # Install dulwich
-        await self.pip(["install", "dulwich"])
-        import dulwich  # isort:skip
-
         # Install rest of dependencies
         if MACOS or UNIX:
-            raise NotImplementedError("only Windows support")
+            raise NotImplementedError("only Windows supported currently")
 
         if WINDOWS:
             # implicitly installs git as well
             await self.install_scoop()
-            await self.scoop("install python")
 
-        async for dependency_check in (["git", "--version"], ["python", "--version"]):
+        for dependency_check in (["git", "--version"], ["python", "--version"]):
             try:
-                process = await self.cmd(dependency_check, check=True)
+                await self.cmd(dependency_check, check=True)
             except CalledProcessError as err:
                 raise Exception(
                     f"dependency '{dependency_check!r}' was not found"
@@ -452,10 +586,47 @@ class Installer:
 
         # Check if there's an existing repository, and if that repository is
         # clean
-        # NOTE: dulwich helpful here
-        # raise Exception("dotfiles installed but perhaps there are uncommitted changes")
+        await self.pip(["install", "dulwich"])
+        from dulwich import porcelain, errors as dulwich_errors  # isort:skip
 
-        # Clone or pull repo
+        try:
+            repo_status = porcelain.status(str(self.REPOSITORY_DIR))
+        except dulwich_errors.NotGitRepository:
+            await self.cmd(
+                [
+                    "git",
+                    "clone",
+                    "--recurse-submodules",
+                    self.REPO_URL,
+                    str(self.REPOSITORY_DIR),
+                ]
+            )
+            repo_status = porcelain.status(str(self.REPOSITORY_DIR))
+
+        # Three scenarios:
+        # - Repo exists and is completely clean and up to date
+        # - Repo exists and there are uncommitted changes
+        # - Repo exists and there are un-pushed changes
+        #
+        # The last one can be helped with dulwich, or complex git commands, like:
+        # https://stackoverflow.com/a/6133968
+        #
+        # I'm reluctant to rely too much on dulwich, as I don't know how likely
+        # it is to be kept up to date with git regularly, or how long it will be.
+        # It's amazing it exists, but I'm not sure how much I can rely on it,
+        # and this script is less about doing everything 100%, and more about
+        # failing predictably.
+        #
+        # For now I'm saying "deal with it manually"
+
+        # - Repo exists and there are changes
+        if any((*repo_status.staged.values(), repo_status.unstaged)):
+            raise Exception(
+                f"dotfiles repository may already be at '{self.REPOSITORY_DIR}', which has uncommitted changes"
+            )
+
+        # NOTE: optimistically try to pull in new upstream changes; could fail in innumerous ways
+        await self.cmd(["git", "-C", str(self.REPOSITORY_DIR), "pull"])
 
         # Run dotdrop
         print("done")
