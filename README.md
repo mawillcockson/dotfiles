@@ -26,6 +26,8 @@ In a terminal session (PowerShell, bash, etc.):
 python -c "import urllib.request as q,sys;r=q.urlopen('https://github.com/mawillcockson/dotfiles/raw/main/install_dotfiles.py');c=r.read().decode();r.close();sys.exit(exec(c))"
 ```
 
+> _Note: on Windows, if there's an SSL error, run `iwr -useb https://github.com`, then try again_
+
 ## Contents
 
 I use the following software:
