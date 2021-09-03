@@ -23,3 +23,22 @@ del -Recurse -Force "$(gpgconf --list-dirs agent-ssh-socket)" -ErrorAction Conti
 ```
 
 [docs on how to continue and stop on errors may be helpful](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters?view=powershell-7.1)
+
+Also, sometimes if `gpg-agent` and `wsl-ssh-pageant` appear to be running, but with the card inserted, a `git commit -S` produces:
+
+```
+gpg: signing failed: Not confirmed
+gpg: signing failed: Not confirmed
+error: gpg failed to sign the data
+fatal: failed to write commit object
+```
+
+And the pinentry gui keeps popping up asking for the card to be inserted, and `gpg --card-status` shows:
+
+```
+gpg: OpenPGP card not available: General error
+```
+
+I've found `gpgconf --reload` usually does the trick to restart `scdaemon`, and the others. Then `gpg --card-status` shows it's inserted.
+
+This usually happens if I load everything, then try to use the card, all before it's inserted.
