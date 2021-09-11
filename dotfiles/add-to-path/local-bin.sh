@@ -1,0 +1,1 @@
+printf "${HOME}/.local/bin"
