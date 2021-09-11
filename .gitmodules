@@ -1,0 +1,3 @@
+[submodule "dotfiles/path_additions"]
+	path = dotfiles/path_additions
+	url = git@github.com:mawillcockson/path_additions.git
