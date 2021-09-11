@@ -1,0 +1,4 @@
+export PATH=~/.local/bin:$PATH
+export EDITOR=nvim
+alias dotdrop='dotdrop -c /home/mw/projects/dotfiles/config.yaml -p small-laptop'
+alias nvims="PIPENV_PIPFILE=~/Pipfile pipenv run nvim -S"
