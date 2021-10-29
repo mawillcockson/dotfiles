@@ -21,7 +21,7 @@ bind-key    -T prefix       :                 command-prompt
 bind-key    -T prefix       d                 detach-client
 
 # Move between panes/windows
-bind-key    -T prefix       s                 choose-tree -Zs
+bind-key    -T prefix       s                 choose-tree
 bind-key    -T prefix       h                 select-pane -L
 bind-key    -T prefix       j                 select-pane -D
 bind-key    -T prefix       k                 select-pane -U
