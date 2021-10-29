@@ -1,5 +1,5 @@
 # X clipboard interaction
-bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "xclip -i -f -sel primary | xclip -i -sel clipboard"
+bind-key -T copy-mode-vi Enter if-shell -b 'command -v xclip' 'send-keys -X copy-pipe-and-cancel "xclip -i -f -sel primary | xclip -i -sel clipboard"' 'send-keys -X copy-selection-and-cancel'
 set-buffer -b systemclip ""
 bind-key -T prefix C-] run-shell "xclip -se c -o | tmux load-buffer -b systemclip -" \; paste-buffer -b systemclip
 
@@ -19,6 +19,7 @@ bind-key    -T prefix       x                 confirm-before -p "kill-pane #P? (
 bind-key    -T prefix       ?                 list-keys
 bind-key    -T prefix       :                 command-prompt
 bind-key    -T prefix       d                 detach-client
+bind-key    -T prefix       '~'               show-messages
 
 # Move between panes/windows
 bind-key    -T prefix       s                 choose-tree
@@ -62,7 +63,6 @@ bind-key    -T copy-mode-vi C-f               send-keys -X page-down
 bind-key    -T copy-mode-vi NPage             send-keys -X page-down
 bind-key    -T copy-mode-vi C-c               send-keys -X cancel
 bind-key    -T copy-mode-vi Space             send-keys -X begin-selection
-bind-key    -T copy-mode-vi Enter             send-keys -X copy-selection-and-cancel
 bind-key    -T copy-mode-vi v                 send-keys -X begin-selection
 bind-key    -T copy-mode-vi C-v               send-keys -X rectangle-toggle
 bind-key    -T copy-mode-vi Escape            send-keys -X clear-selection
@@ -121,3 +121,5 @@ bind-key    -T copy-mode-vi Up                send-keys -X cursor-up
 bind-key    -T copy-mode-vi Down              send-keys -X cursor-down
 bind-key    -T copy-mode-vi Left              send-keys -X cursor-left
 bind-key    -T copy-mode-vi Right             send-keys -X cursor-right
+
+
