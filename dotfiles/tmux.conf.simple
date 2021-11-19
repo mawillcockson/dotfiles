@@ -1,15 +1,21 @@
-# Prefix
-set -g prefix C-b
-
-# X clipboard interaction
+## X clipboard interaction
 bind-key -T copy-mode-vi Enter if-shell -b 'command -v xclip' 'send-keys -X copy-pipe-and-cancel "xclip -i -f -sel primary | xclip -i -sel clipboard"' 'send-keys -X copy-selection-and-cancel'
 set-buffer -b systemclip ""
 bind-key -T prefix C-] run-shell "xclip -se c -o | tmux load-buffer -b systemclip -" \; paste-buffer -b systemclip
 
-# Environment settings
+## Environment settings
+# Prefix
+set -g prefix C-b
+# send escape key immediately
 set -g escape-time 0
+# increase size of scrollback buffer
 set -g history-limit 999999
+# remember more messages
+set -g message-limit 999999
+# show status messages until key is pressed
+set -g display-time 0
 
+## Keybingings
 # misc
 bind-key    -T prefix       C-s               set-window-option synchronize-panes
 bind-key    -T prefix       i                 display-message
@@ -51,6 +57,7 @@ bind-key    -T prefix       '{'               swap-pane -U
 bind-key    -T prefix       '}'               swap-pane -D
 bind-key    -T prefix       Space             next-layout
 
+# set the copy mode to use vi-style keybindings
 set -g mode-keys vi
 
 # copy-mode-vi
