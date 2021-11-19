@@ -1,9 +1,13 @@
+# Prefix
+set -g prefix C-b
+
 # X clipboard interaction
 bind-key -T copy-mode-vi Enter if-shell -b 'command -v xclip' 'send-keys -X copy-pipe-and-cancel "xclip -i -f -sel primary | xclip -i -sel clipboard"' 'send-keys -X copy-selection-and-cancel'
 set-buffer -b systemclip ""
 bind-key -T prefix C-] run-shell "xclip -se c -o | tmux load-buffer -b systemclip -" \; paste-buffer -b systemclip
 
-set -g default-terminal "screen-256color"
+# Environment settings
+set -g default-shell "/bin/sh"
 set -g escape-time 0
 set -g history-limit 999999
 
@@ -122,4 +126,17 @@ bind-key    -T copy-mode-vi Down              send-keys -X cursor-down
 bind-key    -T copy-mode-vi Left              send-keys -X cursor-left
 bind-key    -T copy-mode-vi Right             send-keys -X cursor-right
 
+## Styles
+# Enable more colours
+set -g default-terminal "screen-256color"
+# Highlight current window (tab) in status bar by swapping colours, and when
+# prefix is presses
+# From: https://unix.stackexchange.com/a/518135
+set -g window-status-style bg=green,fg=black
+# set -g window-status-current-style bg=black,fg=green
+set -g window-status-current-format '#{?client_prefix,#[fg=yellow]#[bg=black],#{?pane_active,#[fg=green]#[bg=black],#[fg=black]#[bg=green]}}#I:#W#F'
 
+# Dim the non-active windows (panes)
+# From: https://stackoverflow.com/a/33562182
+set -g window-style bg=colour232 # grey 1 above darkest
+set -g window-active-style bg=colour16 # darkest
