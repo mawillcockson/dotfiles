@@ -7,7 +7,6 @@ set-buffer -b systemclip ""
 bind-key -T prefix C-] run-shell "xclip -se c -o | tmux load-buffer -b systemclip -" \; paste-buffer -b systemclip
 
 # Environment settings
-set -g default-shell "/bin/sh"
 set -g escape-time 0
 set -g history-limit 999999
 
