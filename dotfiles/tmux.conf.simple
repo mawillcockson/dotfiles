@@ -29,6 +29,7 @@ bind-key    -T prefix       ?                 list-keys
 bind-key    -T prefix       :                 command-prompt
 bind-key    -T prefix       d                 detach-client
 bind-key    -T prefix       '~'               show-messages
+bind-key    -T prefix       r                 refresh-client
 
 # Move between panes/windows
 bind-key    -T prefix       s                 choose-tree
