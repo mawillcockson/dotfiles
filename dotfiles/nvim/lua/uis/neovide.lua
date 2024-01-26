@@ -1,4 +1,4 @@
-print "ran neovide"
+vim.notify("ran neovide", vim.log.levels.DEBUG, {})
 -- https://github.com/neovide/neovide/wiki/Configuration
 vim.g.neovide_refresh_rate = 60
 vim.g.neovide_cursor_animation_length = 0

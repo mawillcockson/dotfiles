@@ -1,4 +1,4 @@
-print "ran fonts"
+vim.notify("ran fonts", vim.log.levels.DEBUG, {})
 --[[ Set font in various environments
 -- https://github.com/equalsraf/neovim-qt/issues/213#issuecomment-266204953
 -- https://stackoverflow.com/questions/35285300/how-to-change-neovim-font/51424640#51424640

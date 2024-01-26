@@ -36,21 +36,6 @@ local autocmds = {
       command = "set sw=2 ts=2 sts=2 expandtab",
     }
   },
-  --[[ No need for this, since lazy.nvim automatically watches its configuration
-  BufWritePost = {
-    {
-      -- from:
--- https://github.com/wbthomason/packer.nvim/blob/afab89594f4f702dc3368769c95b782dbdaeaf0a/README.md?plain=1#L214-L219
-      -- automatically matches / and \
--- https://github.com/neovim/neovim/blob/6116495e6e6d3508eb99720faad7e55ba7cbe978/runtime/doc/usr_40.txt#L522-L526
-      pattern = "plugins/*.lua",
-      callback = function(event)
-        print(vim.inspect(event))
-        require("lazy").sync({concurrency = vim.g.max_nproc or 1})
-      end,
-    },
-  },
-  --]]
 }
 
 for event_name, opts in pairs(autocmds) do

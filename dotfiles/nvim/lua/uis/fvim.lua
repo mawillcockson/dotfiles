@@ -1,4 +1,4 @@
-print "configuring for FVim"
+vim.notify("configuring for FVim", vim.log.levels.DEBUG, {})
 
 local ok, fonts = pcall(require, "uis.fonts")
 if not ok then

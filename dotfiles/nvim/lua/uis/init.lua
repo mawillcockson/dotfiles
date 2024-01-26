@@ -1,4 +1,4 @@
-print "ran uis"
+vim.notify("ran uis", vim.log.levels.DEBUG, {})
 --[[
 This is called from init.lua and tries to figure out what environment this is
 being run from, and calls the options specific to that environment.

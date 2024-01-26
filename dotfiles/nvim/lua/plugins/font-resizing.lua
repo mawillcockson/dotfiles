@@ -1,6 +1,5 @@
 return {}
---[==[
--- NOTE: update to lazy.nvim
+--[==[ NOTE: update to lazy.nvim
 return {
   -- [[~/projects/font-resize.nvim]],
   "mawillcockson/font-resize.nvim",

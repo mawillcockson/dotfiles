@@ -1,4 +1,4 @@
-print "configuring for Goneovim"
+vim.notify("configuring for Goneovim", vim.log.levels.DEBUG, {})
 
 local ok, fonts = pcall(require, "uis.fonts")
 if not ok then

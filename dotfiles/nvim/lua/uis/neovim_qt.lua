@@ -1,4 +1,4 @@
-print "configuring for neovim-qt"
+vim.notify("configuring for neovim-qt", vim.log.levels.DEBUG, {})
 -- neovim-qt has proven quite challenging to identify during startup:
 -- - it doesn't define :GuiFont and such until after startup
 -- - it doesn't give a name for itself in vim.api.nvim_list_chans() until after
