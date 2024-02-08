@@ -34,7 +34,7 @@ return {
           -- have automatically included parsers:
           -- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
 
-          "python", "markdown", "javascript", "clojure", "html", "css", "scss",
+          "python", --"markdown", "javascript", "clojure", "html", "css", "scss",
           --[==[
           -- commonly used
           --[["lua",]] "python", "markdown",
