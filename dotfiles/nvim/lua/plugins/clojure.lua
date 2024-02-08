@@ -10,8 +10,10 @@ return {
   -- https://github.com/littleli/scoop-clojure/wiki/Getting-started
   "Olical/conjure",
   dependencies = {
-    "tpope/vim-dispatch",
+    -- NOTE: :Clj not working
+-- https://github.com/Olical/conjure/wiki/Quick-start:-Clojure#start-your-nrepl--cider-middleware
     "clojure-vim/vim-jack-in",
+    "tpope/vim-dispatch",
     "radenling/vim-dispatch-neovim",
   },
 }
