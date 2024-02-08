@@ -3,9 +3,9 @@ return {
   keys = {
     {
       "<leader>u",
-      "<cmd>UndoTreeToggle<cr>",
-      -- vim.cmd.UndoTreeToggle,
-      desc = "UndoTree",
+      -- "<cmd>UndoreeToggle<cr>",
+      vim.cmd.UndotreeToggle,
+      desc = "Undotree",
     },
   },
 }
