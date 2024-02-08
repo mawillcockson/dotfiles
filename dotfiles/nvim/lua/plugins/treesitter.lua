@@ -7,21 +7,29 @@
 local default_compilers = { vim.fn.getenv "CC", "cc", "gcc", "clang", "cl", "zig" }
 
 ---@return bool|nil
-function has_compiler()
-  return vim.tbl_filter(function(c) ---@param c string
-    return c ~= vim.NIL and vim.fn.executable(c) == 1
-  end, default_compilers)[1]
-end
+local has_compiler = vim.tbl_filter(function(c) ---@param c string
+  return c ~= vim.NIL and vim.fn.executable(c) == 1
+end, default_compilers)[1]
 
-vim.notify("has_compiler() -> " .. tostring(has_compiler()) .. "\n" ..
-           "has tree-sitter -> " .. vim.fn.executable("tree-sitter"),
+local has_tree_sitter = vim.fn.executable "tree-sitter"
+
+vim.notify("has_compiler -> " .. tostring(has_compiler) .. "\n" ..
+           "has tree-sitter -> " .. tostring(has_tree_sitter),
   vim.log.levels.INFO,
   {}
 )
 
+-- NOTE: so far, the MSVC compiler hasn't been working, while the zig compiler
+-- has. It'd be nice to get a warning that the MSVC compiler was having issues.
+-- Also, the MSVC compiler has to be started in an environment when
+-- vcvarsall.bat having been run, and that's annoying to remember to do, just
+-- to start up nvim. The zig compiler can be easily installed through scoop, as
+-- can tree-sitter-cli.
+-- Also, the lua parser has some errors, so has to be :TSInstall-ed, forcing a re-install. Additionally, this can be used to install parsers at a later time:
+-- :lua for _,k in ipairs{"python", "markdown", "javascript"} do vim.cmd(":TSInstall "..k) end
 return {
   "nvim-treesitter/nvim-treesitter",
-  enabled = has_compiler() and vim.fn.executable "tree-sitter",
+  enabled = has_compiler and has_tree_sitter,
   version = "*",
   build = ":TSUpdate",
   config = function() 
@@ -44,7 +52,7 @@ return {
           "javascript", "scss", "rust", "clojure", --[["csharp",]] "haskell",
           --]==]
         },
-        sync_install = false,
+        sync_install = true,
         highlight = { enable = true },
         indent = { enable = true },  
       })
