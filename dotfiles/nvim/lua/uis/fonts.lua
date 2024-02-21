@@ -14,7 +14,7 @@ I did it anyways.
 local M = {}
 
 M.default_font_size = default_font_size or 11
-M.default_text_font = default_text_font or "ComicCode NF"
+M.default_text_font = default_text_font or "ComicCode Nerd Font"
 M.default_term_font = default_term_font or "DejaVuSansM Nerd Font"
 if type(change_fonts) == "boolean" then
   M.change_fonts = change_fonts
