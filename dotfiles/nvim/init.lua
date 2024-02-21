@@ -21,7 +21,8 @@ opt.ff = "unix"
 -- In lua/keymaps.lua, a keymap is set to toggle this on <Space> in Normal mode
 opt.hlsearch = false
 opt.undofile = true
-cmd[[:colorscheme default]]
+-- NOTE::INFO colorscheme set in the config for various plugins
+--cmd[[:colorscheme default]]
 -- By default neovim sets shortmess+=F, one effect of which is making echo and
 -- print inside filetype plugins and autocommands do nothing, and print no
 -- output.
