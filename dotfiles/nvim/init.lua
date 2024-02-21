@@ -4,6 +4,10 @@
 -- I prefer the interface of vim.opt over vim.o
 local opt = vim.opt
 local cmd = vim.cmd
+-- Case in-sensitive search, unless there's a capital letter
+-- https://stackoverflow.com/a/2288438
+opt.ignorecase = true
+opt.smartcase = true
 opt.autoindent = true
 opt.smartindent = true
 opt.expandtab = true
