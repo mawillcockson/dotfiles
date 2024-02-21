@@ -1,3 +1,4 @@
+vim.cmd[[:let g:conjure#highlight#enabled = v:true]]
 return {
   -- NOTE: I'd like to detect if scoop is installed and then install temurin-lts-jdk and clj-deps as required
   -- It used to be adoptopenjdk-lts-hotspot, which at one point was referenced in the exercism docs:
