@@ -1,0 +1,386 @@
+# https://starship.rs/config/
+# last module check: 2023-04-11
+
+palette = "catppuccin_latte"
+
+[aws]
+disabled = true
+
+[azure]
+disabled = true
+
+[battery]
+disabled = true
+
+[buf]
+disabled = true
+
+[bun]
+disabled = true
+
+[c]
+disabled = true
+
+# [character] # lower
+
+[cmake]
+disabled = true
+
+[cobol]
+disabled = true
+
+# [cmd_duration] # lower
+
+[conda]
+disabled = true
+
+[container]
+disabled = true
+
+[crystal]
+disabled = true
+
+[daml]
+disabled = true
+
+[dart]
+disabled = true
+
+[deno]
+disabled = true
+
+# [directory] # lower
+
+[docker_context]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+# [env_var]
+
+[erlang]
+disabled = true
+
+[fennel]
+disabled = true
+
+[fossil_branch]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[git_branch]
+disabled = false
+
+[git_commit]
+disabled = false
+
+[git_state]
+disabled = false
+
+[git_metrics]
+disabled = true
+
+[git_status]
+disabled = false
+
+[golang]
+disabled = true
+
+[guix_shell]
+disabled = true
+
+[gradle]
+disabled = true
+
+[haxe]
+disabled = true
+
+[haskell]
+disabled = true
+
+[helm]
+disabled = true
+
+# [hostname] # lower
+
+[hg_branch]
+disabled = true
+
+[java]
+disabled = true
+
+[jobs]
+disabled = false
+
+[julia]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[line_break]
+disabled = false
+
+[localip]
+disabled = true
+
+# [memory_usage] # lower
+
+[meson]
+disabled = true
+
+[nim]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[opa]
+disabled = true
+
+[openstack]
+disabled = true
+
+[os]
+disabled = true
+
+[package]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[pijul_channel]
+disabled = true
+
+[pulumi]
+disabled = true
+
+[purescript]
+disabled = true
+
+# [python] # lower
+
+[rlang]
+disabled = true
+
+[raku]
+disabled = true
+
+[red]
+disabled = true
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[scala]
+disabled = true
+
+# [shell] # lower
+
+[shlvl]
+disabled = true
+
+[singularity]
+disabled = true
+
+[spack]
+disabled = true
+
+[status]
+disabled = false
+
+[sudo]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
+
+[time]
+disabled = true
+
+[username]
+disabled = false
+
+[vagrant]
+disabled = true
+
+[vlang]
+disabled = true
+
+[vcsh]
+disabled = true
+
+[zig]
+disabled = true
+
+[character]
+format = "($symbol )"
+success_symbol = ""
+# error_symbol = "[✖ ](bold red)" # the status module shows the error code
+error_symbol = ""
+vicmd_symbol = "[](bold blue)"
+
+[cmd_duration]
+show_notifications = true
+
+[directory]
+truncate_to_repo = false
+truncation_symbol = "…/"
+repo_root_style = "bold purple"
+
+[directory.substitutions]
+"~/projects" = " " # other characters that could be used: 
+"~/work" = "🏢 "
+"~/Desktop" = "🖥️ "
+"~/OneDrive/Desktop" = " 🖥️ "
+"~/Documents" = "󰈙"
+"󰈙/Books" = "📖 "
+"~/OneDrive/Documents" = " 󰈙"
+" 󰈙/Books" = " 📖 "
+"~/Downloads" = " "
+"~/Music" = "🎶 "
+"~/OneDrive/Music" = " 🎶 "
+"~/Pictures" = " "
+"~/OneDrive/Pictures" = "  "
+"~/Videos" = "🎦 "
+"~/OneDrive/Videos" = " 🎦 "
+
+[env_var]
+disabled = false
+
+[env_var.PYTHONDEVMODE]
+symbol = "  "
+# the \b (or backspace) is to remove the visual presentation of $env_value, as
+# the conditional group needs a variable that has a chance of varying in order
+# for it to show at all, but I don't actually care what the value is
+format = "([$symbol$env_value\b]($style))"
+style = "pink"
+description = "https://docs.python.org/3/library/devmode.html"
+
+[env_var.PYTHONTRACEMALLOC]
+symbol = "󰍛"
+format = '([$symbol\($env_value\)]($style) )'
+style = "pink"
+description = "trace memory allocations in Python to a specified depth"
+
+[hostname]
+trim_at = "" # Don't trim the hostname
+
+[memory_usage]
+disabled = false
+symbol = "󰍛 "
+
+[python]
+symbol = " "
+
+[shell]
+disabled = false
+bash_indicator = 'bash\$'
+fish_indicator = '󰈺 \$'
+zsh_indicator = 'zsh\$'
+powershell_indicator = ' '
+ion_indicator = 'ion\$'
+elvish_indicator = '🧝\$'
+tcsh_indicator = 'tcsh\$'
+xonsh_indicator = '🐚\$'
+cmd_indicator = ' >'
+nu_indicator = 'nu\$'
+unknown_indicator = ' \$'
+style = "text bold"
+
+[custom.git_email]
+disabled = false
+shell = ['C:\Users\mawil\scoop\apps\git\current\cmd\git.exe', "config", "--get"]
+use_stdin = false
+when = true
+# Change to user.name for the name
+command = 'user.email'
+format = '(as [$output]($style) )'
+style = "blue bold"
+description = 'The currently configured Git user.email'
+
+# https://github.ink/catppuccin/starship/blob/5629d2356f62a9f2f8efad3ff37476c19969bd4f/palettes/latte.toml
+[palettes.catppuccin_latte]
+rosewater = "#dc8a78"
+flamingo = "#dd7878"
+pink = "#ea76cb"
+mauve = "#8839ef"
+red = "#d20f39"
+maroon = "#e64553"
+peach = "#fe640b"
+yellow = "#df8e1d"
+green = "#40a02b"
+teal = "#179299"
+sky = "#04a5e5"
+sapphire = "#209fb5"
+blue = "#1e66f5"
+lavender = "#7287fd"
+text = "#4c4f69"
+subtext1 = "#5c5f77"
+subtext0 = "#6c6f85"
+overlay2 = "#7c7f93"
+overlay1 = "#8c8fa1"
+overlay0 = "#9ca0b0"
+surface2 = "#acb0be"
+surface1 = "#bcc0cc"
+surface0 = "#ccd0da"
+base = "#eff1f5"
+mantle = "#e6e9ef"
+crust = "#dce0e8"
+
+# https://github.ink/catppuccin/starship/blob/5629d2356f62a9f2f8efad3ff37476c19969bd4f/palettes/macchiato.toml
+[palettes.catppuccin_macchiato]
+rosewater = "#f4dbd6"
+flamingo = "#f0c6c6"
+pink = "#f5bde6"
+mauve = "#c6a0f6"
+red = "#ed8796"
+maroon = "#ee99a0"
+peach = "#f5a97f"
+yellow = "#eed49f"
+green = "#a6da95"
+teal = "#8bd5ca"
+sky = "#91d7e3"
+sapphire = "#7dc4e4"
+blue = "#8aadf4"
+lavender = "#b7bdf8"
+text = "#cad3f5"
+subtext1 = "#b8c0e0"
+subtext0 = "#a5adcb"
+overlay2 = "#939ab7"
+overlay1 = "#8087a2"
+overlay0 = "#6e738d"
+surface2 = "#5b6078"
+surface1 = "#494d64"
+surface0 = "#363a4f"
+base = "#24273a"
+mantle = "#1e2030"
+crust = "#181926"
