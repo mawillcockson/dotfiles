@@ -258,6 +258,9 @@ repo_root_style = "bold purple"
 
 [directory.substitutions]
 "~/projects" = " " # other characters that could be used: 
+# termux
+"/sdcard/projects" = " "
+"/storage/emulated/0/projects" = " "
 "~/work" = "🏢 "
 "~/Desktop" = "🖥️ "
 "~/OneDrive/Desktop" = " 🖥️ "
