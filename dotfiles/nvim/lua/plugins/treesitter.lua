@@ -31,7 +31,7 @@ return {
   "nvim-treesitter/nvim-treesitter",
   enabled = has_compiler and has_tree_sitter,
   version = "*",
-  build = ":TSUpdate",
+  build = ":TSUpdateSync",
   config = function() 
     local configs = require("nvim-treesitter.configs")
 
