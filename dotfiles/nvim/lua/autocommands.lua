@@ -43,8 +43,27 @@ local autocmds = {
           return nil
         end
 
+        local keys = {
+          open = "<leader>rr",
+          close = "<leader>rc",
+        }
+
+        local function is_buf_visible(bufnr)
+          return vim.tbl_contains(vim.fn.tabpagebuflist(), bufnr)
+        end
+
         local scratch_buf = false
         --local run_sql -- forward declaration: https://www.lua.org/pil/6.2.html
+
+        local function close_buf(bufnr)
+          local winnrs = vim.tbl_filter(
+            function(winnr)
+              return vim.api.nvim_win_get_buf(winnr) == bufnr
+            end,
+            vim.api.nvim_tabpage_list_wins(0)
+          )
+          vim.tbl_map(vim.api.nvim_win_hide, winnrs)
+        end
 
         local function run_sql()
           local sql = vim.api.nvim_buf_get_name(args.buf)
@@ -68,19 +87,15 @@ local autocmds = {
           if scratch_buf == false then
             scratch_buf = vim.api.nvim_create_buf(true, true)
             -- https://vi.stackexchange.com/a/21390
-            vim.keymap.set("n", "<leader>r", run_sql, { buffer = scratch_buf })
+            vim.keymap.set("n", keys.open, run_sql, { buffer = scratch_buf })
+            vim.keymap.set("n", keys.close, function() close_buf(scratch_buf) end, { buffer = scratch_buf })
             vim.api.nvim_buf_set_option(scratch_buf, "buflisted", true)
             vim.api.nvim_buf_set_option(scratch_buf, "buftype", "nofile")
             vim.api.nvim_buf_set_option(scratch_buf, "bufhidden", "hide")
 
           end
 
-          local function log(msg)
-            vim.notify(vim.inspect(msg), vim.log.levels.DEBUG, {})
-          end
-
-          local visible_bufs = vim.fn.tabpagebuflist()
-          if not vim.tbl_contains(visible_bufs, scratch_buf) then
+          if not is_buf_visible(scratch_buf) then
             -- :split followed by :buffer
             vim.cmd.sbuffer(scratch_buf)
           end
@@ -99,7 +114,8 @@ local autocmds = {
           vim.api.nvim_buf_set_lines(scratch_buf, 0, -1, true, output)
         end
 
-        vim.keymap.set("n", "<leader>r", run_sql, { buffer = args.buf })
+        vim.keymap.set("n", keys.open, run_sql, { buffer = args.buf })
+        vim.keymap.set("n", keys.close, function() close_buf(scratch_buf) end, { buffer = args.buf })
       end
     },
   },
