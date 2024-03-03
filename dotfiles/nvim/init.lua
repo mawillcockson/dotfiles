@@ -66,7 +66,19 @@ local ERROR = vim.log.levels.ERROR
 -- package management
 local function run(tbl)
   -- remove trailing whitespace, including newlines
-  return vim.fn.system(tbl):gsub("%s+$", "")
+  local output = vim.fn.system(tbl)
+  if vim.v.shell_error ~= 0 then
+    vim.notify(
+      "error when trying to run:\n" ..
+      vim.inspect(tbl) .. "\n\n" ..
+      tostring(output),
+      ERROR,
+      {}
+    )
+    assert(false)
+  end
+  -- does the same as: output:gsub("%s+$", "")
+  return vim.trim(output)
 end
 vim.notify("calculating number of jobs", DEBUG, {})
 vim.g.max_nproc_default = 1
