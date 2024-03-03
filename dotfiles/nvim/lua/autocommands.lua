@@ -34,7 +34,74 @@ local autocmds = {
     {
       pattern = "html",
       command = "set sw=2 ts=2 sts=2 expandtab",
-    }
+    },
+    {
+      pattern = "sql",
+      callback = function(args)
+        if not vim.fn.executable("sqlite3") then
+          vim.notify("sqlite3 not installed", vim.log.levels.WARN, {})
+          return nil
+        end
+
+        local scratch_buf = false
+        --local run_sql -- forward declaration: https://www.lua.org/pil/6.2.html
+
+        local function run_sql()
+          local sql = vim.api.nvim_buf_get_name(args.buf)
+          local filename = vim.fn.fnamemodify(sql, ":t:r")
+          local db = vim.fs.normalize(vim.fs.dirname(sql) .. "/" .. filename .. ".db")
+          local cmd = {
+            "sqlite3",
+            db,
+          }
+          --[[ use the shortcut in system() to give a valid buffer id
+          -- get the whole file as a table of lines
+          local input = vim.api.nvim_buf_get_lines(0, 0, -1, true)
+          --]]
+          local input = args.buf
+
+          local output = vim.fn.systemlist(cmd, input)
+          if vim.v.shell_error ~= 0 then
+            vim.notify("sqlite error: " .. tostring(vim.v.shell_error), vim.log.levels.ERROR, {})
+          end
+
+          if scratch_buf == false then
+            scratch_buf = vim.api.nvim_create_buf(true, true)
+            -- https://vi.stackexchange.com/a/21390
+            vim.keymap.set("n", "<leader>r", run_sql, { buffer = scratch_buf })
+            vim.api.nvim_buf_set_option(scratch_buf, "buflisted", true)
+            vim.api.nvim_buf_set_option(scratch_buf, "buftype", "nofile")
+            vim.api.nvim_buf_set_option(scratch_buf, "bufhidden", "hide")
+
+          end
+
+          local function log(msg)
+            vim.notify(vim.inspect(msg), vim.log.levels.DEBUG, {})
+          end
+
+          local visible_bufs = vim.fn.tabpagebuflist()
+          if not vim.tbl_contains(visible_bufs, scratch_buf) then
+            -- :split followed by :buffer
+            vim.cmd.sbuffer(scratch_buf)
+          end
+
+          vim.api.nvim_buf_set_name(scratch_buf,
+            "sqlite3 " ..
+            vim.fn.shellescape(vim.fn.fnamemodify(sql, ":.:r") .. ".db")
+            .. " < " .. vim.fn.shellescape(vim.fn.fnamemodify(sql, ":."))
+          )
+
+          output = vim.tbl_map(
+            function(line)
+              return line:gsub("\r$", "")
+            end,
+            output)
+          vim.api.nvim_buf_set_lines(scratch_buf, 0, -1, true, output)
+        end
+
+        vim.keymap.set("n", "<leader>r", run_sql, { buffer = args.buf })
+      end
+    },
   },
 }
 
