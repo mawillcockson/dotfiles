@@ -38,7 +38,22 @@ local autocmds = {
     {
       pattern = "sql",
       callback = function(args)
-        if not vim.fn.executable("sqlite3") then
+        local executable = {}
+        if vim.fn.executable("sqlite3") then
+          executable = {"sqlite3"}
+        -- NOTE: Need to write a Python script that can read SQL from a stdin
+        -- pipe, and execute the script it receives upon a particular database.
+        -- Note sure how to execute the script, but I guess it can be given as
+        -- command-line arguments to the python executable, with the database
+        -- path being the other argument, so the script can find the correct
+        -- database file to connect to
+        --[[
+        elseif vim.fn.executable("python3") then
+          executable = {"python3", "-m", "sqlite3"}
+        elseif vim.fn.executable("python") then
+          executable = {"python", "-m", "sqlite3"}
+        --]]
+        else
           vim.notify("sqlite3 not installed", vim.log.levels.WARN, {})
           return nil
         end
@@ -69,10 +84,10 @@ local autocmds = {
           local sql = vim.api.nvim_buf_get_name(args.buf)
           local filename = vim.fn.fnamemodify(sql, ":t:r")
           local db = vim.fs.normalize(vim.fs.dirname(sql) .. "/" .. filename .. ".db")
-          local cmd = {
-            "sqlite3",
-            db,
-          }
+          -- copy executable table
+          local cmd = {unpack(executable)}
+          cmd[#cmd + 1] = db
+          vim.print(cmd)
           --[[ use the shortcut in system() to give a valid buffer id
           -- get the whole file as a table of lines
           local input = vim.api.nvim_buf_get_lines(0, 0, -1, true)
