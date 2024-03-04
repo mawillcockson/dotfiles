@@ -34,6 +34,7 @@ opt.undofile = true
 opt.shortmess :remove "F"
 -- enable mouse control in [n]ormal and [v]isual mode, in addition to
 -- whatever's currently set
+-- This allows resizing windows by dragging on the borders between them.
 opt.mouse :append "nv"
 -- NOTE::FUTURE https://github.com/neovim/neovim/pull/19111
 -- this option is supposed to convert all slashes (\/) in paths to
