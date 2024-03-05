@@ -39,7 +39,10 @@ local autocmds = {
       pattern = "sql",
       callback = function(args)
         local executable = {}
-        if vim.fn.executable("sqlite3") then
+        if vim.fn.executable("sqlean") then
+          -- https://github.com/nalgeon/sqlite#sqlean
+          executable = {"sqlean"}
+        elseif vim.fn.executable("sqlite3") then
           executable = {"sqlite3"}
         -- NOTE: Need to write a Python script that can read SQL from a stdin
         -- pipe, and execute the script it receives upon a particular database.
