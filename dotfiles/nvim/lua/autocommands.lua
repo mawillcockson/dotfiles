@@ -87,7 +87,6 @@ local autocmds = {
           -- copy executable table
           local cmd = {unpack(executable)}
           cmd[#cmd + 1] = db
-          vim.print(cmd)
           --[[ use the shortcut in system() to give a valid buffer id
           -- get the whole file as a table of lines
           local input = vim.api.nvim_buf_get_lines(0, 0, -1, true)
