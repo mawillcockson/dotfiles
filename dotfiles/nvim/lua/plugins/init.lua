@@ -12,12 +12,27 @@ return {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1001,
+    version = "*",
+    branch = "main",
     opts = {
       flavour = "latte",
     },
     config = function(opts)
       require("catppuccin").setup(opts)
       vim.cmd.colorscheme "catppuccin"
+    end,
+  },
+  {
+    -- https://github.com/neovim/nvim-lspconfig?tab=readme-ov-file#suggested-configuration
+    "neovim/nvim-lspconfig",
+    lazy = true,
+  },
+  {
+    "onsails/lspkind.nvim",
+    config = function(_, _)
+      require("lspkind").init{
+        mode = "symbol_text",
+      }
     end,
   },
   "nvim-lua/plenary.nvim",

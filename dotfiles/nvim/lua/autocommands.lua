@@ -50,6 +50,8 @@ local autocmds = {
         -- command-line arguments to the python executable, with the database
         -- path being the other argument, so the script can find the correct
         -- database file to connect to
+        -- Also, this:
+        -- https://github.com/Olical/conjure/wiki/Quick-start:-SQL-(stdio)
         --[[
         elseif vim.fn.executable("python3") then
           executable = {"python3", "-m", "sqlite3"}
@@ -117,11 +119,13 @@ local autocmds = {
             vim.cmd.sbuffer(scratch_buf)
           end
 
-          vim.api.nvim_buf_set_name(scratch_buf,
-            "sqlite3 " ..
+          local buf_name = table.concat(executable, " ")
+          buf_name = (
+            buf_name .. " " ..
             vim.fn.shellescape(vim.fn.fnamemodify(sql, ":.:r") .. ".db")
             .. " < " .. vim.fn.shellescape(vim.fn.fnamemodify(sql, ":."))
           )
+          vim.api.nvim_buf_set_name(scratch_buf, buf_name)
 
           output = vim.tbl_map(
             function(line)
