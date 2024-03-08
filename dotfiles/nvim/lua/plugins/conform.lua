@@ -20,7 +20,7 @@ return {
       },
     }
     vim.o.formatexpr = "v:lua.require'conform'.formatexpr()",
-    vim.keymap.set("nv", "<leader>cf", function()
+    vim.keymap.set({"n", "v"}, "<leader>cf", function()
         require("conform").format{
           timeout_ms = 1000,
           lsp_fallback = true,
