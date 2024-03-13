@@ -6,7 +6,14 @@ return {
 		local lspconfig = require("lspconfig")
 		-- not needed, as there's nothing in the base project to configure
 		-- lspconfig.config(name, opts)
-		lspconfig.ruff_lsp.setup()
+		lspconfig.ruff_lsp.setup{
+      init_options = {
+        settings = {
+          -- And extra CLI arguments for ruff
+          args = {},
+        },
+      },
+    }
 
 		vim.keymap.set("n", "<space>e", vim.diagnostic.open_float)
 		vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
