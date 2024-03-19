@@ -3,6 +3,7 @@ $STARSHIP_CONFIG = p"$XDG_CONFIG_HOME/starship/starship.toml"
 # allows `imp.json.loads("[]")` instead of having to ^C and `import json`
 # https://github.com/anki-code/xonsh-cheatsheet/blob/9be52b17557afd96ebdfd52a71c5fe4366746ca9/README.md?plain=1#L1353-L1366
 imp = type('ImpCl', (object,), {'__getattr__':lambda self, name: __import__(name) })()
+$VI_MODE = True
 
 # NOTE::BUG
 # should be as easy as execx($(starship init xonsh))

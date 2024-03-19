@@ -246,7 +246,7 @@ format = "($symbol )"
 success_symbol = ""
 # error_symbol = "[✖ ](bold red)" # the status module shows the error code
 error_symbol = ""
-vicmd_symbol = "[](bold blue)"
+vimcmd_symbol = "[](bold blue)"
 
 [cmd_duration]
 show_notifications = true
