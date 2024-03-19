@@ -8,6 +8,8 @@ vim.g.neovide_input_use_logo = true
 vim.g.neovide_theme = "auto"
 vim.g.neovide_hide_mouse_when_typing = true
 vim.g.neovide_remember_window_size = true
+-- Enable 24-bit RGB color in the TUI
+vim.opt.termguicolors = true
 
 local ok, fonts = pcall(require, "uis.fonts")
 if not ok then
