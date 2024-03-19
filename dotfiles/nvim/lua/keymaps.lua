@@ -93,10 +93,10 @@ map("t", "<C-^>", [[<C-\><C-n><C-^>]], {
 map("n", "<C-y>", "<Cmd>%y+<CR>", {
   desc = "copy whole file"
 })
-map("n", "<C-l>", "<Cmd>:normal! gt<CR>", {
+map({"n", "t"}, "<C-l>", "<Cmd>:tabnext<CR>", {
   desc = "switch tab rightwards"
 })
-map("n", "<C-h>", "<Cmd>:normal! gT<CR>", {
+map({"n", "t"}, "<C-h>", "<Cmd>:tabprevious<CR>", {
   desc = "switch tab leftwards"
 })
 
