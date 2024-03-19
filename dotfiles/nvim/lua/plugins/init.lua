@@ -16,9 +16,15 @@ return {
     branch = "main",
     opts = {
       flavour = "latte",
+      background = {
+        light = "latte",
+        dark = "mocha",
+      },
+      term_colors = true,
     },
     config = function(opts)
-      require("catppuccin").setup(opts)
+      -- vim.g.catppuccin_debug = true
+      require("catppuccin").setup(opts.opts)
       vim.cmd.colorscheme "catppuccin"
     end,
   },
