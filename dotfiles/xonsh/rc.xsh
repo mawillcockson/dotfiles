@@ -5,8 +5,14 @@ $STARSHIP_CONFIG = p"$XDG_CONFIG_HOME/starship/starship.toml"
 imp = type('ImpCl', (object,), {'__getattr__':lambda self, name: __import__(name) })()
 $VI_MODE = True
 
+# NOTE::NOT_IMPLEMENTED atuin supports neither xonsh nor windows
+# if imp.shutil.which("atuin"):
+#     execx($(atuin init xonsh))
+
 # NOTE::BUG
-# should be as easy as execx($(starship init xonsh))
+# should be as easy as:
+# if imp.shutil.which("starship"):
+#     execx($(starship init xonsh))
 # but raw strings aren't used so \ inside '' confuses xonsh
 import uuid
 

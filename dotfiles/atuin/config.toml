@@ -1,0 +1,13 @@
+#db_path = "~/.local/share/atuin/history.db"
+#key_path = "~/.local/share/atuin/key"
+# The path to the Atuin server session file. This is essentially just an API token
+#session_path = "~/.local/share/atuin/session"
+dialect = "us"
+auto_sync = true
+update_check = true
+sync_address = "https://mw.je/atuin"
+sync_frequency = "1hr"
+keymap_mode = "vim-insert"
+prefers_reduced_motion = true
+[sync]
+records = true
