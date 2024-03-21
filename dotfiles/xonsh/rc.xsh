@@ -14,7 +14,10 @@ $ENABLE_ASYNC_PROMPT = True
 # When ENABLE_ASYNC_PROMPT is True, it may call the redraw frequently. This is
 # to group such calls into one that happens within that timeframe. The number
 # is set in seconds.
-$ASYNC_INVALIDATE_INTERVAL = 1
+# This sets the minimum amount of time after a previous draw that a new prompt
+# should be drawn, in case <Enter> is being mashed. Does not cause the prompt
+# to update live.
+$ASYNC_INVALIDATE_INTERVAL = 0.05
 
 # NOTE::NOT_IMPLEMENTED atuin supports neither xonsh nor windows
 # if imp.shutil.which("atuin"):
