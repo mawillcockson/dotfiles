@@ -14,7 +14,9 @@ init_starship() {
         return 0
     fi
     export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/starship.toml"
-    eval "$(starship init bash)"
+    if [ -z "${STARSHIP_SHELL:+"set"}" ]; then
+        eval "$(starship init bash)"
+    fi
 }
 
 init_atuin() {
@@ -22,7 +24,9 @@ init_atuin() {
         printf '%s\n' 'atuin not found'
         return 0
     fi
-    eval "$(atuin init bash)"
+    if [ -z "${ATUIN_SESSION:+"set"}" ]; then
+        eval "$(atuin init bash)"
+    fi
 }
 
 if [ -n "${FANCY:+"set"}" ]; then
@@ -33,9 +37,8 @@ if [ -n "${FANCY:+"set"}" ]; then
     init_atuin
 fi
 
-if [ -z "${SSH_AUTH_SOCK:+"set"}" ]; then
-    eval "$(okc-ssh-agent)"
-fi
+alias init_ssh='eval "$(okc-ssh-agent)"'
+alias init_ssh_agent='init_ssh'
 
 # Created by `pipx` on 2022-08-14 17:26:29
 export PATH="$PATH:/data/data/com.termux/files/home/.local/bin"
