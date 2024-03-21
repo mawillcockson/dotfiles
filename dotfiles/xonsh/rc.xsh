@@ -4,6 +4,17 @@ $STARSHIP_CONFIG = p"$XDG_CONFIG_HOME/starship/starship.toml"
 # https://github.com/anki-code/xonsh-cheatsheet/blob/9be52b17557afd96ebdfd52a71c5fe4366746ca9/README.md?plain=1#L1353-L1366
 imp = type('ImpCl', (object,), {'__getattr__':lambda self, name: __import__(name) })()
 $VI_MODE = True
+$XONSH_HISTORY_SIZE = '50gb'
+$XONSH_HISTORY_BACKEND = 'json'
+$CASE_SENSITIVE_COMPLETIONS = False
+$UPDATE_COMPLETIONS_ON_KEYPRESS = False
+# pressing <Enter> always runs the currently suggested command
+$COMPLETIONS_CONFIRM = False
+$ENABLE_ASYNC_PROMPT = True
+# When ENABLE_ASYNC_PROMPT is True, it may call the redraw frequently. This is
+# to group such calls into one that happens within that timeframe. The number
+# is set in seconds.
+$ASYNC_INVALIDATE_INTERVAL = 1
 
 # NOTE::NOT_IMPLEMENTED atuin supports neither xonsh nor windows
 # if imp.shutil.which("atuin"):
