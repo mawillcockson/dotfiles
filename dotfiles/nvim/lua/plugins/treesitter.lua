@@ -4,19 +4,19 @@
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/install.lua#L19
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/shell_command_selectors.lua#L74-L80
 
-local default_compilers = { vim.fn.getenv "CC", "cc", "gcc", "clang", "cl", "zig" }
+local default_compilers = { vim.fn.getenv("CC"), "cc", "gcc", "clang", "cl", "zig" }
 
 ---@return bool|nil
 local has_compiler = vim.tbl_filter(function(c) ---@param c string
-  return c ~= vim.NIL and vim.fn.executable(c) == 1
+	return c ~= vim.NIL and vim.fn.executable(c) == 1
 end, default_compilers)[1]
 
-local has_tree_sitter = vim.fn.executable "tree-sitter"
+local has_tree_sitter = vim.fn.executable("tree-sitter")
 
-vim.notify("has_compiler -> " .. tostring(has_compiler) .. "\n" ..
-           "has tree-sitter -> " .. tostring(has_tree_sitter),
-  vim.log.levels.INFO,
-  {}
+vim.notify(
+	"has_compiler -> " .. tostring(has_compiler) .. "\n" .. "has tree-sitter -> " .. tostring(has_tree_sitter),
+	vim.log.levels.INFO,
+	{}
 )
 
 -- NOTE: so far, the MSVC compiler hasn't been working, while the zig compiler
@@ -28,22 +28,22 @@ vim.notify("has_compiler -> " .. tostring(has_compiler) .. "\n" ..
 -- Also, the lua parser has some errors, so has to be :TSInstall-ed, forcing a re-install. Additionally, this can be used to install parsers at a later time:
 -- :lua for _,k in ipairs{"python", "markdown", "javascript"} do vim.cmd(":TSInstall "..k) end
 return {
-  "nvim-treesitter/nvim-treesitter",
-  enabled = has_compiler and has_tree_sitter,
-  version = "*",
-  build = ":TSUpdateSync",
-  config = function() 
-    local configs = require("nvim-treesitter.configs")
+	"nvim-treesitter/nvim-treesitter",
+	enabled = has_compiler and has_tree_sitter,
+	version = "*",
+	build = ":TSUpdateSync",
+	config = function()
+		local configs = require("nvim-treesitter.configs")
 
-    configs.setup({
-        ensure_installed = {
-          -- NOTE: need better automatic installation
-          -- NOTE: commented out languages have either broken parsers, or don't
-          -- have automatically included parsers:
-          -- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
+		configs.setup({
+			ensure_installed = {
+				-- NOTE: need better automatic installation
+				-- NOTE: commented out languages have either broken parsers, or don't
+				-- have automatically included parsers:
+				-- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
 
-          "python", --"markdown", "javascript", "clojure", "html", "css", "scss",
-          --[==[
+				--"python", --"markdown", "javascript", "clojure", "html", "css", "scss",
+				--[==[
           -- commonly used
           --[["lua",]] "python", "markdown",
           -- less common
@@ -51,10 +51,14 @@ return {
           -- uncommon/hopeful
           "javascript", "scss", "rust", "clojure", --[["csharp",]] "haskell",
           --]==]
-        },
-        sync_install = true,
-        highlight = { enable = true },
-        indent = { enable = true },  
-      })
-  end,
+			},
+			sync_install = true,
+			highlight = { enable = true },
+			indent = { enable = true },
+		})
+	end,
+	dependencies = {
+		-- additional parsers
+		{ "nushell/tree-sitter-nu" },
+	},
 }
