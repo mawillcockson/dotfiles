@@ -1,1 +1,6 @@
 scoop/config.json
+
+nushell/history.txt
+nushell/scripts/generated/*
+!nushell/scripts/generated/default_env.nu
+!nushell/scripts/generated/default_config.nu
