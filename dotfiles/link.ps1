@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 $configs = "C:\Users\mawil\OneDrive\Documents\configs"
 $dotfiles = "C:\Users\mawil\projects\dotfiles\dotfiles\"
-foreach ($folder in @('starship', 'nvim', 'xonsh', 'atuin', 'scoop', 'nushell')) {
+foreach ($folder in @('starship', 'nvim', 'xonsh', 'atuin', 'scoop')) {
     if (((get-item $configs\$folder).LinkType) -ne $null) {continue}
     remove-item -recurse $configs\$folder-old -erroraction continue
     move-item $configs\$folder $configs\$folder-old
