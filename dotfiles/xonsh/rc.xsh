@@ -23,6 +23,8 @@ $ASYNC_INVALIDATE_INTERVAL = 0.05
 # if imp.shutil.which("atuin"):
 #     execx($(atuin init xonsh))
 
+from pathlib import Path as P
+
 # NOTE::BUG
 # should be as easy as:
 # if imp.shutil.which("starship"):
