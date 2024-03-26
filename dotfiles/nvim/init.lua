@@ -3,7 +3,6 @@
 -- https://alpha2phi.medium.com/neovim-for-beginners-init-lua-45ff91f741cb
 -- I prefer the interface of vim.opt over vim.o
 local opt = vim.opt
-local cmd = vim.cmd
 -- Case in-sensitive search, unless there's a capital letter
 -- https://stackoverflow.com/a/2288438
 opt.ignorecase = true
