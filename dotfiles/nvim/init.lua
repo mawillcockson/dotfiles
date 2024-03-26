@@ -53,6 +53,7 @@ vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
 -- Disable builtin netrw folder browser: https://neovim.io/doc/user/pi_netrw.html#netrw-noload
+-- Also done in lazy_opts.lua
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
