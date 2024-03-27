@@ -23,7 +23,11 @@ if (which starship | length | into bool) {
 }
 
 if (which atuin | length | into bool) {
-    ^atuin init nu | save -f ($generated | path join "atuin.nu")
+    # currently, atuin can automatically run the command when <Enter> is
+    # pressed in other shells, but can't in nu
+    # https://github.com/atuinsh/atuin/issues/1392
+    # this disables atuin filling in for the up arrow
+    ^atuin init --disable-up-arrow nu | save -f ($generated | path join "atuin.nu")
     $postconfig_content ++= `source $"($generated)/atuin.nu"`
 }
 

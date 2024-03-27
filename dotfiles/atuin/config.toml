@@ -5,10 +5,22 @@
 dialect = "us"
 auto_sync = true
 update_check = true
-# slashes can be important! Atuin builds URLs in the safest way, by purely appending
-sync_address = "https://mw.je/atuin/"
-sync_frequency = "1hr"
+sync_address = "https://mw.je/atuin"
+sync_frequency = "1h"
 keymap_mode = "vim-insert"
 prefers_reduced_motion = true
+show_preview = true
+# pressing <Enter> leaves the search view and runs the command
+enter_accept = true
+
+search_mode = 'fuzzy'
+# can press ctrl-r again when in the search view to cycle through filter modes
+filter_mode = 'host'
+search_mode_shell_up_key_binding = 'fuzzy'
+filter_mode_shell_up_key_binding = 'directory'
+
 [sync]
 records = true
+
+[dotfiles]
+enabled = false
