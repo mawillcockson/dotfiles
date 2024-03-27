@@ -14,6 +14,8 @@ set -g history-limit 999999
 set -g message-limit 999999
 # show status messages until key is pressed
 set -g display-time 0
+#if-shell { nu -c 'if ($nu.os-info.name == `android`) {exit 0} else {exit 1}' } 'set -g default-shell /data/data/com.termux/files/home/.cargo/bin/nu' ''
+
 
 ## Keybingings
 # misc
