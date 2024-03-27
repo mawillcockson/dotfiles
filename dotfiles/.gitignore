@@ -1,4 +1,4 @@
-scoop/config.json
+scoop/config*.json
 
 nushell/history.txt
 nushell/logs/
