@@ -1,26 +1,40 @@
+local function load_in_correct_order()
+end
+
 return {
 	{
-		"LuaCATS/love2d",
+		"williamboman/mason.nvim",
+		version = "*",
+		lazy = true,
+		priority = 100, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
+		config = true,
+	},
+	{
+		"williamboman/mason-lspconfig.nvim",
+		version = "*",
+		lazy = true,
+		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
+		config = true,
 	},
 	{
 		-- https://github.com/neovim/nvim-lspconfig?tab=readme-ov-file#suggested-configuration
 		"neovim/nvim-lspconfig",
-		lazy = false,
+		lazy = true,
 		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
 		dependencies = {
-			-- lua_ls
+			-- for lua_ls, so it has access to all the builtins of love2d
 			"LuaCATS/love2d",
 		},
 		config = function(name, opts)
-      -- NOTE::DIRECTION
-      -- I would like for this to autoconfigure available clients on an as-needed basis.
-      -- I would also like for no LSPs to be configured or started unless a
-      -- command or key-combination (if the latter, preferably with a prompt)
-      -- is entered.
-      -- I think it's also a good idea to do the same when configuring the
-      -- completion plugin: by default, it's inactive, and only when a
-      -- key-combination is pressed, or a command is run, is it activated.
-      local lspconfig = require("lspconfig")
+			-- NOTE::DIRECTION
+			-- I would like for this to autoconfigure available clients on an as-needed basis.
+			-- I would also like for no LSPs to be configured or started unless a
+			-- command or key-combination (if the latter, preferably with a prompt)
+			-- is entered.
+			-- I think it's also a good idea to do the same when configuring the
+			-- completion plugin: by default, it's inactive, and only when a
+			-- key-combination is pressed, or a command is run, is it activated.
+			local lspconfig = require("lspconfig")
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
 			lspconfig.ruff_lsp.setup({

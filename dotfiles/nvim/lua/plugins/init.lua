@@ -9,20 +9,6 @@ return {
 		branch = "main",
 	},
 	{
-		"williamboman/mason-lspconfig.nvim",
-		version = "*",
-		lazy = false,
-		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		config = true,
-	},
-	{
-		"williamboman/mason.nvim",
-		version = "*",
-		lazy = false,
-		priority = 100, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		config = true,
-	},
-	{
 		"catppuccin/nvim",
 		name = "catppuccin",
 		priority = 1001,
