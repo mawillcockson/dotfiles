@@ -1,13 +1,6 @@
 export HOME="${HOME:-"/data/data/com.termux/files/home"}"
 export XDG_CONFIG_HOME="${HOME}/.config"
 
-# if SSH_CONNECTION is set from agent forwarding over an ssh session, and
-# we're not inside a tmux session, and tmux doesn't have a session named ssh,
-# then we should load fancy prompts
-if [ -n "${SSH_CONNECTION:+"set"}" ]; then
-    export FANCY="true"
-fi
-
 init_starship() {
     if ! command -v starship &> /dev/null; then
         printf '%s\n' 'starship not found'
@@ -29,6 +22,32 @@ init_atuin() {
     fi
 }
 
+alias init_ssh='eval "$(okc-ssh-agent)"'
+alias init_ssh_agent='init_ssh'
+
+# Created by `pipx` on 2022-08-14 17:26:29
+export PATH="$PATH:/data/data/com.termux/files/home/.local/bin"
+
+if [ -n "${OLD:+"set"}" ]; then
+    printf '%s\n' "Environment variable 'OLD' is already in use!"
+    exit 1
+else
+    OLD="$(pwd -P)"
+    if cd ~/.cargo/bin && CARGO_BIN="$(pwd -P)"; then
+        PATH="${PATH}:${CARGO_BIN}"
+    fi
+    cd "${OLD}"
+    unset -v OLD
+    unset -v CARGO_BIN
+fi
+
+# if SSH_CONNECTION is set from agent forwarding over an ssh session, and
+# we're not inside a tmux session, and tmux doesn't have a session named ssh,
+# then we should load fancy prompts
+if [ -n "${SSH_CONNECTION:+"set"}" ]; then
+    export FANCY="true"
+fi
+
 if [ -n "${FANCY:+"set"}" ]; then
     # ble.sh
     [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none
@@ -36,12 +55,6 @@ if [ -n "${FANCY:+"set"}" ]; then
     init_starship
     init_atuin
 fi
-
-alias init_ssh='eval "$(okc-ssh-agent)"'
-alias init_ssh_agent='init_ssh'
-
-# Created by `pipx` on 2022-08-14 17:26:29
-export PATH="$PATH:/data/data/com.termux/files/home/.local/bin"
 
 if [ -n "${FANCY:+"set"}" ]; then
     # ble.sh
