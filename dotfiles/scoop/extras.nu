@@ -94,7 +94,7 @@ const packages = {
 ^powershell -c 'scoop update'
 
 let selected_packages = (
-    $packages | select 'essential' 'yt-dlp' 'keepass' 'small_rarely' | values | flatten
+    $packages | select 'essential' 'yt-dlp' 'keepass' 'small_rarely' | values | flatten | uniq
 )
 # NOTE::DEBUG
 #let selected_packages = ["nonexistent"]
