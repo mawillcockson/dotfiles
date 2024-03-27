@@ -37,6 +37,5 @@ if ($pipx_apps.Contains("pytest")) {
     }
     if ($pipx_apps.Contains("pylint")) {
         python -m pipx inject pylint pytest
+    }
 }
-
-
