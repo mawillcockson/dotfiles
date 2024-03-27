@@ -56,6 +56,7 @@ const packages = {
 
     'small_rarely': [
         'caddy',
+        'duckdb',
         'gifsicle',
         'gifski',
         'love',
