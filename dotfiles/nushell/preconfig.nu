@@ -28,18 +28,6 @@ if (which atuin | length | into bool) {
 
 if (which starship | length | into bool) {
     ^starship init nu | save -f ($generated | path join "starship.nu")
-    # now `source` -> `overlay use`  produces an error, as if the date my-format function hadn't been defined:
-    # Error: nu::parser::extra_positional
-    # 
-    #   × Extra positional argument.
-    #     ╭─[nushell\config.nu:20:17]
-    #  19 │ }
-    #  20 │ alias dt = date my-format
-    #     ·                 ────┬────
-    #     ·                     ╰── extra positional argument
-    #  21 │
-    #     ╰────
-    #   help: Usage: date
     $postconfig_content ++= `overlay use $"($generated)/starship.nu"`
 }
 
