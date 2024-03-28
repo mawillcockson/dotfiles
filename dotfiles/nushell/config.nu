@@ -14,7 +14,7 @@ export use $"($scripts)/clipboard.nu"
 export use $"($scripts)/utils.nu" *
 
 def "date my-format" [] {
-    let my_date = (date now | format date '%Y-%m-%dT%H%M%z')
+    let my_date = date now | format date "%Y-%m-%dT%H%M%z"
     $my_date | clipboard clip
 }
 alias dt = date my-format
