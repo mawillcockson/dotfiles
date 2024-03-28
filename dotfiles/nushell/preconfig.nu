@@ -40,7 +40,7 @@ if (which starship | length | into bool) {
     #  21 │
     #     ╰────
     #   help: Usage: date
-    $postconfig_content ++= `source $"($generated)/starship.nu"`
+    $postconfig_content ++= `overlay use $"($generated)/starship.nu"`
 }
 
 $postconfig_content | str join "\n" | save -f $postconfig
