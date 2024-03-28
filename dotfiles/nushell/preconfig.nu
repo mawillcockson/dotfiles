@@ -19,6 +19,8 @@ mut postconfig_content: list<string> = (
 
 if (which starship | length | into bool) {
     ^starship init nu | save -f ($generated | path join "starship.nu")
+    # changing `source` -> `overlay use` also produces the behaviour of not
+    # sourcing atuin.nu
     $postconfig_content ++= `source $"($generated)/starship.nu"`
 }
 
