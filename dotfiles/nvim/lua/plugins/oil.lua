@@ -9,7 +9,7 @@ return {
     -- https://github.com/stevearc/oil.nvim/blob/e462a3446505185adf063566f5007771b69027a1/README.md?plain=1#L127-L288
 		-- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
 		-- Set to false if you still want to use netrw.
-		default_file_explorer = true,
+		default_file_explorer = false, -- nvim-tree.lua is hanling this
 		-- Id is automatically added at the beginning, and name at the end
 		-- See :help oil-columns
 		columns = {
