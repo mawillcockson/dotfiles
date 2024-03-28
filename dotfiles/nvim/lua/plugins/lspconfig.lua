@@ -1,52 +1,18 @@
-local function load_in_correct_order()
-end
-
-return {
-	{
-		"williamboman/mason.nvim",
-		version = "*",
-		lazy = true,
-		priority = 100, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		config = true,
-	},
-	{
-		"williamboman/mason-lspconfig.nvim",
-		version = "*",
-		lazy = true,
-		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		config = true,
-	},
-	{
-		-- https://github.com/neovim/nvim-lspconfig?tab=readme-ov-file#suggested-configuration
-		"neovim/nvim-lspconfig",
-		lazy = true,
-		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		dependencies = {
-			-- for lua_ls, so it has access to all the builtins of love2d
-			"LuaCATS/love2d",
-		},
-		config = function(name, opts)
-			-- NOTE::DIRECTION
-			-- I would like for this to autoconfigure available clients on an as-needed basis.
-			-- I would also like for no LSPs to be configured or started unless a
-			-- command or key-combination (if the latter, preferably with a prompt)
-			-- is entered.
-			-- I think it's also a good idea to do the same when configuring the
-			-- completion plugin: by default, it's inactive, and only when a
-			-- key-combination is pressed, or a command is run, is it activated.
-			local lspconfig = require("lspconfig")
-			-- not needed, as there's nothing in the base project to configure
-			-- lspconfig.config(name, opts)
-			lspconfig.ruff_lsp.setup({
-				init_options = {
-					settings = {
-						-- And extra CLI arguments for ruff
-						args = {},
-					},
-				},
-			})
-
-			lspconfig.lua_ls.setup({
+local function load_in_correct_order(tbl)
+	require("mason")
+	require("mason-lspconfig").setup_handlers({
+		-- The first entry (without a key) will be the default handler
+		-- and will be called for each installed server that doesn't have
+		-- a dedicated handler.
+		function(server_name) -- default handler (optional)
+			require("lspconfig")[server_name].setup({})
+		end,
+		-- Next, you can provide a dedicated handler for specific servers.
+    -- Only language servers that have been installed through mason.nvim can be
+    -- configured here. All manually installed ones should be configured below:
+    -- For instance, a handler override for the `lua_ls`:
+		["lua_ls"] = function(server_name)
+			require("lspconfig").lua_ls.setup({
 				on_init = function(client)
 					local is_nvim = false
 					for _, workspace_folder in ipairs(client.workspace_folders) do
@@ -61,6 +27,8 @@ return {
 
 					-- https://github.com/neovim/nvim-lspconfig/blob/6e5c78ebc9936ca74add66bda22c566f951b6ee5/doc/server_configurations.md?plain=1#L6275-L6300
 					client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
+						-- I can disable various features only when editing nvim-related
+						-- files, if I need to
 						runtime = {
 							version = "LuaJIT",
 						},
@@ -80,6 +48,69 @@ return {
 							-- I'd love for this to use the `userThirdParty` key, but it doesn't seem to work
 							library = { vim.fn.stdpath("data") .. "/lazy/love2d" },
 						},
+					},
+				},
+			})
+		end,
+	})
+	require("lspconfig")
+end
+
+vim.api.nvim_create_user_command("DoLspConfig", load_in_correct_order, {
+	desc = "run the appropriate setups in the appropriate order",
+	force = true,
+})
+
+return {
+	{
+		"williamboman/mason.nvim",
+		version = "*",
+		-- lazy overrules the priority, so the priority has no meaning to lazy
+		lazy = true,
+		priority = 100, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
+		config = true,
+	},
+	{
+		"williamboman/mason-lspconfig.nvim",
+		version = "*",
+		lazy = true,
+		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
+		config = true,
+		dependencies = {
+      -- Put any dependencies that a language server might have here
+			-- lua_ls:
+			"LuaCATS/love2d",
+		},
+	},
+	{
+		-- https://github.com/neovim/nvim-lspconfig?tab=readme-ov-file#suggested-configuration
+		"neovim/nvim-lspconfig",
+		lazy = true,
+		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
+		config = function(name, opts)
+      -- This section should only be used for configuring language servers that
+      -- haven't been downloaded using mason. This should be configured above.
+
+			-- NOTE::DIRECTION
+			-- I would like for this to autoconfigure available clients on an as-needed basis.
+			-- I would also like for no LSPs to be configured or started unless a
+			-- command or key-combination (if the latter, preferably with a prompt)
+			-- is entered.
+			-- I think it's also a good idea to do the same when configuring the
+			-- completion plugin: by default, it's inactive, and only when a
+			-- key-combination is pressed, or a command is run, is it activated.
+			-- I don't think each command would have to print out where it's located.
+			-- Regipgrep helps with that.
+			-- I do think the commands should detect if something's missing and point
+			-- to where to enable or install it.
+			local lspconfig = require("lspconfig")
+			-- not needed, as there's nothing in the base project to configure
+			-- lspconfig.config(name, opts)
+			lspconfig.ruff_lsp.setup({
+				init_options = {
+					settings = {
+						-- And extra CLI arguments for ruff
+						args = {},
 					},
 				},
 			})
