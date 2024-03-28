@@ -11,13 +11,13 @@ source $postconfig
 
 export use $"($scripts)/clipboard.nu"
 # changing this to `overlay use` produces an error at line 20 for some reason
-export use $"($scripts)/utils.nu"
+export use $"($scripts)/utils.nu" *
 
-def "date_my-format" [] {
-    let my_date = date now | format date "%Y-%m-%dT%H%M%z"
+def "date my-format" [] {
+    let my_date = (date now | format date '%Y-%m-%dT%H%M%z')
     $my_date | clipboard clip
 }
-alias dt = date_my-format
+alias dt = date my-format
 
 # Atuin should be able to handle a lot of history, so don't cull based on
 # number of entries

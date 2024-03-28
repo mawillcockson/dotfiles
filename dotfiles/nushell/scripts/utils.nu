@@ -37,3 +37,8 @@ export def "path is-dir" [
     }
     return ($value | path type | $in == 'dir')
 }
+
+export def "date my-format" [] {
+    let my_date = date now | format date "%Y-%m-%dT%H%M%z"
+    $my_date | clipboard clip
+}
