@@ -103,7 +103,17 @@ return {
 			-- Regipgrep helps with that.
 			-- I do think the commands should detect if something's missing and point
 			-- to where to enable or install it.
-			local lspconfig = require("lspconfig")
+      -- Going through all the plugins that are loaded by default (`start` plugins, `lazy = false`) and finding out ways to make them only load when desired, would be nice.
+      -- - Conjure (in clojure.lua) should only be loaded for fennel and clojure filetypes
+      -- There should be a way to detect if the lsps are available, and then
+      -- each one can be configured. I think breaking each out into its own
+      -- file would be good.
+      -- If they can be set to run their configuration right before they're
+      -- needed, that would be perfect.
+      -- Also, the ftplugins should each have a buffer-local variable to
+      -- prevent editing the same file from overwriting any changes made to
+      -- variables for that specific file
+      local lspconfig = require("lspconfig")
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
 			lspconfig.ruff_lsp.setup({
