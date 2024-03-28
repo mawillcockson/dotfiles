@@ -17,13 +17,6 @@ mut postconfig_content: list<string> = (
     ]
 )
 
-if (which starship | length | into bool) {
-    ^starship init nu | save -f ($generated | path join "starship.nu")
-    # changing `source` -> `overlay use` also produces the behaviour of not
-    # sourcing atuin.nu
-    $postconfig_content ++= `source $"($generated)/starship.nu"`
-}
-
 if (which atuin | length | into bool) {
     # currently, atuin can automatically run the command when <Enter> is
     # pressed in other shells, but can't in nu
@@ -31,6 +24,23 @@ if (which atuin | length | into bool) {
     # this disables atuin filling in for the up arrow
     ^atuin init --disable-up-arrow nu | save -f ($generated | path join "atuin.nu")
     $postconfig_content ++= `source $"($generated)/atuin.nu"`
+}
+
+if (which starship | length | into bool) {
+    ^starship init nu | save -f ($generated | path join "starship.nu")
+    # now `source` -> `overlay use`  produces an error, as if the date my-format function hadn't been defined:
+    # Error: nu::parser::extra_positional
+    # 
+    #   × Extra positional argument.
+    #     ╭─[nushell\config.nu:20:17]
+    #  19 │ }
+    #  20 │ alias dt = date my-format
+    #     ·                 ────┬────
+    #     ·                     ╰── extra positional argument
+    #  21 │
+    #     ╰────
+    #   help: Usage: date
+    $postconfig_content ++= `source $"($generated)/starship.nu"`
 }
 
 $postconfig_content | str join "\n" | save -f $postconfig
