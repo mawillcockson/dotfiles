@@ -19,7 +19,7 @@ mut postconfig_content: list<string> = (
 
 if (which starship | length | into bool) {
     ^starship init nu | save -f ($generated | path join "starship.nu")
-    $postconfig_content ++= `use $"($generated)/starship.nu"`
+    $postconfig_content ++= `source $"($generated)/starship.nu"`
 }
 
 if (which atuin | length | into bool) {
