@@ -4,6 +4,7 @@ const default_config = $"($generated)/default_config.nu"
 source $default_config
 
 export use $"($scripts)/clipboard.nu"
+overlay use $"($scripts)/utils.nu"
 
 def "date my-format" [] {
     let my_date = date now | format date "%Y-%m-%dT%H%M%z"
