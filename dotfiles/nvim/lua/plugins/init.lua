@@ -11,9 +11,10 @@ return {
 	{
 		"catppuccin/nvim",
 		name = "catppuccin",
-		priority = 1001,
 		version = "*",
 		branch = "main",
+		lazy = false, -- load this as soon as possible, do not wait
+		priority = 1001,
 		opts = {
 			flavour = "latte",
 			background = {
@@ -30,13 +31,14 @@ return {
 	},
 	{
 		"onsails/lspkind.nvim",
+		lazy = false, -- small enough that it can be loaded immediately
 		config = function(_, _)
 			require("lspkind").init({
 				mode = "symbol_text",
 			})
 		end,
 	},
-	"nvim-lua/plenary.nvim",
-	"tpope/vim-surround",
-	"tpope/vim-repeat",
+	{ "nvim-lua/plenary.nvim", lazy = true },
+	{ "tpope/vim-surround", lazy = true },
+	{ "tpope/vim-repeat", lazy = true },
 }

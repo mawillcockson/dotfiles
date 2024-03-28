@@ -1,10 +1,13 @@
 return {
   "nvim-tree/nvim-tree.lua",
-  dependencies = {
-    "nvim-tree/nvim-web-devicons",
-  },
+  branch = "master",
+  version = "*",
+  lazy = true,
   keys = {
     { "<leader>fb", "<cmd>NvimTreeToggle<cr>", desc = "NvimTree" },
   },
-  config = function() require("nvim-tree").setup() end,
+  config = true,
+  dependencies = {
+    "nvim-tree/nvim-web-devicons",
+  },
 }

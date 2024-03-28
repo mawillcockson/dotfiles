@@ -1,5 +1,8 @@
 return {
   "mbbill/undotree",
+  branch = "master",
+  version = "*",
+  lazy = true,
   keys = {
     {
       "<leader>u",

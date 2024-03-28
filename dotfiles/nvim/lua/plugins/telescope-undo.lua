@@ -1,17 +1,19 @@
 return {
   "debugloop/telescope-undo.nvim",
-  enabled = true,
-  dependencies = { -- note how they're inverted to above example
-    {
-      "nvim-telescope/telescope.nvim",
-      dependencies = { "nvim-lua/plenary.nvim" },
-    },
-  },
+  -- conflicts with undotree.lua
+  enabled = false,
+  lazy = true,
   keys = {
     { -- lazy style key map
       "<leader>u",
       "<cmd>Telescope undo<cr>",
       desc = "undo history",
+    },
+  },
+  dependencies = { -- note how they're inverted to above example
+    {
+      "nvim-telescope/telescope.nvim",
+      dependencies = { "nvim-lua/plenary.nvim" },
     },
   },
   opts = {
