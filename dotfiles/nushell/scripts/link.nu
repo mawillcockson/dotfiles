@@ -16,7 +16,7 @@ let dotfiles = match $nu.os-info.name {
     },
 }
 
-['starship' 'nvim', 'xonsh', 'atuin', 'scoop'] | each {|name|
+['starship', 'nvim', 'xonsh', 'atuin', 'scoop'] | each {|name|
     let in_configs = $configs | path join $name
     let in_dotfiles = $dotfiles | path join $name
     if ($in_configs | path is-link) {
@@ -28,14 +28,15 @@ let dotfiles = match $nu.os-info.name {
         print -e $'removing folder from previously canceled script? ($old_configs)'
         rm -r $old_configs
     }
-    print -e $'mv: ($in_configs) -> ($old_configs)'
     if ($in_configs | path exists) {
+        print -e $'mv: ($in_configs) -> ($old_configs)'
         mv $in_configs $old_configs
     }
     print -e $'attempting to symlink: ($in_configs) -> ($in_dotfiles)'
-    ln -s $in_configs $in_dotfiles
+    let res = (ln -s $in_configs $in_dotfiles)
     if ($old_configs | path exists) {
         print -e $'rm: ($old_configs)'
         rm -r $old_configs
     }
+    return $res
 }

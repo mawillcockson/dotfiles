@@ -88,15 +88,15 @@ export def "path is-dir" [
 # on windows, this can only be for directories, unless we're a privileged user
 export def "ln -s" [
     link: string # path to create link at (does not yet exist)
-    target: string # path the symbolic link will point at (does exist)
+    orig_target: string # path the symbolic link will point at (does exist)
 ] {
-    let span = {'link': (metadata $link), 'target': (metadata $target)}
+    let span = {'link': (metadata $link).span, 'target': (metadata $orig_target).span}
 
-    if not ($target | path exists) {
+    if not ($orig_target | path exists) {
         return (error make {
             'msg': 'the target of the symbolic link does not currently exist',
             'label': {
-                'text': $'missing ($target | path type)'
+                'text': $'missing ($orig_target | path type)'
                 'span': $span.target,
             },
         })
@@ -110,36 +110,44 @@ export def "ln -s" [
             },
         })
     }
-    match $nu.os-info.name {
+    let target = (ls --directory --full-paths $orig_target | get name | first 1 | get 0)
+    let res = match $nu.os-info.name {
         'windows' => {
             let link_type = (match ($target | path type) {
                 'file' => {
                     if not (is-admin) {
                         print -e `symlinking to a file on windows is usually only possible if you're running with administrator privileges; normally, only directory junctions are allowed`
                     }
-                    return 'SymbolicLink'
+                    'SymbolicLink'
                 },
                 'symlink' => {
                     print -e `I have no idea if this will work`
-                    return 'SymbolicLink'
+                    'SymbolicLink'
                 },
-                'dir' => { return 'Junction' },
-                _ => {error make {
+                'dir' => { 'Junction' },
+                _ => {return (error make {
                     'msg': $"'ln -s' isn't implemented for paths of type '($target | path type)'",
                     'label': {
                         'text': $"what is a '($target | path type)'",
                         'span': $span.target,
                     },
-                }},
+                })},
             })
-            [($link | path dirname), ($link | path basename), $target] | str join '//' | ^powershell -NoLogo -NonInteractive -NoProfile -Command $'
+            [($link | path dirname), ($link | path basename), $target] | str join "\u{0}" | ^powershell -NoLogo -NonInteractive -NoProfile -Command $'
             $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding;
-            $input -split [char]0x0 | New-Item -Type ($link_type) -Path $_[0] -Name $_[1] -Value $_[2]' | decode 'utf8'
+            $temp = $input -split [char]0x0;
+            New-Item -Type ($link_type) -Path $temp[0] -Name $temp[1] -Value $temp[2]' | complete
         },
         _ => {error make {
             'msg': $"'ln -s' isn't implemented for this platform: ($nu.os-info.name)"
         }},
     }
+    if ($res.exit_code != 0) {
+        return (error make {
+            'msg': ($res | to text)
+        })
+    }
+    return $res
 }
 
 export use $"($scripts)/clipboard.nu"
