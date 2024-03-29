@@ -110,7 +110,7 @@ export def "ln -s" [
             },
         })
     }
-    let target = (ls --directory --full-paths $orig_target | get name | first 1 | get 0)
+    let target = (ls --directory --full-paths $orig_target | get 0.name)
     let res = match $nu.os-info.name {
         'windows' => {
             let link_type = (match ($target | path type) {
