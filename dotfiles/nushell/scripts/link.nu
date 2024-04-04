@@ -2,14 +2,14 @@ const utils = $'($nu.default-config-dir)/scripts/utils.nu'
 overlay use $utils
 
 let configs = match $nu.os-info.name {
-    'windows' => ($env.ONEDRIVE | path join 'Documents' 'configs'),
+    'windows' => ($env.OneDrive | path join 'Documents' 'configs'),
     _ => {
         print --stderr 'not implemented for this platform'
         exit 1
     },
 }
 let dotfiles = match $nu.os-info.name {
-    'windows' => '~\projects\dotfiles\dotfiles',
+    'windows' => ($env.USERPROFILE | path join 'projects' 'dotfiles' 'dotfiles'),
     _ => {
         print --stderr 'not implemented for this platform'
         exit 1

@@ -5,7 +5,7 @@ export def "path resolve" [
     path?: string # path to check; if none given, treat piped input as a path
 ] {
     let piped = $in
-    if not (($path == null)) xor ($piped == null)) {
+    if not (($path == null) xor ($piped == null)) {
         return (error make {
             'msg': 'need exactly one of piped data or a positional argument',
         })
