@@ -1,138 +1,1102 @@
-const packages = {
-    'install_script': [
-        'aria2',
-        'clink',
-        'git',
-        'gnupg',
-    ],
+[
+    [
+        name,
+        install,
+        tags,
+        reasons,
+        links
+    ];
+    [
+        "aria2",
+        {
+            windows: {
+                scoop: "aria2"
+            }
+        },
+        [
+            scoop
+        ],
+        [
+            "helps scoop download stuff better"
+        ],
+        [
 
-    'auto_dependencies': [
-        '7zip',
-        'dark',
-        'innounp',
+        ]
     ],
+    [
+        clink,
+        {
+            windows: {
+                scoop: clink
+            }
+        },
+        [
+            essential
+        ],
+        [
+            "makes Windows' CMD easier to use",
+            "enables starship in CMD",
+        ],
+        [
 
-    'essential': [
+        ]
+    ],
+    [
+        git,
+        {
+            windows: {
+                scoop: git
+            }
+        },
+        [
+            essential
+        ],
+        [
+            "revision control and source management",
+            "downloading programs",
+        ],
+        [
+            "https://git-scm.com/docs",
+        ]
+    ],
+    [
+        gnupg,
+        {
+            windows: {
+                scoop: gnupg
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "7zip",
+        {
+            windows: {
+                scoop: "7zip"
+            }
+        },
+        [
+            scoop_auto_dependencies
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        dark,
+        {
+            windows: {
+                scoop: dark
+            }
+        },
+        [
+            scoop_auto_dependencies
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        innounp,
+        {
+            windows: {
+                scoop: innounp
+            }
+        },
+        [
+            scoop_auto_dependencies
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
         'dejavusansmono-nf',
-        'eget',
-        'fd',
-        'jq',
-        'mpv',
-        'neovide',
-        'neovim',
-        'notepadplusplus',
-        'nu',
-        'peazip',
-        'python',
-        'rclone',
-        'ripgrep',
-        'sqlite',
-        'starship',
-        'vlc',
-        'windirstat',
-        'wsl-ssh-pageant',
+        {
+            windows: {
+                scoop: 'dejavusansmono-nf'
+            }
+        },
+        [
+            essential
+            fonts
+        ],
+        [
+
+        ],
+        [
+
+        ]
     ],
-
-    'yt-dlp': [
-        'ffmpeg',
+    [
+        eget,
+        {
+            windows: {
+                scoop: eget
+            }
+        },
+        [
+            essential
+        ],
+        [
+            'makes installing stuff from GitHub releases much easier',
+        ],
+        [
+            'https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation',
+        ]
     ],
+    [
+        fd,
+        {
+            windows: {
+                scoop: fd
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-    'keepass': [
-        'keepass',
-        'keepass-plugin-keetraytotp',
-        'keepass-plugin-readable-passphrase',
+        ],
+        [
+
+        ]
     ],
+    [
+        jq,
+        {
+            windows: {
+                scoop: jq
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-    'neovim_dependencies': [
-        'stylua',
-        'taplo', # for toml language server
-        'tree-sitter',
+        ],
+        [
+
+        ]
     ],
+    [
+        mpv,
+        {
+            windows: {
+                scoop: mpv
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-    'large': [
-        'inkscape',
-        'obs-studio',
+        ],
+        [
+
+        ]
     ],
+    [
+        neovide,
+        {
+            windows: {
+                scoop: neovide
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-    'small_rarely': [
-        'caddy',
-        'duckdb',
-        'gifsicle',
-        'gifski',
-        'love',
-        'luajit',
-        'pandoc',
-        'rufus',
-        'shellcheck',
-        'transmission',
-        'upx',
-        'xmplay',
-        'zig', # currently I'm using this as the compiler for neovim's tree-sitter
-        'zstd',
+        ],
+        [
+
+        ]
     ],
+    [
+        neovim,
+        {
+            windows: {
+                scoop: neovim
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-    'rarely': [
-        'audacity',
-        'filezilla',
-        'fontforge',
-        'handbrake',
-        'hashcat',
-        'imageglass',
-        'libreoffice',
-        'picard',
-        'screentogif',
+        ],
+        [
+
+        ]
     ],
+    [
+        notepadplusplus,
+        {
+            windows: {
+                scoop: notepadplusplus
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-    'why_even': [
-        'foobar2000',
-        'freac',
-        'fvim',
-        'libxml2',
+        ],
+        [
+
+        ]
     ],
-}
+    [
+        nu,
+        {
+            windows: {
+                scoop: nu
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-^powershell -c 'scoop update'
+        ],
+        [
 
-let selected_packages = (
-    $packages | select 'essential' 'yt-dlp' 'keepass' 'small_rarely' | values | flatten | uniq
-)
-# NOTE::DEBUG
-#let selected_packages = ["nonexistent"]
-#print $selected_packages
+        ]
+    ],
+    [
+        peazip,
+        {
+            windows: {
+                scoop: peazip
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-let outputs = $selected_packages | each {
-    |package|
-    print --no-newline $'installing ($package)...'
-    let output = (
-        # have to run inside a `do` block in order to capture stderr, too
-        do {
-            # could do `^scoop install $package`, but the scoop shim always
-            # exits with 0 :/
-            ^powershell -c $'scoop install "($package)"'
-        } | complete
-    )
-    if $output.exit_code == 0 { print '✔️' } else { print '❌' }
-    return { 'package': $package, 'output': $output}
-}
+        ],
+        [
 
-# NOTE::DEBUG
-#$outputs | to text | print $in
+        ]
+    ],
+    [
+        python,
+        {
+            windows: {
+                scoop: python
+            }
+        },
+        [
+            essential
+        ],
+        [
 
-let errors = $outputs | filter {|output| $output.output.exit_code != 0 }
-if ($errors | length) == 0 { 
-    print 'all packages installed succesfully'
-    exit 0
-}
+        ],
+        [
 
-# errors happened
-print 'these packages encountered errors during installation'
-$errors | each {
-    |output|
-    print $output.package
-}
-let timestamp = date now | format date '%+' | str replace --all ':' ''
-let logs = $nu.default-config-dir | path join "logs"
-mkdir $logs
-let log_file = $logs | path join $"scoop_install_errors_($timestamp).json"
-print $"\nsaving output to ($log_file)"
-$errors | to json | save $log_file
+        ]
+    ],
+    [
+        rclone,
+        {
+            windows: {
+                scoop: rclone
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        ripgrep,
+        {
+            windows: {
+                scoop: ripgrep
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        sqlite,
+        {
+            windows: {
+                scoop: sqlite
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        starship,
+        {
+            windows: {
+                scoop: starship
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        vlc,
+        {
+            windows: {
+                scoop: vlc
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        windirstat,
+        {
+            windows: {
+                scoop: windirstat
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "wsl'-'ssh'-'pageant",
+        {
+            windows: {
+                scoop: "wsl'-'ssh'-'pageant"
+            }
+        },
+        [
+            essential
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        ffmpeg,
+        {
+            windows: {
+                scoop: ffmpeg
+            }
+        },
+        [
+            "yt'-'dlp"
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        keepass,
+        {
+            windows: {
+                scoop: keepass
+            }
+        },
+        [
+            keepass
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "keepass'-'plugin'-'keetraytotp",
+        {
+            windows: {
+                scoop: "keepass'-'plugin'-'keetraytotp"
+            }
+        },
+        [
+            keepass
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "keepass'-'plugin'-'readable'-'passphrase",
+        {
+            windows: {
+                scoop: "keepass'-'plugin'-'readable'-'passphrase"
+            }
+        },
+        [
+            keepass
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        stylua,
+        {
+            windows: {
+                scoop: stylua
+            }
+        },
+        [
+            neovim_dependencies
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        taplo,
+        {
+            windows: {
+                scoop: taplo
+            }
+        },
+        [
+            neovim_dependencies
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "tree'-'sitter",
+        {
+            windows: {
+                scoop: "tree'-'sitter"
+            }
+        },
+        [
+            neovim_dependencies
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        inkscape,
+        {
+            windows: {
+                scoop: inkscape
+            }
+        },
+        [
+            large
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "obs'-'studio",
+        {
+            windows: {
+                scoop: "obs'-'studio"
+            }
+        },
+        [
+            large
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        caddy,
+        {
+            windows: {
+                scoop: caddy
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        duckdb,
+        {
+            windows: {
+                scoop: duckdb
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        gifsicle,
+        {
+            windows: {
+                scoop: gifsicle
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        gifski,
+        {
+            windows: {
+                scoop: gifski
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        love,
+        {
+            windows: {
+                scoop: love
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        luajit,
+        {
+            windows: {
+                scoop: luajit
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        pandoc,
+        {
+            windows: {
+                scoop: pandoc
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        rufus,
+        {
+            windows: {
+                scoop: rufus
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        shellcheck,
+        {
+            windows: {
+                scoop: shellcheck
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        transmission,
+        {
+            windows: {
+                scoop: transmission
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        upx,
+        {
+            windows: {
+                scoop: upx
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        xmplay,
+        {
+            windows: {
+                scoop: xmplay
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        zig,
+        {
+            windows: {
+                scoop: zig
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        zstd,
+        {
+            windows: {
+                scoop: zstd
+            }
+        },
+        [
+            small_rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        audacity,
+        {
+            windows: {
+                scoop: audacity
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        filezilla,
+        {
+            windows: {
+                scoop: filezilla
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        fontforge,
+        {
+            windows: {
+                scoop: fontforge
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        handbrake,
+        {
+            windows: {
+                scoop: handbrake
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        hashcat,
+        {
+            windows: {
+                scoop: hashcat
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        imageglass,
+        {
+            windows: {
+                scoop: imageglass
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        libreoffice,
+        {
+            windows: {
+                scoop: libreoffice
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        picard,
+        {
+            windows: {
+                scoop: picard
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        screentogif,
+        {
+            windows: {
+                scoop: screentogif
+            }
+        },
+        [
+            rarely
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "foobar2000",
+        {
+            windows: {
+                scoop: "foobar2000"
+            }
+        },
+        [
+            why_even
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        freac,
+        {
+            windows: {
+                scoop: freac
+            }
+        },
+        [
+            why_even
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        fvim,
+        {
+            windows: {
+                scoop: fvim
+            }
+        },
+        [
+            why_even
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        "libxml2",
+        {
+            windows: {
+                scoop: "libxml2"
+            }
+        },
+        [
+            why_even
+        ],
+        [
+
+        ],
+        [
+
+        ]
+    ],
+    [
+        'atuin',
+        {
+            'windows': {
+                # If I include dependency information in here, I'll need to
+                # find a topological sort implementation in order to figure out
+                # which packages to install in which order, and detect cyclic
+                # dependencies.
+                # It might be better to simply include a closure that does the
+                # installation, relying on being run after a base set of
+                # packages is installed.
+                # Then, each closure will call other common commands that
+                # encapsulate common functionality, like ensuring the tools
+                # they need to perform an installation, are installed already.
+                # That means that for custom packages, there will be
+                # duplication in terms of installing a package and then
+                # potentially repeatedly checking to see if that package is
+                # installed, but that is a very minor cost to pay
+                #'custom': {||
+                #    ensure rust
+                #    ^cargo install atuin
+                #},
+            },
+        },
+        [
+            'essential',
+        ],
+        [
+
+        ],
+        [
+
+        ],
+    ],
+    [
+        'rust',
+        {
+            'windows': {
+                #'custom': {||
+                #    ensure rust
+                #},
+            },
+        },
+        [
+            'large'
+        ],
+        [
+
+        ],
+        [
+
+        ],
+    ],
+]
