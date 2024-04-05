@@ -17,7 +17,7 @@ export def "path resolve" [
     # https://stackoverflow.com/a/39350507
     return (
         $value |
-        powershell -NoLogo -NonInteractive -NoProfile -Command '
+        ^powershell -NoLogo -NonInteractive -NoProfile -Command '
             $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding;
             Get-Item $input | Select-Object -ExpandProperty Target' |
         decode 'utf8'
