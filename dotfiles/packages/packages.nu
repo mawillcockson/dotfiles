@@ -45,7 +45,7 @@ const packages = {
 
     'neovim_dependencies': [
         'stylua',
-        'taplo',
+        'taplo', # for toml language server
         'tree-sitter',
     ],
 
