@@ -1,3 +1,33 @@
+# Instead of including dependency information, each package is assumed to have
+# dependency resolution handled by the package manager.
+#
+# If the package manager is 'custom', then the provided closure will be run,
+# and will be expected to handle all the installation with only the minimal
+# tools provided by the platform.
+# To reduce duplication, custom commands should be implemented in the `ensure`
+# namespace for each additional tool that the closure needs in order to run.
+
+export def "ensure rust windows" [] {
+    let rustup = if (which 'rustup' | length) == 0 {
+        let tmpdir = (mktemp -d)
+        let rustup = ($tmpdir | path join 'rustup.exe')
+        ^curl '--tlsv1.2' --proto '=https' 'https://win.rustup.rs/x86_64' --output $rustup
+        $rustup
+    } else { which 'rustup' | get 0.path }
+    run-external $rustup '+stable' 'update'
+}
+
+export def tags [] {
+    main | select tags | flatten | uniq
+}
+
+export def select-by-tags [...rest] {
+    main | filter {|it|
+        $it | get tags | any {|e| $e in $rest}
+    }
+}
+
+export def main [] {
 [
     [
         name,
@@ -418,10 +448,10 @@
         ]
     ],
     [
-        "wsl'-'ssh'-'pageant",
+        "wsl-ssh-pageant",
         {
             windows: {
-                scoop: "wsl'-'ssh'-'pageant"
+                scoop: "wsl-ssh-pageant"
             }
         },
         [
@@ -442,7 +472,7 @@
             }
         },
         [
-            "yt'-'dlp"
+            "yt-dlp"
         ],
         [
 
@@ -469,10 +499,10 @@
         ]
     ],
     [
-        "keepass'-'plugin'-'keetraytotp",
+        "keepass-plugin-keetraytotp",
         {
             windows: {
-                scoop: "keepass'-'plugin'-'keetraytotp"
+                scoop: "keepass-plugin-keetraytotp"
             }
         },
         [
@@ -486,10 +516,10 @@
         ]
     ],
     [
-        "keepass'-'plugin'-'readable'-'passphrase",
+        "keepass-plugin-readable-passphrase",
         {
             windows: {
-                scoop: "keepass'-'plugin'-'readable'-'passphrase"
+                scoop: "keepass-plugin-readable-passphrase"
             }
         },
         [
@@ -537,10 +567,10 @@
         ]
     ],
     [
-        "tree'-'sitter",
+        "tree-sitter",
         {
             windows: {
-                scoop: "tree'-'sitter"
+                scoop: "tree-sitter"
             }
         },
         [
@@ -571,10 +601,10 @@
         ]
     ],
     [
-        "obs'-'studio",
+        "obs-studio",
         {
             windows: {
-                scoop: "obs'-'studio"
+                scoop: "obs-studio"
             }
         },
         [
@@ -1050,24 +1080,10 @@
         'atuin',
         {
             'windows': {
-                # If I include dependency information in here, I'll need to
-                # find a topological sort implementation in order to figure out
-                # which packages to install in which order, and detect cyclic
-                # dependencies.
-                # It might be better to simply include a closure that does the
-                # installation, relying on being run after a base set of
-                # packages is installed.
-                # Then, each closure will call other common commands that
-                # encapsulate common functionality, like ensuring the tools
-                # they need to perform an installation, are installed already.
-                # That means that for custom packages, there will be
-                # duplication in terms of installing a package and then
-                # potentially repeatedly checking to see if that package is
-                # installed, but that is a very minor cost to pay
-                #'custom': {||
-                #    ensure rust
-                #    ^cargo install atuin
-                #},
+                'custom': {||
+                    ensure rust windows
+                    ^cargo install atuin
+                },
             },
         },
         [
@@ -1084,9 +1100,7 @@
         'rust',
         {
             'windows': {
-                #'custom': {||
-                #    ensure rust
-                #},
+                'custom': {|| ensure rust windows },
             },
         },
         [
@@ -1099,4 +1113,17 @@
 
         ],
     ],
+    [
+        'fake1',
+        {
+            'windows': {
+                'custom': {||},
+            },
+        },
+        [ 'test' ],
+        [],
+        [],
+    ],
+    [ 'fake2', {'windows':{'winget': 'fake'}},['test'],[],[]],
 ]
+}
