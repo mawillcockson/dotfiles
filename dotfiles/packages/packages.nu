@@ -19,8 +19,21 @@
 # custom closures
 # - `add`: adds a package to the on-disk package data; this is so that it's
 # easy to discover what info can and should be added, without having to
-# manually edit a NUON file
-# - `data`: shortcut for `open 'package.nuon'`
+# manually edit a NUON file.
+# I think that having a file that generates the packages.nuon and custom.nu
+# data using a `package add` list of commands is something that would be really
+# useful for migrating data formats (e.g. adding a column), because errors on
+# which packages aren't yet providing required info would be much easier to
+# spot with errors, and the discoverability would be much greater.
+# I also think that the `add` command should have something like `default [] |
+# append ...` to start off the pipeline, so that they can be chained together
+# to produce the packages blob (e.g. `package add --name 'example' --install
+# 'scoop' --tags ['example'] | package add ... | package add ... | save -f
+# packages.nuon`)
+# - `data`: shortcut for `open 'packages.nuon'`
+# - `list-installed`: tries to gather information on which packages are
+# installed on the system, through which package managers (e.g. winget, scoop,
+# pipx, etc)
 
 export def "ensure rust windows" [] {
     let rustup = if (which 'rustup' | length) == 0 {
