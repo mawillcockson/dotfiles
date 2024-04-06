@@ -7,6 +7,21 @@
 # To reduce duplication, custom commands should be implemented in the `ensure`
 # namespace for each additional tool that the closure needs in order to run.
 
+# I should have package subcommands:
+# - `ensure`: basically `install`, but double check if it's just not in
+# $env.PATH as well; first searches the package data to see how to install it
+# (scoop, winget, pipx, custom)
+# - `search`: should have a --regex flag, otherwise is a "string contains";
+# probably should add another column to the package data called `search_help`
+# that can be used along with `name` for finding matching packages.
+# - There should be a separate file for the customs, with either text keys or
+# something being used to connect the entry in the NUON package data and the
+# custom closures
+# - `add`: adds a package to the on-disk package data; this is so that it's
+# easy to discover what info can and should be added, without having to
+# manually edit a NUON file
+# - `data`: shortcut for `open 'package.nuon'`
+
 export def "ensure rust windows" [] {
     let rustup = if (which 'rustup' | length) == 0 {
         let tmpdir = (mktemp -d)
