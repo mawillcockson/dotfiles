@@ -150,6 +150,29 @@ export def "ln -s" [
     return $res
 }
 
+# uses powershell to quote a string for use in powershell
+# export def "powershell quote" [str: string] {
+# 
+# }
+# I don't know of a way to do this, but `ConvertFrom-Json -InputObject $Input`
+# can be used, and then any complex object data can be piped to powershell.
+# Also, this pattern can be used to pipe arbitrary, difficult-to-quote strings
+# to powershell:
+# ['`#$^*@', 'slightly easier to quote'] |
+# str join "\u{0}" |
+# ^powershell -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy RemoteSigned -Command '
+# <# Put this after so that scoop has a default environment. I remember it not liking me changing $ErrorActionPreference
+# # https://github.com/PowerShell/PowerShell/issues/3415#issuecomment-1354457563 #>
+# if ($host.version.Major -eq 7 && $host.version.Minor -ge 4) {
+#   Enable-ExperimentalFeature PSNativeCommandErrorActionPreference
+# }
+# Set-StrictMode -Version Latest
+# $ErrorActionPreference = "Stop"
+# $PSNativeCommandUseErrorActionPreference = $true
+# $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding
+# $vars = $Input -split [char]0x0
+# Write-Host $vars[0]; Write-Host $vars[1]' | decode 'utf8'
+
 export use $"($scripts)/clipboard.nu"
 export def "date my-format" [] {
     let my_date = date now | format date "%Y-%m-%dT%H%M%z"
