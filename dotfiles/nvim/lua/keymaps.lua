@@ -1,4 +1,4 @@
-print "setting keymaps"
+print("setting keymaps")
 local vim_opt = vim.opt
 local vim_o = vim.o
 local vim_g = vim.g
@@ -34,67 +34,64 @@ vim_g.maplocalleader = " "
 -- Best we can do is map it to a no-op
 map("n", "<Space>", "<Nop>")
 map("n", "<BS>", "<Nop>")
-map(
-  "n",
-  "<Leader>h",
-  function()
-    -- from:
--- https://www.reddit.com/r/neovim/comments/wrj7eu/comment/ikswlfo/?utm_source=share&utm_medium=web2x&context=3
-    local num_matches = searchcount{recompute = false}.total or 0
-    if num_matches < 1 then
-      vim.notify("nothing to highlight", vim.log.levels.WARN, {})
-      return
-    end
-    vim_opt.hlsearch = not vim_o.hlsearch
-  end,
-  {
-    desc = "toggles highlighting of search results in Normal mode",
+map("i", "<C-^>", "<C-[><C-^>", {
+	desc = "also enable switching to alternate files in insert mode"
+		.. " (this does overwrite a default mapping, but I never use it)",
 })
-map("n", "<Leader>s", "<Cmd>set spell!<CR>", {desc="toggle spellchecking underlines"})
-map(
-  "n",
-  "j", 
-  function()
-    -- what count was given with j? defaults to 1 (e.g. 10j to move 10 lines
-    -- down, j the same as 1j)
-    local count1 = vim_v.count1
-    -- how far from the end of the file is the current cursor position?
-    local distance = line("$") - line(".")
-    -- if the number of times j should be pressed is greater than the number of
-    -- lines until the bottom of the file
-    if count1 > distance then
-      -- if the cursor isn't on the last line already
-      if distance > 0 then
-        -- press j to get to the bottom of the file
-        -- NOTE: Is there a way to call :normal! besides this?
-        nvim_command("normal! "..distance.."j")
-      end
-      -- then press Ctrl+E for the rest of the count
-      nvim_command("normal! "..(count1 - distance)..c_e)
-    -- if the count is smaller and the cursor isn't on the last line
-    elseif distance > 0 then
-      -- press j as much as requested
-      nvim_command("normal! "..count1.."j")
-    else
-      -- otherwise press Ctrl+E the requested number of times
-      nvim_command("normal! "..count1..c_e)
-    end
-  end,
-  {
-    desc = "continue scrolling past end of file with j",
+map("t", "<C-v>", [[<C-\><C-n>"+pA]], { desc = "enable easy pasting in terminals" })
+map("n", "<Leader>h", function()
+	-- from:
+	-- https://www.reddit.com/r/neovim/comments/wrj7eu/comment/ikswlfo/?utm_source=share&utm_medium=web2x&context=3
+	local num_matches = searchcount({ recompute = false }).total or 0
+	if num_matches < 1 then
+		vim.notify("nothing to highlight", vim.log.levels.WARN, {})
+		return
+	end
+	vim_opt.hlsearch = not vim_o.hlsearch
+end, {
+	desc = "toggles highlighting of search results in Normal mode",
+})
+map("n", "<Leader>s", "<Cmd>set spell!<CR>", { desc = "toggle spellchecking underlines" })
+map("n", "j", function()
+	-- what count was given with j? defaults to 1 (e.g. 10j to move 10 lines
+	-- down, j the same as 1j)
+	local count1 = vim_v.count1
+	-- how far from the end of the file is the current cursor position?
+	local distance = line("$") - line(".")
+	-- if the number of times j should be pressed is greater than the number of
+	-- lines until the bottom of the file
+	if count1 > distance then
+		-- if the cursor isn't on the last line already
+		if distance > 0 then
+			-- press j to get to the bottom of the file
+			-- NOTE: Is there a way to call :normal! besides this?
+			nvim_command("normal! " .. distance .. "j")
+		end
+		-- then press Ctrl+E for the rest of the count
+		nvim_command("normal! " .. (count1 - distance) .. c_e)
+	-- if the count is smaller and the cursor isn't on the last line
+	elseif distance > 0 then
+		-- press j as much as requested
+		nvim_command("normal! " .. count1 .. "j")
+	else
+		-- otherwise press Ctrl+E the requested number of times
+		nvim_command("normal! " .. count1 .. c_e)
+	end
+end, {
+	desc = "continue scrolling past end of file with j",
 })
 map("t", "<C-^>", [[<C-\><C-n><C-^>]], {
-  desc = "when in Terminal input mode, pressing Ctrl+Shift+6 will go "..
-         "to Terminal-Normal mode, then switch to the alternate buffer"
+	desc = "when in Terminal input mode, pressing Ctrl+Shift+6 will go "
+		.. "to Terminal-Normal mode, then switch to the alternate buffer",
 })
 map("n", "<C-y>", "<Cmd>%y+<CR>", {
-  desc = "copy whole file"
+	desc = "copy whole file",
 })
-map({"n","i","t"}, "<C-l>", "<Cmd>:tabnext<CR>", {
-  desc = "switch tab rightwards"
+map({ "n", "i", "t" }, "<C-l>", "<Cmd>:tabnext<CR>", {
+	desc = "switch tab rightwards",
 })
-map({"n","i","t"}, "<C-h>", "<Cmd>:tabprevious<CR>", {
-  desc = "switch tab leftwards"
+map({ "n", "i", "t" }, "<C-h>", "<Cmd>:tabprevious<CR>", {
+	desc = "switch tab leftwards",
 })
 
 --[[ another lesson in overdoing it
