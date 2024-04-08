@@ -38,7 +38,9 @@ map("i", "<C-^>", "<C-[><C-^>", {
 	desc = "also enable switching to alternate files in insert mode"
 		.. " (this does overwrite a default mapping, but I never use it)",
 })
-map("t", "<C-v>", [[<C-\><C-n>"+pA]], { desc = "enable easy pasting in terminals" })
+map("t", "<C-v>", function()
+	vim.api.nvim_put({ vim.fn.getreg("+") }, "", true, true)
+end, { desc = "enable easy pasting in terminals" })
 map("n", "<Leader>h", function()
 	-- from:
 	-- https://www.reddit.com/r/neovim/comments/wrj7eu/comment/ikswlfo/?utm_source=share&utm_medium=web2x&context=3
