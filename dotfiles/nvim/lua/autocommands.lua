@@ -28,7 +28,7 @@ local autocmds = {
 }
 
 for event_name, opts in pairs(autocmds) do
-  for i, opt in pairs(opts) do
+  for _, opt in pairs(opts) do
     opt.group = custom_autocmds_group_name
     vim.api.nvim_create_autocmd(event_name, opt)
   end

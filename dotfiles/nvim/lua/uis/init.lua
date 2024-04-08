@@ -48,7 +48,7 @@ elseif vim.fn.has("ttyin") ~= 0 then
   -- if nvim was run in the terminal, the ttyin feature is supported. Also,
   -- this is likely only set in that scenario, since front-ends like neovim-qt
   -- may(?) start nvim in --headless mode and use the RPC protocol.
-  
+
   -- changing fonts is pointless when the controling terminal sets everything
   fonts.change_fonts = false
   vim.o.termguicolors = true
