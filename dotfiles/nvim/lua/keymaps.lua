@@ -1,14 +1,11 @@
 print "setting keymaps"
-local abs = math.abs
 local vim_opt = vim.opt
 local vim_o = vim.o
 local vim_g = vim.g
 local vim_v = vim.v
 local map = vim.keymap.set
-local unmap = vim.keymap.del
 local searchcount = vim.fn.searchcount
 local line = vim.fn.line
-local nvim_input = vim.api.nvim_input
 local nvim_command = vim.api.nvim_command
 -- What is the internal representation of the <C-e> sequence?
 local c_e = vim.api.nvim_replace_termcodes("<C-e>", true, false, true)
