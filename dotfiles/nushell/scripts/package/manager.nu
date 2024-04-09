@@ -86,5 +86,6 @@ export def "data-path" [] {
 export def "generate-data" [] {
     add --platform 'windows' 'scoop' {|id: string| ^scoop install $id} |
     add --platform 'windows' 'winget' {|id: string| ^winget install --id $id --exact --accept-package-agreements --accept-source-agreements --disable-interactivity} |
-    add --platform 'android' 'pkg' {|id: string| ^pkg install $id}
+    add --platform 'android' 'pkg' {|id: string| ^pkg install $id} |
+    add --platform 'platform' 'manager' {|id: string| print $'installing ($id)'}
 }
