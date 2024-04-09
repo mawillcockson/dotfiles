@@ -4,7 +4,8 @@ use $'($nu.default-config-dir)/scripts/package'
 
 #[test]
 def test_path [] {
-    assert equal (package data path) ($nu.default-config-dir | path join 'scripts' 'generated' 'package' 'data.nuon')
+    let package_data_path = (package data path)
+    assert equal ($package_data_path) ($nu.default-config-dir | path join 'scripts' 'generated' 'package' 'data.nuon')
 }
 
 #[test]
