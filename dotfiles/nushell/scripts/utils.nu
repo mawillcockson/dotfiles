@@ -181,6 +181,9 @@ export def "powershell-safe" [
     # reduce the safetiness (primarily for running scoop and other programs
     # written in PowerShell)
     --less-safe,
+    # do not throw an error when powershell returns an error; instead, return a
+    # `complete`
+    --no-fail,
 ] {
     let piped = ($in)
     if ($command | is-empty) {return (error make {
@@ -211,7 +214,14 @@ export def "powershell-safe" [
         '-ExecutionPolicy', 'RemoteSigned',
         '-Command', ($script | str join (char crlf)),
     ]
-    $piped | run-external (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
+    (
+    $piped
+    | run-external --redirect-stdout --redirect-stderr (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
+    | complete
+    | if (not $no_fail) and ($in.exit_code != 0) { return (error make {
+        'msg': $'powershell returned an error: ($in)',
+    })} else {$in}
+    )
 }
 
 export use $"($scripts)/clipboard.nu"
