@@ -1,3 +1,6 @@
+# defined in env.nu
+# const default_package_data_path = $'($nu.default-config-dir)/scrupts/generated/package/'
+
 export use manager.nu
 
 export def path [] {

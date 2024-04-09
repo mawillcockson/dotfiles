@@ -1,4 +1,5 @@
-const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
+# defined in env.nu
+# const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
 
 # provide a closure that implements installing a single package with the named
 # package manager
