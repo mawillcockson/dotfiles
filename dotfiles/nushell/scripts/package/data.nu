@@ -153,8 +153,8 @@ export def "save-data" [
         `# load data into environment variable`,
         `export-env { $env.PACKAGE_CUSTOMS_DATA = (main) }`,
         ``,
-        `# returns the package data`,
-        `export def main [] {{`,
+        `# returns the customs data`,
+        `export def main [] {$env | get PACKAGE_CUSTOMS_DATA? | default {`,
     ] | append [
         `}}`,
     ] | str join "\n" | save -f ($customs_path | default (

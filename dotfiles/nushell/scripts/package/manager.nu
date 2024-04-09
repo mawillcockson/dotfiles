@@ -41,7 +41,7 @@ export def "save-data" [
         `export-env { $env.PACKAGE_MANAGER_DATA = (main) }`,
         ``,
         `# returns the package manager data`,
-        `export def main [] {{`,
+        `export def main [] {$env | get PACKAGE_MANAGER_DATA? | default {`,
     ] | append [
         `}}`,
     ] | str join "\n" | save -f ($path | default (
