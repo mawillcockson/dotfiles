@@ -130,9 +130,72 @@ export def "customs-data-path" [] {
     )
 }
 
+# saves package data, optionally to a specified path
+# if no data is provided, it automatically uses `package data generate`
+# output can be piped to `load-env` to update the environment
+export def "save-data" [
+    # optional path of where to save the package data to
+    --data-path: path,
+    # optional path of where to save the customs data to
+    --customs-path: path,
+] {
+    let data = default (generate)
+    $data.customs | transpose platform_name install |
+    update install {|row| $row.install | transpose package_name closure | update closure {|row| view source ($row.closure)}} |
+    each {|it|
+        $'    ($it.platform_name | to nuon): {' | append ($it.install | each {|e|
+                $'        ($e.package_name | to nuon): ($e.closure),'
+        }) | append '    },'
+    } | flatten | prepend [
+        `# this file is auto-generated`,
+        `# please edit scripts/package/data.nu instead`,
+        ``,
+        `# load data into environment variable`,
+        `export-env { $env.PACKAGE_CUSTOMS_DATA = (main) }`,
+        ``,
+        `# returns the package data`,
+        `export def main [] {{`,
+    ] | append [
+        `}}`,
+    ] | str join "\n" | save -f ($customs_path | default (
+        if ((customs-data-path) | path dirname | path exists) == true {
+            (customs-data-path)
+        } else {
+            mkdir ((customs-data-path) | path dirname)
+            (customs-data-path)
+        }
+    ))
+    $data.data | to nuon --indent 4 | save -f ($data_path | default (
+        if ((data-path) | path dirname | path exists) == true {
+            (data-path)
+        } else {
+            mkdir ((data-path) | path dirname)
+            (data-path)
+        }
+    ))
+    if not (nu-check ($customs_path | default (customs-data-path))) {
+        use std [log]
+        log error $'generated customs.nu is not valid!'
+        return (error make {
+            'msg': $'generated .nu file is not valid -> ($customs_path | default (customs-data-path))',
+        })
+    }
+    {'PACKAGE_DATA': ($data.data), 'PACKAGE_CUSTOMS_DATA': ($data.customs)}
+}
+
+# reads package data, optionally from specified file
+export def main [
+    # optional path to read package data from (defaults to `package data data-path`)
+    --path: path,
+] {
+    open --raw ($path | default (data-path)) | from nuon
+}
+
 # function to modify to add package data
 export def generate [] {
     add 'aria2' {'windows': {'scoop': 'aria2'}} --tags ['scoop'] --reasons ['helps scoop download stuff better'] |
     add 'clink' {'windows': {'scoop': 'clink'}} --tags ['essential'] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
-    add 'git' {'windows': {'scoop': 'git'}} --tags ['essential'] --reasons ['revision control and source management', 'downloading programs'] --links ['https://git-scm.com/docs']
+    add 'git' {'windows': {'scoop': 'git'}} --tags ['essential'] --reasons ['revision control and source management', 'downloading programs'] --links ['https://git-scm.com/docs'] |
+    add 'example1' {'platform1': {'custom': {|| print 'installing example1 to platform1'}}, 'platform2': {'custom': {|| print 'installing example1 to platform2'}}} |
+    add 'example2' {'platform1': {'custom': {|| print 'installing example2 to platform1'}}, 'platform3': {'custom': {|| print 'installing example2 to platform3'}}}
 }

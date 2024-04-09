@@ -16,7 +16,6 @@ overlay use --prefix std
 # package module
 overlay use --prefix --reload package
 overlay use --prefix --reload $default_package_manager_data_path as 'package manager data'
-overlay use --prefix --reload $default_package_data_path as 'package data'
 overlay use --prefix --reload $default_package_customs_path as 'package customs data'
 let comparisons = [
     ['name', 'command', 'variable'];
@@ -29,6 +28,18 @@ for $rec in $comparisons {
         std assert equal ($rec.command) ($rec.variable)
     } catch {
         log error $"($rec.name) is out of sync with command:\n($rec.command)\n($rec.variable)"
+    }
+}
+export-env {
+    try {
+        package manager save-data | load-env
+    } catch {
+        log error 'problem when saving package manager data'
+    }
+    try {
+        package data save-data | load-env
+    } catch {
+        log error 'problem when saving package data'
     }
 }
 
