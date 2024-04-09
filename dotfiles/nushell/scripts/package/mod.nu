@@ -3,6 +3,7 @@
 
 export use manager.nu
 export use data.nu
+export use data.nu [add]
 
 # returns the path of the main package data file
 export def "data path" [] {
