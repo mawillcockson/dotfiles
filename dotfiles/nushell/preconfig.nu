@@ -14,6 +14,8 @@ mut postconfig_content: list<string> = (
         'const default_config_dir = $nu.default-config-dir',
         'const scripts = $"($default_config_dir)/scripts"',
         'const generated = $"($scripts)/generated"',
+        'config env --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_env.nu"',
+        'config nu --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_config.nu"',
     ]
 )
 
@@ -38,3 +40,5 @@ let clipboard_nu = $scripts | path join "clipboard.nu"
 if not ($clipboard_nu | path exists) {
     http get $clipboard_url | save $clipboard_nu
 }
+
+try {http get 'https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu' | save -f $'($scripts)/testing.nu'}
