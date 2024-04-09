@@ -48,11 +48,13 @@ export def "save-data" [
 
 # returns the path to the package manager data
 export def "data-path" [] {
-    if ($default_package_manager_data_path | path exists) == true {
-        ls --all --full-paths $default_package_manager_data_path | get 0.name
-    } else {
-        $default_package_manager_data_path
-    }
+    $default_package_manager_data_path | (
+        if ($in | path exists) == true {
+            ls --all --full-paths $in | get 0.name
+        } else {
+            $in
+        }
+    )
 }
 
 # generate all the package manager data

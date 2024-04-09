@@ -3,8 +3,14 @@
 
 export use manager.nu
 
-export def path [] {
-    $nu.default-config-dir | path join 'scripts' 'package' 'data.nuon'
+export def "data-path" [] {
+    $default_package_data_path | (
+        if ($in | path exists) == true {
+            ls --all --full-paths $in | get 0.name
+        } else {
+            $in
+        }
+    )
 }
 
 # function to modify to add package data
