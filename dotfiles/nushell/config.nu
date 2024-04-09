@@ -21,8 +21,8 @@ overlay use --prefix --reload $default_package_customs_path as 'package customs 
 let comparisons = [
     ['name', 'command', 'variable'];
     ['$default_package_manager_data_path', (package manager data-path), (ls --all --full-paths $default_package_manager_data_path | get 0.name)],
-    ['$default_package_data_path', (package data path), (ls --all --full-paths $default_package_data_path | get 0.name)],
-    ['$default_package_customs_path', (package customs data-path), (ls --all --full-paths $default_package_customs_path | get 0.name)],
+    ['$default_package_data_path', (package data data-path), (ls --all --full-paths $default_package_data_path | get 0.name)],
+    ['$default_package_customs_path', (package data customs-data-path), (ls --all --full-paths $default_package_customs_path | get 0.name)],
 ]
 for $rec in $comparisons {
     try {
