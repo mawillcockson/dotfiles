@@ -1,5 +1,4 @@
-const utils = $'($nu.default-config-dir)/scripts/utils.nu'
-overlay use $utils
+overlay use utils.nu
 
 let configs = match $nu.os-info.name {
     'windows' => ($env.OneDrive | path join 'Documents' 'configs'),
