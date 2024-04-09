@@ -3,6 +3,12 @@ use std [assert]
 use $'($nu.default-config-dir)/scripts/package/manager.nu'
 
 #[test]
+def test_path [] {
+    let manager_data_path = (manager data-path)
+    assert equal ($manager_data_path) ($nu.default-config-dir | path join 'scripts' 'generated' 'package' 'managers.nu')
+}
+
+#[test]
 def test_add_one [] {
     let closure = {|id: string| print $'example closure installing: ($id)'}
     let data = manager add --platform 'platform' 'package manager' $closure

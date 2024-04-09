@@ -64,7 +64,8 @@ export def "data-path" [] {
         scope variables
         | where name == '$default_package_manager_data_path'
         | get value?
-        | default [$'($nu.default-config-dir)/scripts/generated/package/managers.nu']
+        | default [] # sometimes the value returned by `get` is an empty list, and not `null`
+        | append $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
         | first
         | if ($in | path exists) == true {
             ls --all --full-paths $in | get 0.name
