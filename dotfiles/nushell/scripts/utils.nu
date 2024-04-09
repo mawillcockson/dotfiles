@@ -182,6 +182,7 @@ export def "powershell-safe" [
     # written in PowerShell)
     --less-safe,
 ] {
+    let piped = ($in)
     if ($command | is-empty) {return (error make {
         'msg': '--command is required',
         'label': {
@@ -210,7 +211,7 @@ export def "powershell-safe" [
         '-ExecutionPolicy', 'RemoteSigned',
         '-Command', ($script | str join (char crlf)),
     ]
-    run-external (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
+    $piped | run-external (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
 }
 
 export use $"($scripts)/clipboard.nu"
