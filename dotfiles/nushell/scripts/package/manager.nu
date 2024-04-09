@@ -42,26 +42,31 @@ export def "save-data" [
         `$env.PACKAGE_MANAGER_DATA = (package manager data)`,
         `}`,
     ] | str join "\n" | save -f ($path | default (
-        if ($default_package_manager_data_path | path dirname | path exists) == true {
-            $default_package_manager_data_path
+        if ((data-path) | path dirname | path exists) == true {
+            (data-path)
         } else {
-            mkdir ($default_package_manager_data_path | path dirname)
-            $default_package_manager_data_path
+            mkdir ((data-path) | path dirname)
+            (data-path)
         }
     ))
-    if not (nu-check ($path | default $default_package_manager_data_path)) {
+    if not (nu-check ($path | default (data-path))) {
         use std [log]
         log error $'generated managers.nu is not valid!'
         return (error make {
-            'msg': $'generated .nu file is not valid -> ($path | default $default_package_manager_data_path)',
+            'msg': $'generated .nu file is not valid -> ($path | default (data-path))',
         })
     }
 }
 
 # returns the path to the package manager data
 export def "data-path" [] {
-    $default_package_manager_data_path | (
-        if ($in | path exists) == true {
+    (
+        scope variables
+        | where name == '$default_package_manager_data_path'
+        | get value?
+        | default [$'($nu.default-config-dir)/scripts/generated/package/managers.nu']
+        | first
+        | if ($in | path exists) == true {
             ls --all --full-paths $in | get 0.name
         } else {
             $in

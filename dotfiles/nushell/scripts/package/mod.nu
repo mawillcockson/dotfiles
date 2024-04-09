@@ -8,8 +8,14 @@ export use data.nu
 export def "data path" [] {
     # this function is here because I don't want to shadow `path` in the
     # data.nu module
-    $default_package_data_path | (
-        if ($in | path exists) == true {
+    (
+        scope variables
+        | where name == '$default_package_data_path'
+        | get value?
+        | default [] # sometimes the value returned by `get` is an empty list, and not `null`
+        | append $'($nu.default-config-dir)/scripts/generated/package/data.nuon'
+        | first
+        | if ($in | path exists) == true {
             ls --all --full-paths $in | get 0.name
         } else {
             $in
