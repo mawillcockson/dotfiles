@@ -20,11 +20,12 @@ export def add [
 }
 
 # saves package manager data, optionally to a path we specify
+# if no data is provided, it automatically uses `package manager generate-data`
 export def "save-data" [
     # optional path of where to save the package manager data to
     --path: path,
 ] {
-    transpose platform_name install |
+    default (generate-data) | transpose platform_name install |
     update install {|row| $row.install | transpose package_manager_name closure | update closure {|row| view source ($row.closure)}} |
     each {|it|
         $'    ($it.platform_name | to nuon): {' | append ($it.install | each {|e|
