@@ -193,6 +193,30 @@ export def main [
 
 # function to modify to add package data
 export def generate [] {
+    (
+    add 'winget' {'windows': {'custom': {||
+        powershell-safe -c ([
+            `if (-not (Get-AppxPackage Microsoft.DesktopAppInstaller)) {`,
+            `    Add-AppxPackage "https://aka.ms/getwinget"`,
+            `    Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe`,
+            `}`,
+        ] | str join '')
+    }}} --tags ['essential', 'package manager'] |
+    add 'scoop' {'windows': {'custom': {||
+        powershell-safe --less-safe -c ([
+            `if (-not (gcm scoop -ErrorAction SilentlyContinue)) {`,
+            `    irm -useb "https://get.scoop.sh" | iex`,
+            `    scoop install aria2 git`,
+            `    scoop bucket add extras`,
+            `}`,
+        ] | str join '')
+    }}} --tags ['essential', 'package manager'] |
+    add 'pipx' {'windows': {'custom': {||
+        package install 'scoop'
+        package install 'python'
+        ^python -m pip install --user --upgrade pip setuptools wheel pipx
+    }}} --tags ['essential', 'package manager'] |
+    add 'python' {'windows': {'scoop': 'python'}} --tags ['essential', 'language'] |
     add 'aria2' {'windows': {'scoop': 'aria2'}} --tags ['scoop'] --reasons ['helps scoop download stuff better'] |
     add 'clink' {'windows': {'scoop': 'clink'}} --tags ['essential'] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
     add 'git' {'windows': {'scoop': 'git'}} --tags ['essential'] --reasons ['revision control and source management', 'downloading programs'] --links ['https://git-scm.com/docs'] # |
