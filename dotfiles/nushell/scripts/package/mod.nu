@@ -13,6 +13,7 @@ export def "data path" [] {
         scope variables
         | where name == '$default_package_data_path'
         | get value?
+        | compact --empty
         | default [] # sometimes the value returned by `get` is an empty list, and not `null`
         | append $'($nu.default-config-dir)/scripts/generated/package/data.nuon'
         | first
