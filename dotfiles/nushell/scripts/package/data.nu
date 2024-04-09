@@ -198,6 +198,7 @@ export def generate [] {
         powershell-safe -c ([
             `if (-not (Get-AppxPackage Microsoft.DesktopAppInstaller)) {`,
             `    Add-AppxPackage "https://aka.ms/getwinget"`,
+        # https://learn.microsoft.com/en-us/windows/package-manager/winget/
             `    Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe`,
             `}`,
         ] | str join '')
