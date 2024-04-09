@@ -24,3 +24,21 @@ export def "data path" [] {
     )
 }
 
+# returns the path of the custom package install commands file
+export def "customs data-path" [] {
+    # this function is here because I'm not sure where else to put it
+    (
+        scope variables
+        | where name == '$default_package_customs_path'
+        | get value?
+        | compact --empty
+        | default [] # sometimes the value returned by `get` is an empty list, and not `null`
+        | append $'($nu.default-config-dir)/scripts/generated/package/customs.nu'
+        | first
+        | if ($in | path exists) == true {
+            ls --all --full-paths $in | get 0.name
+        } else {
+            $in
+        }
+    )
+}

@@ -1,6 +1,7 @@
 const default_env = $"($nu.default-config-dir)/scripts/generated/default_env.nu"
 source $default_env
 
+# mirrored in package submodules
 const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
 const default_package_data_path = $'($nu.default-config-dir)/scripts/generated/package/data.nuon'
 const default_package_customs_path = $'($nu.default-config-dir)/scripts/generated/package/customs.nu'
