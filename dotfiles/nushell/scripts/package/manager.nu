@@ -45,6 +45,13 @@ export def "save-data" [
             $default_package_manager_data_path
         }
     ))
+    if not (nu-check ($path | default $default_package_manager_data_path)) {
+        use std [log]
+        log error $'generated managers.nu is not valid!'
+        return (error make {
+            'msg': $'generated .nu file is not valid -> ($path | default $default_package_manager_data_path)',
+        })
+    }
 }
 
 # returns the path to the package manager data
