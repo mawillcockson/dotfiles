@@ -195,5 +195,8 @@ export def main [
 export def generate [] {
     add 'aria2' {'windows': {'scoop': 'aria2'}} --tags ['scoop'] --reasons ['helps scoop download stuff better'] |
     add 'clink' {'windows': {'scoop': 'clink'}} --tags ['essential'] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
-    add 'git' {'windows': {'scoop': 'git'}} --tags ['essential'] --reasons ['revision control and source management', 'downloading programs'] --links ['https://git-scm.com/docs']
+    add 'git' {'windows': {'scoop': 'git'}} --tags ['essential'] --reasons ['revision control and source management', 'downloading programs'] --links ['https://git-scm.com/docs'] # |
+    # add 'example1' {'platform1': {'custom': {|| print 'installing example1 to platform1'}}, 'platform2': {'custom': {|| print 'installing example1 to platform2'}}} |
+    # add 'example2' {'platform1': {'custom': {|| print 'installing example2 to platform1'}}, 'platform3': {'custom': {|| print 'installing example2 to platform3'}}}
+    )
 }
