@@ -21,11 +21,13 @@ export def add [
 
 # saves package manager data, optionally to a path we specify
 # if no data is provided, it automatically uses `package manager generate-data`
+# output can be piped to `load-env` to update the environment
 export def "save-data" [
     # optional path of where to save the package manager data to
     --path: path,
 ] {
-    default (generate-data) | transpose platform_name install |
+    let data = default (generate-data)
+    $data | transpose platform_name install |
     update install {|row| $row.install | transpose package_manager_name closure | update closure {|row| view source ($row.closure)}} |
     each {|it|
         $'    ($it.platform_name | to nuon): {' | append ($it.install | each {|e|
@@ -35,12 +37,13 @@ export def "save-data" [
         `# this file is auto-generated`,
         `# please edit scripts/package/manager.nu instead`,
         ``,
-        `# loads the package manager data into memory`,
-        `export-env { export def "package manager data" [] {{`,
+        `# load data into environment variable`,
+        `export-env { $env.PACKAGE_MANAGER_DATA = (main) }`,
+        ``,
+        `# returns the package manager data`,
+        `export def main [] {{`,
     ] | append [
         `}}`,
-        `$env.PACKAGE_MANAGER_DATA = (package manager data)`,
-        `}`,
     ] | str join "\n" | save -f ($path | default (
         if ((data-path) | path dirname | path exists) == true {
             (data-path)
@@ -56,6 +59,7 @@ export def "save-data" [
             'msg': $'generated .nu file is not valid -> ($path | default (data-path))',
         })
     }
+    {'PACKAGE_MANAGER_DATA': ($data)}
 }
 
 # returns the path to the package manager data
