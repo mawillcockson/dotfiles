@@ -1,5 +1,6 @@
 # defined in env.nu
 # const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
+use utils.nu [powershell-safe]
 
 # provide a closure that implements installing a single package with the named
 # package manager
@@ -84,7 +85,7 @@ export def "data-path" [] {
 #
 # modify this function to register more package managers
 export def "generate-data" [] {
-    add --platform 'windows' 'scoop' {|id: string| ^scoop install $id} |
+    add --platform 'windows' 'scoop' {|id: string| $id | powershell-safe -c $"scoop install $Input"} |
     add --platform 'windows' 'winget' {|id: string| ^winget install --id $id --exact --accept-package-agreements --accept-source-agreements --disable-interactivity} |
     add --platform 'android' 'pkg' {|id: string| ^pkg install $id} # |
     # add --platform 'platform' 'manager' {|id: string| print $'installing ($id)'}
