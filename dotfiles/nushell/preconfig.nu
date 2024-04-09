@@ -41,4 +41,6 @@ if not ($clipboard_nu | path exists) {
     http get $clipboard_url | save $clipboard_nu
 }
 
-try {http get 'https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu' | save -f $'($scripts)/testing.nu'}
+try {
+    http get --max-time 2 'https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu' | save -f $'($scripts)/testing.nu'
+}
