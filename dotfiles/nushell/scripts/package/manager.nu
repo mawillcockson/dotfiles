@@ -35,9 +35,13 @@ export def "save-data" [
         `# this file is auto-generated`,
         `# please edit scripts/package/manager.nu instead`,
         ``,
-        `# returns the package manager data`,
-        `export def "package manager data" [] {{`,
-    ] | append `}}` | str join "\n" | save -f ($path | default (
+        `# loads the package manager data into memory`,
+        `export-env { export def "package manager data" [] {{`,
+    ] | append [
+        `}}`,
+        `$env.PACKAGE_MANAGER_DATA = (package manager data)`,
+        `}`,
+    ] | str join "\n" | save -f ($path | default (
         if ($default_package_manager_data_path | path dirname | path exists) == true {
             $default_package_manager_data_path
         } else {
