@@ -9,8 +9,8 @@ const postconfig = $"($generated)/postconfig.nu"
 # can't be read
 source $postconfig
 
-overlay use $"($scripts)/clipboard.nu"
-overlay use $"($scripts)/utils.nu"
+overlay use clipboard.nu
+overlay use utils.nu
 
 alias dt = date my-format
 
