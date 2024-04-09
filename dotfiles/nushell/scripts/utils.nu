@@ -173,6 +173,46 @@ export def "ln -s" [
 # $vars = $Input -split [char]0x0
 # Write-Host $vars[0]; Write-Host $vars[1]' | decode 'utf8'
 
+# run powershell in a way that I prefer, and in a way that's compatible with
+# nushell
+export def "powershell-safe" [
+    # the command/script to run
+    --command (-c): string,
+    # reduce the safetiness (primarily for running scoop and other programs
+    # written in PowerShell)
+    --less-safe,
+] {
+    if ($command | is-empty) {return (error make {
+        'msg': '--command is required',
+        'label': {
+            'span': (metadata $command).span,
+            'text': 'missing',
+        },
+    })}
+
+    let script = ([
+        `$OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding`,
+    ] | append $command | prepend (if not $less_safe {[
+            # `<# Put this after so that scoop has a default environment. I remember it not liking me changing $ErrorActionPreference`,
+            # `# https://github.com/PowerShell/PowerShell/issues/3415#issuecomment-1354457563 #>`,
+            # `if (($host.version.Major -eq 7) -and ($host.version.Minor -ge 4)) {`,
+            # `  Enable-ExperimentalFeature PSNativeCommandErrorActionPreference`,
+            # `}`,
+            `Set-StrictMode -Version Latest`,
+            `$ErrorActionPreference = "Stop"`,
+            `$PSNativeCommandUseErrorActionPreference = $true`,
+        ]}
+    ))
+    let args = [
+        '-NoProfile',
+        '-NonInteractive',
+        '-WindowStyle', 'Hidden',
+        '-ExecutionPolicy', 'RemoteSigned',
+        '-Command', ($script | str join (char crlf)),
+    ]
+    run-external (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
+}
+
 export use $"($scripts)/clipboard.nu"
 export def "date my-format" [] {
     let my_date = date now | format date "%Y-%m-%dT%H%M%z"
