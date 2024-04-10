@@ -10,10 +10,22 @@ export def main [
     ...rest: string,
 ] {
     let collectors = (
-    generate-collectors
-    | get ([{'value': ($platform), 'optional': true}] | into cell-path)
-    | default {}
+        generate-collectors
+        | get ([{'value': ($platform), 'optional': true}] | into cell-path)
+        | default {}
+        | filter {|it|
+            if ($rest | is-empty) {true} else {
+                let collector_name = ($it | columns | first)
+                if ($collector_name in $rest) {true} else {
+                    log debug $'collector ($collector_name | to nuon) not in ($rest | to nuon)'
+                    false
+                }
+            }
+        }
     )
+    if ($collectors | is-empty) {
+        log warning $'no matching collectors for this platform'
+    }
     let package_managers = (
         manager generate-data
         | get ([{'value': ($platform), 'optional': true}] | into cell-path)
@@ -60,21 +72,6 @@ export def "generate-collectors" [] {
 
 export def "format-as-commands" [] {
     each {|it|
-        # ╭──────┬──────────────────────────────────────────────────╮
-        # │      │ ╭─────────────┬────────────────────────────────╮ │
-        # │ 7zip │ │             │ ╭─────────┬──────────────────╮ │ │
-        # │      │ │ install     │ │         │ ╭───────┬──────╮ │ │ │
-        # │      │ │             │ │ windows │ │ scoop │ 7zip │ │ │ │
-        # │      │ │             │ │         │ ╰───────┴──────╯ │ │ │
-        # │      │ │             │ ╰─────────┴──────────────────╯ │ │
-        # │      │ │ search_help │ [list 0 items]                 │ │
-        # │      │ │             │ ╭───┬───────────╮              │ │
-        # │      │ │ tags        │ │ 0 │ collector │              │ │
-        # │      │ │             │ ╰───┴───────────╯              │ │
-        # │      │ │ reasons     │ [list 0 items]                 │ │
-        # │      │ │ links       │ [list 0 items]                 │ │
-        # │      │ ╰─────────────┴────────────────────────────────╯ │
-        # ╰──────┴──────────────────────────────────────────────────╯
         let name = ($it | columns | first)
         let info = ($it | get ([$name] | into cell-path))
         let install_str = ($info.install | transpose platform install | each {|it|
