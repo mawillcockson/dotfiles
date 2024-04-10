@@ -1,3 +1,4 @@
+use package/data.nu
 use package/manager.nu
 use utils.nu [powershell-safe]
 use std [log]
@@ -26,6 +27,7 @@ export def main [
     if ($collectors | is-empty) {
         log warning $'no matching collectors for this platform'
     }
+    let collectors = ($collectors | first)
     let package_managers = (
         manager generate-data
         | get ([{'value': ($platform), 'optional': true}] | into cell-path)
@@ -51,21 +53,49 @@ export def main [
 const default_scoop_buckets = ['main', 'extras', 'nerd-fonts']
 
 export def "windows scoop" [] {
-    (powershell-safe -c 'scoop export').stdout | from json | tee {||
-        $in.buckets.0 | filter {|it| $it.Name not-in $default_scoop_buckets} | each {|it|
-            log warning $'bucket ($it.Name | to nuon) not in default list: ($default_scoop_buckets | str join ", ")'
+    (
+        (powershell-safe -c 'scoop export').stdout
+        | from json
+        | tee {||
+            $in.buckets.0 | filter {|it|
+                $it.Name not-in $default_scoop_buckets
+            } | each {|it|
+                log warning $'bucket ($it.Name | to nuon) not in default list: ($default_scoop_buckets | str join ", ")'
+            }
         }
-    } | get apps? | default [[]] | get 0 | each {|it|
-        # NOTE::BUG I don't like that an error is thrown if the below line is commented out
-        let a = (0)
-        package add $it.Name {'windows': {'scoop': $it.Name}} --tags ['collector']
-    } | get data
+        | get apps?
+        | default [[]]
+        | get 0
+        | each {|it|
+            # NOTE::BUG I don't like that an error is thrown if the below line is commented out
+            let a = (0)
+            data add $it.Name {'windows': {'scoop': ($it.Name)}} --tags ['collector']
+        }
+        | get data?
+    )
+}
+
+export def "windows winget" [] {
+    let temp = (mktemp --suffix '.json')
+    ^winget export --source winget --accept-source-agreements --disable-interactivity --output $temp
+    let out = (open --raw $temp | from json)
+    rm $temp
+    $out.Sources.0.Packages | each {|it|
+        let name = (
+            $it.PackageIdentifier
+            | parse '{a}.{b}'
+            | first
+            | if ($in.a == $in.b) {$in.a | str downcase} else {$it.PackageIdentifier}
+        )
+        data add $name {'windows': {'winget': ($it.PackageIdentifier)}} --tags ['collector']
+    } | get data?
 }
 
 export def "generate-collectors" [] {
     {
         'windows': {
             'scoop': {|| windows scoop},
+            'winget': {|| windows winget},
         },
     }
 }
