@@ -42,9 +42,9 @@ export def main [
             false
         } else { true }
     }
-    | each {|it|
+    | each ({|it|
         $collectors | get ([$it.name] | into cell-path) | do $in
-    }
+    })
     | flatten
     )
 }
@@ -59,18 +59,18 @@ export def "windows scoop" [] {
         | tee {||
             $in.buckets.0 | filter {|it|
                 $it.Name not-in $default_scoop_buckets
-            } | each {|it|
+            } | each ({|it|
                 log warning $'bucket ($it.Name | to nuon) not in default list: ($default_scoop_buckets | str join ", ")'
-            }
+            })
         }
         | get apps?
         | default [[]]
         | get 0
-        | each {|it|
+        | each ({|it|
             # NOTE::BUG I don't like that an error is thrown if the below line is commented out
             let a = (0)
             data add $it.Name {'windows': {'scoop': ($it.Name)}} --tags ['collector']
-        }
+        })
         | get data?
     )
 }
@@ -80,7 +80,7 @@ export def "windows winget" [] {
     ^winget export --source winget --accept-source-agreements --disable-interactivity --output $temp
     let out = (open --raw $temp | from json)
     rm $temp
-    $out.Sources.0.Packages | each {|it|
+    $out.Sources.0.Packages | each ({|it|
         let name = (
             $it.PackageIdentifier
             | parse '{a}.{b}'
@@ -88,7 +88,46 @@ export def "windows winget" [] {
             | if ($in.a == $in.b) {$in.a | str downcase} else {$it.PackageIdentifier}
         )
         data add $name {'windows': {'winget': ($it.PackageIdentifier)}} --tags ['collector']
-    } | get data?
+    }) | get data?
+}
+
+export def "any pipx" [] {
+    let out = (
+        ^pipx -qqq list
+        | decode 'utf8'
+        | lines
+        | skip until {|it| $it starts-with ' '}
+    )
+    mut group = (0)
+    mut groups = []
+    for $line in $out {
+        $group += (if not ($line starts-with '    -') { 1 } else { 0 })
+        $groups ++= $group
+    }
+    let groups = ($groups | enumerate)
+    (
+        $out
+        | enumerate
+        | insert group {|row| $groups | get ([$row.index, 'item'] | into cell-path)}
+        | group-by --to-table group
+        | each ({|it|
+            # NOTE::DEBUG
+            #print ($it | get items | first | get item)
+            let package_name = (
+                $it
+                | get items
+                | first
+                | get item
+                | parse --regex `^\s+package (?P<name>.*) [\S]+, installed using Python \d\.\d{1,2}\.\d{1,2}$`
+                | get 0.name
+            )
+            # NOTE::DEBUG
+            #print ($it | get items | first | get item)
+            #print $package_name
+            data add $package_name {($platform): {'pipx': ($package_name)}} --tags ['collector']
+        })
+        | get data?
+    )
 }
 
 export def "generate-collectors" [] {
@@ -96,6 +135,7 @@ export def "generate-collectors" [] {
         'windows': {
             'scoop': {|| windows scoop},
             'winget': {|| windows winget},
+            'pipx': {|| any pipx},
         },
     }
 }
