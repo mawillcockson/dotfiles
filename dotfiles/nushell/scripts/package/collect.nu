@@ -59,4 +59,51 @@ export def "generate-collectors" [] {
 }
 
 export def "format-as-commands" [] {
+    each {|it|
+        # ╭──────┬──────────────────────────────────────────────────╮
+        # │      │ ╭─────────────┬────────────────────────────────╮ │
+        # │ 7zip │ │             │ ╭─────────┬──────────────────╮ │ │
+        # │      │ │ install     │ │         │ ╭───────┬──────╮ │ │ │
+        # │      │ │             │ │ windows │ │ scoop │ 7zip │ │ │ │
+        # │      │ │             │ │         │ ╰───────┴──────╯ │ │ │
+        # │      │ │             │ ╰─────────┴──────────────────╯ │ │
+        # │      │ │ search_help │ [list 0 items]                 │ │
+        # │      │ │             │ ╭───┬───────────╮              │ │
+        # │      │ │ tags        │ │ 0 │ collector │              │ │
+        # │      │ │             │ ╰───┴───────────╯              │ │
+        # │      │ │ reasons     │ [list 0 items]                 │ │
+        # │      │ │ links       │ [list 0 items]                 │ │
+        # │      │ ╰─────────────┴────────────────────────────────╯ │
+        # ╰──────┴──────────────────────────────────────────────────╯
+        let name = ($it | columns | first)
+        let info = ($it | get ([$name] | into cell-path))
+        let install_str = ($info.install | transpose platform install | each {|it|
+            $it.install | transpose manager id | each {|e|
+                if $e.manager == 'custom' {
+                    $'"custom": ($e.id)'
+                } else {
+                    $'($e.manager | to nuon): ($e.id | to nuon)'
+                }
+            } | str join ', ' | prepend [$'($it.platform | to nuon): {'] | append '}' | str join ''
+        } | str join ', ' | prepend ['{'] | append '}' | str join '')
+        if not ($install_str | nu-check) { return (error make {
+            'msg': 'install_str is not valid nu'
+        })}
+        let command = (
+        [
+            'package add',
+            ($name | to nuon),
+            ($install_str),
+        ]
+        | if ($info.tags | is-not-empty) {$in | append ['--tags', ($info.tags | to nuon)]} else {$in}
+        | if ($info.search_help | is-not-empty) {$in | append ['--search-help', ($info.search_help | to nuon)]} else {$in}
+        | if ($info.reasons | is-not-empty) {$in | append ['--reasons', ($info.reasons | to nuon)]} else {$in}
+        | if ($info.links | is-not-empty) {$in | append ['--links', ($info.links | to nuon)]} else {$in}
+        | str join ' '
+        )
+        if not ($command | nu-check) { return (error make {
+            'msg': 'command is not valid nu'
+        })}
+        $command
+    }
 }
