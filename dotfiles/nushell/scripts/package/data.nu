@@ -350,6 +350,8 @@ export def generate [] {
     add "usort" {"windows": {"pipx": "usort"}} --tags ['python', 'tooling'] --reasons ['large-coproration-made replacement for isort'] |
     add "xonsh" {"windows": {"pipx": "xonsh"}} --tags ['python', 'shell', 'environment', 'rarely'] --reasons ['beloved cross-platform shell; extremely friendly to python'] |
     add "youtube-dl" {"windows": {"pipx": "youtube-dl"}} --tags ['old', 'small'] --reasons ['used to be my favorite (youtube) video downloader before yt-dlp'] |
-    add "yt-dlp" {"windows": {"pipx": "yt-dlp"}} --tags ['small', 'essential', 'yt-dlp'] --reasons ['really, really good (youtube) video downloader based on youtube-dl']
+    add "yt-dlp" {"windows": {"pipx": "yt-dlp"}} --tags ['small', 'essential', 'yt-dlp'] --reasons ['really, really good (youtube) video downloader based on youtube-dl'] |
+    add "exiv2" {"linux": {"apt-get": "exiv2"}} --tags ['small'] --reasons ['my favorite tool for reading and manipulating EXIF data in images'] --search-help ['picture'] |
+    add "exiftool" {"windows": {"scoop": "exiftool", "winget": "exiftool"}, "linux": {"apt-get": "exiftool"}} --tags ['small'] --reasons ['popular EXIF image metadata manipulation program'] --search-help ['picture']
     )
 }
