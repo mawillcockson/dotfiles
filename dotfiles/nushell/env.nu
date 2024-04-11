@@ -21,6 +21,26 @@ const default_package_customs_path = $'($nu.default-config-dir)/scripts/generate
     }
 }
 
+$env.HOME = ($env | get HOME? USERPROFILE? | compact | first)
+
+let dotfiles = ($nu.home-path | path join 'projects' 'dotfiles' 'dotfiles')
+
+$env.EGET_CONFIG = ($dotfiles | path join '.eget.toml')
+let eget_bin = ($env.HOME | path join 'apps' 'eget-bin')
+mkdir $eget_bin
+{
+    'global': {
+        'target': ($eget_bin),
+        'upgrade_only': true,
+    },
+} | to toml | save -f $env.EGET_CONFIG
+
+$env.PATH = ($env.PATH | split row (char env_sep)
+    | append ($eget_bin)
+    | append 'C:\Exercism'
+    | uniq
+)
+
 # generate stuff that can then be sourced in config.nu
 let preconfig = $nu.default-config-dir | path join "preconfig.nu"
 if ($preconfig | path exists) {
