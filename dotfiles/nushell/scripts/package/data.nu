@@ -353,6 +353,6 @@ export def generate [] {
     add "yt-dlp" {"windows": {"pipx": "yt-dlp"}} --tags ['small', 'essential', 'yt-dlp'] --reasons ['really, really good (youtube) video downloader based on youtube-dl'] |
     add "exiv2" {"linux": {"apt-get": "exiv2"}} --tags ['small'] --reasons ['my favorite tool for reading and manipulating EXIF data in images'] --search-help ['picture'] |
     add "exiftool" {"windows": {"scoop": "exiftool", "winget": "exiftool"}, "linux": {"apt-get": "exiftool"}} --tags ['small'] --reasons ['popular EXIF image metadata manipulation program'] --search-help ['picture'] |
-    add "sqlean" {"windows": {"custom": {|| ^eget 'nalgeon/sqlite' '/a' 'sqlean.exe'}} --tags ['small', 'essential'] --reasons ['fantastic recompile of SQLite to include really useful extensions'] --links ['https://github.com/nalgeon/sqlite']
+    add "sqlean" {"windows": {"custom": {|| ^eget 'nalgeon/sqlite' '/a' 'sqlean.exe'}}} --tags ['small', 'essential'] --reasons ['fantastic recompile of SQLite to include really useful extensions'] --links ['https://github.com/nalgeon/sqlite']
     )
 }
