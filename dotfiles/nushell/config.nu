@@ -31,16 +31,18 @@ for $rec in $comparisons {
     }
 }
 export-env {
-    try {
-        package manager save-data | load-env
-    } catch {
-        log error 'problem when saving package manager data'
-    }
-    try {
-        package data save-data | load-env
-    } catch {
-        log error 'problem when saving package data'
-    }
+    # NOTE::PERF currently too slow
+    # different architecture would drastically speed it up
+    # try {
+    #     package manager save-data | load-env
+    # } catch {
+    #     log error 'problem when saving package manager data'
+    # }
+    # try {
+    #     package data save-data | load-env
+    # } catch {
+    #     log error 'problem when saving package data'
+    # }
 }
 
 alias dt = date my-format
