@@ -33,7 +33,7 @@ mkdir $eget_bin
         'target': ($eget_bin),
         'upgrade_only': true,
     },
-} | to toml | save -f $env.EGET_CONFIG
+} | to toml | prepend ['# this file is auto-generated in env.nu', ''] | str join "\n" | save -f $env.EGET_CONFIG
 
 $env.PATH = ($env.PATH | split row (char env_sep)
     | append ($eget_bin)
