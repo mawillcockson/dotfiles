@@ -57,6 +57,15 @@ vim.g.loaded_node_provider = 0
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
+-- PATH handling
+local path_additions = vim.tbl_map(vim.fs.normalize, {'~/apps/eget-bin'})
+local envsep = (vim.loop.os_uname().sysname:find('[wW]indows') ~= nil) and ';' or ':'
+local path = vim.split(vim.env.PATH, envsep, {plain = true})
+for _, addition in ipairs(path_additions) do
+  table.insert(path, addition)
+end
+vim.env.PATH = table.concat(path, envsep)
+
 
 local DEBUG = vim.log.levels.DEBUG
 local INFO = vim.log.levels.INFO
