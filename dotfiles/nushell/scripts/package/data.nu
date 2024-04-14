@@ -105,7 +105,7 @@ def "separate-customs" [] {
         #$package_data ++= $row
         $package_data ++= (
             if (($row | get install.package_manager_name) == 'custom') {
-                $customs = ($customs | insert ([$row.install.platform, $row.name] | into cell-path) ($row.install.package_id))
+                $customs = ($customs | insert ([$row.install.platform, $row.name] | into cell-path) {|r|$row.install.package_id})
                 $row | update install.package_id {|r| [$r.install.platform, $row.name] | str join '.'}
             } else {$row}
         )
