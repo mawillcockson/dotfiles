@@ -1,18 +1,60 @@
 # use $'($nu.default-config-dir)/scripts/package/manager.nu'
 
+const platform = ($nu.os-info.name)
+
+def "get c-p" [cell_path: list<string>, ...rest] {
+    let source = ($in)
+    (
+        $rest
+        | default []
+        | prepend [$cell_path]
+        | each {|it|
+            $source | get (
+                $it
+                | wrap value
+                | insert optional false
+                | into cell-path
+            )
+        }
+    )
+}
+
 # add a package to the package metadata file (use `package path` to list it)
 export def add [
+    # the package manager-independent identifier
     name: string,
+    # a record of the platforms it can be installed on, and the package
+    # managers and identifiers that can be used to install it
     install: record,
+    # these are used in searching, to help find a package
     --search-help: list<string>,
+    # used in sorting, selecting, and searching
     --tags: list<string>,
+    # explanations and notes about the packages
     --reasons: list<string>,
+    # URLs to repositories and documentation
     --links: list<string>,
 ] {
     # `default` here will absorb the piped input and return that instead of the
     # empty structure
-    let packages = default {'customs': {}, 'data': {}}
-    # the intended structure is something like
+    default {} |
+        # I'm inserting into a record so that any calls to `add` that have a
+        # duplicate package name will produce an error at the command that
+        # tries to insert it
+        insert ($name) {
+        'install': $install, 
+        'search_help': ($search_help | default []),
+        'tags': ($tags | default []),
+        'reasons': ($reasons | default []),
+        'links': ($links | default []),
+    }
+
+}
+
+# take a record of package data and separate the custom closures, replacing
+# them with the string representation of their source code
+def "separate-customs" [] {
+    # the intended resulting structure is something like
     # {
     #     'customs': {
     #         'platform_name1': {
@@ -35,60 +77,33 @@ export def add [
     #         },
     #     },
     # }
-
-    let platform = $nu.os-info.name
-
-    let install_data = (
-        $install
-        | transpose platform install
-        | update install {|row| $row.install | transpose package_manager_name package_id}
-        | flatten --all
-        # | each {|it|
-        #     if $it.package_manager_name == 'custom' {
-        #         $it | update package_id {|row|
-
-        #             view source ($row.package_id)
-        #         }
-        #     } else {
-        #         $it
-        #     }
-        # }
-    )
-    mut customs = $packages.customs
-    let custom_rows = $install_data | where package_manager_name == 'custom'
-    for $row in $custom_rows {
-        $customs = ($customs | insert ([$row.platform, $name] | into cell-path) {|r| $row.package_id})
-    }
-    ($install_data
-    | where package_manager_name != 'custom'
-    | filter {|it|
-        let cell_path_table = [['value', 'optional']; [$it.platform, false] [$it.package_manager_name, true]]
-        $env.PACKAGE_MANAGER_DATA | get ($cell_path_table | into cell-path) | is-empty
-    }
-    | each {|it| log error $'package manager ($it.package_manager_name | to nuon) not registered for platform ($it.platform | to nuon)'}
-    | each {|it| return (error make {'msg': '1 or more package managers were not registered with the appropriate platform'})}
-    )
-    let modified = (
-        $install_data
-        | each {|it|
-            if $it.package_manager_name == 'custom' {
-                $it | update package_id {|row| view source $row.package_id}
-            } else {
-                $it
+    let source = ($in)
+    mut package_data = []
+    mut customs = {}
+    for $row in ($source | default {} | transpose name data
+        | each {|row|
+            $row | update data.install {|r|
+                $r.data.install
+                | transpose platform methods
+                | update methods {|r2| $r2.methods | transpose package_manager_name package_id}
+                | flatten --all
             }
-        } | group-by --to-table platform
-        | rename platform install
-        | update install {|row| $row.install | reject platform | transpose --as-record --header-row}
-        | transpose --as-record --header-row
-    )
-    let package_data = ({
-        'install': $modified, 
-        'search_help': ($search_help | default []),
-        'tags': ($tags | default []),
-        'reasons': ($reasons | default []),
-        'links': ($links | default []),
-    })
-    {'customs': ($customs), 'data': ($packages.data | insert $name $package_data)}
+            | flatten --all
+            | flatten install
+        } | flatten
+    ) {
+        # NOTE::DEBUG
+        #$package_data ++= $row
+        $package_data ++= (
+            if (($row | get install.package_manager_name) == 'custom') {
+                $customs = ($customs | insert ([$row.install.platform, $row.name] | into cell-path) {|r|$row.install.package_id})
+                $row | update install.package_id {|r| [$r.install.platform, $row.name] | str join '.'}
+            } else {$row}
+        )
+    }
+    # NOTE::DEBUG
+    #$package_data | skip 9 | first 5 | table -e
+    {'customs': ($customs), 'data': ($package_data)}
 }
 
 # returns the path of the main package data file
@@ -140,6 +155,8 @@ export def "save-data" [
     --customs-path: path,
 ] {
     let data = default (generate)
+    let customs_path = $customs_path | default (customs-data-path)
+    mkdir ($customs_path | path dirname)
     $data.customs | transpose platform_name install |
     update install {|row| $row.install | transpose package_name closure | update closure {|row| view source ($row.closure)}} |
     each {|it|
@@ -157,27 +174,15 @@ export def "save-data" [
         `export def main [] {$env | get PACKAGE_CUSTOMS_DATA? | default {`,
     ] | append [
         `}}`,
-    ] | str join "\n" | save -f ($customs_path | default (
-        if ((customs-data-path) | path dirname | path exists) == true {
-            (customs-data-path)
-        } else {
-            mkdir ((customs-data-path) | path dirname)
-            (customs-data-path)
-        }
-    ))
-    $data.data | to nuon --indent 4 | save -f ($data_path | default (
-        if ((data-path) | path dirname | path exists) == true {
-            (data-path)
-        } else {
-            mkdir ((data-path) | path dirname)
-            (data-path)
-        }
-    ))
-    if not (nu-check ($customs_path | default (customs-data-path))) {
+    ] | str join "\n" | save -f $customs_path
+    let data_path = $data_path | default (data-path)
+    mkdir ($data_path | path dirname)
+    $data.data | to nuon --indent 4 | save -f $data_path
+    if not (nu-check $customs_path) {
         use std [log]
         log error $'generated customs.nu is not valid!'
         return (error make {
-            'msg': $'generated .nu file is not valid -> ($customs_path | default (customs-data-path))',
+            'msg': $'generated .nu file is not valid -> ($customs_path)',
         })
     }
     {'PACKAGE_DATA': ($data.data), 'PACKAGE_CUSTOMS_DATA': ($data.customs)}
@@ -193,8 +198,8 @@ export def main [
 
 # function to modify to add package data
 export def generate [] {
-    (
     add 'winget' {'windows': {'custom': {||
+        use utils.nu [powershell-safe]
         powershell-safe -c ([
             `if (-not (Get-AppxPackage Microsoft.DesktopAppInstaller)) {`,
             `    Add-AppxPackage "https://aka.ms/getwinget"`,
@@ -204,6 +209,7 @@ export def generate [] {
         ] | str join '')
     }}} --tags ['essential', 'package manager'] |
     add 'scoop' {'windows': {'custom': {||
+        use utils.nu [powershell-safe]
         powershell-safe --less-safe -c ([
             `if (-not (gcm scoop -ErrorAction SilentlyContinue)) {`,
             `    irm -useb "https://get.scoop.sh" | iex`,
@@ -213,8 +219,9 @@ export def generate [] {
         ] | str join '')
     }}} --tags ['essential', 'package manager'] |
     add 'pipx' {'windows': {'custom': {||
-        package install 'scoop'
-        package install 'python'
+                # use package/install.nu [main]
+                # main 'scoop'
+                # main 'python'
         ^python -m pip install --user --upgrade pip setuptools wheel pipx
     }}} --tags ['essential', 'package manager'] |
     add 'python' {'windows': {'scoop': 'python'}} --tags ['essential', 'language'] |
@@ -227,7 +234,7 @@ export def generate [] {
     add "7zip" {"windows": {"scoop": "7zip"}} --tags ['scoop', 'exclude', 'auto'] |
     add "7zip19.00-helper" {"windows": {"scoop": "7zip19.00-helper"}} --tags ['scoop', 'exclude', 'auto'] |
     add "audacity" {"windows": {"scoop": "audacity"}} --tags ['rarely', 'large'] |
-    add "caddy" {"windows": {"scoop": "caddy"}} --tags ['small', 'rarely'] |
+    add "caddy" {"windows": {"scoop": "caddy", "winget": "CaddyServer.Caddy"}, "linux": {"apt-get": "caddy"}} --tags ['small', 'rarely'] |
     add "dark" {"windows": {"scoop": "dark"}} --tags ['scoop', 'exclude', 'auto'] |
     add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}} --tags ['essential'] |
     add "duckdb" {"windows": {"scoop": "duckdb"}} --tags ['small', 'undecided'] --reasons ['cool database engine in same space as SQLite, but under really cool, active development by academics, with really cool features'] |
@@ -353,6 +360,6 @@ export def generate [] {
     add "yt-dlp" {"windows": {"pipx": "yt-dlp"}} --tags ['small', 'essential', 'yt-dlp'] --reasons ['really, really good (youtube) video downloader based on youtube-dl'] |
     add "exiv2" {"linux": {"apt-get": "exiv2"}} --tags ['small'] --reasons ['my favorite tool for reading and manipulating EXIF data in images'] --search-help ['picture'] |
     add "exiftool" {"windows": {"scoop": "exiftool", "winget": "exiftool"}, "linux": {"apt-get": "exiftool"}} --tags ['small'] --reasons ['popular EXIF image metadata manipulation program'] --search-help ['picture'] |
-    add "sqlean" {"windows": {"eget": 'nalgeon/sqlite'}} --tags ['small', 'essential'] --reasons ['fantastic recompile of SQLite to include really useful extensions'] --links ['https://github.com/nalgeon/sqlite']
-    )
+    add "sqlean" {"windows": {"eget": 'nalgeon/sqlite'}} --tags ['small', 'essential'] --reasons ['fantastic recompile of SQLite to include really useful extensions'] --links ['https://github.com/nalgeon/sqlite'] |
+    separate-customs
 }
