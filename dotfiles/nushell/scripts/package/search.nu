@@ -19,9 +19,7 @@ export def main [
         }
     })
     if $exact {
-        $package_data | get c-p --optional [($name)] | if ($in | is-empty) {$in} else {
-            {$name: $in}
-        }
+        $package_data | select ([($name)] | into cell-path)
     } else {
         $package_data | transpose name data | filter {|it|
         (
