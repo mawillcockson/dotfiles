@@ -286,3 +286,20 @@ export def "log" [
         'warning' => (std log warning --format $format $args.msg),
     }
 }
+
+def "get c-p" [cell_path: list<string>, ...rest] {
+    let source = ($in)
+    (
+        $rest
+        | default []
+        | prepend [$cell_path]
+        | each {|it|
+            $source | get (
+                $it
+                | wrap value
+                | insert optional false
+                | into cell-path
+            )
+        }
+    )
+}

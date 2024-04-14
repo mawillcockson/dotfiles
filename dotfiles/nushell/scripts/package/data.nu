@@ -2,23 +2,6 @@
 
 const platform = ($nu.os-info.name)
 
-def "get c-p" [cell_path: list<string>, ...rest] {
-    let source = ($in)
-    (
-        $rest
-        | default []
-        | prepend [$cell_path]
-        | each {|it|
-            $source | get (
-                $it
-                | wrap value
-                | insert optional false
-                | into cell-path
-            )
-        }
-    )
-}
-
 # add a package to the package metadata file (use `package path` to list it)
 export def add [
     # the package manager-independent identifier
