@@ -287,7 +287,7 @@ export def "log" [
     }
 }
 
-def "get c-p" [cell_path: list<string>, ...rest] {
+export def "get c-p" [cell_path: list<string>, ...rest] {
     let source = ($in)
     (
         $rest
