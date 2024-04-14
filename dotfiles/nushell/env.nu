@@ -33,6 +33,19 @@ mkdir $eget_bin
         'target': ($eget_bin),
         'upgrade_only': true,
     },
+} | match $nu.os-info.name {
+    'windows' => {
+        insert 'nalgeon/sqlite' {'asset_filters': ['sqlean.exe']}
+    },
+    'linux' => {
+        insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']}
+    },
+    'macos' => {
+        insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-macos']}
+    },
+    _ => {
+        insert 'nalgeon/sqlite' {'download_source': true}
+    },
 } | to toml | prepend ['# this file is auto-generated in env.nu', ''] | str join "\n" | save -f $env.EGET_CONFIG
 
 $env.PATH = ($env.PATH | split row (char env_sep)

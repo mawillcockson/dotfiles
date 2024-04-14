@@ -88,6 +88,7 @@ export def "generate-data" [] {
     add --platform 'windows' 'scoop' {|id: string| $id | powershell-safe -c $"scoop install $Input"} |
     add --platform 'windows' 'winget' {|id: string| ^winget install --id $id --exact --accept-package-agreements --accept-source-agreements --disable-interactivity} |
     add --platform 'windows' 'pipx' {|id: string| ^pipx install $id} |
-    add --platform 'android' 'pkg' {|id: string| ^pkg install $id} # |
+    add --platform 'android' 'pkg' {|id: string| ^pkg install $id} |
+    add --platform 'windows' 'eget' {|id: string| ^eget $id}
     # add --platform 'platform' 'manager' {|id: string| print $'installing ($id)'}
 }

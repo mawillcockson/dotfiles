@@ -5,3 +5,5 @@ nushell/logs/
 nushell/scripts/generated/*
 !nushell/scripts/generated/default_env.nu
 !nushell/scripts/generated/default_config.nu
+
+.eget.toml

@@ -1,5 +1,0 @@
-# this file is auto-generated in env.nu
-
-[global]
-target = 'C:\Users\mawil\apps\eget-bin'
-upgrade_only = true
