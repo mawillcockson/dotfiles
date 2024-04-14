@@ -85,8 +85,47 @@ def "separate-customs" [] {
         )
     }
     # NOTE::DEBUG
-    #$package_data | skip 9 | first 5 | table -e
-    {'customs': ($customs), 'data': ($package_data)}
+    #print ($package_data | skip 9 | first 5 | table -e)
+    let record = (
+        $package_data
+        | group-by name --to-table
+        | update items {|row|
+            mut data = {}
+            for $j in (
+                $row.items |
+                group-by --to-table install.platform |
+                update items {|r|
+                    mut data = {}
+                    for $i in $r.items {
+                        $data = ($data | insert ([($r.group), ($i.install.package_manager_name)] | into cell-path) ($i.install.package_id))
+                    }
+                    (
+                        $r.items
+                        | reject name install
+                        | first 1
+                        | transpose --as-record
+                        | transpose --as-record --header-row
+                        | insert install $data
+                    )
+                }
+            ) {
+                    $data = (
+                        $data
+                        | insert ([($j.items.install | columns | first)] | into cell-path) ($j.items.install | get ([($j.items.install | columns | first)] | into cell-path))
+                    )
+            }
+            (
+                $row.items
+                | reject name install
+                | first 1
+                | transpose --as-record
+                | transpose --as-record --header-row
+                | insert install $data
+            )
+        }
+        | transpose --as-record --header-row
+    )
+    {'customs': ($customs), 'data': ($record)}
 }
 
 # returns the path of the main package data file
