@@ -77,15 +77,6 @@ def "separate-customs" [] {
     #         },
     #     },
     # }
-    # let package_data = (default {} | transpose name data
-    #     | update data.install {|row|
-    #         $row.data.install
-    #         | transpose platform methods
-    #         | update methods {|row| $row.methods | transpose package_manager_name package_id}
-    #         | flatten --all
-    #     }
-    # )
-    # $package_data
     let source = ($in)
     mut package_data = []
     mut customs = {}
@@ -113,42 +104,6 @@ def "separate-customs" [] {
     # NOTE::DEBUG
     #$package_data | skip 9 | first 5 | table -e
     {'customs': ($customs), 'data': ($package_data)}
-
-        #mut customs = {}
-        #let custom_rows = $install_data | where package_manager_name == 'custom'
-        #for $row in $custom_rows {
-        #    $customs = ($customs | insert ([$row.platform, $name] | into cell-path) {|r| $row.package_id})
-        #}
-        #($install_data
-        #| where package_manager_name != 'custom'
-        #| filter {|it|
-        #    let cell_path_table = [['value', 'optional']; [$it.platform, false] [$it.package_manager_name, true]]
-        #    $env.PACKAGE_MANAGER_DATA | get ($cell_path_table | into cell-path) | is-empty
-        #}
-        #| each {|it| log error $'package manager ($it.package_manager_name | to nuon) not registered for platform ($it.platform | to nuon)'}
-        #| each {|it| return (error make {'msg': '1 or more package managers were not registered with the appropriate platform'})}
-        #)
-        #let modified = (
-        #    $install_data
-        #    | each {|it|
-        #        if $it.package_manager_name == 'custom' {
-        #            $it | update package_id {|row| view source $row.package_id}
-        #        } else {
-        #            $it
-        #        }
-        #    } | group-by --to-table platform
-        #    | rename platform install
-        #    | update install {|row| $row.install | reject platform | transpose --as-record --header-row}
-        #    | transpose --as-record --header-row
-        #)
-        #let package_data = ({
-        #    'install': $modified, 
-        #    'search_help': ($search_help | default []),
-        #    'tags': ($tags | default []),
-        #    'reasons': ($reasons | default []),
-        #    'links': ($links | default []),
-        #})
-        #{'customs': ($customs), 'data': ($packages.data | insert $name $package_data)}
 }
 
 # returns the path of the main package data file
