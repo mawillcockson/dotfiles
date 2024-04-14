@@ -155,6 +155,8 @@ export def "save-data" [
     --customs-path: path,
 ] {
     let data = default (generate)
+    let customs_path = $customs_path | default (customs-data-path)
+    mkdir ($customs_path | path dirname)
     $data.customs | transpose platform_name install |
     update install {|row| $row.install | transpose package_name closure | update closure {|row| view source ($row.closure)}} |
     each {|it|
@@ -172,27 +174,15 @@ export def "save-data" [
         `export def main [] {$env | get PACKAGE_CUSTOMS_DATA? | default {`,
     ] | append [
         `}}`,
-    ] | str join "\n" | save -f ($customs_path | default (
-        if ((customs-data-path) | path dirname | path exists) == true {
-            (customs-data-path)
-        } else {
-            mkdir ((customs-data-path) | path dirname)
-            (customs-data-path)
-        }
-    ))
-    $data.data | to nuon --indent 4 | save -f ($data_path | default (
-        if ((data-path) | path dirname | path exists) == true {
-            (data-path)
-        } else {
-            mkdir ((data-path) | path dirname)
-            (data-path)
-        }
-    ))
-    if not (nu-check ($customs_path | default (customs-data-path))) {
+    ] | str join "\n" | save -f $customs_path
+    let data_path = $data_path | default (data-path)
+    mkdir ($data_path | path dirname)
+    $data.data | to nuon --indent 4 | save -f $data_path
+    if not (nu-check $customs_path) {
         use std [log]
         log error $'generated customs.nu is not valid!'
         return (error make {
-            'msg': $'generated .nu file is not valid -> ($customs_path | default (customs-data-path))',
+            'msg': $'generated .nu file is not valid -> ($customs_path)',
         })
     }
     {'PACKAGE_DATA': ($data.data), 'PACKAGE_CUSTOMS_DATA': ($data.customs)}
