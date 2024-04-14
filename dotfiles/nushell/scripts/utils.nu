@@ -287,7 +287,14 @@ export def "log" [
     }
 }
 
-export def "get c-p" [cell_path: list<string>, ...rest] {
+# call `get` with a cell-path
+export def "get c-p" [
+    # are all the path elements optional?
+    --optional,
+    # initial cell path required
+    cell_path: list<string>,
+    ...rest
+] {
     let source = ($in)
     (
         $rest
@@ -297,7 +304,7 @@ export def "get c-p" [cell_path: list<string>, ...rest] {
             $source | get (
                 $it
                 | wrap value
-                | insert optional false
+                | insert optional ($optional)
                 | into cell-path
             )
         }
