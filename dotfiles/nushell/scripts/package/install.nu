@@ -14,9 +14,15 @@ export def main [
     --recursive-package-list: list<string>,
 ] {
     let source = $in
+    print $'name -> ($name | to nuon)'
+    print $'--recursive-package-list -> ($recursive_package_list | to nuon)'
     if not (($source | is-empty) xor ($name | is-empty)) {
         return (error make {
             'msg': 'need either name or a piped package data set',
+            'label': {
+                'span': (metadata $name).span,
+                'text': 'either this or pipe package data into this command',
+            },
         })
     }
     let package_managers = (
@@ -30,7 +36,7 @@ export def main [
     }
     let packages = (
         $source
-        | default (search --exact ($name | default ''))
+        | if ($in | is-not-empty) {$in} else { search --exact $name}
         | transpose name install
     )
     $packages |
@@ -54,19 +60,21 @@ export def main [
             $methods |
             transpose name id |
             filter {|e|
-                if $e.name in $package_managers {true} else {
+                if $e.name in ($package_managers | columns) {true} else {
                     log debug $'unrecognized package manager ($e.name | to nuon) for platform ($platform | to nuon)'
                     false
                 }
             } |
             each {|e| {
                 'manager': ($e.name),
-                'closure': ($package_managers | get c-p [($e.name)]),
+                'closure': ($package_managers | get c-p [($e.name)] | first | first),
                 'id': ($e.id),
             }}
         }
         | first
+        | transpose --as-record | transpose --as-record --header-row
     )
+    print ($method | table -e)
 
     # This is a recursive call, and if there's a cycle in the graph
     # like (install package) -> (install package manager A) -> (install
@@ -74,13 +82,13 @@ export def main [
     # then this command may never return 🤷
     # NOTE::BUG this is probably not the best cycle detection
     let recursive_package_list = ($recursive_package_list | default [])
-    if ($method.name in $recursive_package_list) {
+    if ($method.manager in $recursive_package_list) {
         let msg = $'cyclic package dependency detected: ($recursive_package_list | to nuon --indent 4)'
         log error $msg
         return (error make {'msg': $msg})
     } else {
-        let recursive_package_list = ($recursive_package_list | append $method.name)
-        main --recursive-package-list $recursive_package_list $method.name
+        let recursive_package_list = ($recursive_package_list | append $method.manager)
+        main --recursive-package-list $recursive_package_list $method.manager
     }
 
     do $method.closure $method.id
