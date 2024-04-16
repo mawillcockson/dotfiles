@@ -74,7 +74,10 @@ export def main [
         | first
         | transpose --as-record | transpose --as-record --header-row
     )
-    print ($method | table -e)
+
+    if (which $method.manager | length) >= 0 {
+        return (do $method.closure $method.id | complete)
+    }
 
     # This is a recursive call, and if there's a cycle in the graph
     # like (install package) -> (install package manager A) -> (install
@@ -90,6 +93,4 @@ export def main [
         let recursive_package_list = ($recursive_package_list | append $method.manager)
         main --recursive-package-list $recursive_package_list $method.manager
     }
-
-    do $method.closure $method.id
 }
