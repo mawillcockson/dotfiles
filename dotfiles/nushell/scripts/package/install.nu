@@ -14,8 +14,8 @@ export def main [
     --recursive-package-list: list<string>,
 ] {
     let source = $in
-    print $'name -> ($name | to nuon)'
-    print $'--recursive-package-list -> ($recursive_package_list | to nuon)'
+    log debug $'name -> ($name)'
+    log debug $'--recursive-package-list -> ($recursive_package_list)'
     if not (($source | is-empty) xor ($name | is-empty)) {
         return (error make {
             'msg': 'need either name or a piped package data set',
@@ -60,8 +60,9 @@ export def main [
             $methods |
             transpose name id |
             filter {|e|
+                log debug $'$package_managers -> ($package_managers)'
                 if $e.name in ($package_managers | columns) {true} else {
-                    log debug $'unrecognized package manager ($e.name | to nuon) for platform ($platform | to nuon)'
+                    log debug $'unrecognized package manager ($e.name) for platform ($platform | to nuon)'
                     false
                 }
             } |
@@ -74,8 +75,10 @@ export def main [
         | first
         | transpose --as-record | transpose --as-record --header-row
     )
+    log debug $'current thing ($method)'
 
     if (which $method.manager | length) >= 0 {
+        log debug $'running closure for ($method.manager) with ($method.id)'
         return (do $method.closure $method.id)
     }
 
@@ -86,7 +89,7 @@ export def main [
     # NOTE::BUG this is probably not the best cycle detection
     let recursive_package_list = ($recursive_package_list | default [])
     if ($method.manager in $recursive_package_list) {
-        let msg = $'cyclic package dependency detected: ($recursive_package_list | to nuon --indent 4)'
+        let msg = $'cyclic package dependency detected: ($recursive_package_list)'
         log error $msg
         return (error make {'msg': $msg})
     } else {

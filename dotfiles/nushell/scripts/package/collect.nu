@@ -18,7 +18,7 @@ export def "collect-all" [
             if ($rest | is-empty) {true} else {
                 let collector_name = ($it | columns | first)
                 if ($collector_name in $rest) {true} else {
-                    log debug $'collector ($collector_name | to nuon) not in ($rest | to nuon)'
+                    log debug $'collector ($collector_name) not in ($rest)'
                     false
                 }
             }
@@ -111,8 +111,7 @@ export def "any pipx" [] {
         | insert group {|row| $groups | get ([$row.index, 'item'] | into cell-path)}
         | group-by --to-table group
         | each ({|it|
-            # NOTE::DEBUG
-            #print ($it | get items | first | get item)
+            log debug (try { $it | get items | first | get item })
             let package_name = (
                 $it
                 | get items
@@ -121,9 +120,7 @@ export def "any pipx" [] {
                 | parse --regex `^\s+package (?P<name>.*) [\S]+, installed using Python \d\.\d{1,2}\.\d{1,2}$`
                 | get 0.name
             )
-            # NOTE::DEBUG
-            #print ($it | get items | first | get item)
-            #print $package_name
+            log debug ($package_name | debug)
             data add $package_name {($platform): {'pipx': ($package_name)}} --tags ['collector']
         })
         | get data?
