@@ -373,12 +373,16 @@ export def generate [] {
     add "sqlfluff" {"windows": {"pipx": "sqlfluff"}} --tags ['sql', 'tooling'] --reasons ['linting for sql', "don't know how to use/configure it"] |
     add "tox" {"windows": {"pipx": "tox"}} --tags ['python', 'tooling'] --reasons ['beloved test runner', 'makes it super nice to have very isolated test environments, and can run the tests across multiple versions of Python'] |
     add "twine" {"windows": {"pipx": "twine"}} --tags ['small', 'python', 'tooling'] --reasons ['was the blessed tool to upload packages to PyPI'] |
-    add "usort" {"windows": {"pipx": "usort"}} --tags ['python', 'tooling'] --reasons ['large-coproration-made replacement for isort'] |
+    add "usort" {"windows": {"pipx": "usort"}} --tags ['python', 'tooling'] --reasons ['large-corporation-made replacement for isort'] |
     add "xonsh" {"windows": {"pipx": "xonsh"}} --tags ['python', 'shell', 'environment', 'rarely'] --reasons ['beloved cross-platform shell; extremely friendly to python'] |
     add "youtube-dl" {"windows": {"pipx": "youtube-dl"}} --tags ['old', 'small'] --reasons ['used to be my favorite (youtube) video downloader before yt-dlp'] |
     add "yt-dlp" {"windows": {"pipx": "yt-dlp"}} --tags ['small', 'essential', 'yt-dlp'] --reasons ['really, really good (youtube) video downloader based on youtube-dl'] |
     add "exiv2" {"linux": {"apt-get": "exiv2"}} --tags ['small'] --reasons ['my favorite tool for reading and manipulating EXIF data in images'] --search-help ['picture'] |
     add "exiftool" {"windows": {"scoop": "exiftool", "winget": "exiftool"}, "linux": {"apt-get": "exiftool"}} --tags ['small'] --reasons ['popular EXIF image metadata manipulation program'] --search-help ['picture'] |
     add "sqlean" {"windows": {"eget": 'nalgeon/sqlite'}} --tags ['small', 'essential'] --reasons ['fantastic recompile of SQLite to include really useful extensions'] --links ['https://github.com/nalgeon/sqlite'] |
+    add "bat" {"windows": {"scoop": 'bat'}} --tags ['small'] --reasons ['like cat, but better'] --links ['https://github.com/sharkdp/bat'] |
+    add "ncspot" {"windows": {"scoop": 'ncspot', "winget": 'hrkfdn.ncspot'}} --tags ['small', 'music'] --reasons ['cli spotify client that works really well'] --links ['https://github.com/hrkfdn/ncspot'] |
+    add "sops" {"windows": {"eget": "getsops/sops"}} --tags ['encryption', 'small'] --reasons ["maintained, accessible usage of Shamir's Secret Sharing Algorithm (SSSS)"] --links ['https://github.com/getsops/sops'] |
+    add "age" {"windows": {"scoop": "age"}} --tags ['encryption', 'small'] --reasons ['very simply file encryption'] --links ['https://github.com/FiloSottile/age'] |
     separate-customs
 }
