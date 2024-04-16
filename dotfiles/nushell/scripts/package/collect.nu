@@ -6,7 +6,7 @@ use std [log]
 const platform = ($nu.os-info.name)
 
 # runs collectors to collect information from package managers
-export def main [
+export def "collect-all" [
     # the collectors to use (defaults to all)
     ...rest: string,
 ] {
