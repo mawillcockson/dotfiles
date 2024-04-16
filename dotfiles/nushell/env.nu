@@ -52,6 +52,7 @@ $env.PATH = ($env.PATH | split row (char env_sep)
     | append ($eget_bin)
     | append 'C:\Exercism'
     | uniq
+    | path expand
 )
 
 # generate stuff that can then be sourced in config.nu
