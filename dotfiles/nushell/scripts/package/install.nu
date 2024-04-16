@@ -76,7 +76,7 @@ export def main [
     )
 
     if (which $method.manager | length) >= 0 {
-        return (do $method.closure $method.id | complete)
+        return (do $method.closure $method.id)
     }
 
     # This is a recursive call, and if there's a cycle in the graph
