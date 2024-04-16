@@ -21,6 +21,12 @@ const default_package_customs_path = $'($nu.default-config-dir)/scripts/generate
     }
 }
 
+# NOTE::BUG These two don't seem to be set in the resulting interactive environment
+# There's two `%ANSI_STOP%` in case there's an unterminated ansi sequence in the message
+$env.NU_LOG_FORMAT = '%ANSI_START%%DATE% [%LEVEL%]%ANSI_STOP% - %MSG%%ANSI_STOP%'
+# set to `debug` for extra output
+$env.NU_LOG_LEVEL = 'info'
+
 $env.HOME = ($env | get HOME? USERPROFILE? | compact | first)
 
 let dotfiles = ($nu.home-path | path join 'projects' 'dotfiles' 'dotfiles')
