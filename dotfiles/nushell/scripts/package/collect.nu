@@ -18,7 +18,7 @@ export def main [
             if ($rest | is-empty) {true} else {
                 let collector_name = ($it | columns | first)
                 if ($collector_name in $rest) {true} else {
-                    log debug $'collector ($collector_name | to nuon) not in ($rest | to nuon)'
+                    log debug $'collector ($collector_name | to nuon) not in (($rest | columns) | to nuon)'
                     false
                 }
             }
