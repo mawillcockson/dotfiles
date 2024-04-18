@@ -25,7 +25,7 @@ export def "collect-all" [
         }
     )
     if ($collectors | is-empty) {
-        log warning $'no matching collectors for this platform'
+        log warning $'no matching collectors for this platform: ($platform)'
     }
     let collectors = ($collectors | first)
     let package_managers = (
@@ -53,6 +53,10 @@ export def "collect-all" [
 const default_scoop_buckets = ['main', 'extras', 'nerd-fonts']
 
 export def "windows scoop" [] {
+    if (which scoop | length) <= 0 {
+        log info 'scoop not found'
+        return []
+    }
     (
         (powershell-safe -c 'scoop export').stdout
         | from json
@@ -76,6 +80,10 @@ export def "windows scoop" [] {
 }
 
 export def "windows winget" [] {
+    if (which winget | length) <= 0 {
+        log info 'winget not found'
+        return []
+    }
     let temp = (mktemp --suffix '.json')
     ^winget export --source winget --accept-source-agreements --disable-interactivity --output $temp
     let out = (open --raw $temp | from json)
@@ -92,6 +100,20 @@ export def "windows winget" [] {
 }
 
 export def "any pipx" [] {
+    let pipx = (
+        if (which pipx | length) >= 0 {which pipx | get 0.path}
+        else if ((which python | length) >= 0) and ((^python -c '
+try:
+    import pipx
+except ImportError:
+    print("no")
+else:
+    print("yes")') == 'yes') {^python -c 'import sys; print(sys.executable)'}
+        else {
+            log info 'pipx not found'
+            return []
+        }
+    )
     let out = (
         ^pipx -qqq list
         | decode 'utf8'
