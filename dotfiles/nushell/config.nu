@@ -9,6 +9,18 @@ const postconfig = $"($generated)/postconfig.nu"
 # can't be read
 source $postconfig
 
+$env.config = (
+    $env.config
+    | upsert history.max_size 10_000_000
+    | upsert history.file_format 'sqlite'
+    | upsert buffer_editor (
+        if ('NVIM' in $env) and (which nvr | is-not-empty) {
+            'nvr -cc split --remote-wait'
+        } else {''}
+    )
+    | upsert edit_mode 'vi'
+)
+
 overlay use clipboard.nu
 overlay use utils.nu
 overlay use --prefix std
