@@ -11,8 +11,6 @@ const ssss_dir = $'($nu.default-config-dir)/scripts/ssss'
 const wordlist_file = $'($ssss_dir)/english-bip39-wordlist.txt'
 const wordlist_url = 'https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt'
 
-const sops = 'sops-v3.8.1.exe'
-
 export def main [] {
     load-env {
         'NU_LOG_LEVEL': 'info',
@@ -67,7 +65,7 @@ export def main [] {
     with-env {
         'SOPS_AGE_KEY': ($keys | get identity | str join "\n"),
     } {
-        run-external $sops ...($args)
+        run-external 'sops' ...($args)
     }
     log info 'sops finished'
     log info 'finished'
@@ -103,7 +101,7 @@ def "get-input" [] {
         let $threshold = (1..10 | input list 'threshold> ')
     }
     log info $'threshold -> ($threshold)'
-    let sops_version = (run-external --redirect-stdout $sops ...[--disable-version-check, --version] | str trim)
+    let sops_version = (run-external --redirect-stdout 'sops' ...[--disable-version-check, --version] | str trim)
 
     return {
         'num_keys': ($num_keys),
@@ -131,14 +129,14 @@ $json_output | from json | ssss decrypt encrypted.sops.yaml
 
 export def decrypt [file: path] {
     let source = $in
-    hide-env SOPS_AGE_KEY_FILE
+    try {hide-env SOPS_AGE_KEY_FILE}
     let threshold = (open --raw $file | from yaml | get sops.shamir_threshold)
     log debug $'only decrypting ($threshold) keys'
     let age_keys = ($source | first $threshold | get encrypted | each {|it| $it | ^age --decrypt | str trim})
     with-env {
         'SOPS_AGE_KEY': ($age_keys | str join "\n"),
     } {
-        sops --decrypt --extract '["secret"]' $file
+        ^sops --decrypt --extract '["secret"]' $file
     }
 }
 
