@@ -21,6 +21,10 @@ const default_package_customs_path = $'($nu.default-config-dir)/scripts/generate
     }
 }
 
+if ('NVIM' in $env) and (which nvr | is-not-empty) {
+    $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
+}
+
 # NOTE::BUG These two don't seem to be set in the resulting interactive environment
 # There's two `%ANSI_STOP%` in case there's an unterminated ansi sequence in the message
 $env.NU_LOG_FORMAT = '%ANSI_START%%DATE% [%LEVEL%]%ANSI_STOP% - %MSG%%ANSI_STOP%'

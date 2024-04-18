@@ -395,6 +395,7 @@ export def generate [] {
         },
     } --tags ['encryption', 'small'] --reasons ["maintained, accessible usage of Shamir's Secret Sharing Algorithm (SSSS)"] --links ['https://github.com/getsops/sops'] |
     add "age" {"windows": {"scoop": "age"}} --tags ['encryption', 'small'] --reasons ['very simply file encryption'] --links ['https://github.com/FiloSottile/age'] |
-    add "fzf" {"windows": {"scoop": 'fzf'}} --tags ['small', 'rarely'] --reasons ['very simple interactive fuzzy finder that can be used from other scripts'] --links ['https://github.com/junegunn/fzf']
+    add "fzf" {"windows": {"scoop": 'fzf'}} --tags ['small', 'rarely'] --reasons ['very simple interactive fuzzy finder that can be used from other scripts'] --links ['https://github.com/junegunn/fzf'] |
+    add "nvr" {"windows": {"pipx": "neovim-remote"}} --tags ['small', 'neovim'] --reasons ['allows opening a file from within a :terminal session, inside the editor that :terminal is running within, instead of opening a nested editor'] --links ['https://github.com/mhinz/neovim-remote'] |
     separate-customs
 }
