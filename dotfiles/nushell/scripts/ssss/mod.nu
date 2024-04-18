@@ -2,6 +2,19 @@
 # and an arbitrary threshold for the required number of keys needed to decrypt
 # the secret
 
+# NOTE::DIRECTION I'd love to implement this myself, in a manner similar to
+# https://github.com/paritytech/banana_split, first as a cli tool, then as a
+# standalone html page. I'd love for the keys to be encoded in such a way that
+# I can use the bip39 word list and fuzzy matching with something like
+# RapidFuzz to help with typos, and make it much easier to re-enter the
+# distributed keys. I'd also love to envode more info into the key, like a MAC
+# and signature. That way, the issue of the resultant key being changed by a
+# maliciously-modified input key is not applicable.
+#
+# I'd love for the only thing each person has to type in is a number of bip39
+# words, in the order given to them, without having to remember that "this is
+# the file that needs to be decrypted", "this is your key", etc.
+
 # required tools:
 # - sops: does SSSS part
 # - age: does the encryption and key generation part
