@@ -382,7 +382,18 @@ export def generate [] {
     add "sqlean" {"windows": {"eget": 'nalgeon/sqlite'}} --tags ['small', 'essential'] --reasons ['fantastic recompile of SQLite to include really useful extensions'] --links ['https://github.com/nalgeon/sqlite'] |
     add "bat" {"windows": {"scoop": 'bat'}} --tags ['small'] --reasons ['like cat, but better'] --links ['https://github.com/sharkdp/bat'] |
     add "ncspot" {"windows": {"scoop": 'ncspot', "winget": 'hrkfdn.ncspot'}} --tags ['small', 'music'] --reasons ['cli spotify client that works really well'] --links ['https://github.com/hrkfdn/ncspot'] |
-    add "sops" {"windows": {"eget": "getsops/sops", "scoop": "sops"}} --tags ['encryption', 'small'] --reasons ["maintained, accessible usage of Shamir's Secret Sharing Algorithm (SSSS)"] --links ['https://github.com/getsops/sops'] |
+    add "sops" {
+        "windows": {
+            "custom": {||
+                ^eget install getsops/sops
+                do {
+                    open $env.EGET_CONFIG | get global.target | cd $in
+                    glob 'sops*.exe' | first | mv $in 'sops.exe'
+                }
+            },
+            "scoop": "sops",
+        },
+    } --tags ['encryption', 'small'] --reasons ["maintained, accessible usage of Shamir's Secret Sharing Algorithm (SSSS)"] --links ['https://github.com/getsops/sops'] |
     add "age" {"windows": {"scoop": "age"}} --tags ['encryption', 'small'] --reasons ['very simply file encryption'] --links ['https://github.com/FiloSottile/age'] |
     add "fzf" {"windows": {"scoop": 'fzf'}} --tags ['small', 'rarely'] --reasons ['very simple interactive fuzzy finder that can be used from other scripts'] --links ['https://github.com/junegunn/fzf']
     separate-customs
