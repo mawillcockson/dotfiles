@@ -8,7 +8,7 @@ use utils.nu [powershell-safe]
 # this returns a data structure that `package manager save` can persist to disk
 export def add [
     # the default for platform is whatever the current platform is
-    --platform: string,
+    --platform: string = ($nu.os-info.name),
     # the name of the package manager, used in `package add`
     name: string,
     # the closure that is passed a package id, and expected to install the package
@@ -17,7 +17,7 @@ export def add [
     # the insert command itself takes a closure as the second argument, so the
     # closure has to be wrapped in a closure that, when executed, returns the
     # $closure
-    default {} | insert ([($platform | default ($nu.os-info.name)), $name] | into cell-path) {|row| $closure}
+    default {} | insert ([$platform, $name] | into cell-path) {|row| $closure}
 }
 
 # saves package manager data, optionally to a path we specify
