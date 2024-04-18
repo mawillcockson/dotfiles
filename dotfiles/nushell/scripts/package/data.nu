@@ -36,7 +36,7 @@ export def add [
 
 # take a record of package data and separate the custom closures, replacing
 # them with the string representation of their source code
-def "separate-customs" [] {
+export def "separate-customs" [] {
     # the intended resulting structure is something like
     # {
     #     'customs': {

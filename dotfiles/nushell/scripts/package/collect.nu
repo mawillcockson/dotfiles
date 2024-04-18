@@ -75,7 +75,6 @@ export def "windows scoop" [] {
             let a = (0)
             data add $it.Name {'windows': {'scoop': ($it.Name)}} --tags ['collector']
         })
-        | get data?
     )
 }
 
@@ -96,7 +95,7 @@ export def "windows winget" [] {
             | if ($in.a == $in.b) {$in.a | str downcase} else {$it.PackageIdentifier}
         )
         data add $name {'windows': {'winget': ($it.PackageIdentifier)}} --tags ['collector']
-    }) | get data?
+    })
 }
 
 export def "any pipx" [] {
@@ -145,7 +144,6 @@ else:
             log debug ($package_name | debug)
             data add $package_name {($platform): {'pipx': ($package_name)}} --tags ['collector']
         })
-        | get data?
     )
 }
 
