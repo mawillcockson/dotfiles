@@ -1,7 +1,7 @@
 overlay use utils.nu
 
 let configs = match $nu.os-info.name {
-    'windows' => ($env.OneDrive | path join 'Documents' 'configs'),
+    'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
     _ => {
         print --stderr 'not implemented for this platform'
         exit 1
