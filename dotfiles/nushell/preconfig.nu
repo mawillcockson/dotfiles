@@ -19,7 +19,7 @@ mut postconfig_content: list<string> = (
     ]
 )
 
-if (which atuin | length | into bool) {
+if (which atuin | is-not-empty) {
     # currently, atuin can automatically run the command when <Enter> is
     # pressed in other shells, but can't in nu
     # https://github.com/atuinsh/atuin/issues/1392
@@ -28,7 +28,7 @@ if (which atuin | length | into bool) {
     $postconfig_content ++= `source $"($generated)/atuin.nu"`
 }
 
-if (which starship | length | into bool) {
+if (which starship | is-not-empty) {
     ^starship init nu | save -f ($generated | path join "starship.nu")
     $postconfig_content ++= `overlay use $"($generated)/starship.nu"`
 }
