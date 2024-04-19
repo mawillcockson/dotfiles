@@ -134,11 +134,10 @@ export def "ln -s" [
                 })},
             })
             (
-            [($link | path dirname), ($link | path basename), $target]
+            [($link_type), ($link | path dirname), ($link | path basename), $target]
             | str join "\u{0}"
             | powershell-safe -c '$temp = $input -split [char]0x0;
-                New-Item -Type ($link_type) -Path $temp[0] -Name $temp[1] -Value $temp[2]'
-            | complete
+                New-Item -Type ($temp[0]) -Path $temp[1] -Name $temp[2] -Value $temp[3]'
             )
         },
         _ => {error make {
@@ -219,8 +218,8 @@ export def "powershell-safe" [
     ]
     (
     $piped
-    | run-external --redirect-stdout --redirect-stderr (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
-    | complete
+    | run-external (if (which pwsh | length) > 0 {'pwsh'} else {'powershell'}) ...($args)
+    o+e>| complete
     | if (not $no_fail) and ($in.exit_code != 0) { return (error make {
         'msg': $'powershell returned an error: ($in)',
     })} else {$in}
