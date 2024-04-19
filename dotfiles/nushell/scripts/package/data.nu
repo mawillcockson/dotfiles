@@ -385,7 +385,7 @@ export def generate [] {
     add "sops" {
         "windows": {
             "custom": {||
-                ^eget install getsops/sops
+                ^eget getsops/sops
                 do {
                     open $env.EGET_CONFIG | get global.target | cd $in
                     glob 'sops*.exe' | first | mv $in 'sops.exe'
