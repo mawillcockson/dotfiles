@@ -1,21 +1,21 @@
 use utils.nu ["path is-link", "ln -s"]
 
-let configs = match $nu.os-info.name {
-    'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
-    _ => {
-        print --stderr 'not implemented for this platform'
-        exit 1
-    },
-}
-let dotfiles = match $nu.os-info.name {
-    'windows' => ($env.USERPROFILE | path join 'projects' 'dotfiles' 'dotfiles'),
-    _ => {
-        print --stderr 'not implemented for this platform'
-        exit 1
-    },
-}
-
 export def main [] {
+    let configs = match $nu.os-info.name {
+        'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
+        _ => {
+            print --stderr 'not implemented for this platform'
+            exit 1
+        },
+    }
+    let dotfiles = match $nu.os-info.name {
+        'windows' => ($env.USERPROFILE | path join 'projects' 'dotfiles' 'dotfiles'),
+        _ => {
+            print --stderr 'not implemented for this platform'
+            exit 1
+        },
+    }
+
     ['starship', 'nvim', 'xonsh', 'atuin', 'scoop', 'nushell'] | each {|name|
         let in_configs = $configs | path join $name
         let in_dotfiles = $dotfiles | path join $name
