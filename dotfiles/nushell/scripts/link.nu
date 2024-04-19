@@ -15,7 +15,7 @@ let dotfiles = match $nu.os-info.name {
     },
 }
 
-['starship', 'nvim', 'xonsh', 'atuin', 'scoop'] | each {|name|
+['starship', 'nvim', 'xonsh', 'atuin', 'scoop', 'nushell'] | each {|name|
     let in_configs = $configs | path join $name
     let in_dotfiles = $dotfiles | path join $name
     if ($in_configs | path is-link) {
