@@ -133,10 +133,13 @@ export def "ln -s" [
                     },
                 })},
             })
-            [($link | path dirname), ($link | path basename), $target] | str join "\u{0}" | ^powershell -NoLogo -NonInteractive -NoProfile -Command $'
-            $OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding;
-            $temp = $input -split [char]0x0;
-            New-Item -Type ($link_type) -Path $temp[0] -Name $temp[1] -Value $temp[2]' | complete
+            (
+            [($link | path dirname), ($link | path basename), $target]
+            | str join "\u{0}"
+            | powershell-safe -c '$temp = $input -split [char]0x0;
+                New-Item -Type ($link_type) -Path $temp[0] -Name $temp[1] -Value $temp[2]'
+            | complete
+            )
         },
         _ => {error make {
             'msg': $"'ln -s' isn't implemented for this platform: ($nu.os-info.name)"
