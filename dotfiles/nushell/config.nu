@@ -11,8 +11,9 @@ source $postconfig
 
 $env.config = (
     $env.config
-    | upsert history.max_size 10_000_000
-    | upsert history.file_format 'sqlite'
+    # see note in env.nu
+    #| upsert history.max_size 10_000_000
+    #| upsert history.file_format 'sqlite'
     | upsert buffer_editor (
         if ('NVIM' in $env) and (which nvr | is-not-empty) {
             'nvr -cc split --remote-wait'
