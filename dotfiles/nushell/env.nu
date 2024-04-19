@@ -21,16 +21,6 @@ const default_package_customs_path = $'($nu.default-config-dir)/scripts/generate
     }
 }
 
-# NOTE::INFO There's a note in `config nu --default` that the session has to be
-# reloaded in order for these to take effect, so I'm putting them here
-$env.config = (
-    $env
-    | get config?
-    | default {}
-    | upsert history.max_size 10_000_000
-    | upsert history.file_format 'sqlite'
-)
-
 if ('NVIM' in $env) and (which nvr | is-not-empty) {
     $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
 }

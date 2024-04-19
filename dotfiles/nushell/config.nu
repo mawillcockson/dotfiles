@@ -11,9 +11,11 @@ source $postconfig
 
 $env.config = (
     $env.config
-    # see note in env.nu
-    #| upsert history.max_size 10_000_000
-    #| upsert history.file_format 'sqlite'
+    # NOTE::BUG There's a note in `config nu --default` that the session has
+    # to be reloaded in order for these to take effect, and they don't seem to
+    # be taking effect
+    | upsert history.max_size 10_000_000
+    | upsert history.file_format 'sqlite'
     | upsert buffer_editor (
         if ('NVIM' in $env) and (which nvr | is-not-empty) {
             'nvr -cc split --remote-wait'
