@@ -31,9 +31,9 @@ $env.NU_LOG_FORMAT = '%ANSI_START%%DATE% [%LEVEL%]%ANSI_STOP% - %MSG%%ANSI_STOP%
 # set to `debug` for extra output
 $env.NU_LOG_LEVEL = 'info'
 
-$env.HOME = ($env | get HOME? USERPROFILE? | compact | first)
+$env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $nu.home-path)
 
-let dotfiles = ($nu.home-path | path join 'projects' 'dotfiles' 'dotfiles')
+let dotfiles = ($env.HOME | path join 'projects' 'dotfiles' 'dotfiles')
 
 $env.EGET_CONFIG = ($dotfiles | path join '.eget.toml')
 let eget_bin = ($env.HOME | path join 'apps' 'eget-bin')
