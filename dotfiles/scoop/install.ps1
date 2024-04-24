@@ -48,6 +48,17 @@ scoop bucket add nerd-fonts
 write-host "install DejaVuSans font"
 scoop install DejaVuSansMono-NF
 
+$content = {
+    if (Test-Path Env:XDG_CONFIG_HOME) {
+        . "$Env:XDG_CONFIG_HOME\powershell\profile.ps1"
+    }
+}
+if (-not (Test-Path $PROFILE)) {
+    New-Item -ItemType File -Path $PROFILE -Force -Value $content
+} else {
+    write-host "not overwriting existing $PROFILE"
+}
+
 if (Test-Path Env:OneDrive) {
     write-host "configuring clink for autorun"
     clink autorun install -- --profile "$Env:OneDrive\Documents\configs\clink"

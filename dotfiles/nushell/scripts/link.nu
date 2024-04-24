@@ -7,6 +7,7 @@ const folders = [
     'atuin',
     'scoop',
     'nushell',
+    'powershell',
 ]
 
 export def main [] {
