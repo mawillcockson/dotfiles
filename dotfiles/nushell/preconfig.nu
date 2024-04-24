@@ -35,12 +35,11 @@ if (which starship | is-not-empty) {
 
 $postconfig_content | str join "\n" | save -f $postconfig
 
-let clipboard_url = 'https://github.com/nushell/nu_scripts/raw/main/modules/system/mod.nu'
-let clipboard_nu = $scripts | path join "clipboard.nu"
-if not ($clipboard_nu | path exists) {
-    http get $clipboard_url | save $clipboard_nu
-}
-
-try {
-    http get --max-time 2 'https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu' | save -f $'($scripts)/testing.nu'
-}
+[
+    ['url', 'path'];
+    ['https://github.com/nushell/nu_scripts/raw/main/modules/system/mod.nu', ($scripts | path join 'clipboard.nu')]
+    ['https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu', ($scripts | path join 'testing.nu')]
+] | each {|row|
+    if not ($row.path | path exists) {
+    http get --max-time 2 $row.url | save $row.path
+}}
