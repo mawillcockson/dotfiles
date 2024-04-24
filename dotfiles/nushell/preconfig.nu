@@ -42,4 +42,4 @@ $postconfig_content | str join "\n" | save -f $postconfig
 ] | each {|row|
     if not ($row.path | path exists) {
     http get --max-time 2 $row.url | save $row.path
-}}
+}} | null

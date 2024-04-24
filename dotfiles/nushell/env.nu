@@ -19,7 +19,7 @@ const default_package_customs_path = $'($nu.default-config-dir)/scripts/generate
         log warning 'truncating it'
         echo '' | save -f $it
     }
-}
+} | null
 
 if ('NVIM' in $env) and (which nvr | is-not-empty) {
     $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
