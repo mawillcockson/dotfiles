@@ -1,22 +1,29 @@
 use utils.nu ["path is-link", "ln -s"]
 
+const folders = [
+    'starship',
+    'nvim',
+    'xonsh',
+    'atuin',
+    'scoop',
+    'nushell',
+]
+
 export def main [] {
     let configs = match $nu.os-info.name {
         'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
         _ => {
-            print --stderr 'not implemented for this platform'
-            exit 1
+            return (error make {msg: 'not implemented for this platform'})
         },
     }
     let dotfiles = match $nu.os-info.name {
         'windows' => ($env.USERPROFILE | path join 'projects' 'dotfiles' 'dotfiles'),
         _ => {
-            print --stderr 'not implemented for this platform'
-            exit 1
+            return (error make {msg: 'not implemented for this platform'})
         },
     }
 
-    ['starship', 'nvim', 'xonsh', 'atuin', 'scoop', 'nushell'] | each {|name|
+    $folders | each {|name|
         let in_configs = $configs | path join $name
         let in_dotfiles = $dotfiles | path join $name
         if ($in_configs | path is-link) {
