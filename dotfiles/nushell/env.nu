@@ -61,7 +61,7 @@ mkdir $eget_bin
 
 $env.PATH = ($env.PATH | split row (char env_sep)
     | append ($eget_bin)
-    | append 'C:\Exercism'
+    | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | uniq
     | path expand
 )
