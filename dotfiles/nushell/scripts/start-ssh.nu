@@ -3,15 +3,13 @@ use std [log]
 
 const platform = ($nu.os-info.name)
 
-export def main [] {start-ssh}
-
 # Based on:
 # https://github.com/mawillcockson/dotfiles/blob/798d6ea7267a73502ae8242fae1aa4b0d0618af5/INSTALL_windows.md
 # NOTE::IMPROVEMENT This could close the running ssh-agent, and the
 # WSL-SSH-Pageant, before starting the latter again, as well as check for the
 # existence of the appropriate environment variable, and the presence of the
 # necessary programs
-export def "start-ssh" [] {
+export def main [] {
     if ($env | get SSH_AUTH_SOCK? | is-empty) {
         # This is the default name of the named pipe used Windows' builtin ssh,
         # set explicitly here. More info:
