@@ -12,8 +12,10 @@ source $postconfig
 $env.config = (
     $env.config
     # NOTE::BUG There's a note in `config nu --default` that the session has
-    # to be reloaded in order for these to take effect, and they don't seem to
+    # to be reloaded in order for history.* to take effect, and they don't seem to
     # be taking effect
+# Atuin should be able to handle a lot of history, so don't cull based on
+# number of entries
     | upsert history.max_size 10_000_000
     | upsert history.file_format 'sqlite'
     | upsert buffer_editor (
@@ -48,23 +50,16 @@ for $rec in $comparisons {
 export-env {
     # NOTE::PERF currently too slow
     # different architecture would drastically speed it up
-    # try {
-    #     package manager save-data | load-env
-    # } catch {
-    #     log error 'problem when saving package manager data'
-    # }
-    # try {
-    #     package data save-data | load-env
-    # } catch {
-    #     log error 'problem when saving package data'
-    # }
+    #try {
+    #    package manager save-data | load-env
+    #} catch {
+    #    log error 'problem when saving package manager data'
+    #}
+    #try {
+    #    package data save-data | load-env
+    #} catch {
+    #    log error 'problem when saving package data'
+    #}
 }
 
 alias dt = date my-format
-
-# Atuin should be able to handle a lot of history, so don't cull based on
-# number of entries
-# let opopo = {
-#     history.max_size: 10_000_000
-#     show_banner: false
-# }
