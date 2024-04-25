@@ -2,6 +2,8 @@ scoop/config*.json
 
 nushell/history.txt
 nushell/history-*.txt
+nushell/history.sqlite3*
+nushell/history-*.sqlite3*
 nushell/logs/
 nushell/scripts/generated/*
 !nushell/scripts/generated/default_env.nu

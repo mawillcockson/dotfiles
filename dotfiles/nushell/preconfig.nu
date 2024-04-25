@@ -37,7 +37,8 @@ if (which atuin | is-not-empty) {
 
 if (which starship | is-not-empty) {
     ^starship init nu | save -f ($generated | path join "starship.nu")
-    $postconfig_content ++= `overlay use $"($generated)/starship.nu"`
+    # NOTE::BUG using `overlay use` instead of `source` causes very weird issues
+    $postconfig_content ++= `source $"($generated)/starship.nu"`
 }
 
 $postconfig_content | str join "\n" | save -f $postconfig
