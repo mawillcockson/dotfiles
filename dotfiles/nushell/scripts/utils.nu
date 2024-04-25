@@ -371,21 +371,49 @@ export def "banner-message" [
     let msg_width = ($banner_width - ($mascot_width + ($padding | str length)))
     let wrapped_msg = (
         $msg
-        | split chars
-        | group $msg_width
-        | each {|e| $e | str join ''}
+        | match ($msg | describe) {
+            'string' => {
+                if ($msg | str contains "\n") {
+                    lines
+                } else {
+                    split chars |
+                    group $msg_width |
+                    each {|e| $e | str join ''}
+                }
+            },
+            'list<string>' => {$msg},
+            _ => {
+                return (error make {
+                    'msg': 'bad msg type',
+                    'label': {
+                        'text': 'here',
+                        'span': (metadata $msg).span,
+                    },
+                })
+            },
+        }
         | enumerate
     )
     let mascot_rest = (
         $padded_mascot
         | skip 1
         | enumerate
-        | rename index line
         | each {|row|
-            let portion = ($wrapped_msg | get ([($row.index), item] | into cell-path))
-            $row | update line ($row.line + $portion)
+            let portion = (
+                $wrapped_msg
+                | get (
+                    [
+                        [value, optional];
+                        [($row.index), true],
+                        ['item', false]
+                    ]
+                    | into cell-path
+                )
+                | default ''
+            )
+            $row | update item ($row.item + $portion)
         }
-        | get line
+        | get item
     )
     let msg_rest = (
         $wrapped_msg
@@ -397,4 +425,9 @@ export def "banner-message" [
         | each {|e| $e | str join ''}
     )
     return ($mascot_first_line | append $mascot_rest | append $msg_rest | str join "\n")
+}
+
+export def "my-banner" [] {
+    print (banner-message "do cool stuff\nbe nice to you")
+    print $"\nStartup Time: ($nu.startup-time)"
 }
