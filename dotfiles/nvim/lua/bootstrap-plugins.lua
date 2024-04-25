@@ -1,3 +1,4 @@
+local this_filename = "bootstrap-plugins.lua"
 -- This file is meant to be run like `nvim -l bootstrap-plugins.lua`, a feature added in nvim 0.9x
 --
 -- NOTE::OUTDATED
@@ -29,14 +30,31 @@ local function do_bootstrap()
 	-- https://github.com/folke/lazy.nvim#-installation
 	vim.notify("importing join_path", DEBUG, {})
 	local currentfile = vim.fn.expand("%:p")
-	if currentfile ~= "" then
+	if (not currentfile) or (currentfile == "") and (select("#", unpack(_G.arg)) > 0) then
 		local relative_name = _G.arg[0]
-		if vim.loop.fs_stat(relative_name) then
+		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
+		if relative_name and vim.loop.fs_stat(relative_name) then
+			vim.notify("using relative name -> " .. tostring(relative_name), DEBUG, {})
 			currentfile = vim.fs.normalize(vim.fn.getcwd() .. "/" .. relative_name)
 		end
 	end
-	if not currentfile then
-		local msg = "couldn't determine the current file path"
+	if (not currentfile) or (currentfile == "") then
+		local bufname = vim.api.nvim_buf_get_name(0)
+		vim.notify("trying buffer name -> " .. tostring(bufname), DEBUG, {})
+		currentfile = bufname
+	end
+	if (not currentfile) or (currentfile == "") then
+		vim.notify("searching for " .. this_filename, INFO, {})
+		currentfile = vim.fs.find(this_filename, {
+			upward = false,
+			path = ".",
+			limit = 1,
+			type = "file",
+		})
+		currentfile = (type(currentfile) == "table") and select(1, unpack(currentfile)) or currentfile
+	end
+	if (type(currentfile) ~= "string") or (currentfile == "") then
+		local msg = "couldn't determine the current file path -> " .. vim.inspect(currentfile)
 		vim.notify(msg, ERROR, {})
 		if headless then
 			os.exit(1)
@@ -61,6 +79,7 @@ local function do_bootstrap()
 			error(msg)
 		end
 	end
+	vim.notify("adding config_dir to runtimepath -> " .. tostring(config_dir), DEBUG, {})
 	vim.opt.runtimepath:append(config_dir)
 	local join_path = require("utils").join_path
 	local lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
@@ -125,11 +144,11 @@ local function do_bootstrap()
 		local lockfile = join_path(vim.fn.stdpath("config"), "lazy-lock.json")
 		if vim.loop.fs_stat(lockfile) then
 			vim.notify("(lazy.nvim) restoring plugins as described in lockfile -> " .. tostring(lockfile), INFO, {})
-			lazy.restore({ wait = true })
+			lazy.restore({ wait = true, show = (not headless) })
 		else
 			vim.notify("lockfile not found in -> " .. tostring(vim.fn.stdpath("config")), DEBUG, {})
 			vim.notify("(lazy.nvim) installing only new plugins; use :Lazy to update existing ones as well", INFO, {})
-			lazy.install({ wait = true })
+			lazy.install({ wait = true, show = (not headless) })
 		end
 	elseif did_bootstrap then
 		vim.notify(
