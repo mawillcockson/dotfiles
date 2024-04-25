@@ -67,7 +67,11 @@ $env.PATH = ($env.PATH | split row (char env_sep)
 )
 
 # generate stuff that can then be sourced in config.nu
-let preconfig = $nu.default-config-dir | path join "preconfig.nu"
-if ($preconfig | path exists) {
-    nu $preconfig
-}
+# this is done like this so that the correct directories can be created in
+# preconfig.nu and then sourced in postconfig.nu, and so that variables defined
+# here have already taken effect for nu
+const preconfig = $'($nu.default-config-dir)/preconfig.nu'
+source $preconfig
+#if ($preconfig | path exists) {
+#    nu $preconfig
+#}
