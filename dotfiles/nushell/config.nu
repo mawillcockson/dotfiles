@@ -66,5 +66,23 @@ export-env {
 alias dt = date my-format
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
 
-# NOTE: Shouldn't run it here, but as part of the first prompt
-# my-banner
+stor open | query db `
+CREATE TABLE IF NOT EXISTS state (
+    name TEXT PRIMARY KEY,
+    value TEXT
+) STRICT`
+stor open | query db `
+INSERT INTO state (name, value)
+    VALUES ('banner_shown', 'false')`
+let original_prompt = $env.PROMPT_COMMAND
+$env.PROMPT_COMMAND = {||
+    if (
+        stor open
+        | query db `SELECT value FROM state WHERE name = 'banner_shown'`
+        | get value.0
+    ) != 'true' {
+        my-banner
+        stor open | query db `UPDATE state SET value = 'true' WHERE name = 'banner_shown'`
+    }
+    do $original_prompt
+}
