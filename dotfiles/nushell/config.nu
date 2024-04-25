@@ -63,3 +63,4 @@ export-env {
 }
 
 alias dt = date my-format
+alias profiletime = echo $'loading the profile takes (timeit-profile)'

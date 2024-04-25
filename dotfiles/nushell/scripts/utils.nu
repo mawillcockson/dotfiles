@@ -312,3 +312,9 @@ export def "get c-p" [
         }
     )
 }
+
+export def "timeit-profile" [] {
+    let with_profile = (timeit { nu -c `source $nu.env-path;source $nu.config-path;echo "hello"`})
+    let without_profile = (timeit { nu -c `echo "hello"` })
+    return ($with_profile - $without_profile)
+}
