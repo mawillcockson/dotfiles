@@ -24,6 +24,7 @@ $env.config = (
         } else {''}
     )
     | upsert edit_mode 'vi'
+    | upsert show_banner false
 )
 
 overlay use clipboard.nu
@@ -64,3 +65,5 @@ export-env {
 
 alias dt = date my-format
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
+
+my-banner
