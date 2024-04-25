@@ -27,7 +27,7 @@ $env.config = (
     | upsert show_banner false
 )
 
-overlay use clipboard.nu
+overlay use --prefix clipboard.nu
 overlay use utils.nu
 overlay use --prefix std
 
