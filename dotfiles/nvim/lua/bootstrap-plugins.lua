@@ -13,17 +13,38 @@ local INFO = vim.log.levels.INFO
 local DEBUG = vim.log.levels.DEBUG
 
 local function do_bootstrap()
-  -- run after VimEnter
-  local headless = ((#vim.api.nvim_list_uis()) == 0)
+	-- run after VimEnter
+	local headless = ((#vim.api.nvim_list_uis()) == 0)
 	if not vim.fn.executable("git") then
-		vim.notify("git required for lazy.nvim package manager", ERROR, {})
-    if headless then os.exit(1) else return 1 end
+		local msg = "git required for lazy.nvim package manager"
+		vim.notify(msg, ERROR, {})
+		if headless then
+			os.exit(1)
+		else
+			error(msg)
+		end
 	end
 
 	-- DONE: Need to switch to lazy.nvim
 	-- https://github.com/folke/lazy.nvim#-installation
 	vim.notify("importing join_path", DEBUG, {})
 	local currentfile = vim.fn.expand("%:p")
+	if currentfile ~= "" then
+		local relative_name = _G.arg[0]
+		if vim.loop.fs_stat(relative_name) then
+			currentfile = vim.fs.normalize(vim.fn.getcwd() .. "/" .. relative_name)
+		end
+	end
+	if not currentfile then
+		local msg = "couldn't determine the current file path"
+		vim.notify(msg, ERROR, {})
+		if headless then
+			os.exit(1)
+		else
+			error(msg)
+		end
+	end
+	vim.notify("currentfile -> " .. tostring(currentfile), DEBUG, {})
 	local config_dir
 	for dir in vim.fs.parents(currentfile) do
 		if vim.fs.basename(dir) == "nvim" then
@@ -32,8 +53,13 @@ local function do_bootstrap()
 		end
 	end
 	if config_dir == nil then
-		vim.notify("could not find nvim home in this file's parents: " .. tostring(currentfile), ERROR, {})
-    if headless then os.exit(1) else return 1 end
+		local msg = "could not find nvim home in this file's parents: " .. tostring(currentfile)
+		vim.notify(msg, ERROR, {})
+		if headless then
+			os.exit(1)
+		else
+			error(msg)
+		end
 	end
 	vim.opt.runtimepath:append(config_dir)
 	local join_path = require("utils").join_path
@@ -67,8 +93,13 @@ local function do_bootstrap()
 	vim.notify("loading lazy.nvim", INFO, {})
 	local ok, lazy = pcall(require, "lazy")
 	if not ok then
-		vim.notify("lazy.nvim not installed, cannot manage plugins", ERROR, {})
-    if headless then os.exit(1) else return 1 end
+		local msg = "lazy.nvim not installed, cannot manage plugins"
+		vim.notify(msg, ERROR, {})
+		if headless then
+			os.exit(1)
+		else
+			error(msg)
+		end
 	end
 
 	-- in case they're needed elsewhere
