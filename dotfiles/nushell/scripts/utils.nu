@@ -318,3 +318,83 @@ export def "timeit-profile" [] {
     let without_profile = (timeit { nu -c `echo "hello"` })
     return ($with_profile - $without_profile)
 }
+
+# print a banner for the shell that looks similar to the 0.92.2 banner
+export def "banner-message" [
+    # the message that the mascot should be saying
+    msg: string,
+    # the character to use for right padding the mascot
+    --padding: string = " ",
+] {
+    if ($padding | str length) > 1 {
+        return (error make {'msg': $'cannot use ($padding | try {to nuon}) as padding because it is not one character long: ($padding | str length)'})
+    }
+    let banner_width = ([((term size).columns), 80] | math min)
+    if $banner_width < 40 {
+        use std [log]
+        log warning 'terminal too narrow to display banner'
+        return $msg
+    }
+    let mascot = if (scope commands | where name == 'std ellie' | is-not-empty) {
+        std ellie
+    } else {
+"     __  ,
+ .--()°'.'
+'|, . ,'
+ !_-(_\\"
+    }
+    let mascot_width = (
+        $mascot
+        | lines
+        | each {|row| $row | str length }
+        | math max
+    )
+    let padded_mascot = (
+        $mascot
+        | lines
+        | each {|s|
+            let spaces_to_add = ($mascot_width - ($s | str length))
+            mut c = $s
+            # this uses the fact that 0..0 produces a list of 1 element to
+            # ensure that each string has at least one space added to the
+            # end
+            for _ in 0..($spaces_to_add) {
+                $c += $padding
+            }
+            $c
+        }
+    )
+    let mascot_first_line = (
+        $padded_mascot
+        | first
+    )
+    let msg_width = ($banner_width - ($mascot_width + ($padding | str length)))
+    let wrapped_msg = (
+        $msg
+        | split chars
+        | group $msg_width
+        | each {|e| $e | str join ''}
+        | enumerate
+    )
+    let mascot_rest = (
+        $padded_mascot
+        | skip 1
+        | enumerate
+        | rename index line
+        | each {|row|
+            let portion = ($wrapped_msg | get ([($row.index), item] | into cell-path))
+            $row | update line ($row.line + $portion)
+        }
+        | get line
+    )
+    let msg_rest = (
+        $wrapped_msg
+        | get item
+        | skip ($mascot_rest | length)
+        | str join ''
+        | split chars
+        | group $banner_width
+        | each {|e| $e | str join ''}
+    )
+    return ($mascot_first_line | append $mascot_rest | append $msg_rest | str join "\n")
+}
