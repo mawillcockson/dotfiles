@@ -94,7 +94,8 @@ vim.notify("calculating number of jobs", DEBUG, {})
 vim.g.max_nproc_default = 1
 local nproc
 if vim.fn.has("win32") > 0 then
-  nproc = tonumber(run{
+  nproc = vim.fn.getenv("NUMBER_OF_PROCESSORS")
+  nproc = ((type(nproc) == "string") and (nproc ~= "") and tonumber(nproc, 10)) or tonumber(run{
     "cmd",
     "/D", -- don't load autorun
     "/C",
