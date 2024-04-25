@@ -66,4 +66,5 @@ export-env {
 alias dt = date my-format
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
 
-my-banner
+# NOTE: Shouldn't run it here, but as part of the first prompt
+# my-banner
