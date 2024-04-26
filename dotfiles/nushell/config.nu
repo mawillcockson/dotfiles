@@ -66,6 +66,7 @@ export-env {
 alias dt = date my-format
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
 
+# NOTE::ABOMINATION
 stor open | query db `
 CREATE TABLE IF NOT EXISTS state (
     name TEXT PRIMARY KEY,
