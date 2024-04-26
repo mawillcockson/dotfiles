@@ -427,7 +427,21 @@ export def "banner-message" [
     return ($mascot_first_line | append $mascot_rest | append $msg_rest | str join "\n")
 }
 
+export def "banner-message default" [] {
+"     __  ,
+ .--()°'.'   do cool stuff
+'|, . ,'      be kind to you
+ !_-(_\\     "
+}
+
+export def "banner-message colorful-default" [] {
+$"(ansi grey)     __  ,
+ .--\(\)°'.'   (ansi light_green)do cool stuff(ansi grey)
+'|, . ,'      (ansi light_green)be kind to you(ansi grey)
+ !_-\(_\\     (ansi reset)"
+}
+
 export def "my-banner" [] {
-    print (banner-message "do cool stuff\nbe nice to you")
+    print (banner-message colorful-default)
     print $"\nStartup Time: ($nu.startup-time)"
 }
