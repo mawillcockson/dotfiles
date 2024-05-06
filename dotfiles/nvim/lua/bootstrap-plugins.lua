@@ -28,9 +28,11 @@ local function do_bootstrap()
 
 	-- DONE: Need to switch to lazy.nvim
 	-- https://github.com/folke/lazy.nvim#-installation
-	vim.notify("importing join_path", DEBUG, {})
+	vim.notify("args: " .. vim.inspect(vim.cmd([[:args]])), DEBUG, {})
+	vim.notify("_G.args: " .. vim.inspect(_G.arg), DEBUG, {})
+	vim.notify("v:argv -> " .. vim.inspect(vim.api.nvim_get_vvar("argv")), DEBUG, {})
 	local currentfile = vim.fn.expand("%:p")
-	if (not currentfile) or (currentfile == "") and (select("#", unpack(_G.arg)) > 0) then
+	if (not currentfile) or (currentfile == "") and (_G.arg[0] ~= nil) then
 		local relative_name = _G.arg[0]
 		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
 		if relative_name and vim.loop.fs_stat(relative_name) then
@@ -81,6 +83,7 @@ local function do_bootstrap()
 	end
 	vim.notify("adding config_dir to runtimepath -> " .. tostring(config_dir), DEBUG, {})
 	vim.opt.runtimepath:append(config_dir)
+	vim.notify("importing join_path", DEBUG, {})
 	local join_path = require("utils").join_path
 	local lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
 	vim.notify("lazy.nvim installed to (lazypath): " .. tostring(lazypath), DEBUG, {})
