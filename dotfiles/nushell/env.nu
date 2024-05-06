@@ -66,7 +66,12 @@ mkdir $eget_bin
     },
 } | to toml | prepend ['# this file is auto-generated in env.nu', ''] | str join "\n" | save -f $env.EGET_CONFIG
 
-$env.PATH = ($env.PATH | split row (char env_sep)
+$env.PATH = (
+    $env
+    # NOTE::IMPROVEMENT I would like caseinsensitive environment variables
+    | get PATH? Path?
+    | first
+    | split row (char env_sep)
     | append ($eget_bin)
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | uniq
