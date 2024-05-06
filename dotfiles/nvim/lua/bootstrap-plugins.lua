@@ -147,11 +147,11 @@ local function do_bootstrap()
 		local lockfile = join_path(vim.fn.stdpath("config"), "lazy-lock.json")
 		if vim.loop.fs_stat(lockfile) then
 			vim.notify("(lazy.nvim) restoring plugins as described in lockfile -> " .. tostring(lockfile), INFO, {})
-			lazy.restore({ wait = true, show = (not headless) })
+			lazy.restore({ wait = true, show = not headless })
 		else
 			vim.notify("lockfile not found in -> " .. tostring(vim.fn.stdpath("config")), DEBUG, {})
 			vim.notify("(lazy.nvim) installing only new plugins; use :Lazy to update existing ones as well", INFO, {})
-			lazy.install({ wait = true, show = (not headless) })
+			lazy.install({ wait = true, show = not headless })
 		end
 	elseif did_bootstrap then
 		vim.notify(
