@@ -202,8 +202,7 @@ disabled = true
 
 # [shell] # lower
 
-[shlvl]
-disabled = true
+# [shlvl] # lower
 
 [singularity]
 disabled = true
@@ -318,6 +317,9 @@ cmd_indicator = ' >'
 nu_indicator = 'nu\$'
 unknown_indicator = ' \$'
 style = "text bold"
+
+[shlvl]
+disabled = false
 
 [custom.git_email]
 disabled = false

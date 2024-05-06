@@ -33,6 +33,8 @@ $env.NU_LOG_LEVEL = 'info'
 
 $env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $nu.home-path)
 
+$env.SHLVL = ($env | get SHLVL? | default 0 | into int | $in + 1)
+
 let dotfiles = ($env.HOME | path join 'projects' 'dotfiles' 'dotfiles')
 
 $env.EGET_CONFIG = ($dotfiles | path join '.eget.toml')
