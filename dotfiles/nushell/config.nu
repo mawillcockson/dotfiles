@@ -30,6 +30,7 @@ $env.config = (
 overlay use --prefix clipboard.nu
 overlay use utils.nu
 overlay use --prefix std
+overlay use --prefix start-ssh.nu
 
 # package module
 overlay use --prefix --reload package
