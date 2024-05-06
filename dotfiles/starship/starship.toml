@@ -1,5 +1,6 @@
 # https://starship.rs/config/
 # last module check: 2023-04-11
+"$schema" = 'https://starship.rs/config-schema.json'
 
 palette = "catppuccin_latte"
 
