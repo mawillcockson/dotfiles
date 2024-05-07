@@ -1,4 +1,4 @@
-print "creating user commands"
+print("creating user commands")
 -- I feel that a wrapper for this function is justified since the error
 -- messages so far only mention the type, and nothing else to give context
 -- except a file and line number
