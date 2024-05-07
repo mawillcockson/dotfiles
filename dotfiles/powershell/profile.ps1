@@ -22,11 +22,7 @@ if (-not (Test-Path Env:OneDrive)) {
         -HistorySaveStyle SaveIncrementally
 }
 
-# NOTE::IMPROVEMENT This could close the running ssh-agent, and the
-# WSL-SSH-Pageant, before starting the latter again, as well as check for the
-# existence of the appropriate aenvironment variable, and the presence of the
-# necessary programs
-function Start-Ssh {
+function Start-SshFallback {
     if (-not (Test-Path Env:SSH_AUTH_SOCK)) {
         write-host "has scoop_install.ps1 been run, to make sure everything is installed?"
     } else {
@@ -36,6 +32,10 @@ function Start-Ssh {
         Start-Sleep -Seconds 3
         ssh-add -l
     }
+}
+
+function Start-Ssh {
+    nu -c "use start-ssh.nu ; start-ssh"
 }
 
 function dt {
