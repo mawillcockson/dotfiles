@@ -232,62 +232,64 @@ export def "date my-format" [] {
     $my_date | clipboard clip
 }
 
-use std
-export def "log" [
-    level?: string,
-    msg?: string,
-] {
-    if ($msg == null) and ($level == null) {
-        return (error make {
-            'msg': 'msg is actually required',
-            'label': {
-                'text': 'missing msg', 'span': (metadata $msg).span,
-            },
-        })
-    }
-
-    let args = if ($msg == null) and ($level != null) {
-        {'msg': $level, 'level': 'info'}
-    } else if ($level == null) and ($msg != null) {
-        {'msg': $msg, 'level': info}
-    } else if ($level != null) and ($msg != null) {
-        {'msg': $msg, 'level': $level}
-    } else {return (error make {'msg': 'should not have been able to reach here'})}
-
-    let $subcommand = match $args.level {
-        null => 'info',
-        'critical' => 'critical',
-        'debug' => 'debug',
-        'error' => 'error',
-        'info' => 'info',
-        'warning' => 'warning',
-        _ => {
-            return (error make {
-                'msg': 'error level must be one of critical, debug, error, info, or warning; or left empty',
-                'label': {
-                    'text': 'invalid error level',
-                    'span': (metadata $level).span,
-                }
-            })
-        },
-    }
-    let color = match $subcommand {
-        'critical' => 'red_reverse',
-        'debug' => 'light_gray_dimmed',
-        'error' => 'red',
-        'info' => 'green',
-        'warning' => 'yellow',
-    }
-    let format = $'%ANSI_START%%DATE% [(ansi $color)%LEVEL%(ansi reset)] - %MSG%%ANSI_STOP%'
-    let rest = [--format $format $args.msg]
-    match $subcommand {
-        'critical' => (std log critical --format $format $args.msg),
-        'debug' => (std log debug --format $format $args.msg),
-        'error' => (std log error --format $format $args.msg),
-        'info' => (std log info --format $format $args.msg),
-        'warning' => (std log warning --format $format $args.msg),
-    }
-}
+# not worth it just so I can have a custom color all the time. Besides,
+# NU_LOG_FORMAT can do that
+#use std
+#export def "log" [
+#    level?: string,
+#    msg?: string,
+#] {
+#    if ($msg == null) and ($level == null) {
+#        return (error make {
+#            'msg': 'msg is actually required',
+#            'label': {
+#                'text': 'missing msg', 'span': (metadata $msg).span,
+#            },
+#        })
+#    }
+#
+#    let args = if ($msg == null) and ($level != null) {
+#        {'msg': $level, 'level': 'info'}
+#    } else if ($level == null) and ($msg != null) {
+#        {'msg': $msg, 'level': info}
+#    } else if ($level != null) and ($msg != null) {
+#        {'msg': $msg, 'level': $level}
+#    } else {return (error make {'msg': 'should not have been able to reach here'})}
+#
+#    let $subcommand = match $args.level {
+#        null => 'info',
+#        'critical' => 'critical',
+#        'debug' => 'debug',
+#        'error' => 'error',
+#        'info' => 'info',
+#        'warning' => 'warning',
+#        _ => {
+#            return (error make {
+#                'msg': 'error level must be one of critical, debug, error, info, or warning; or left empty',
+#                'label': {
+#                    'text': 'invalid error level',
+#                    'span': (metadata $level).span,
+#                }
+#            })
+#        },
+#    }
+#    let color = match $subcommand {
+#        'critical' => 'red_reverse',
+#        'debug' => 'light_gray_dimmed',
+#        'error' => 'red',
+#        'info' => 'green',
+#        'warning' => 'yellow',
+#    }
+#    let format = $'%ANSI_START%%DATE% [(ansi $color)%LEVEL%(ansi reset)] - %MSG%%ANSI_STOP%'
+#    let rest = [--format $format $args.msg]
+#    match $subcommand {
+#        'critical' => (std log critical --format $format $args.msg),
+#        'debug' => (std log debug --format $format $args.msg),
+#        'error' => (std log error --format $format $args.msg),
+#        'info' => (std log info --format $format $args.msg),
+#        'warning' => (std log warning --format $format $args.msg),
+#    }
+#}
 
 # call `get` with a cell-path
 export def "get c-p" [
