@@ -37,7 +37,7 @@ local function do_bootstrap()
 		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
 		if relative_name and vim.loop.fs_stat(relative_name) then
 			vim.notify("using relative name -> " .. tostring(relative_name), DEBUG, {})
-			currentfile = vim.fs.normalize(vim.fn.getcwd() .. "/" .. relative_name)
+			currentfile = vim.fs.normalize(vim.loop.fs_realpath(relative_name))
 		end
 	end
 	if (not currentfile) or (currentfile == "") then
