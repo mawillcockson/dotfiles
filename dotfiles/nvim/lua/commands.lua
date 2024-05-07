@@ -8,16 +8,13 @@ def("Q", "q", {})
 def("Wq", "wq", {})
 def("WQ", "wq", {})
 if vim.fn.has("win32") then
-  def(
-    "StartSsh",
-    function(_)
-      vim.api.nvim_command"cd ~"
-      vim.api.nvim_command"!powershell -c Start-Ssh"
-      vim.api.nvim_command"cd-"
-    end,
-    {
-      desc = "Calls the PowerShell profile-defined Start-Ssh",
-  })
+	def("StartSsh", function(_)
+		--vim.api.nvim_command"cd ~"
+		vim.api.nvim_command([[!nu -c "use start-ssh.nu ; start-ssh"]])
+		--vim.api.nvim_command"cd-"
+	end, {
+		desc = "Calls the nu profile-defined start-ssh",
+	})
 end
 
 --[[ A lesson in overdoing it:
