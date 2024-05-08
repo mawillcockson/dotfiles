@@ -447,3 +447,9 @@ export def "my-banner" [] {
     print (banner-message colorful-default)
     print $"\nStartup Time: ($nu.startup-time)"
 }
+
+export def "setup-gitlocal" [] {
+    git config --local user.name "Matthew W"
+    git config --local user.email "matthew@willcockson.family"
+    git config --local user.signingKey "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115"
+}
