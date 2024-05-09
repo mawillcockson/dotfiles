@@ -42,7 +42,61 @@ if (which starship | is-not-empty) {
     $postconfig_content ++= `source $"($generated)/starship.nu"`
 }
 
-$postconfig_content | str join "\n" | save -f $postconfig
+
+let clipboard = ($scripts | path join 'clipboard.nu')
+if ($clipboard | path exists) {
+    if not (nu-check --as-module $clipboard) {
+        print -e 'issue with clipboard, not including'
+    } else {
+        $postconfig_content ++= $"export use ($clipboard | to nuon)"
+    }
+}
+
+#let utils = ($scripts | path join 'utils.nu')
+#if ($utils | path exists) {
+#    if not (nu-check --as-module $utils) {
+#        print -e 'issue with utils, not including'
+#    } else {
+#        $postconfig_content ++= $"export use ($utils | to nuon)"
+#    }
+#}
+
+$postconfig_content ++= `export use std`
+
+let start_ssh = ($scripts | path join 'start-ssh.nu')
+if ($start_ssh | path exists) {
+    if not (nu-check --as-module $start_ssh) {
+        print -e 'issue with start-ssh, not including'
+    } else {
+        $postconfig_content ++= $"export use ($start_ssh | to nuon)"
+    }
+}
+
+# package module
+# NOTE: should make a table to add things in a for loop
+#overlay use --prefix --reload package
+#overlay use --prefix --reload $default_package_manager_data_path as 'package manager data'
+#overlay use --prefix --reload $default_package_customs_path as 'package customs data'
+# NOTE: this doesn't work, probably because of references to utils.nu
+#let package = ($scripts | path join 'package')
+#if ($package | path exists) {
+#    if not (nu-check $package) {
+#        print -e 'issue with package module, not including'
+#    } else {
+#        $postconfig_content ++= $"export use ($package | to nuon)"
+#    }
+#}
+
+
+let postconfig_content = ($postconfig_content | append "\n" | str join "\n")
+if ($postconfig_content | nu-check) {
+    $postconfig_content | save -f $postconfig
+} else {
+    let postconfig_issue = $postconfig | path dirname | path join 'postconfig-issue.nu'
+    print -e $"problem with postconfig.nu content\nsaved to\n($postconfig_issue | to nuon)"
+    $postconfig_content | save -f $postconfig_issue
+    echo "" | save -f $postconfig
+}
 
 [
     ['url', 'path'];

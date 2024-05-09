@@ -7,3 +7,4 @@ export use data.nu [add]
 export use search.nu
 export use collect.nu
 export use install.nu
+export use load.nu
