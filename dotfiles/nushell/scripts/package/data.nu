@@ -258,7 +258,7 @@ export def generate [] {
     add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}} --tags ['essential'] |
     add "duckdb" {"windows": {"scoop": "duckdb"}} --tags ['small', 'undecided'] --reasons ['cool database engine in same space as SQLite, but under really cool, active development by academics, with really cool features'] |
     add "eget" {"windows": {"scoop": "eget"}} --tags ['essential'] --reasons ['makes installing stuff from GitHub releases much easier'] --links ['https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation'] |
-    add "fd" {"windows": {"scoop": "fd"}} --tags ['essential'] --search-help ['find', 'rust'] |
+    add "fd" {"windows": {"scoop": "fd"}} --tags ['essential', 'small'] --search-help ['find', 'rust'] |
     add "ffmpeg" {"windows": {"scoop": "ffmpeg"}} --tags ['large', 'essential', 'yt-dlp'] |
     add "filezilla" {"windows": {"scoop": "filezilla"}} --tags ['filezilla'] |
     add "fontforge" {"windows": {"scoop": "fontforge"}} --tags ['rarely'] |
