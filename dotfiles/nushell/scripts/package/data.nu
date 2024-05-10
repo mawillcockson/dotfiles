@@ -311,6 +311,7 @@ export def generate [] {
     add "wsl-ssh-pageant" {"windows": {"scoop": "wsl-ssh-pageant"}} --tags ['essential', 'gnupg', 'windows'] --reasons ['makes it possible to use gnupg as an ssh agent on Windows'] |
     add "xmplay" {"windows": {"scoop": "xmplay"}} --tags ['small', 'gui', 'music', 'rarely'] --reasons ['has a cool rabbit hole visualizer plugin, and can play MOD files'] |
     add "zig" {"windows": {"scoop": "zig"}} --tags ['language', 'essential', 'compiler'] --reasons ['cool language', 'acts as my cross-platform C compiler'] |
+    add "zls" {"windows": {"scoop": "zls"}} --tags ['essential', 'tooling'] --reasons ['official zig language server'] |
     add "zstd" {"windows": {"scoop": "zstd"}} --tags ['small', 'why_even'] --reasons ['allows me to get more compression out of zstd than PeaZip'] |
     add "mullvadvpn" {"windows": {"winget": "MullvadVPN.MullvadVPN"}} --tags ['small', 'vpn'] --reasons ['beloved, occasionally used vpn client'] |
     add "Microsoft.VisualStudio.2022.BuildTools" {"windows": {"winget": "Microsoft.VisualStudio.2022.BuildTools"}} --tags ['large', 'compiler', 'rust', 'tooling', 'C', 'C++'] --reasons ['used by rust to compile/link stuff on Windows'] |
