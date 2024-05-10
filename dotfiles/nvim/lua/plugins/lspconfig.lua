@@ -8,9 +8,9 @@ local function load_in_correct_order(tbl)
 			require("lspconfig")[server_name].setup({})
 		end,
 		-- Next, you can provide a dedicated handler for specific servers.
-    -- Only language servers that have been installed through mason.nvim can be
-    -- configured here. All manually installed ones should be configured below:
-    -- For instance, a handler override for the `lua_ls`:
+		-- Only language servers that have been installed through mason.nvim can be
+		-- configured here. All manually installed ones should be configured below:
+		-- For instance, a handler override for the `lua_ls`:
 		["lua_ls"] = function(server_name)
 			require("lspconfig").lua_ls.setup({
 				on_init = function(client)
@@ -77,7 +77,7 @@ return {
 		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
 		config = true,
 		dependencies = {
-      -- Put any dependencies that a language server might have here
+			-- Put any dependencies that a language server might have here
 			-- lua_ls:
 			"LuaCATS/love2d",
 		},
@@ -88,8 +88,8 @@ return {
 		lazy = true,
 		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
 		config = function(name, opts)
-      -- This section should only be used for configuring language servers that
-      -- haven't been downloaded using mason. This should be configured above.
+			-- This section should only be used for configuring language servers that
+			-- haven't been downloaded using mason. This should be configured above.
 
 			-- NOTE::DIRECTION
 			-- I would like for this to autoconfigure available clients on an as-needed basis.
@@ -103,17 +103,17 @@ return {
 			-- Regipgrep helps with that.
 			-- I do think the commands should detect if something's missing and point
 			-- to where to enable or install it.
-      -- Going through all the plugins that are loaded by default (`start` plugins, `lazy = false`) and finding out ways to make them only load when desired, would be nice.
-      -- - Conjure (in clojure.lua) should only be loaded for fennel and clojure filetypes
-      -- There should be a way to detect if the lsps are available, and then
-      -- each one can be configured. I think breaking each out into its own
-      -- file would be good.
-      -- If they can be set to run their configuration right before they're
-      -- needed, that would be perfect.
-      -- Also, the ftplugins should each have a buffer-local variable to
-      -- prevent editing the same file from overwriting any changes made to
-      -- variables for that specific file
-      local lspconfig = require("lspconfig")
+			-- Going through all the plugins that are loaded by default (`start` plugins, `lazy = false`) and finding out ways to make them only load when desired, would be nice.
+			-- - Conjure (in clojure.lua) should only be loaded for fennel and clojure filetypes
+			-- There should be a way to detect if the lsps are available, and then
+			-- each one can be configured. I think breaking each out into its own
+			-- file would be good.
+			-- If they can be set to run their configuration right before they're
+			-- needed, that would be perfect.
+			-- Also, the ftplugins should each have a buffer-local variable to
+			-- prevent editing the same file from overwriting any changes made to
+			-- variables for that specific file
+			local lspconfig = require("lspconfig")
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
 
