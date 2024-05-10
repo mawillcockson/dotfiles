@@ -116,16 +116,27 @@ return {
       local lspconfig = require("lspconfig")
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
-			lspconfig.ruff_lsp.setup({
-				init_options = {
-					settings = {
-						-- And extra CLI arguments for ruff
-						args = {},
-					},
-				},
-			})
 
-			lspconfig.nushell.setup({})
+			local executable = vim.fn.executable
+
+			if executable("ruff-lsp") then
+				lspconfig.ruff_lsp.setup({
+					init_options = {
+						settings = {
+							-- And extra CLI arguments for ruff
+							args = {},
+						},
+					},
+				})
+			end
+
+			if executable("nu") then
+				lspconfig.nushell.setup({})
+			end
+
+			if executable("zls") and executable("zig") then
+				lspconfig.zls.setup({ root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig") })
+			end
 
 			vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
 			vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)

@@ -31,6 +31,7 @@ return {
 			json = { "jq" },
 			sh = { "shellcheck" },
 			sql = { "sqlfluff" },
+			zig = { "zigfmt" },
 		},
 	},
 	config = function(name, opts)
