@@ -142,7 +142,7 @@ export def "ln -s" [
         },
         'android' => {
             try {
-                ^ln -s $target $link
+                do {^ln -s $target $link} | complete
             } catch {
                 log debug 'regular ln did not work'
             }
@@ -150,7 +150,7 @@ export def "ln -s" [
                 'LINK': ($link),
                 'TARGET': ($target),
             } {
-                ^sh -euc `ln -s "${TARGET}" "${LINK}"`
+                do {^sh -euc `ln -s "${TARGET}" "${LINK}"`} | complete
             }
         },
         _ => {error make {
