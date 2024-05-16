@@ -18,7 +18,7 @@ let folders = ([
 export def main [] {
     let configs = match $platform {
         'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
-        'android' => ($env | get XDG_CONFIG_HOME? | compact --empty | first | default '/data/data/com.termux/files/home/.config'),
+        'android' => ($env | get XDG_CONFIG_HOME? | default '/data/data/com.termux/files/home/.config'),
         _ => {
             return (error make {msg: 'not implemented for this platform'})
         },
