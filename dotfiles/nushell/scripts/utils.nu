@@ -141,17 +141,19 @@ export def "ln -s" [
             )
         },
         'android' => {
-            try {
-                do {^ln -s $target $link} | complete
-            } catch {
+            let internal_res = (do {^ln -s $target $link} | complete)
+            if ($internal_res.exit_code != 0) {
                 log debug 'regular ln did not work'
+                let internal_res = (
+                    with-env {
+                        'LINK': ($link),
+                        'TARGET': ($target),
+                    } {
+                        do {^sh -euc `ln -s "${TARGET}" "${LINK}"`} | complete
+                    }
+                )
             }
-            with-env {
-                'LINK': ($link),
-                'TARGET': ($target),
-            } {
-                do {^sh -euc `ln -s "${TARGET}" "${LINK}"`} | complete
-            }
+            $internal_res
         },
         _ => {error make {
             'msg': $"'ln -s' isn't implemented for this platform: ($nu.os-info.name)"
