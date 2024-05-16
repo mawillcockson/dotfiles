@@ -140,6 +140,19 @@ export def "ln -s" [
                 New-Item -Type ($temp[0]) -Path $temp[1] -Name $temp[2] -Value $temp[3]'
             )
         },
+        'android' => {
+            try {
+                ^ln -s $target $link
+            } catch {
+                log debug 'regular ln did not work'
+            }
+            with-env {
+                'LINK': ($link),
+                'TARGET': ($target),
+            } {
+                ^sh -euc `ln -s "${TARGET}" "${LINK}"`
+            }
+        },
         _ => {error make {
             'msg': $"'ln -s' isn't implemented for this platform: ($nu.os-info.name)"
         }},
