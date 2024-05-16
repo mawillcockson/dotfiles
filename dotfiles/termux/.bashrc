@@ -1,5 +1,5 @@
 export HOME="${HOME:-"/data/data/com.termux/files/home"}"
-export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-"${HOME}/.config"}"
 
 init_starship() {
     if ! command -v starship &> /dev/null; then
@@ -7,6 +7,9 @@ init_starship() {
         return 0
     fi
     export STARSHIP_CONFIG="${XDG_CONFIG_HOME}/starship/starship.toml"
+    if ! [ -r "${STARSHIP_CONFIG}" ]; then
+        printf '%s\n' "${STARSHIP_CONFIG} not found:"
+    fi
     if [ -z "${STARSHIP_SHELL:+"set"}" ]; then
         eval "$(starship init bash)"
     fi
@@ -33,7 +36,7 @@ if [ -n "${OLD:+"set"}" ]; then
     exit 1
 else
     OLD="$(pwd -P)"
-    if cd ~/.cargo/bin && CARGO_BIN="$(pwd -P)"; then
+    if cd ~/.cargo/bin >/dev/null 2>&1 && CARGO_BIN="$(pwd -P)"; then
         PATH="${PATH}:${CARGO_BIN}"
     fi
     cd "${OLD}"

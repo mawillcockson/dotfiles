@@ -1,28 +1,35 @@
 use utils.nu ["path is-link", "ln -s"]
 
-const folders = [
+const platform = ($nu.os-info.name)
+
+let folders = ([
     'starship',
     'nvim',
     'xonsh',
     'atuin',
-    'scoop',
     'nushell',
-    'powershell',
-]
+] | append (match $platform {
+        'windows' => ['powershell', 'scoop'],
+        'android' => ['termux'],
+        _ => [],
+    }
+))
 
 export def main [] {
-    let configs = match $nu.os-info.name {
+    let configs = match $platform {
         'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
+        'android' => ($env | get XDG_CONFIG_HOME? | compact --empty | first | default '/data/data/com.termux/files/home/.config'),
         _ => {
             return (error make {msg: 'not implemented for this platform'})
         },
     }
-    let dotfiles = match $nu.os-info.name {
-        'windows' => ($env.USERPROFILE | path join 'projects' 'dotfiles' 'dotfiles'),
+    let dotfiles = match $platform {
+        'windows' => $env.USERPROFILE,
+        'android' => '/sdcard/',
         _ => {
             return (error make {msg: 'not implemented for this platform'})
         },
-    }
+    } | path join 'projects' 'dotfiles' 'dotfiles'
 
     $folders | each {|name|
         let in_configs = $configs | path join $name
