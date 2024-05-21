@@ -138,9 +138,15 @@ return {
 				lspconfig.zls.setup({ root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig") })
 			end
 
-			vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
-			vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-			vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+			local version = vim.version()
+			local vim_version = vim.version.parse(table.concat({ version.major, version.minor, version.patch }, "."))
+
+      if vim.version.range("<=0.9"):has(vim_version) then
+        vim.keymap.set("n", "<C-W>d", vim.diagnostic.open_float)
+        vim.keymap.set("n", "<C-w><C-d>", vim.diagnostic.open_float)
+        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
+        vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+      end
 			vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 			-- Use LspAttach autocommand to only map the following keys after the
 			-- language server attaches to the current buffer
@@ -156,7 +162,9 @@ return {
 					local opts = { buffer = ev.buf }
 					vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-					vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+          if vim.version.range("<=0.9"):has(vim_version) then
+            vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+          end
 					-- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
 					vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
 					vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
