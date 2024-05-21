@@ -28,8 +28,8 @@ $env.config = (
 )
 
 overlay use utils.nu
+overlay use --prefix dt.nu
 
-alias dt = date my-format
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
 
 let commands = (scope commands | get name)

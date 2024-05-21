@@ -241,12 +241,6 @@ export def "powershell-safe" [
     )
 }
 
-export use $"($scripts)/clipboard.nu"
-export def "date my-format" [] {
-    let my_date = date now | format date "%Y-%m-%dT%H%M%z"
-    $my_date | clipboard clip
-}
-
 # not worth it just so I can have a custom color all the time. Besides,
 # NU_LOG_FORMAT can do that
 #use std
