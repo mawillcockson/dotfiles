@@ -139,15 +139,22 @@ return {
 			end
 
 			local version = vim.version()
-			local vim_version = vim.version.parse(table.concat({ version.major, version.minor, version.patch }, "."))
+			local vim_version =
+				assert(vim.version.parse(table.concat({ version.major, version.minor, version.patch }, ".")))
 
-      if vim.version.range("<=0.9"):has(vim_version) then
-        vim.keymap.set("n", "<C-W>d", vim.diagnostic.open_float)
-        vim.keymap.set("n", "<C-w><C-d>", vim.diagnostic.open_float)
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
-      end
-			vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
+			local wk = require("which-key")
+
+			if vim.version.range("<=0.9"):has(vim_version) then
+				wk.register({
+					["<C-W>"] = {
+						d = { vim.diagnostic.open_float, "open floating window of diagnostics" },
+						["<C-d>"] = { vim.diagnostic.open_float, "open floating window of diagnostics" },
+					},
+					["[d"] = { vim.diagnostic.goto_prev, "goto previous diagnostic" },
+					["]d"] = { vim.diagnostic.goto_next, "goto next diagnostic" },
+				})
+			end
+			wk.register({ "<leader>q", { vim.diagnostic.setloclist, "no idea" } })
 			-- Use LspAttach autocommand to only map the following keys after the
 			-- language server attaches to the current buffer
 			local lsp_group = vim.api.nvim_create_augroup("UserLspConfig", {})
@@ -160,22 +167,38 @@ return {
 					-- Buffer local mappings.
 					-- See `:help vim.lsp.*` for documentation on any of the below functions
 					local opts = { buffer = ev.buf }
-					vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-          if vim.version.range("<=0.9"):has(vim_version) then
-            vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-          end
-					-- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-					vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
-					vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
-					vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, opts)
-					vim.keymap.set("n", "<leader>wl", function()
-						print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-					end, opts)
-					vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
-					vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-					vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-					vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+					wk.register({
+						gD = { vim.lsp.buf.declaration, "goto declaration" },
+						gd = { vim.lsp.buf.definition, "goto definition" },
+					}, opts)
+					if vim.version.range("<=0.9"):has(vim_version) then
+						wk.register({ K = { vim.lsp.buf.hover, "open hover" } }, opts)
+					end
+					-- wk.register({  }, opts)
+					wk.register({
+						-- gi = { vim.lsp.buf.implementation, "goto implementation" },
+						["<C-k>"] = { vim.lsp.buf.signature_help, "signature_help()" },
+						["<leader>"] = {
+							w = {
+								name = "workspace",
+								a = { vim.lsp.buf.add_workspace_folder, "add folder" },
+								r = { vim.lsp.buf.remove_workspace_folder, "remove folder" },
+								l = {
+									function()
+										print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+									end,
+									"list folders",
+								},
+							},
+							D = { vim.lsp.buf.type_definition, "goto type definition" },
+							rn = { vim.lsp.buf.rename, "rename buffer" },
+						},
+						gr = { vim.lsp.buf.references, "goto references" },
+					})
+					wk.register(
+						{ ["<leader>ca"] = { vim.lsp.buf.code_action, "code action (CTRL-P in VSCode)" } },
+						{ mode = { "n", "v" } }
+					)
 					-- conform.nvim will handle formatting, falling back to the lsp
 					-- optionally
 					-- vim.keymap.set('n', '<leader>f', function()
