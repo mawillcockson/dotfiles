@@ -1,4 +1,4 @@
-local function load_in_correct_order(tbl)
+local function load_in_correct_order(_)
 	require("mason")
 	require("mason-lspconfig").setup_handlers({
 		-- The first entry (without a key) will be the default handler
@@ -11,7 +11,7 @@ local function load_in_correct_order(tbl)
 		-- Only language servers that have been installed through mason.nvim can be
 		-- configured here. All manually installed ones should be configured below:
 		-- For instance, a handler override for the `lua_ls`:
-		["lua_ls"] = function(server_name)
+		["lua_ls"] = function(_)
 			require("lspconfig").lua_ls.setup({
 				on_init = function(client)
 					local is_nvim = false
@@ -87,7 +87,7 @@ return {
 		"neovim/nvim-lspconfig",
 		lazy = true,
 		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		config = function(name, opts)
+		config = function(_, _)
 			-- This section should only be used for configuring language servers that
 			-- haven't been downloaded using mason. This should be configured above.
 
