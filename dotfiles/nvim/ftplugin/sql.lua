@@ -1,5 +1,5 @@
 if vim.b.did_my_ftsql then
-  return
+	return
 end
 vim.b.did_my_ftsql = true
 
@@ -39,10 +39,14 @@ local function is_buf_visible(bufnr)
 	return vim.tbl_contains(vim.fn.tabpagebuflist(), bufnr)
 end
 
-local scratch_buf = false
+local scratch_buf
 --local run_sql -- forward declaration: https://www.lua.org/pil/6.2.html
+local wk = require("which-key")
 
 local function close_buf(bufnr)
+	if type(bufnr) ~= "number" then
+		return
+	end
 	local winnrs = vim.tbl_filter(function(winnr)
 		return vim.api.nvim_win_get_buf(winnr) == bufnr
 	end, vim.api.nvim_tabpage_list_wins(0))
@@ -70,13 +74,21 @@ local function run_sql()
 	if scratch_buf == false then
 		scratch_buf = vim.api.nvim_create_buf(true, true)
 		-- https://vi.stackexchange.com/a/21390
-		vim.keymap.set("n", keys.open, run_sql, { buffer = scratch_buf })
-		vim.keymap.set("n", keys.close, function()
-			close_buf(scratch_buf)
-		end, { buffer = scratch_buf })
-		vim.api.nvim_buf_set_option(scratch_buf, "buflisted", true)
-		vim.api.nvim_buf_set_option(scratch_buf, "buftype", "nofile")
-		vim.api.nvim_buf_set_option(scratch_buf, "bufhidden", "hide")
+		wk.register(
+			{
+				[keys.open] = { run_sql, "run_sql()" },
+				[keys.close] = {
+					function()
+						close_buf(scratch_buf)
+					end,
+					"close run buffer",
+				},
+			},
+			{ buffer = scratch_buf }
+		)
+		vim.api.nvim_set_option_value("buflisted", true, { buf = scratch_buf })
+		vim.api.nvim_set_option_value("buftype", "nofile", { buf = scratch_buf })
+		vim.api.nvim_set_option_value("bufhidden", "hide", { buf = scratch_buf })
 	end
 
 	if not is_buf_visible(scratch_buf) then
@@ -100,7 +112,15 @@ local function run_sql()
 	vim.api.nvim_buf_set_lines(scratch_buf, 0, -1, true, output)
 end
 
-vim.keymap.set("n", keys.open, run_sql, { buffer = this_bufnr })
-vim.keymap.set("n", keys.close, function()
-	close_buf(scratch_buf)
-end, { buffer = this_bufnr })
+wk.register(
+	{
+		[keys.open] = { run_sql, "run_sql() on run buffer" },
+		[keys.close] = {
+			function()
+				close_buf(scratch_buf)
+			end,
+			"close run buffer",
+		},
+	},
+	{ buffer = this_bufnr }
+)
