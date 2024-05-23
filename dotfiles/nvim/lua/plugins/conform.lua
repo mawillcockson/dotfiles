@@ -23,7 +23,7 @@ return {
 			-- https://github.com/mfussenegger/nvim-lint
 			python = function(bufnr)
 				if require("conform").get_formatter_info("ruff_format", bufnr).available then
-					return { "ruff_format" }
+					return { "ruff_format", "ruff_organize_imports" }
 				else
 					return { "usort", "black" }
 				end
