@@ -56,6 +56,11 @@ vim.g.loaded_node_provider = 0
 -- Also done in lazy_opts.lua
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+-- <Space> as <Leader>
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+-- <Space> isn't technically mapped, so unmapping does nothing (:help <Space>)
+--pcall(unmap, {"n", "v", "i"}, " ")
 
 -- PATH handling
 local path_additions = vim.tbl_map(vim.fs.normalize, {'~/apps/eget-bin'})
