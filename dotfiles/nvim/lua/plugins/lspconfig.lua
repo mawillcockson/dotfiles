@@ -167,18 +167,19 @@ return {
 					-- Buffer local mappings.
 					-- See `:help vim.lsp.*` for documentation on any of the below functions
 					local opts = { buffer = ev.buf }
-					wk.register({
-						gD = { vim.lsp.buf.declaration, "goto declaration" },
-						gd = { vim.lsp.buf.definition, "goto definition" },
-					}, opts)
 					if vim.version.range("<=0.9"):has(vim_version) then
 						wk.register({ K = { vim.lsp.buf.hover, "open hover" } }, opts)
 					end
 					-- wk.register({  }, opts)
 					wk.register({
+						gD = { vim.lsp.buf.declaration, "goto declaration" },
+						gd = { vim.lsp.buf.definition, "goto definition" },
 						-- gi = { vim.lsp.buf.implementation, "goto implementation" },
 						["<C-k>"] = { vim.lsp.buf.signature_help, "signature_help()" },
 						["<leader>"] = {
+							-- conform.nvim will handle formatting, falling back to the lsp
+							-- optionally
+							-- f = {function() vim.lsp.bug.format{async=true} end, "lsp format"},
 							w = {
 								name = "workspace",
 								a = { vim.lsp.buf.add_workspace_folder, "add folder" },
@@ -194,16 +195,12 @@ return {
 							rn = { vim.lsp.buf.rename, "rename buffer" },
 						},
 						gr = { vim.lsp.buf.references, "goto references" },
-					})
+					}, opts)
+					opts.mode = { "n", "v" }
 					wk.register(
 						{ ["<leader>ca"] = { vim.lsp.buf.code_action, "code action (CTRL-P in VSCode)" } },
-						{ mode = { "n", "v" } }
+						opts
 					)
-					-- conform.nvim will handle formatting, falling back to the lsp
-					-- optionally
-					-- vim.keymap.set('n', '<leader>f', function()
-					--   vim.lsp.buf.format { async = true }
-					-- end, opts)
 				end,
 			})
 		end,
