@@ -123,7 +123,7 @@ return {
 
 		wk.register({
 			-- Best we can do is map it to a no-op
-			["<Space>"] = { "<Nop>", "map leader to do nothing on its own" },
+			--["<Space>"] = { "<Nop>", "map leader to do nothing on its own" },
 			["<BS>"] = { "<Nop>", "disable backspace" },
 			j = {
 				function()
