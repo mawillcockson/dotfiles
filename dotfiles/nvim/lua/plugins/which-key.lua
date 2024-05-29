@@ -207,6 +207,14 @@ return {
 			},
 		}, { mode = "n", prefix = "<leader>" })
 
+		local term = require("terminal-handling")
+		wk.register({
+			["<C-e>"] = {
+				term.open_and_switch,
+				"switch to terminal",
+			},
+		}, { mode = { "n", "i" } })
+
 		wk.register({
 			["<C-l>"] = { "<Cmd>:tabnext<CR>", "switch tab rightwards" },
 			["<C-h>"] = { "<Cmd>:tabprevious<CR>", "switch tab leftwards" },
