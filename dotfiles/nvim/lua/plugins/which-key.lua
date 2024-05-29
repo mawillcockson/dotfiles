@@ -5,8 +5,8 @@ return {
 	lazy = true,
 	event = "VeryLazy",
 	init = function()
-    -- recommended config:
-    -- https://github.com/folke/which-key.nvim?tab=readme-ov-file#lazynvim
+		-- recommended config:
+		-- https://github.com/folke/which-key.nvim?tab=readme-ov-file#lazynvim
 		vim.o.timeout = true
 		vim.o.timeoutlen = 300
 	end,
@@ -123,9 +123,9 @@ return {
 
 		wk.register({
 			-- Best we can do is map it to a no-op
-      -- NOTE: commenting this out so that which-key shows options on potential
-      -- next keys
-      --["<Space>"] = { "<Nop>", "map leader to do nothing on its own" },
+			-- NOTE: commenting this out so that which-key shows options on potential
+			-- next keys
+			--["<Space>"] = { "<Nop>", "map leader to do nothing on its own" },
 			["<BS>"] = { "<Nop>", "disable backspace" },
 			j = {
 				function()
