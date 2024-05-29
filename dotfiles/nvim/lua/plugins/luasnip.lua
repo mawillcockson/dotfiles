@@ -15,11 +15,13 @@ return {
 		history = true,
 		updateevents = "TextChanged,TextChangedI",
 		override_builtin = true,
+		-- disabled by default because of the performance impact
+		enable_autosnippets = false,
 	},
 	config = function(_, opts)
 		local ls = require("luasnip")
 
-    ---[[ logging
+		--[[ logging
     ls.log.set_loglevel("debug")
     -- test to see if logging is working
     ls.log.ping()
