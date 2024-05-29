@@ -1,15 +1,16 @@
 return {
 	"stevearc/oil.nvim",
-  branch = "master",
-  version = "*",
+	branch = "master",
+	version = "*",
 	lazy = true,
-  cmd = "Oil",
+	cmd = "Oil",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
+	keys = { { "-", "<CMD>Oil<CR>", desc = "(oil) Open parent directory" } },
 	opts = {
-    -- https://github.com/stevearc/oil.nvim/blob/e462a3446505185adf063566f5007771b69027a1/README.md?plain=1#L127-L288
+		-- https://github.com/stevearc/oil.nvim/blob/e462a3446505185adf063566f5007771b69027a1/README.md?plain=1#L127-L288
 		-- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
 		-- Set to false if you still want to use netrw.
-		default_file_explorer = false, -- nvim-tree.lua is hanling this
+		default_file_explorer = false, -- nvim-tree.lua is handling this
 		-- Id is automatically added at the beginning, and name at the end
 		-- See :help oil-columns
 		columns = {
@@ -65,21 +66,30 @@ return {
 		-- See :help oil-actions for a list of all available actions
 		keymaps = {
 			["g?"] = "actions.show_help",
-			["<CR>"] = "actions.select",
-			["<C-s>"] = "actions.select_vsplit",
-			["<C-h>"] = "actions.select_split",
+      ["<CR>"] = "actions.select",
+			["<C-CR>"] = {
+				callback = function()
+					require("oil").select()
+					require("oil.actions").tcd.callback()
+				end,
+				desc = "(oil) open selection and :tcd",
+				mode = "n",
+			},
+			["<C-s>"] = false, --"actions.select_vsplit",
+			["<C-h>"] = false, --"actions.select_split",
+			["<C-x>"] = "actions.select_split",
 			["<C-t>"] = "actions.select_tab",
 			["<C-p>"] = "actions.preview",
 			["<C-c>"] = "actions.close",
 			["<C-l>"] = "actions.refresh",
 			["-"] = "actions.parent",
 			["_"] = "actions.open_cwd",
-			["`"] = "actions.cd",
-			["~"] = "actions.tcd",
-			["gs"] = "actions.change_sort",
-			["gx"] = "actions.open_external",
-			["g."] = "actions.toggle_hidden",
-			["g\\"] = "actions.toggle_trash",
+			["`"] = false, --"actions.cd",
+			["~"] = false, --"actions.tcd",
+			["gs"] = false, --"actions.change_sort",
+			["gx"] = false, --"actions.open_external",
+			["g."] = false, --"actions.toggle_hidden",
+			["g\\"] = false, --"actions.toggle_trash",
 		},
 		-- Configuration for the floating keymaps help window
 		keymaps_help = {
@@ -89,7 +99,7 @@ return {
 		use_default_keymaps = true,
 		view_options = {
 			-- Show files and directories that start with "."
-			show_hidden = false,
+			show_hidden = true,
 			-- This function defines what is considered a "hidden" file
 			is_hidden_file = function(name, bufnr)
 				return vim.startswith(name, ".")
