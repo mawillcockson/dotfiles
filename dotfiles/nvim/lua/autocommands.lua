@@ -9,7 +9,7 @@ local autocmds = {
   TermOpen = {
     {
       pattern = "term://*//*:*",
-      command = "redraw | startinsert",
+      command = "setfiletype terminal | redraw | startinsert",
     },
   },
   FileType = {
