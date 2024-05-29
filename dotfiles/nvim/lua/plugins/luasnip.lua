@@ -93,12 +93,12 @@ return {
 		ls.setup(opts)
 		-- from:
 		-- https://github.com/tjdevries/config.nvim/blob/c48edd3572c7b68b356ef7c54c41167b1f46e47c/lua/custom/snippets.lua#L44
-    -- This function will also setup filesystem watchers for the files in this
-    -- directory, so that the snippet files can be edited, with those edits
-    -- being immediately usable.
-    -- Inside these files, instead of `require()` use `ls_tracked_dopackage()`,
-    -- which LuaSnip will define as a global when loading snippets. That way,
-    -- any files a snippet requires will also be watched for edits.
+		-- This function will also setup filesystem watchers for the files in this
+		-- directory, so that the snippet files can be edited, with those edits
+		-- being immediately usable.
+		-- Inside these files, instead of `require()` use `ls_tracked_dopackage()`,
+		-- which LuaSnip will define as a global when loading snippets. That way,
+		-- any files a snippet requires will also be watched for edits.
 		require("luasnip.loaders.from_lua").load({ paths = vim.api.nvim_get_runtime_file("lua/snippets/", true) })
 	end,
 }
