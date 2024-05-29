@@ -62,6 +62,9 @@ vim.g.maplocalleader = " "
 -- <Space> isn't technically mapped, so unmapping does nothing (:help <Space>)
 --pcall(unmap, {"n", "v", "i"}, " ")
 
+-- NOTE::FUTURE enables new (currently experimental; 2024-05) lua loader
+vim.loader.enable()
+
 -- PATH handling
 local path_additions = vim.tbl_map(vim.fs.normalize, {'~/apps/eget-bin'})
 local envsep = (vim.loop.os_uname().sysname:find('[wW]indows') ~= nil) and ';' or ':'
