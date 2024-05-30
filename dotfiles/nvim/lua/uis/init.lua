@@ -8,7 +8,7 @@ specific environment, like enabling smooth scrolling and such.
 --]]
 
 -- This can be helpful
--- vim.pretty_print(vim.api.nvim_list_uis())
+-- vim.notify(vim.inspect(vim.api.nvim_list_uis()), vim.log.level.DEBUG, {})
 
 -- NOTE: has('gui_running') now works, and triggers based on which GUI is
 -- connected may also work, now:
@@ -25,7 +25,7 @@ end
 
 local ok, fonts = pcall(require, "uis.fonts")
 if not ok then
-  print("error loading 'fonts': "..tostring(fonts))
+  vim.notify("error loading 'fonts': "..tostring(fonts), vim.log.levels.ERROR, {})
   return
 end
 
@@ -42,7 +42,7 @@ elseif vim.g.gonvim_running then
 
 elseif any(function(e) return e.chan == 1 end, vim.api.nvim_list_uis()) then
   -- Apparently text uis have a channel of 0, and guis have a chan of not 0
-  print("unkown gui connected")
+  vim.notify("unkown gui connected", vim.log.levels.WARN, {})
 
 elseif vim.fn.has("ttyin") ~= 0 then
   -- if nvim was run in the terminal, the ttyin feature is supported. Also,
@@ -54,7 +54,7 @@ elseif vim.fn.has("ttyin") ~= 0 then
   vim.o.termguicolors = true
 
 else
-  print("unknown editor environment")
+  vim.notify("unknown editor environment", vim.log.levels.WARN, {})
   fonts.change_fonts = false
 end
 
@@ -76,13 +76,13 @@ local function update_from_chan(_)
     then
       local ok, neovim_qt = pcall(require, "uis.neovim_qt")
       if not ok then
-        print("error loading neovim_qt: "..tostring(neovim_qt))
+        vim.notify("error loading neovim_qt: "..tostring(neovim_qt), vim.log.levels.ERROR, {})
         return
       elseif type(neovim_qt) ~= "function" then
-        print("expected neovim_qt to be a function, got '"..type(neovim_qt).."'")
+        vim.notify("expected neovim_qt to be a function, got '"..type(neovim_qt).."'", vim.log.levels.ERROR, {})
         return
       end
-      print "running neovim_qt"
+      vim.notify("running neovim_qt", vim.log.levels.ERROR, {})
       return pcall(neovim_qt)
     end
   end

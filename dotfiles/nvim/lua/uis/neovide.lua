@@ -13,7 +13,7 @@ vim.opt.termguicolors = true
 
 local ok, fonts = pcall(require, "uis.fonts")
 if not ok then
-  print("error loading 'fonts': "..tostring(fonts))
+  vim.notify("error loading 'fonts': "..tostring(fonts), vim.log.levels.ERROR, {})
   return
 end
 

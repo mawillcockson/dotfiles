@@ -46,7 +46,7 @@ local function do_bootstrap()
 		currentfile = bufname
 	end
 	if (not currentfile) or (currentfile == "") then
-		vim.notify("searching for " .. this_filename, INFO, {})
+		vim.notify("searching for " .. this_filename, DEBUG, {})
 		currentfile = vim.fs.find(this_filename, {
 			upward = false,
 			path = ".",
@@ -112,7 +112,7 @@ local function do_bootstrap()
 		vim.opt.rtp:prepend(lazypath)
 	end
 
-	vim.notify("loading lazy.nvim", INFO, {})
+	vim.notify("loading lazy.nvim", DEBUG, {})
 	local ok, lazy = pcall(require, "lazy")
 	if not ok then
 		local msg = "lazy.nvim not installed, cannot manage plugins"

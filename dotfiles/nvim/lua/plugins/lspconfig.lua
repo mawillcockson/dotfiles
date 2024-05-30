@@ -186,7 +186,11 @@ return {
 								r = { vim.lsp.buf.remove_workspace_folder, "remove folder" },
 								l = {
 									function()
-										print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+										vim.notify(
+											vim.inspect(vim.lsp.buf.list_workspace_folders()),
+											vim.log.levels.INFO,
+											{}
+										)
 									end,
 									"list folders",
 								},

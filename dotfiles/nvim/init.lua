@@ -62,7 +62,7 @@ opt.mouse :append "nv"
 -- NOTE::FUTURE https://github.com/neovim/neovim/pull/19111
 -- this option is supposed to convert all slashes (\/) in paths to
 -- forward slashes, but currently produces mixed slashes in e.g.
--- vim.pretty_print(opt.runtimepath:get())
+-- vim.notify(vim.inspect(opt.runtimepath:get()), vim.log.levels.DEBUG, {})
 --opt.shellslash = true
 -- When scrolling, scroll the file when the cursor comes within 3 lines,
 -- instead of the first or last line
@@ -139,11 +139,11 @@ if vim.fn.has("win32") > 0 then
     nproc = vim.g.max_nproc_default
   end
 else
-  print("non-windows platforms haven't been addressed yet "..
-        "so using a default of: " .. vim.g.max_nproc_default)
+  vim.notify("non-windows platforms haven't been addressed yet "..
+        "so using a default of: " .. vim.g.max_nproc_default, WARN, {})
   nproc = vim.g.max_nproc_default
 end
-vim.notify("max concurrent jobs: "..tostring(nproc), INFO, {})
+vim.notify("max concurrent jobs: "..tostring(nproc), DEBUG, {})
 vim.g.max_nproc = nproc
 
 
@@ -152,7 +152,7 @@ vim.g.max_nproc = nproc
 -- This sets the current directory to the home directory if the current
 -- directory looks like the scoop installation directory.
 if vim.fn.getcwd():find[[scoop[/\]apps]] then
-  vim.notify("started in scoop/apps directory, changing to ~/", {}, DEBUG)
+  vim.notify("started in scoop/apps directory, changing to ~/", DEBUG, {})
   vim.fn.chdir("~")
 end
 
@@ -184,7 +184,7 @@ for i, tbl in ipairs(sections) do
     name = tbl[1]
     opts = tbl[2]
   else
-    print("section "..tostring(i).." is not a table or a string")
+    vim.notify("section "..tostring(i).." is not a table or a string", ERROR, {})
     return
   end
   opts = opts or {}

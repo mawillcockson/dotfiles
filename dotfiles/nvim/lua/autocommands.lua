@@ -1,4 +1,4 @@
-print "ran autocommands"
+vim.notify("ran autocommands", vim.log.levels.DEBUG, {})
 
 local custom_autocmds_group_name = "custom_autocmds"
 vim.api.nvim_create_augroup(custom_autocmds_group_name, { clear = true })

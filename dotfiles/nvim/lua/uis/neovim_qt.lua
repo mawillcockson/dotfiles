@@ -20,12 +20,12 @@ vim.notify("configuring for neovim-qt", vim.log.levels.DEBUG, {})
 -- forward declaration since this function references itself
 local update_for_neovim_qt
 update_for_neovim_qt = function()
-  print("unknown gui was probably neovim-qt, setting global")
+  vim.notify("unknown gui was probably neovim-qt, setting global", vim.log.levels.DEBUG, {})
   vim.g.neovim_qt = true
 
   local ok, fonts = pcall(require, "uis.fonts")
   if not ok then
-    print("error loading 'fonts': "..tostring(fonts))
+    vim.notify("error loading 'fonts': "..tostring(fonts), vim.log.levels.DEBUG, {})
     return
   end
 
@@ -58,19 +58,19 @@ update_for_neovim_qt = function()
 
   fonts.default_text_font = fonts.default_term_font
 
-  print("clearing augroup: " .. fonts.fonts_autocmds_group_name)
+  vim.notify("clearing augroup: " .. fonts.fonts_autocmds_group_name, vim.log.levels.DEBUG, {})
   vim.api.nvim_create_augroup(fonts.fonts_autocmds_group_name, {clear = true})
 
   if fonts.default_term_font == fonts.default_text_font then
-    print(
+    vim.notify(
       "the term and text fonts are the same, "..
       "so no point in running autocmds to change between the two"
-    )
+    , vim.log.levels.DEBUG, {})
     fonts.set_text_font()
     return
   end
 
-  print("adding new BufEnter")
+  vim.notify("adding new BufEnter", vim.log.levels.DEBUG, {})
   vim.api.nvim_create_autocmd("BufEnter",
     {
       group = fonts.fonts_autocmds_group_name,
@@ -78,7 +78,7 @@ update_for_neovim_qt = function()
       callback = fonts.set_term_font,
   })
 
-  print("adding new BufLeave")
+  vim.notify("adding new BufLeave", vim.log.levels.DEBUG, {})
   vim.api.nvim_create_autocmd("BufLeave",
     {
       group = fonts.fonts_autocmds_group_name,
@@ -86,7 +86,7 @@ update_for_neovim_qt = function()
       callback = fonts.set_text_font,
   })
 
-  print("adding new ChanInfo")
+  vim.notify("adding new ChanInfo", vim.log.levels.DEBUG, {})
   vim.api.nvim_create_autocmd("ChanInfo",
     {
       group = fonts.fonts_autocmds_group_name,
@@ -94,7 +94,7 @@ update_for_neovim_qt = function()
       callback = update_for_neovim_qt,
   })
 
-  print("setting text font to " .. fonts.default_text_font)
+  vim.notify("setting text font to " .. fonts.default_text_font, vim.log.levels.DEBUG, {})
   fonts.set_text_font()
 end
 

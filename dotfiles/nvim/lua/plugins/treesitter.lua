@@ -15,7 +15,7 @@ local has_tree_sitter = vim.fn.executable("tree-sitter")
 
 vim.notify(
 	"has_compiler -> " .. tostring(has_compiler) .. "\n" .. "has tree-sitter -> " .. tostring(has_tree_sitter),
-	vim.log.levels.INFO,
+	vim.log.levels.DEBUG,
 	{}
 )
 
