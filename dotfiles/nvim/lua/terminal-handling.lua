@@ -23,19 +23,19 @@ function M.open_and_switch()
 	-- NOTE::IMPROVEMENT should definitely look at
 	-- https://github.com/akinsho/toggleterm.nvim
 	if (not M.terminal) or (not vim.api.nvim_buf_is_loaded(M.terminal.buf)) then
-    tabnew("term://" .. term_exe)
+		tabnew("term://" .. term_exe)
 		M.terminal = {
 			win = vim.api.nvim_get_current_win(),
 			buf = vim.api.nvim_get_current_buf(),
 		}
-    return true
+		return true
 	end
 
-  -- buffer is valid and loaded
+	-- buffer is valid and loaded
 
-  if not vim.api.nvim_win_is_valid(M.terminal.win) then
-    -- is there a window that does have the terminal buffer open in it?
-    local windows = vim.fn.win_findbuf(M.terminal.buf)
+	if not vim.api.nvim_win_is_valid(M.terminal.win) then
+		-- is there a window that does have the terminal buffer open in it?
+		local windows = vim.fn.win_findbuf(M.terminal.buf)
 
 		if windows[1] then
 			M.terminal.win = windows[1]
@@ -48,7 +48,7 @@ function M.open_and_switch()
 	-- might be redundant, in some cases, but it's useful to put it here for
 	-- avoiding repeating it in various places
 	vim.api.nvim_set_current_win(M.terminal.win)
-  -- the order of the previous one, and this one, is important
+	-- the order of the previous one, and this one, is important
 	vim.api.nvim_set_current_buf(M.terminal.buf)
 	vim.cmd.normal({ "i", bang = true })
 	return true
