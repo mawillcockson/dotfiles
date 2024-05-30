@@ -40,11 +40,17 @@ export def "configure whole-file" [] {
     let original_contents = (open $terminal_settings_file)
 
     let backup_dir = (
-        $env
-        | get USERPROFILE? UserProfile?
-        | default ([('~' | path expand --strict)])
+        [
+            ('~/projects/dotfiles/dotfiles' | path expand),
+        ]
+        | append (
+            $env
+            | get USERPROFILE? UserProfile?
+            | default ([('~' | path expand)])
+        )
+        | filter {|it| $it | path exists}
         | first
-        | path join 'windows_terminal_backups'
+        | path join 'windows_terminal'
     )
     log info $'creating backup dir at ($backup_dir)'
     mkdir $backup_dir
