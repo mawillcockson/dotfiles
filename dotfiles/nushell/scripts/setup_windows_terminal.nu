@@ -54,12 +54,17 @@ export def "configure whole-file" [] {
     )
     log info $'creating backup dir at ($backup_dir)'
     mkdir $backup_dir
-    let backup_name = $'($env.COMPUTERNAME)_settings.json'
+    mut backup_name = $'($env.COMPUTERNAME)_settings.json'
     let existing_backups = do {
         cd $backup_dir
         glob --no-dir --no-symlink '*settings.json'
     }
     if not ($existing_backups | any {|it| (open $it) == $original_contents}) {
+        mut i = 0
+        while ($backup_dir | path join $backup_name | path exists) {
+            $i += 1
+            $backup_name = $'($env.COMPUTERNAME)-($i)_settings.json'
+        }
         log info $'new file found, writing to ($backup_name)'
         $original_contents | save ($backup_dir | path join $backup_name)
     } else {
