@@ -61,7 +61,7 @@ opt.undofile = true
 -- print inside filetype plugins and autocommands do nothing, and print no
 -- output.
 -- some nice investigation: https://vi.stackexchange.com/a/22638
-opt.shortmess :remove "F"
+opt.shortmess = "aoOstTC"
 -- enable mouse control in [n]ormal and [v]isual mode, in addition to
 -- whatever's currently set
 -- This allows resizing windows by dragging on the borders between them.
