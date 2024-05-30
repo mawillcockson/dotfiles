@@ -161,7 +161,9 @@ return {
 				end,
 				"continue scrolling past end of file with j",
 			},
-			["<C-y>"] = { "<Cmd>%y+<CR>", "copy whole file" },
+			-- Disable in favor of TJ Devries' use of C-y
+			-- I never remember it anyways
+			-- ["<C-y>"] = { "<Cmd>%y+<CR>", "copy whole file" },
 		}, { mode = "n" })
 
 		wk.register({
