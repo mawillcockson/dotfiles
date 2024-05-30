@@ -35,9 +35,9 @@ local function do_bootstrap()
 	if (not currentfile) or (currentfile == "") and (_G.arg[0] ~= nil) then
 		local relative_name = _G.arg[0]
 		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
-		if relative_name and vim.loop.fs_stat(relative_name) then
+		if relative_name and vim.uv.fs_stat(relative_name) then
 			vim.notify("using relative name -> " .. tostring(relative_name), DEBUG, {})
-			currentfile = vim.fs.normalize(vim.loop.fs_realpath(relative_name))
+			currentfile = vim.fs.normalize(vim.uv.fs_realpath(relative_name))
 		end
 	end
 	if (not currentfile) or (currentfile == "") then
@@ -89,7 +89,7 @@ local function do_bootstrap()
 	local lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
 	vim.notify("lazy.nvim installed to (lazypath): " .. tostring(lazypath), DEBUG, {})
 	local did_bootstrap = false
-	if not vim.loop.fs_stat(lazypath) then
+	if not vim.uv.fs_stat(lazypath) then
 		vim.notify("bootstrapping lazy.nvim to: " .. lazypath, INFO, {})
 		did_bootstrap = vim.fn.system({
 			"git",
@@ -146,7 +146,7 @@ local function do_bootstrap()
 	-- lazy.install() otherwise
 	if vim.g.lazy_install_plugins then
 		local lockfile = join_path(vim.fn.stdpath("config"), "lazy-lock.json")
-		if vim.loop.fs_stat(lockfile) then
+		if vim.uv.fs_stat(lockfile) then
 			vim.notify("(lazy.nvim) restoring plugins as described in lockfile -> " .. tostring(lockfile), INFO, {})
 			lazy.restore({ wait = true, show = not headless })
 		else

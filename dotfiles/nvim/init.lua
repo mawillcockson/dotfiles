@@ -91,7 +91,7 @@ vim.loader.enable()
 
 -- PATH handling
 local path_additions = vim.tbl_map(vim.fs.normalize, {'~/apps/eget-bin'})
-local envsep = (vim.loop.os_uname().sysname:find('[wW]indows') ~= nil) and ';' or ':'
+local envsep = (vim.uv.os_uname().sysname:find('[wW]indows') ~= nil) and ';' or ':'
 local path = vim.split(vim.env.PATH, envsep, {plain = true})
 for _, addition in ipairs(path_additions) do
   table.insert(path, addition)
