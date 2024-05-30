@@ -15,6 +15,7 @@ const urls = {
 export def install [] {
     match $platform {
         'windows' => {
+            log info 'installing Windows Terminal on Windows'
             (
                 ^winget install
                     --accept-source-agreements
@@ -35,11 +36,37 @@ export def "configure whole-file" [] {
         $env.LOCALAPPDATA
         | path join 'Packages' 'Microsoft.WindowsTerminal_8wekyb3d8bbwe' 'LocalState' 'settings.json'
     )
+    log info $'reading current settings from: ($terminal_settings_file)'
+    let original_contents = (open $terminal_settings_file)
+
+    let backup_dir = (
+        $env
+        | get USERPROFILE? UserProfile?
+        | default ([('~' | path expand --strict)])
+        | first
+        | path join 'windows_terminal_backups'
+    )
+    log info $'creating backup dir at ($backup_dir)'
+    mkdir $backup_dir
+    let backup_name = $'($env.COMPUTERNAME)_settings.json'
+    let existing_backups = do {
+        cd $backup_dir
+        glob --no-dir --no-symlink '*settings.json'
+    }
+    if not ($existing_backups | any {|it| (open $it) == $original_contents}) {
+        log info $'new file found, writing to ($backup_name)'
+        $original_contents | save ($backup_dir | path join $backup_name)
+    } else {
+        log info 'settings.json is not new'
+    }
+
+    log info 'modifying and writing out changes'
+
     # Take the profiles list, and modify each item that has a guid that is
     # either the PowerShell or CMD GUID to indicate the font face. Then, set
     # the default profile to PowerShell. Write out to original file.
     (
-        open $terminal_settings_file
+        $original_contents
         | update profiles.list {|obj|
             $obj.profiles.list | each {|it|
                 if ($it.guid in [$pwsh_guid, $cmd_guid]) {
@@ -63,6 +90,7 @@ export def "configure fragments" [] {
     let program = 'catppuccin'
     mkdir ($fragments_dir | path join $program)
 
+    log info 'getting catppuccin themes'
     let catppuccin = (
         $urls
         | transpose
@@ -70,6 +98,7 @@ export def "configure fragments" [] {
         | update data {|row| http get --max-time 3 $row.data }
         | transpose --as-record --header-row
     )
+    log info $'constructing fragment and writing to ($fragments_dir | path join $program)'
     {
         'profiles': [
             {
