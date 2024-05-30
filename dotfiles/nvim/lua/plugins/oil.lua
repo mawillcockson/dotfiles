@@ -81,8 +81,18 @@ return {
 			["<C-t>"] = "actions.select_tab",
 			["<C-p>"] = "actions.preview",
 			["<C-c>"] = "actions.close",
-			["<C-l>"] = "actions.refresh",
+			["<C-l>"] = false, --"actions.refresh",
+			["<M-l>"] = "actions.refresh",
 			["-"] = "actions.parent",
+			["<M-->"] = {
+				callback = function()
+					local actions = require("oil.actions")
+					actions.parent.callback()
+					actions.tcd.callback()
+				end,
+				desc = "(oil) go to parent and :tcd",
+				mode = "n",
+			},
 			["_"] = "actions.open_cwd",
 			["`"] = false, --"actions.cd",
 			["~"] = false, --"actions.tcd",
