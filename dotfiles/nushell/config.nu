@@ -20,7 +20,7 @@ $env.config = (
     | upsert history.file_format 'sqlite'
     | upsert buffer_editor (
         if ('NVIM' in $env) and (which nvr | is-not-empty) {
-            'nvr -cc split --remote-wait'
+            [nvr -cc split --remote-wait]
         } else {''}
     )
     | upsert edit_mode 'vi'
