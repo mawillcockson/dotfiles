@@ -66,7 +66,7 @@ return {
 		-- See :help oil-actions for a list of all available actions
 		keymaps = {
 			["g?"] = "actions.show_help",
-      ["<CR>"] = "actions.select",
+			["<CR>"] = "actions.select",
 			["<C-CR>"] = {
 				callback = function()
 					require("oil").select()
