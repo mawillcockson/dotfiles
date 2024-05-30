@@ -37,18 +37,21 @@ function M.open_and_switch()
     -- is there a window that does have the terminal buffer open in it?
     local windows = vim.fn.win_findbuf(M.terminal.buf)
 
-    if windows[1] then
-      M.terminal.win = windows[1]
-    else
-      tabnew()
-      vim.api.nvim_set_current_buf(M.terminal.buf)
-      M.terminal.win = vim.api.nvim_get_current_win()
-    end
-  end
+		if windows[1] then
+			M.terminal.win = windows[1]
+		else
+			tabnew()
+			M.terminal.win = vim.api.nvim_get_current_win()
+		end
+	end
 
-  vim.api.nvim_set_current_win(M.terminal.win)
-  vim.cmd.normal({"i", bang = true})
-  return true
+	-- might be redundant, in some cases, but it's useful to put it here for
+	-- avoiding repeating it in various places
+	vim.api.nvim_set_current_win(M.terminal.win)
+  -- the order of the previous one, and this one, is important
+	vim.api.nvim_set_current_buf(M.terminal.buf)
+	vim.cmd.normal({ "i", bang = true })
+	return true
 end
 
 return M
