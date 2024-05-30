@@ -54,6 +54,7 @@ local function do_bootstrap()
 			type = "file",
 		})
 		currentfile = (type(currentfile) == "table") and select(1, unpack(currentfile)) or currentfile
+		currentfile = vim.uv.fs_realpath(currentfile)
 	end
 	if (type(currentfile) ~= "string") or (currentfile == "") then
 		local msg = "couldn't determine the current file path -> " .. vim.inspect(currentfile)
