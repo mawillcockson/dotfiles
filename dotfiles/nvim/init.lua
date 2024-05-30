@@ -1,3 +1,27 @@
+---[==[
+-- this has to come first, so that it can override all the vim.notify calls in
+-- this init.lua
+--
+-- NOTE::FUTURE if noice.nvim or some other notification plugin is used, it
+-- will need to be integrated here so that, if it's unavailable (e.g. hasn't
+-- been installed on this particular machine yet), then this override will fall
+-- back to a very simple level filter that reduces how much text is printed at
+-- startup, unless -V is used on the command-line
+local original_notify = vim.notify
+vim.notify = function(msg, level, opts)
+	if type(msg) ~= "string" then
+		error("first argument to vim.notify() must be a string, not '" .. type(msg) .. "'", 2)
+	end
+	if type(level) ~= "number" then
+		error("second argument to vim.notify() must be a number, not '" .. type(level) .. "'", 2)
+	end
+	if (vim.o.verbose == 0) and (level < vim.log.levels.INFO) then
+		return
+	end
+	original_notify(msg, level, opts)
+end
+--]==]
+
 -- used the following info:
 -- https://github.com/nanotee/nvim-lua-guide
 -- https://alpha2phi.medium.com/neovim-for-beginners-init-lua-45ff91f741cb
