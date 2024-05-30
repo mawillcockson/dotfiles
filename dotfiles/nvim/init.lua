@@ -21,6 +21,13 @@ vim.notify = function(msg, level, opts)
 	original_notify(msg, level, opts)
 end
 --]==]
+--[=[ NOTE::PERF for profiling
+vim.opt.rtp:prepend([[C:\Users\mawil\AppData\Local\nvim-data\lazy\lazy.nvim]])
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+require("lazy").setup(require("lazy_opts"))
+vim.g.lazy_loaded_early = true
+--]=]
 
 -- used the following info:
 -- https://github.com/nanotee/nvim-lua-guide

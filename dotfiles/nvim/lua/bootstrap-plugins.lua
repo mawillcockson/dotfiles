@@ -136,7 +136,9 @@ local function do_bootstrap()
 	-- builtin plugins?
 	--vim.go.loadplugins = true
 	vim.notify("before lazy.setup(), vim.go.loadplugins = " .. tostring(vim.go.loadplugins) .. "", DEBUG, {})
-	lazy.setup(opts)
+	if not vim.g.lazy_loaded_early then
+		lazy.setup(opts)
+	end
 	-- lazy.load{spec}
 	-- require("lazy.core.config").setup(opts)
 	vim.notify("finished lazy.setup()", DEBUG, {})
