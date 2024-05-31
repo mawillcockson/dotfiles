@@ -90,6 +90,24 @@ export def "configure whole-file" [] {
         | update defaultProfile ($pwsh_guid)
         | save -f $terminal_settings_file
     )
+    # NOTE: Consider adding these
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions#adjust-font-size
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions#reset-font-size
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions#export-buffer
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions#global-summon
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions#global-summon
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/actions#global-summon
+    # - https://learn.microsoft.com/en-us/windows/terminal/command-palette#iterable-commands
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/profile-general
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/profile-general#hide-profile-from-dropdown
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/themes#application-theme
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/startup#disable-dynamic-profiles
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/startup#startup-actions
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/interaction#minimize-to-notification-area
+    # - https://learn.microsoft.com/en-us/windows/terminal/customize-settings/interaction#always-show-notification-icon
+    # Check out these:
+    # - https://github.com/microsoft/terminal/blob/main/src/cascadia/TerminalSettingsModel/userDefaults.json
+    # - https://github.com/microsoft/terminal/blob/main/src/cascadia/TerminalSettingsModel/defaults.json
 }
 
 export def "configure fragments" [] {
