@@ -79,7 +79,7 @@ opt.shortmess = "aoOstTC"
 -- enable mouse control in [n]ormal and [v]isual mode, in addition to
 -- whatever's currently set
 -- This allows resizing windows by dragging on the borders between them.
-opt.mouse :append "nv"
+opt.mouse:append("nv")
 -- NOTE::FUTURE https://github.com/neovim/neovim/pull/19111
 -- this option is supposed to convert all slashes (\/) in paths to
 -- forward slashes, but currently produces mixed slashes in e.g.
@@ -111,14 +111,13 @@ vim.g.maplocalleader = " "
 vim.loader.enable()
 
 -- PATH handling
-local path_additions = vim.tbl_map(vim.fs.normalize, {'~/apps/eget-bin'})
-local envsep = (vim.uv.os_uname().sysname:find('[wW]indows') ~= nil) and ';' or ':'
-local path = vim.split(vim.env.PATH, envsep, {plain = true})
+local path_additions = vim.tbl_map(vim.fs.normalize, { "~/apps/eget-bin" })
+local envsep = (vim.uv.os_uname().sysname:find("[wW]indows") ~= nil) and ";" or ":"
+local path = vim.split(vim.env.PATH, envsep, { plain = true })
 for _, addition in ipairs(path_additions) do
-  table.insert(path, addition)
+	table.insert(path, addition)
 end
 vim.env.PATH = table.concat(path, envsep)
-
 
 local DEBUG = vim.log.levels.DEBUG
 local INFO = vim.log.levels.INFO
@@ -132,38 +131,42 @@ local run = require("utils").run
 vim.g.max_nproc_default = 1
 local nproc
 if vim.fn.has("win32") > 0 then
-  nproc = vim.fn.getenv("NUMBER_OF_PROCESSORS")
-  nproc = ((type(nproc) == "string") and (nproc ~= "") and tonumber(nproc, 10)) or tonumber(run{
-    "cmd",
-    "/D", -- don't load autorun
-    "/C",
-    "echo %NUMBER_OF_PROCESSORS%"
-  }, 10)
-  if type(nproc) == "nil" then
-    vim.notify("windows did not return a number when "..
-          "asked for the number of processors", WARN, {})
-    nproc = vim.g.max_nproc_default
-  end
+	nproc = vim.fn.getenv("NUMBER_OF_PROCESSORS")
+	nproc = ((type(nproc) == "string") and (nproc ~= "") and tonumber(nproc, 10))
+		or tonumber(
+			run({
+				"cmd",
+				"/D", -- don't load autorun
+				"/C",
+				"echo %NUMBER_OF_PROCESSORS%",
+			}),
+			10
+		)
+	if type(nproc) == "nil" then
+		vim.notify("windows did not return a number when " .. "asked for the number of processors", WARN, {})
+		nproc = vim.g.max_nproc_default
+	end
 else
-  vim.notify("non-windows platforms haven't been addressed yet "..
-        "so using a default of: " .. vim.g.max_nproc_default, WARN, {})
-  nproc = vim.g.max_nproc_default
+	vim.notify(
+		"non-windows platforms haven't been addressed yet " .. "so using a default of: " .. vim.g.max_nproc_default,
+		WARN,
+		{}
+	)
+	nproc = vim.g.max_nproc_default
 end
-vim.notify("max concurrent jobs: "..tostring(nproc), DEBUG, {})
+vim.notify("max concurrent jobs: " .. tostring(nproc), DEBUG, {})
 vim.g.max_nproc = nproc
-
 
 -- On Windows, the scoop apps (neovim, neovim-qt, neovide, etc) are started
 -- with the current directory set as that app's installation directory.
 -- This sets the current directory to the home directory if the current
 -- directory looks like the scoop installation directory.
-if vim.fn.getcwd():find[[scoop[/\]apps]] then
-  vim.notify("started in scoop/apps directory, changing to ~/", DEBUG, {})
-  vim.fn.chdir("~")
+if vim.fn.getcwd():find([[scoop[/\]apps]]) then
+	vim.notify("started in scoop/apps directory, changing to ~/", DEBUG, {})
+	vim.fn.chdir("~")
 end
 
-require "bootstrap-plugins"
-
+require("bootstrap-plugins")
 
 --[[
                       
