@@ -21,12 +21,26 @@ vim.notify = function(msg, level, opts)
 	end
 end
 --]==]
---[=[ NOTE::PERF for profiling
-vim.opt.rtp:prepend([[C:\Users\mawil\AppData\Local\nvim-data\lazy\lazy.nvim]])
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-require("lazy").setup(require("lazy_opts"))
-vim.g.lazy_loaded_early = true
+
+---[=[ NOTE::PERF this is here for a little extra speed in case lazy.nvim
+-- doesn't need to be bootstrapped
+pcall(function()
+	local join_path = require("utils").join_path
+	vim.g.custom_lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
+	-- plain substring search, so I don't have to worry about escaping `vim.g.custom_lazypath`
+	-- https://www.lua.org/manual/5.1/manual.html#pdf-string.find
+	if not vim.o.rtp:find(vim.g.custom_lazypath, 1, true) then
+		vim.notify("adding lazypath to rtp", vim.log.levels.DEBUG, {})
+		vim.opt.rtp:prepend(vim.g.custom_lazypath)
+	end
+	vim.notify("hoping lazy.nvim is already installed?", vim.log.levels.DEBUG, {})
+	require("lazy").setup(require("lazy_opts"))
+	vim.notify("lazy.nvim was already installed! :D", vim.log.levels.DEBUG, {})
+	vim.g.lazy_loaded_early = true
+end)
 --]=]
 
 -- used the following info:

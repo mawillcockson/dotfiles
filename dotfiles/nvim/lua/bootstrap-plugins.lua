@@ -81,12 +81,14 @@ local function do_bootstrap()
 	vim.notify("adding config_dir to runtimepath -> " .. tostring(config_dir), DEBUG, {})
 	vim.opt.runtimepath:append(config_dir)
 	vim.notify("importing join_path", DEBUG, {})
-	local join_path = require("utils").join_path
-	local lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
-	vim.notify("lazy.nvim installed to (lazypath): " .. tostring(lazypath), DEBUG, {})
+	if not vim.g.custom_lazypath then
+		local join_path = require("utils").join_path
+		vim.g.custom_lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
+	end
+	vim.notify("lazy.nvim installed to (lazypath): " .. tostring(vim.g.custom_lazypath), DEBUG, {})
 	local did_bootstrap = false
-	if not vim.uv.fs_stat(lazypath) then
-		vim.notify("bootstrapping lazy.nvim to: " .. lazypath, INFO, {})
+	if not vim.uv.fs_stat(vim.g.custom_lazypath) then
+		vim.notify("bootstrapping lazy.nvim to: " .. vim.g.custom_lazypath, INFO, {})
 		did_bootstrap = vim.fn.system({
 			"git",
 			"clone",
@@ -98,15 +100,15 @@ local function do_bootstrap()
 			-- commit on master
 			"--branch=stable", -- latest stable release
 			"https://github.com/folke/lazy.nvim.git",
-			lazypath,
+			vim.g.custom_lazypath,
 		})
 	end
 
-	-- plain substring search, so I don't have to worry about escaping `lazypath`
+	-- plain substring search, so I don't have to worry about escaping `vim.g.custom_lazypath`
 	-- https://www.lua.org/manual/5.1/manual.html#pdf-string.find
-	if not vim.o.rtp:find(lazypath, 1, true) then
+	if not vim.o.rtp:find(vim.g.custom_lazypath, 1, true) then
 		vim.notify("adding lazypath to rtp", DEBUG, {})
-		vim.opt.rtp:prepend(lazypath)
+		vim.opt.rtp:prepend(vim.g.custom_lazypath)
 	end
 
 	vim.notify("loading lazy.nvim", DEBUG, {})
@@ -124,7 +126,6 @@ local function do_bootstrap()
 	-- in case they're needed elsewhere
 	local opts = require("lazy_opts")
 	--local spec = opts.spec
-	vim.notify("running lazy.nvim setup", DEBUG, {})
 	local original = vim.go.loadplugins
 	-- NOTE: This feels wrong, and I'm curious why I need it when I run the environment under
 	-- nvim --headless -u NONE -i NONE -S $this_script "+q"
@@ -133,6 +134,7 @@ local function do_bootstrap()
 	--vim.go.loadplugins = true
 	vim.notify("before lazy.setup(), vim.go.loadplugins = " .. tostring(vim.go.loadplugins) .. "", DEBUG, {})
 	if not vim.g.lazy_loaded_early then
+		vim.notify("running lazy.nvim setup", DEBUG, {})
 		lazy.setup(opts)
 	end
 	-- lazy.load{spec}
