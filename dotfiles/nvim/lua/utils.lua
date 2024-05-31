@@ -20,4 +20,22 @@ else
   end
 end
 
+function M.run(tbl)
+  -- remove trailing whitespace, including newlines
+  local output = vim.fn.system(tbl)
+  if vim.v.shell_error ~= 0 then
+    local msg = ("error when trying to run:\n" ..
+      vim.inspect(tbl) .. "\n\n" ..
+      tostring(output))
+    vim.notify(
+      msg,
+      ERROR,
+      {}
+    )
+    error(msg)
+  end
+  -- does the same as: output:gsub("%s+$", "")
+  return vim.trim(output)
+end
+
 return M

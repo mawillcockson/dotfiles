@@ -114,23 +114,8 @@ local ERROR = vim.log.levels.ERROR
 
 -- Find an appropriate number of processes to run in parallel, for things like
 -- package management
-local function run(tbl)
-  -- remove trailing whitespace, including newlines
-  local output = vim.fn.system(tbl)
-  if vim.v.shell_error ~= 0 then
-    vim.notify(
-      "error when trying to run:\n" ..
-      vim.inspect(tbl) .. "\n\n" ..
-      tostring(output),
-      ERROR,
-      {}
-    )
-    assert(false)
-  end
-  -- does the same as: output:gsub("%s+$", "")
-  return vim.trim(output)
-end
 vim.notify("calculating number of jobs", DEBUG, {})
+local run = require("utils").run
 vim.g.max_nproc_default = 1
 local nproc
 if vim.fn.has("win32") > 0 then
