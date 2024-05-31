@@ -16,10 +16,9 @@ vim.notify = function(msg, level, opts)
 	if type(level) ~= "number" then
 		error("second argument to vim.notify() must be a number, not '" .. type(level) .. "'", 2)
 	end
-	if (vim.o.verbose == 0) and (level < vim.g.vim_filter_log_level) then
-		return
+	if (vim.o.verbose ~= 0) or (level >= vim.g.vim_filter_log_level) then
+		original_notify(msg, level, opts)
 	end
-	original_notify(msg, level, opts)
 end
 --]==]
 --[=[ NOTE::PERF for profiling
