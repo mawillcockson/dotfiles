@@ -5,7 +5,17 @@ return {
 	lazy = true,
 	cmd = "Oil",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
-	keys = { { "-", "<CMD>Oil<CR>", desc = "(oil) Open parent directory" } },
+	keys = {
+		{ "-", "<CMD>Oil<CR>", desc = "(oil) Open parent directory" },
+		{
+			"<M-->",
+			function()
+				assert(vim.api.nvim_open_win(0, true, { split = "below" }), "could not split window")
+				vim.cmd.Oil()
+			end,
+			desc = "(oil) Open parent directory in separate window",
+		},
+	},
 	opts = {
 		-- https://github.com/stevearc/oil.nvim/blob/e462a3446505185adf063566f5007771b69027a1/README.md?plain=1#L127-L288
 		-- Oil will take over directory buffers (e.g. `vim .` or `:e src/`)
