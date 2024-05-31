@@ -5,7 +5,7 @@
   "conform.nvim": { "branch": "master", "commit": "9b26e81c4292106e68dda3e7b64473434fd5b3e0" },
   "conjure": { "branch": "master", "commit": "dfb9f75010a181c090ab905b2a2b4180aea20f15" },
   "font-resize.nvim": { "branch": "main", "commit": "64f5b570c36070c5eeebbf15bc58ef7a4c6063df" },
-  "lazy.nvim": { "branch": "main", "commit": "4a8f813d8134b7c3e2c70b9ea4407f613e85bd97" },
+  "lazy.nvim": { "branch": "main", "commit": "eab487c2520f0fe9e54eb5e3ea0606e20512492e" },
   "love2d": { "branch": "main", "commit": "97fa46cd694e09f953157a5c71e7e9adeb99d0c8" },
   "lspkind.nvim": { "branch": "master", "commit": "1735dd5a5054c1fb7feaf8e8658dbab925f4f0cf" },
   "mason-lspconfig.nvim": { "branch": "main", "commit": "9ae570e206360e47d30b4c35a4550c165f4ea7b7" },
@@ -23,5 +23,5 @@
   "vim-jack-in": { "branch": "master", "commit": "4cefab20f02c44249499f43200442a3176315acd" },
   "vim-repeat": { "branch": "master", "commit": "24afe922e6a05891756ecf331f39a1f6743d3d5a" },
   "vim-surround": { "branch": "master", "commit": "3d188ed2113431cf8dac77be61b842acb64433d9" },
-  "which-key.nvim": { "branch": "main", "commit": "ce741eb559c924d72e3a67d2189ad3771a231414" }
+  "which-key.nvim": { "branch": "main", "commit": "4b7167f8fb2dba3d01980735e3509e172c024c29" }
 }
