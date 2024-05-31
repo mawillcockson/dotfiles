@@ -47,14 +47,10 @@ local function do_bootstrap()
 	end
 	if (not currentfile) or (currentfile == "") then
 		vim.notify("searching for " .. this_filename, DEBUG, {})
-		currentfile = vim.fs.find(this_filename, {
-			upward = false,
-			path = ".",
-			limit = 1,
-			type = "file",
-		})
-		currentfile = (type(currentfile) == "table") and select(1, unpack(currentfile)) or currentfile
-		currentfile = vim.uv.fs_realpath(currentfile)
+		currentfile = vim.api.nvim_get_runtime_file("*/" .. tostring(this_filename), false)
+		assert(not vim.tbl_isempty(currentfile), "could not find " .. tostring(this_filename))
+		currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
+		-- currentfile = vim.uv.fs_realpath(currentfile)
 	end
 	if (type(currentfile) ~= "string") or (currentfile == "") then
 		local msg = "couldn't determine the current file path -> " .. vim.inspect(currentfile)
