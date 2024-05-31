@@ -119,50 +119,12 @@ for _, addition in ipairs(path_additions) do
 end
 vim.env.PATH = table.concat(path, envsep)
 
-local DEBUG = vim.log.levels.DEBUG
-local INFO = vim.log.levels.INFO
-local WARN = vim.log.levels.WARN
-local ERROR = vim.log.levels.ERROR
-
--- Find an appropriate number of processes to run in parallel, for things like
--- package management
-vim.notify("calculating number of jobs", DEBUG, {})
-local run = require("utils").run
-vim.g.max_nproc_default = 1
-local nproc
-if vim.fn.has("win32") > 0 then
-	nproc = vim.fn.getenv("NUMBER_OF_PROCESSORS")
-	nproc = ((type(nproc) == "string") and (nproc ~= "") and tonumber(nproc, 10))
-		or tonumber(
-			run({
-				"cmd",
-				"/D", -- don't load autorun
-				"/C",
-				"echo %NUMBER_OF_PROCESSORS%",
-			}),
-			10
-		)
-	if type(nproc) == "nil" then
-		vim.notify("windows did not return a number when " .. "asked for the number of processors", WARN, {})
-		nproc = vim.g.max_nproc_default
-	end
-else
-	vim.notify(
-		"non-windows platforms haven't been addressed yet " .. "so using a default of: " .. vim.g.max_nproc_default,
-		WARN,
-		{}
-	)
-	nproc = vim.g.max_nproc_default
-end
-vim.notify("max concurrent jobs: " .. tostring(nproc), DEBUG, {})
-vim.g.max_nproc = nproc
-
 -- On Windows, the scoop apps (neovim, neovim-qt, neovide, etc) are started
 -- with the current directory set as that app's installation directory.
 -- This sets the current directory to the home directory if the current
 -- directory looks like the scoop installation directory.
 if vim.fn.getcwd():find([[scoop[/\]apps]]) then
-	vim.notify("started in scoop/apps directory, changing to ~/", DEBUG, {})
+	vim.notify("started in scoop/apps directory, changing to ~/", vim.log.levels.DEBUG, {})
 	vim.fn.chdir("~")
 end
 
