@@ -163,6 +163,8 @@ if vim.fn.getcwd():find[[scoop[/\]apps]] then
   vim.fn.chdir("~")
 end
 
+require "bootstrap-plugins"
+
 
 --[[
                       
@@ -174,6 +176,7 @@ Bunny believes in you!
        c(_ _)
 --]]
 
+--[=====[
 local sections = {
   -- these modules aren't used anywhere else, so the file can continue running
   -- even if any fail to load
@@ -224,4 +227,4 @@ end
 -- This must come after the above, since vim.g.mapleader needs to be set before
 -- lazy.nvim runs, and it's set in one of the sub files
 -- add lazy.nvim directory to the runtime path(?) if it exists
-require "bootstrap-plugins"
+--]=====]
