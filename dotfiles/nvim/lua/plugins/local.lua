@@ -11,10 +11,12 @@ local function load_order_add(name)
 	return load_order[name]
 end
 
+local local_empty = join_path(local_dir, "empty")
+
 return {
 	{
 		name = "keymaps",
-		dir = local_dir,
+		dir = local_empty,
 		enabled = false,
 		lazy = false,
 		priority = load_order_add("keymaps"),
@@ -24,7 +26,7 @@ return {
 	},
 	{
 		name = "commands",
-		dir = local_dir,
+		dir = local_empty,
 		lazy = true,
 		event = "VeryLazy",
 		priority = load_order_add("commands"),
@@ -92,7 +94,7 @@ end
 	},
 	{
 		name = "autocommands",
-    dir = local_dir,
+		dir = local_empty,
 		lazy = true,
 		event = "VeryLazy",
 		priority = load_order_add("autocommands"),
