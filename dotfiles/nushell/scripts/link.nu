@@ -9,7 +9,7 @@ let folders = ([
     'atuin',
     'nushell',
 ] | append (match $platform {
-        'windows' => ['powershell', 'scoop'],
+        'windows' => ['powershell', 'scoop', 'clink'],
         'android' => ['termux'],
         _ => [],
     }

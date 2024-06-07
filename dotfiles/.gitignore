@@ -9,4 +9,9 @@ nushell/scripts/generated/*
 !nushell/scripts/generated/default_env.nu
 !nushell/scripts/generated/default_config.nu
 
+clink/clink-*.log
+clink/clink.log
+clink/clink_history*
+clink/clink_errorlevel*
+
 .eget.toml
