@@ -403,5 +403,7 @@ export def generate [] {
         'allows opening a file from within a :terminal session, inside the editor that :terminal is running within, instead of opening a nested editor',
         'will be essential until --remote-wait is natively supported by neovim: https://neovim.io/doc/user/remote.html#E5600',
     ] --links ['https://github.com/mhinz/neovim-remote'] |
+    add "nvm" {"windows": {"scoop": 'nvm'}} --tags ['tooling', 'rarely'] --reasons ['helps install various js-based tooling', 'nvm4win may be deprecated soon in favor of Runtime'] --links ['https://github.com/coreybutler/nvm-windows/discussions/565#discussioncomment-58112', 'https://github.com/nvm-sh/nvm'] |
+    add "fnm" {"windows": {"scoop": 'fnm'}} --tags ['tooling', 'rarely'] --reasons ['cross-platform node version manager'] --links ['https://github.com/Schniz/fnm'] |
     separate-customs
 }
