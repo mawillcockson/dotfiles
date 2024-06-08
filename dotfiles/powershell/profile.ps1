@@ -13,6 +13,10 @@ if (-not (Test-Path Env:XDG_CONFIG_HOME)) {
 	}
 }
 
+if (gcm fnm -ErrorAction SilentlyContinue) {
+    fnm env --use-on-cd --version-file-strategy=recursive --shell=power-shell | Out-String | iex
+}
+
 # https://docs.microsoft.com/en-us/powershell/module/psreadline/set-psreadlineoption
 if (-not (Test-Path Env:OneDrive)) {
     write-host "OneDrive not signed in? Not setting PowerShell command history to OneDrive"
