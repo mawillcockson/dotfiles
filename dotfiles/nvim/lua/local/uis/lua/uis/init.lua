@@ -26,22 +26,17 @@ specific environment, like enabling smooth scrolling and such.
 		return false
 	end
 
-	local ok, fonts = pcall(require, "uis.fonts")
-	if not ok then
-    local msg = "error loading 'fonts': " .. tostring(fonts)
-		vim.notify(msg, vim.log.levels.ERROR, {})
-		error(msg)
-	end
+	local fonts = require("uis.fonts")
 
 	if vim.g.fvim_loaded then
-		pcall(require, "uis.fvim")
+		require("uis.fvim")
 	elseif vim.g.neovide then
-		pcall(require, "uis.neovide")
+		require("uis.neovide")
 
 	-- found here:
 	-- https://github.com/akiyosi/goneovim/issues/14#issuecomment-444482888
 	elseif vim.g.gonvim_running then
-		pcall(require, "uis.goneovim")
+		require("uis.goneovim")
 	elseif any(function(e)
 		return e.chan == 1
 	end, vim.api.nvim_list_uis()) then
