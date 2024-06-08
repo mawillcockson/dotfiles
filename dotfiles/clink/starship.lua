@@ -2,6 +2,8 @@
 This is a startup file that clink loads when CMD starts.
 In order for clink to check this folder, clink must be installed with a command similar to:
 
+clink autorun install -- --profile ($env.ONEDRIVE | path join 'Documents' 'configs' 'clink')
+
 https://chrisant996.github.io/clink/clink.html#filelocations
 --]]
 -- set `lua.debug = True` in `clink_settings` file
