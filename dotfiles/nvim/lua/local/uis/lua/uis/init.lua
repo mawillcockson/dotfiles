@@ -89,7 +89,7 @@ specific environment, like enabling smooth scrolling and such.
 					)
           error(msg)
 				end
-				vim.notify("running neovim_qt", vim.log.levels.ERROR, {})
+				vim.notify("running neovim_qt", vim.log.levels.DEBUG, {})
 				return pcall(neovim_qt)
 			end
 		end
