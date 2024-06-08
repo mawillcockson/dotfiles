@@ -381,7 +381,7 @@ export def "configure fragments" [
                     'snapOnInput': false,
                     'historySize': 200,
                     'font': {
-                        'face': ($font_name.text),
+                        'face': ($font_name.term),
                     },
                     'colorScheme': {
                         'light': ($catppuccin.latte.data.name),
