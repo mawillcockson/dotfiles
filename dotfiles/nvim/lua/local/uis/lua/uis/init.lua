@@ -77,17 +77,13 @@ specific environment, like enabling smooth scrolling and such.
 			if type(info.client) == "table" and info.client.name == "nvim-qt" then
 				local ok, neovim_qt = pcall(require, "uis.neovim_qt")
 				if not ok then
-          local msg = "error loading neovim_qt: " .. tostring(neovim_qt)
+					local msg = "error loading neovim_qt: " .. tostring(neovim_qt)
 					vim.notify(msg, vim.log.levels.ERROR, {})
-          error(msg)
+					error(msg)
 				elseif type(neovim_qt) ~= "function" then
-          local msg = "expected neovim_qt to be a function, got '" .. type(neovim_qt) .. "'"
-					vim.notify(
-						msg,
-						vim.log.levels.ERROR,
-						{}
-					)
-          error(msg)
+					local msg = "expected neovim_qt to be a function, got '" .. type(neovim_qt) .. "'"
+					vim.notify(msg, vim.log.levels.ERROR, {})
+					error(msg)
 				end
 				vim.notify("running neovim_qt", vim.log.levels.DEBUG, {})
 				return pcall(neovim_qt)
