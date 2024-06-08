@@ -243,7 +243,7 @@ export def "configure whole-file" [] {
             { 'command': null, 'keys': 'ctrl+shift+pgdn' },
             { 'command': null, 'keys': 'ctrl+shift+home' },
             { 'command': null, 'keys': 'ctrl+shift+end' },
-            { 'command': 'openNewTabDropdown', 'keys': '' },
+            { 'command': 'openNewTabDropdown', 'keys': 'ctrl+alt+n' },
             { 'command': 'toggleFullscreen', 'keys': 'f11' },
             { 'command': {'action': 'copy', 'singleLine': false}, 'keys': 'ctrl+insert' },
             { 'command': 'paste', 'keys': 'shift+insert' },
@@ -253,7 +253,7 @@ export def "configure whole-file" [] {
             { 'command': { 'action': 'adjustFontSize', 'delta': -1 }, 'keys': 'ctrl+numpad_minus' },
             { 'command': 'resetFontSize', 'keys': 'ctrl+0' },
             { 'command': 'resetFontSize', 'keys': 'ctrl+numpad_0' },
-            { 'command': {'action': 'exportBuffer', 'path': ($terminal_screenshots_dir)}, 'keys': '' },
+            { 'command': {'action': 'exportBuffer', 'path': ($terminal_screenshots_dir)}, 'keys': 'f12' },
             {
                 'command': {
                     'action': 'globalSummon',
