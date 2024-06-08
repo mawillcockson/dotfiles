@@ -16,6 +16,7 @@ const catppuccin_defaults = {
 const themes_program = 'catppuccin'
 const profiles_program = 'mawillcockson'
 const nvim_profile_filename = 'neovim.json'
+const open_quake_profile_filename = 'open_quake.json'
 const default_dotfiles_dir = '~/projects/dotfiles/dotfiles'
 
 export def "ensure catppuccin" [
@@ -141,6 +142,15 @@ export def "configure whole-file" [] {
     }
 
     let nvim_profile = (get fragments-dir | path join $profiles_program $nvim_profile_filename)
+    let open_quake_profile = (get fragments-dir | path join $profiles_program $open_quake_profile_filename)
+    let open_quake_quid = (
+        ^python
+            ($nu.default-config-dir | path join '..' 'windows_terminal' 'profile_guid.py')
+            'fragment'
+            $profiles_program
+            (open $open_quake_profile | get profiles.0.name)
+        | str trim
+    )
 
     let pwsh_profile = (
         $original_contents
@@ -199,7 +209,7 @@ export def "configure whole-file" [] {
         | upsert windowingBehavior 'useExisting'
         | upsert launchMode 'default'
         | upsert disableProfileSources ['Windows.Terminal.Azure']
-        | upsert startupActions '--window _quake'
+        | upsert startupActions $'--profile=($open_quake_quid)'
         | upsert compatibility.allowHeadless true
         | upsert minimizeToNotificationArea true
         | upsert multiLinePasteWarning false
@@ -347,6 +357,16 @@ export def "configure fragments" [
             },
         ],
     } | to json --tabs 1 | save -f ($profiles_dir | path join 'default_profile_updates.json')
+
+    {
+        'profiles': [
+            {
+                'name': 'open_quake',
+                'commandline': 'cmd /d /c "wt --window _quake&&exit"',
+                'hidden': true,
+            },
+        ],
+    } | to json --tabs 1 | save -f ($profiles_dir | path join $open_quake_profile_filename)
 
     if (which 'nvim.exe' | is-not-empty) {
         let nvim_ico = ('~/scoop/apps/neovim/current/share/nvim/runtime/neovim.ico' | path expand)
