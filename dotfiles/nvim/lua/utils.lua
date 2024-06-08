@@ -20,7 +20,7 @@ function M.run(tbl)
 	local output = vim.fn.system(tbl)
 	if vim.v.shell_error ~= 0 then
 		local msg = ("error when trying to run:\n" .. vim.inspect(tbl) .. "\n\n" .. tostring(output))
-		vim.notify(msg, ERROR, {})
+		vim.notify(msg, vim.log.levels.ERROR, {})
 		error(msg)
 	end
 	-- does the same as: output:gsub("%s+$", "")
