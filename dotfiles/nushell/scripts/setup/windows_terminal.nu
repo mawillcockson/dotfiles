@@ -3,7 +3,10 @@ use std [log]
 const platform = ($nu.os-info.name)
 const pwsh_guid = '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}'
 const cmd_guid = '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}'
-const font_name = 'DejaVuSansM Nerd Font'
+const font_name = {
+    'term': 'DejaVuSansM Nerd Font',
+    'text': 'ComicCode Nerd Font',
+}
 const catppuccin_defaults = {
     latte: 'https://github.com/catppuccin/windows-terminal/raw/4d8bb2f00fb86927a98dd3502cdec74a76d25d7b/latte.json',
     latte_theme: 'https://github.com/catppuccin/windows-terminal/raw/4d8bb2f00fb86927a98dd3502cdec74a76d25d7b/latteTheme.json',
@@ -146,7 +149,7 @@ export def "configure whole-file" [] {
         | if ($in | is-empty) { {} } else { $in | first }
         | upsert name 'Windows PowerShell'
         | upsert commandline 'powershell.exe'
-        | upsert font {'face': ($font_name)}
+        | upsert font {'face': ($font_name.term)}
     )
     let cmd_profile = (
         $original_contents
@@ -155,7 +158,7 @@ export def "configure whole-file" [] {
         | if ($in | is-empty) { {} } else { $in | first }
         | upsert name 'Command Prompt'
         | upsert commandline 'cmd.exe'
-        | upsert font {'face': ($font_name)}
+        | upsert font {'face': ($font_name.term)}
     )
     let profiles_list = (
         $original_contents
@@ -326,7 +329,7 @@ export def "configure fragments" [
                     'dark': ($catppuccin.mocha.data.name),
                 },
                 'font': {
-                    'face': ($font_name),
+                    'face': ($font_name.term),
                 },
             },
             {
@@ -336,7 +339,7 @@ export def "configure fragments" [
                     'dark': ($catppuccin.mocha.data.name),
                 },
                 'font': {
-                    'face': ($font_name),
+                    'face': ($font_name.term),
                 },
             },
         ],
@@ -355,7 +358,7 @@ export def "configure fragments" [
                     'snapOnInput': false,
                     'historySize': 200,
                     'font': {
-                        'face': ($font_name),
+                        'face': ($font_name.text),
                     },
                     'colorScheme': {
                         'light': ($catppuccin.latte.data.name),
