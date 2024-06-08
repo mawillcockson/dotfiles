@@ -195,7 +195,9 @@ export def "configure whole-file" [] {
                 $pwsh_guid
             }
         }
-        | upsert windowingBehavior 'useNew'
+        | upsert startOnUserLogin true
+        | upsert windowingBehavior 'useExisting'
+        | upsert launchMode 'default'
         | upsert disableProfileSources ['Windows.Terminal.Azure']
         | upsert startupActions '--window _quake'
         | upsert compatibility.allowHeadless true
