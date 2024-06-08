@@ -248,6 +248,7 @@ export def "configure whole-file" [] {
             { 'command': null, 'keys': 'ctrl+shift+pgdn' },
             { 'command': null, 'keys': 'ctrl+shift+home' },
             { 'command': null, 'keys': 'ctrl+shift+end' },
+            { 'command': 'commandPalette', 'keys': 'ctrl+shift+p' },
             { 'command': 'openNewTabDropdown', 'keys': 'ctrl+alt+n' },
             { 'command': 'toggleFullscreen', 'keys': 'f11' },
             { 'command': {'action': 'copy', 'singleLine': false}, 'keys': 'ctrl+insert' },
