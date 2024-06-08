@@ -111,7 +111,12 @@ vim.g.maplocalleader = " "
 vim.loader.enable()
 
 -- PATH handling
-local path_additions = vim.tbl_map(vim.fs.normalize, { "~/apps/eget-bin" })
+local path_additions = { "~/apps/eget-bin" }
+if vim.fn.executable("fnm") then
+	local node_dir = require("utils").run({ "fnm", "exec", "--using=default", "nu", "-c", "$env | get Path? PATH? | first | first" })
+	path_additions[#path_additions + 1] = node_dir
+end
+path_additions = vim.tbl_map(vim.fs.normalize, path_additions)
 local envsep = (vim.uv.os_uname().sysname:find("[wW]indows") ~= nil) and ";" or ":"
 local path = vim.split(vim.env.PATH, envsep, { plain = true })
 for _, addition in ipairs(path_additions) do
