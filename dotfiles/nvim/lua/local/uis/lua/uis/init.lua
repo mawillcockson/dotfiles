@@ -46,7 +46,11 @@ specific environment, like enabling smooth scrolling and such.
 		return e.chan == 1
 	end, vim.api.nvim_list_uis()) then
 		-- Apparently text uis have a channel of 0, and guis have a chan of not 0
-		vim.notify("unkown gui connected", vim.log.levels.WARN, {})
+		if vim.env.WT_SESSION then
+			require("uis.tui_windows_terminal")
+		else
+			vim.notify("unknown gui connected", vim.log.levels.WARN, {})
+		end
 	elseif vim.fn.has("ttyin") ~= 0 then
 		-- if nvim was run in the terminal, the ttyin feature is supported. Also,
 		-- this is likely only set in that scenario, since front-ends like neovim-qt
