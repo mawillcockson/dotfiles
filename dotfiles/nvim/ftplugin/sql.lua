@@ -6,10 +6,10 @@ vim.b.did_my_ftsql = true
 local this_bufnr = vim.api.nvim_get_current_buf()
 
 local executable = {}
-if vim.fn.executable("sqlean") then
+if vim.fn.executable("sqlean") == 1 then
 	-- https://github.com/nalgeon/sqlite#sqlean
 	executable = { "sqlean" }
-elseif vim.fn.executable("sqlite3") then
+elseif vim.fn.executable("sqlite3") == 1 then
 	executable = { "sqlite3" }
 	-- NOTE: Need to write a Python script that can read SQL from a stdin
 	-- pipe, and execute the script it receives upon a particular database.
@@ -20,9 +20,9 @@ elseif vim.fn.executable("sqlite3") then
 	-- Also, this:
 	-- https://github.com/Olical/conjure/wiki/Quick-start:-SQL-(stdio)
 	--[[
-        elseif vim.fn.executable("python3") then
+        elseif vim.fn.executable("python3") == 1 then
           executable = {"python3", "-m", "sqlite3"}
-        elseif vim.fn.executable("python") then
+        elseif vim.fn.executable("python") == 1 then
           executable = {"python", "-m", "sqlite3"}
         --]]
 else

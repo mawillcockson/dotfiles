@@ -112,7 +112,7 @@ vim.loader.enable()
 
 -- PATH handling
 local path_additions = { "~/apps/eget-bin" }
-if vim.fn.executable("fnm") then
+if vim.fn.executable("fnm") == 1 then
 	local node_dir = require("utils").run({ "fnm", "exec", "--using=default", "nu", "-c", "$env | get Path? PATH? | first | first" })
 	path_additions[#path_additions + 1] = node_dir
 end

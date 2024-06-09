@@ -11,7 +11,7 @@ local has_compiler = vim.tbl_filter(function(c) ---@param c string
 	return c ~= vim.NIL and vim.fn.executable(c) == 1
 end, default_compilers)[1]
 
-local has_tree_sitter = vim.fn.executable("tree-sitter")
+local has_tree_sitter = vim.fn.executable("tree-sitter") == 1
 
 vim.notify(
 	"has_compiler -> " .. tostring(has_compiler) .. "\n" .. "has tree-sitter -> " .. tostring(has_tree_sitter),

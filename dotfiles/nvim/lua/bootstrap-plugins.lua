@@ -16,7 +16,7 @@ local DEBUG = vim.log.levels.DEBUG
 local function do_bootstrap()
 	-- run after VimEnter
 	local headless = ((#vim.api.nvim_list_uis()) == 0)
-	if not vim.fn.executable("git") then
+	if vim.fn.executable("git") ~= 1 then
 		local msg = "git required for lazy.nvim package manager"
 		vim.notify(msg, ERROR, {})
 		if headless then
