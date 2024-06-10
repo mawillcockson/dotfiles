@@ -25,6 +25,9 @@ end
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- NOTE::FUTURE enables new (currently experimental; 2024-05) lua loader
+vim.loader.enable()
+
 ---[=[ NOTE::PERF this is here for a little extra speed in case lazy.nvim
 -- doesn't need to be bootstrapped
 pcall(function()
@@ -106,9 +109,6 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 -- <Space> isn't technically mapped, so unmapping does nothing (:help <Space>)
 --pcall(unmap, {"n", "v", "i"}, " ")
-
--- NOTE::FUTURE enables new (currently experimental; 2024-05) lua loader
-vim.loader.enable()
 
 -- PATH handling
 local path_additions = { "~/apps/eget-bin" }
