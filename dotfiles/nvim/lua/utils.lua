@@ -27,6 +27,19 @@ function M.run(tbl)
 	return vim.trim(output)
 end
 
+function M.add_to_path(array)
+	if type(array) ~= "table" then
+		array = { array }
+	end
+	array = vim.tbl_map(vim.fs.normalize, array)
+	local envsep = (vim.uv.os_uname().sysname:find("[wW]indows") ~= nil) and ";" or ":"
+	local path = vim.split(vim.env.PATH, envsep, { plain = true })
+	for _, addition in ipairs(array) do
+		table.insert(path, addition)
+	end
+	vim.env.PATH = table.concat(path, envsep)
+end
+
 function M.calculate_nproc()
 	-- Find an appropriate number of processes to run in parallel, for things like
 	-- package management

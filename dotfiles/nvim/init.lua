@@ -112,17 +112,7 @@ vim.g.maplocalleader = " "
 
 -- PATH handling
 local path_additions = { "~/apps/eget-bin" }
-if vim.fn.executable("fnm") == 1 then
-	local node_dir = require("utils").run({ "fnm", "exec", "--using=default", "nu", "-c", "$env | get Path? PATH? | first | first" })
-	path_additions[#path_additions + 1] = node_dir
-end
-path_additions = vim.tbl_map(vim.fs.normalize, path_additions)
-local envsep = (vim.uv.os_uname().sysname:find("[wW]indows") ~= nil) and ";" or ":"
-local path = vim.split(vim.env.PATH, envsep, { plain = true })
-for _, addition in ipairs(path_additions) do
-	table.insert(path, addition)
-end
-vim.env.PATH = table.concat(path, envsep)
+require("utils").add_to_path(path_additions)
 
 -- On Windows, the scoop apps (neovim, neovim-qt, neovide, etc) are started
 -- with the current directory set as that app's installation directory.
