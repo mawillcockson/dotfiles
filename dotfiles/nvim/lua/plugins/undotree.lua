@@ -1,5 +1,8 @@
 return {
 	"mbbill/undotree",
+	-- sometimes have to disable and re-enable to get it to actually pull new
+	-- commits
+	enabled = true,
 	branch = "master",
 	-- there are no plans to tag releases anymore:
 	-- https://github.com/mbbill/undotree/issues/179#issuecomment-2019453136
