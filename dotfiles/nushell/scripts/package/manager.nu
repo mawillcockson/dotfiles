@@ -27,7 +27,11 @@ export def "save-data" [
     # optional path of where to save the package manager data to
     --path: path,
 ] {
+    # intentionally leaving this as `default` so that it runs each time, so
+    # slow performance will bother me
     let data = default (generate-data)
+    let path = ($path | default (data-path))
+    mkdir ($path | path dirname)
     $data | transpose platform_name install |
     update install {|row| $row.install | transpose package_manager_name closure | update closure {|row| view source ($row.closure)}} |
     each {|it|
@@ -45,15 +49,8 @@ export def "save-data" [
         `export def main [] {$env | get PACKAGE_MANAGER_DATA? | default {`,
     ] | append [
         `}}`,
-    ] | str join "\n" | save -f ($path | default (
-        if ((data-path) | path dirname | path exists) == true {
-            (data-path)
-        } else {
-            mkdir ((data-path) | path dirname)
-            (data-path)
-        }
-    ))
-    if not (nu-check ($path | default (data-path))) {
+    ] | str join "\n" | save -f $path
+    if not (nu-check $path) {
         use std [log]
         log error $'generated managers.nu is not valid!'
         return (error make {
