@@ -4,7 +4,7 @@
 # returns the package data
 export def "package-data-load-data" [] {
     use package/data/simple_add.nu ['simple-add']
-    use package/data/save_load.nu ['validate-data']
+    use package/data/validate_data.nu ['validate-data']
 
     simple-add 'winget' {'windows': {'custom': {||
         use utils.nu [powershell-safe]
