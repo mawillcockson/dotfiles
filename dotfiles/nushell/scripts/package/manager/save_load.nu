@@ -2,7 +2,8 @@
 # const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
 use std [log]
 use utils.nu [powershell-safe]
-export use package/manager_add.nu [add, generate-data]
+# this line is here purely so the function is re-exported in the expected namespace
+use package/consts.nu [default_package_manager_data_path]
 
 # saves package manager data, optionally to a path we specify
 # if no data is provided, it automatically uses `package manager generate-data`
@@ -13,8 +14,8 @@ export def "save-data" [
 ] {
     # intentionally leaving this as `default` so that it runs each time, so
     # slow performance will bother me
-    let data = default (generate-data)
-    let path = ($path | default (data-path))
+    let data = default (load-data)
+    let path = ($path | default $default_package_manager_data_path)
     let bad_path = ($path | path basename --replace ($'bad-($path | path basename)'))
     mkdir ($path | path dirname)
 
@@ -24,14 +25,14 @@ export def "save-data" [
         ``,
         `# returns the package manager data`,
         `export def "package-manager-load-data" [] {`,
-        `    use package/manager_add.nu ['add']`,
+        `    use package/manager/simple_add.nu ['simple-add']`,
     ]
 
     $data | transpose platform_name install |
     update install {|row| $row.install | transpose package_manager_name closure | update closure {|row| view source ($row.closure)}} |
     each {|row|
         $row.install | each {|it|
-            $'    add --platform ($row.platform_name | to nuon) ($it.package_manager_name | to nuon) ($it.closure)'
+            $'    simple-add --platform ($row.platform_name | to nuon) ($it.package_manager_name | to nuon) ($it.closure)'
         } |
         str join " |\n"
     } | str join " |\n" |
@@ -44,7 +45,7 @@ export def "save-data" [
         log error $'generated managers.nu is not a valid nu module!'
 
         return (error make {
-            'msg': $'generated .nu file is not valid -> ($path | default (data-path))',
+            'msg': $'generated .nu file is not valid -> ($bad_path)',
         })
     } else {
         # have this be first, otherwise $in becomes empty
@@ -56,41 +57,9 @@ export def "save-data" [
 # load the package manager data from the default path
 export def "load-data" [
 ] {
-    # if ($path | is-not-empty) and (not ($path | path exists)) {
-    #     return (error make {
-    #         'msg': 'path must point to an existing file',
-    #         'label': {
-    #             'text': 'file does not exist',
-    #             'span': ($path | metadata).span,
-    #         },
-    #         'help': 'use `package manager save-data --path` to create the file',
-    #     )}
-    # }
-    # let path = ($path | default (data-path))
-
-    # wrap in a do block to ensure this doesn't affect the current scope, just
-    # in case
     do {
         use package/consts.nu ['default_package_manager_data_path']
         use $default_package_manager_data_path ['package-manager-load-data']
         package-manager-load-data
     }
-}
-
-# returns the path to the package manager data
-export def "data-path" [] {
-    (
-        scope variables
-        | where name == '$default_package_manager_data_path'
-        | get value?
-        | compact --empty # sometimes the variable's value is an empty string
-        | default [] # sometimes the value returned by `get` is an empty list, and not `null`
-        | append $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
-        | first
-        | if ($in | path exists) == true {
-            ls --all --full-paths $in | get 0.name
-        } else {
-            $in
-        }
-    )
 }
