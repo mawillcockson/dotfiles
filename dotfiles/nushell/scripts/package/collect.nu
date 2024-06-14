@@ -1,5 +1,5 @@
-use package/data.nu
-use package/manager.nu
+use package/data
+use package/manager
 use utils.nu [powershell-safe]
 use std [log]
 

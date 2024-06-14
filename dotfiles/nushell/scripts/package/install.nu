@@ -1,5 +1,5 @@
-use package/data.nu
-use package/manager.nu
+use package/data
+use package/manager
 use package/search.nu
 use std [log]
 use utils.nu ["get c-p"]

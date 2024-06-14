@@ -1,5 +1,5 @@
-use package/data.nu
-use package/manager.nu
+use package/data
+use package/manager
 use utils.nu ["get c-p"]
 
 # helper function to make filtering package data easier
