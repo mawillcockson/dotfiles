@@ -26,7 +26,7 @@ export def add [
         # duplicate package name will produce an error at the command that
         # tries to insert it
         insert ($name) {
-        'install': $install, 
+        'install': $install,
         'search_help': ($search_help | default []),
         'tags': ($tags | default []),
         'reasons': ($reasons | default []),
