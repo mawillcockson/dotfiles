@@ -9,16 +9,6 @@ mut postconfig_content: list<string> = [
     'const default_config_dir = $nu.default-config-dir',
     'const scripts = $"($default_config_dir)/scripts"',
     'const generated = $"($scripts)/generated"',
-    'const version_file = $"($generated)/version.nuon"',
-    'let nu_version = version | get version',
-    'if not ($version_file | path exists) {',
-    '    $nu_version | to nuon | save $version_file',
-    '} else if (open $version_file | $in < $nu_version) {',
-    '    print -e "updating generated defaults for new version of nushell"',
-    '    config env --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_env.nu"',
-    '    config nu --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_config.nu"',
-    '    $nu_version | to nuon | save -f $version_file',
-    '}',
 ]
 
 if (which atuin | is-not-empty) {

@@ -1,3 +1,5 @@
+do { use gen_defaults.nu; gen_defaults }
+
 const default_env = $"($nu.default-config-dir)/scripts/generated/default_env.nu"
 source $default_env
 
