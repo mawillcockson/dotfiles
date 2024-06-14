@@ -103,7 +103,7 @@ export def install [] {
     }
 }
 
-export def "configure whole-file" [] {
+export def "configure whole-file" [--start-on-login] {
     let terminal_settings_file = (get terminal-settings-file)
     log info $'reading current settings from: ($terminal_settings_file)'
     let original_contents = (open $terminal_settings_file)
@@ -205,7 +205,7 @@ export def "configure whole-file" [] {
                 $pwsh_guid
             }
         }
-        | upsert startOnUserLogin true
+        | upsert startOnUserLogin $start_on_login
         | upsert windowingBehavior 'useExisting'
         | upsert launchMode 'default'
         | upsert disableProfileSources ['Windows.Terminal.Azure']
@@ -394,13 +394,13 @@ export def "configure fragments" [
     }
 }
 
-export def main [] {
+export def main [--start-on-login] {
     if (which wt | is-empty) {
         install
     }
 
     # the whole-file references elements added by fragments, so that needs to
     # be added first
-    configure fragments --no-check
-    configure whole-file
+    configure fragments #--no-check
+    configure whole-file --start-on-login=($start_on_login)
 }
