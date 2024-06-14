@@ -2,24 +2,7 @@
 # const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
 use std [log]
 use utils.nu [powershell-safe]
-
-# provide a closure that implements installing a single package with the named
-# package manager
-#
-# this returns a data structure that `package manager save` can persist to disk
-export def add [
-    # the default for platform is whatever the current platform is
-    --platform: string = ($nu.os-info.name),
-    # the name of the package manager, used in `package add`
-    name: string,
-    # the closure that is passed a package id, and expected to install the package
-    closure: closure,
-] {
-    # the insert command itself takes a closure as the second argument, so the
-    # closure has to be wrapped in a closure that, when executed, returns the
-    # $closure
-    default {} | insert ([$platform, $name] | into cell-path) {|row| $closure}
-}
+export use package/manager_add.nu [add, generate-data]
 
 # saves package manager data, optionally to a path we specify
 # if no data is provided, it automatically uses `package manager generate-data`
@@ -41,15 +24,18 @@ export def "save-data" [
         ``,
         `# returns the package manager data`,
         `export def "package-manager-load-data" [] {`,
+        `    use package/manager_add.nu ['add']`,
     ]
 
     $data | transpose platform_name install |
     update install {|row| $row.install | transpose package_manager_name closure | update closure {|row| view source ($row.closure)}} |
-    each {|it|
-        $'    ($it.platform_name | to nuon): {' | append ($it.install | each {|e|
-                $'        ($e.package_manager_name | to nuon): ($e.closure),'
-        }) | append '    },'
-    } | flatten | prepend ['{'] | append ['}'] |
+    each {|row|
+        $row.install | each {|it|
+            $'    add --platform ($row.platform_name | to nuon) ($it.package_manager_name | to nuon) ($it.closure)'
+        } |
+        str join " |\n"
+    } | str join " |\n" |
+    tee {$in | null} | # NOTE::BUG without this line, an extra newline is inserted into the string
     prepend $func_def | append [`}`] |
     str join "\n" |
     if not ($in | nu-check --as-module) {
@@ -107,16 +93,4 @@ export def "data-path" [] {
             $in
         }
     )
-}
-
-# generate all the package manager data
-#
-# modify this function to register more package managers
-export def "generate-data" [] {
-    # add --platform 'platform' 'manager' {|id: string| print $'installing ($id)'}
-    add --platform 'windows' 'scoop' {|id: string| $id | powershell-safe -c $"scoop install $Input"} |
-    add --platform 'windows' 'winget' {|id: string| ^winget install --id $id --exact --accept-package-agreements --accept-source-agreements --disable-interactivity} |
-    add --platform 'windows' 'pipx' {|id: string| ^pipx install $id} |
-    add --platform 'android' 'pkg' {|id: string| ^pkg install $id} |
-    add --platform 'windows' 'eget' {|id: string| ^eget /quiet $id}
 }
