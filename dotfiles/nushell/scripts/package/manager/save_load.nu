@@ -17,7 +17,6 @@ export def "save-data" [
     let data = default (load-data)
     let path = ($path | default $default_package_manager_data_path)
     let bad_path = ($path | path basename --replace ($'bad-($path | path basename)'))
-    mkdir ($path | path dirname)
 
     let func_def = [
         `# this file is auto-generated`,
