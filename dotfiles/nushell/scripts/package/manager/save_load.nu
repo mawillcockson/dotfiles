@@ -20,7 +20,7 @@ export def "save-data" [
 
     let func_def = [
         `# this file is auto-generated`,
-        `# please edit scripts/package/manager.nu instead`,
+        '# please use `package manager add --save` instead',
         ``,
         `# returns the package manager data`,
         `export def "package-manager-load-data" [] {`,
