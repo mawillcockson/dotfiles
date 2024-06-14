@@ -54,8 +54,7 @@ export def "save-data" [
 }
 
 # load the package manager data from the default path
-export def "load-data" [
-] {
+export def "load-data" [] {
     do {
         use package/consts.nu ['default_package_manager_data_path']
         use $default_package_manager_data_path ['package-manager-load-data']
