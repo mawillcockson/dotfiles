@@ -1,6 +1,8 @@
 # use $'($nu.default-config-dir)/scripts/package/manager.nu'
 
 const platform = ($nu.os-info.name)
+const env_prefix = 'PACKAGE_DATA'
+const env_data_var = $'($env_prefix)_DATA'
 
 # add a package to the package metadata file (use `package path` to list it)
 export def add [
@@ -176,8 +178,13 @@ export def "save-data" [
     # optional path of where to save the customs data to
     --customs-path: path,
 ] {
+    # intentionally leaving this as `default` so that it runs each time, so
+    # slow performance will bother me
     let data = default (generate)
-    let customs_path = $customs_path | default (customs-data-path)
+
+    # do customs first, then data, so that errors surface with package
+    # installation closures first
+    let customs_path = ($customs_path | default (customs-data-path))
     mkdir ($customs_path | path dirname)
     $data.customs | transpose platform_name install |
     update install {|row| $row.install | transpose package_name closure | update closure {|row| view source ($row.closure)}} |
@@ -197,6 +204,8 @@ export def "save-data" [
     ] | append [
         `}}`,
     ] | str join "\n" | save -f $customs_path
+
+    # general data (without customs)
     let data_path = $data_path | default (data-path)
     mkdir ($data_path | path dirname)
     $data.data | to nuon --indent 4 | save -f $data_path
@@ -211,10 +220,19 @@ export def "save-data" [
 }
 
 # reads package data, optionally from specified file
-export def main [
+export def load-data [
     # optional path to read package data from (defaults to `package data data-path`)
     --path: path,
+    # force loading from file as opposed to using any in-memory data
+    --force
 ] {
+    let path = ($path | default (data-path))
+    let env_data = (
+        $env
+        | get ([{'value': ($env_data_var), 'optional': true}] | into cell-path)
+    )
+    if ($force) or () {
+    }
     open --raw ($path | default (data-path)) | from nuon
 }
 
