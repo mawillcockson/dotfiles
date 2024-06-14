@@ -23,6 +23,7 @@ export def "save-data" [
         `export def "package-data-load-data" [] {`,
         `    use package/data/simple_add.nu ['simple-add']`,
         `    use package/data/validate_data.nu ['validate-data']`,
+        ``,
     ]
 
     # NOTE::DEBUG
@@ -36,7 +37,7 @@ export def "save-data" [
             $command ++= $' --search-help ($row.data.search_help | to nuon)'
         }
         if ($row.data.tags | is-not-empty) {
-            $command ++= $' --tags ($row.data.reasons | to nuon)'
+            $command ++= $' --tags ($row.data.tags | to nuon)'
         }
         if ($row.data.reasons | is-not-empty) {
             $command ++= $' --reasons ($row.data.reasons | to nuon)'
