@@ -9,6 +9,7 @@ nushell/scripts/generated/*
 !nushell/scripts/generated/package
 nushell/scripts/generated/package/*
 !nushell/scripts/generated/package/managers.nu
+!nushell/scripts/generated/package/data.nu
 !nushell/scripts/generated/default_env.nu
 !nushell/scripts/generated/default_config.nu
 
