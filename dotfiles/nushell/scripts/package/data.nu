@@ -1,8 +1,7 @@
 # use $'($nu.default-config-dir)/scripts/package/manager.nu'
+use std [log]
 
 const platform = ($nu.os-info.name)
-const env_prefix = 'PACKAGE_DATA'
-const env_data_var = $'($env_prefix)_DATA'
 
 # add a package to the package metadata file (use `package path` to list it)
 export def add [
@@ -175,48 +174,35 @@ export def "customs-data-path" [] {
 export def "save-data" [
     # optional path of where to save the package data to
     --data-path: path,
-    # optional path of where to save the customs data to
-    --customs-path: path,
 ] {
     # intentionally leaving this as `default` so that it runs each time, so
     # slow performance will bother me
-    let data = default (generate)
+    default (generate) |
+    transpose package data
 
-    # do customs first, then data, so that errors surface with package
-    # installation closures first
-    let customs_path = ($customs_path | default (customs-data-path))
-    mkdir ($customs_path | path dirname)
-    $data.customs | transpose platform_name install |
-    update install {|row| $row.install | transpose package_name closure | update closure {|row| view source ($row.closure)}} |
-    each {|it|
-        $'    ($it.platform_name | to nuon): {' | append ($it.install | each {|e|
-                $'        ($e.package_name | to nuon): ($e.closure),'
-        }) | append '    },'
-    } | flatten | prepend [
-        `# this file is auto-generated`,
-        `# please edit scripts/package/data.nu instead`,
-        ``,
-        `# load data into environment variable`,
-        `export-env { $env.PACKAGE_CUSTOMS_DATA = (main) }`,
-        ``,
-        `# returns the customs data`,
-        `export def main [] {$env | get PACKAGE_CUSTOMS_DATA? | default {`,
-    ] | append [
-        `}}`,
-    ] | str join "\n" | save -f $customs_path
 
-    # general data (without customs)
-    let data_path = $data_path | default (data-path)
-    mkdir ($data_path | path dirname)
-    $data.data | to nuon --indent 4 | save -f $data_path
-    if not (nu-check $customs_path) {
-        use std [log]
-        log error $'generated customs.nu is not valid!'
-        return (error make {
-            'msg': $'generated .nu file is not valid -> ($customs_path)',
-        })
-    }
-    {'PACKAGE_DATA': ($data.data), 'PACKAGE_CUSTOMS_DATA': ($data.customs)}
+    # [
+    #     `# this file is auto-generated`,
+    #     `# please edit scripts/package/data.nu instead`,
+    #     ``,
+    #     `# returns the package data`,
+    #     `export def main [] {`,
+    # ] | append [
+    #     `}`,
+    # ] | str join "\n" | save -f (data-path)
+
+    # # general data (without customs)
+    # let data_path = $data_path | default (data-path)
+    # mkdir ($data_path | path dirname)
+    # $data.data | to nuon --indent 4 | save -f $data_path
+    # if not (nu-check $customs_path) {
+    #     use std [log]
+    #     log error $'generated customs.nu is not valid!'
+    #     return (error make {
+    #         'msg': $'generated .nu file is not valid -> ($customs_path)',
+    #     })
+    # }
+    # {'PACKAGE_DATA': ($data.data), 'PACKAGE_CUSTOMS_DATA': ($data.customs)}
 }
 
 # reads package data, optionally from specified file
@@ -227,13 +213,129 @@ export def load-data [
     --force
 ] {
     let path = ($path | default (data-path))
-    let env_data = (
-        $env
-        | get ([{'value': ($env_data_var), 'optional': true}] | into cell-path)
-    )
-    if ($force) or () {
-    }
-    open --raw ($path | default (data-path)) | from nuon
+    # if ($force) or () {
+    # }
+    # open --raw ($path | default (data-path)) | from nuon
+}
+
+# validates that the input package data has the right shape
+export def "validate-data" [] {
+    transpose package data |
+    each {|row|
+        if ('search_help' not-in $row.data) {
+            return (error make {
+                'msg': $'missing "search_help" from ($row.package | to nuon)',
+                'help': 'use the `package data add` command, it will add default values',
+            })
+        }
+        if ($row.data.search_help | describe) != 'list<string>' {
+            return (error make {
+                'msg': $'for package ($row.package | to nuon) key "search_help" must be list<string>, not ($row.data.search_help | describe)',
+                'help': 'use the `package data add` command, it will use the right types',
+            })
+        }
+
+        if ('tags' not-in $row.data) {
+            return (error make {
+                'msg': $'missing "tags" from ($row.package | to nuon)',
+                'help': 'use the `package data add` command, it will add default values',
+            })
+        }
+        if ($row.data.tags | describe) != 'list<string>' {
+            return (error make {
+                'msg': $'for package ($row.package | to nuon) key "search_help" must be list<string>, not ($row.data.search_help | describe)',
+                'help': 'use the `package data add` command, it will use the right types',
+            })
+        }
+
+        if ('reasons' not-in $row.data) {
+            return (error make {
+                'msg': $'missing "reasons" from ($row.package | to nuon)',
+                'help': 'use the `package data add` command, it will add default values',
+            })
+        }
+        if ($row.data.reasons | describe) != 'list<string>' {
+            return (error make {
+                'msg': $'for package ($row.package | to nuon) key "search_help" must be list<string>, not ($row.data.search_help | describe)',
+                'help': 'use the `package data add` command, it will use the right types',
+            })
+        }
+
+        if ('links' not-in $row.data) {
+            return (error make {
+                'msg': $'missing "links" from ($row.package | to nuon)',
+                'help': 'use the `package data add` command, it will add default values',
+            })
+        }
+        if ($row.data.links | describe) != 'list<string>' {
+            return (error make {
+                'msg': $'for package ($row.package | to nuon) key "search_help" must be list<string>, not ($row.data.search_help | describe)',
+                'help': 'use the `package data add` command, it will use the right types',
+            })
+        }
+
+        if ('install' not-in $row.data) {
+            return (error make {
+                'msg': $'missing "install" record from ($row.package | to nuon)',
+                'help': 'use the `package data add` command, it will require the necessary values',
+            })
+        }
+        let package_managers = (do {use package/manager.nu [load-data]; load-data})
+        $row.data.install |
+        transpose platform managers |
+        each {|it|
+            if $it.platform not-in ["windows", "mac", "linux"] {
+                log warning $'package ($row.package | to nuon) has unusual platform ($it.platform | to nuon)'
+            }
+
+            $it.managers |
+            transpose manager id_or_closure |
+            each {|i|
+                if $i.manager not-in ($package_managers) {
+                    return (error make {
+                        'msg': $'no package manager defined for ($i.manager | to nuon)',
+                        'help': $'add a closure for it with `package manager add --save ($i.manager | to nuon) {|| closure that will run the package manager, installing it if necessary/possible}`',
+                    })
+                }
+
+                if ($i.id_or_closure | describe) not-in ['closure', 'string'] {
+                    return (error make {
+                        'msg': $'for package ($row.package | to nuon), for manager ($i.manager | to nuon), expected `closure` or `string`, not ($i.id_or_closure | describe)',
+                    )}
+                }
+            }
+        }
+
+        $row
+    } |
+    reduce --fold {} {|it,acc| $acc | insert $it.package $it.data}
+}
+
+# converts the package install record into a string, handling the closures
+export def "install-to-string" [] {
+    transpose platform managers |
+    update managers {|row|
+        $row.managers |
+        transpose manager id_or_closure |
+        each {|it|
+            if ($it.id_or_closure | describe) == 'closure' {
+                {'manager': ($it.manager | to nuon), 'id_or_closure': (view source $it.id_or_closure)}
+            } else {
+                {'manager': ($it.manager | to nuon), 'id_or_closure': ($it.id_or_closure | to nuon)}
+            }
+        }
+    } |
+    each {|it|
+        $'($it.platform | to nuon): {' ++ (
+            $it.managers |
+            each {|m|
+                $'($m.manager): ($m.id_or_closure)'
+            } |
+            str join ', '
+        ) ++ '}'
+    } |
+    str join ', ' |
+    $'{($in)}'
 }
 
 # function to modify to add package data
@@ -429,5 +531,5 @@ export def generate [] {
                 ^fnm install --lts
                 ^fnm default lts-latest
     }}} --tags ['javascript', 'tooling', 'large', 'rarely'] --reasons ['helps install various js-based tooling'] |
-    separate-customs
+    validate-data
 }
