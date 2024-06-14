@@ -3,29 +3,23 @@ let generated = $scripts | path join "generated"
 mkdir $scripts $generated
 
 let postconfig = $generated | path join "postconfig.nu"
-let postconfig_preamble: list<string> = [
+mut postconfig_content: list<string> = [
     '# the contents of this file are auto-generated in preconfig.nu, and should not be edited by hand',
     '',
+    'const default_config_dir = $nu.default-config-dir',
+    'const scripts = $"($default_config_dir)/scripts"',
+    'const generated = $"($scripts)/generated"',
+    'const version_file = $"($generated)/version.nuon"',
+    'let nu_version = version | get version',
+    'if not ($version_file | path exists) {',
+    '    $nu_version | to nuon | save $version_file',
+    '} else if (open $version_file | $in < $nu_version) {',
+    '    print -e "updating generated defaults for new version of nushell"',
+    '    config env --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_env.nu"',
+    '    config nu --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_config.nu"',
+    '    $nu_version | to nuon | save -f $version_file',
+    '}',
 ]
-
-mut postconfig_content: list<string> = (
-    $postconfig_preamble
-    | append [
-        'const default_config_dir = $nu.default-config-dir',
-        'const scripts = $"($default_config_dir)/scripts"',
-        'const generated = $"($scripts)/generated"',
-        'const version_file = $"($generated)/version.nuon"',
-        'let nu_version = version | get version',
-        'if not ($version_file | path exists) {',
-        '    $nu_version | to nuon | save $version_file',
-        '} else if (open $version_file | $in < $nu_version) {',
-        '    print -e "updating generated defaults for new version of nushell"',
-        '    config env --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_env.nu"',
-        '    config nu --default | str replace --all "\r\n" "\n" | save -f $"($generated)/default_config.nu"',
-        '    $nu_version | to nuon | save -f $version_file',
-        '}',
-    ]
-)
 
 if (which atuin | is-not-empty) {
     # currently, atuin can automatically run the command when <Enter> is
@@ -93,7 +87,7 @@ if ($postconfig_content | nu-check) {
     $postconfig_content | save -f $postconfig
 } else {
     let postconfig_issue = $postconfig | path dirname | path join 'postconfig-issue.nu'
-    print -e $"problem with postconfig.nu content\nsaved to\n($postconfig_issue | to nuon)"
+    print -e $"problem with postconfig.nu content; saved to -> ($postconfig_issue | to nuon)"
     $postconfig_content | save -f $postconfig_issue
     echo "" | save -f $postconfig
 }
