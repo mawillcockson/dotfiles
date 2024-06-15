@@ -1,9 +1,9 @@
 use package/data
 use package/manager
 use utils.nu [powershell-safe]
+use package/consts.nu [platform]
 use std [log]
 
-const platform = ($nu.os-info.name)
 
 # runs collectors to collect information from package managers
 export def "collect-all" [
