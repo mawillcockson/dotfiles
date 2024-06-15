@@ -94,11 +94,6 @@ export def main [
     log debug $"current installation candidates:\n($methods | table -e)"
 
     for $method in $methods {
-        if (which $method.manager | is-not-empty) {
-            log debug $'running closure for ($method.manager) with ($method.id)'
-            return (do $method.closure $method.id)
-        }
-
         # This is a recursive call to install a missing package manager, which
         # may depend on a missing package manager, etc. If there's a cycle in
         # the graph like (install package) -> (install package manager A) ->
@@ -106,14 +101,16 @@ export def main [
         # command may never return 🤷
         # NOTE::BUG this is probably not the best cycle detection
         let recursive_package_list = ($recursive_package_list | default [])
-        if ($method.manager in $recursive_package_list) {
+        if (which $method.manager | is-empty) and ($method.manager in $recursive_package_list) {
             let msg = $'cyclic package dependency detected: ($recursive_package_list)'
             log error $msg
             return (error make {'msg': $msg})
-        } else {
+        } else if (which $method.manager | is-empty) {
             let recursive_package_list = ($recursive_package_list | append $method.manager)
             main --recursive-package-list $recursive_package_list $method.manager
-            return (do $method.closure $method.id)
         }
+
+        log debug $'running closure for ($method.manager) with ($method.id)'
+        return (do $method.closure $method.id)
     }
 }
