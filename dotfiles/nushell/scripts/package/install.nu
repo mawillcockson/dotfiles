@@ -1,4 +1,3 @@
-use package/data
 use package/manager
 use package/search.nu
 use std [log]
