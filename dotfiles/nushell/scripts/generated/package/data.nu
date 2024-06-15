@@ -26,10 +26,9 @@ export def "package-data-load-data" [] {
             `}`,
         ] | str join '')
     }}} --tags [essential, "package manager"] |
-    simple-add "pipx" {"windows": {"custom": {||
-        use package/install.nu
-        install 'scoop'
-        install 'python'
+    simple-add "pipx" {"windows": {"custom": {|install: closure|
+        do $install 'scoop'
+        do $install 'python'
         ^python -m pip install --user --upgrade pip setuptools wheel pipx
     }}} --tags [essential, "package manager"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [essential, language] |
@@ -181,9 +180,8 @@ export def "package-data-load-data" [] {
     simple-add "nvr" {"windows": {"pipx": "neovim-remote"}} --tags [essential, small, neovim] --reasons ["allows opening a file from within a :terminal session, inside the editor that :terminal is running within, instead of opening a nested editor", "will be essential until --remote-wait is natively supported by neovim: https://neovim.io/doc/user/remote.html#E5600"] --links ["https://github.com/mhinz/neovim-remote"] |
     simple-add "nvm" {"windows": {"scoop": "nvm"}} --tags [javascript, tooling, rarely] --reasons ["helps install various js-based tooling", "nvm4win may be deprecated soon in favor of Runtime"] --links ["https://github.com/coreybutler/nvm-windows/discussions/565#discussioncomment-58112", "https://github.com/nvm-sh/nvm"] |
     simple-add "fnm" {"windows": {"scoop": "fnm"}} --tags [javascript, tooling, rarely] --reasons ["cross-platform node version manager"] --links ["https://github.com/Schniz/fnm"] |
-    simple-add "node" {"windows": {"custom": {||
-        use package/install.nu
-        install 'fnm'
+    simple-add "node" {"windows": {"custom": {|install: closure|
+        do $install 'fnm'
         ^fnm install --lts
         ^fnm default lts-latest
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |

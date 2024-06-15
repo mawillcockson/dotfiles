@@ -70,7 +70,11 @@ export def main [
                     {
                         'manager': ($e.name),
                         'closure': ($e.id),
-                        'id': ($it.name),
+                        # for customs, the `id` is still passed to the above
+                        # `closure`, so this passes this `install` function to
+                        # the custom closure, in case it needs to be able to
+                        # install stuff
+                        'id': ({|id: string| main $id}),
                     }
                 } else {
                     {
