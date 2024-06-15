@@ -103,7 +103,7 @@ export def main [
         # command may never return 🤷
         # NOTE::BUG this is probably not the best cycle detection
         let recursive_package_list = ($recursive_package_list | default [])
-        if (which $method.manager | is-empty) and ($method.manager in $recursive_package_list) {
+        if ($method.manager != 'custom') and (which $method.manager | is-empty) and ($method.manager in $recursive_package_list) {
             let msg = $'cyclic package dependency detected: ($recursive_package_list)'
             log error $msg
             return (error make {'msg': $msg})
