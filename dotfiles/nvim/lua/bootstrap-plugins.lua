@@ -80,10 +80,9 @@ local function do_bootstrap()
 	end
 	vim.notify("adding config_dir to runtimepath -> " .. tostring(config_dir), DEBUG, {})
 	vim.opt.runtimepath:append(config_dir)
-	vim.notify("importing join_path", DEBUG, {})
 	if not vim.g.custom_lazypath then
-		local join_path = require("utils").join_path
-		vim.g.custom_lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
+		vim.notify("importing join_path", DEBUG, {})
+		vim.g.custom_lazypath = require("utils").join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
 	end
 	vim.notify("lazy.nvim installed to (lazypath): " .. tostring(vim.g.custom_lazypath), DEBUG, {})
 	local did_bootstrap = false
@@ -145,7 +144,8 @@ local function do_bootstrap()
 	-- NOTE: I'd like to run lazy.restore() if a lock file is present, and
 	-- lazy.install() otherwise
 	if vim.g.lazy_install_plugins then
-		local lockfile = join_path(vim.fn.stdpath("config"), "lazy-lock.json")
+		vim.notify("importing join_path", DEBUG, {})
+		local lockfile = require("utils").join_path(vim.fn.stdpath("config"), "lazy-lock.json")
 		if vim.uv.fs_stat(lockfile) then
 			vim.notify("(lazy.nvim) restoring plugins as described in lockfile -> " .. tostring(lockfile), INFO, {})
 			lazy.restore({ wait = true, show = not headless })
