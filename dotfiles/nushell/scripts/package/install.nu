@@ -91,7 +91,7 @@ export def main [
             first
         }
     )
-    log debug $"current installation candidates:\n($method | table -e)"
+    log debug $"current installation candidates:\n($methods | table -e)"
 
     for $method in $methods {
         if (which $method.manager | is-not-empty) {
