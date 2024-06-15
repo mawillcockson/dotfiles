@@ -13,6 +13,7 @@ vim.notify = function(msg, level, opts)
 	if type(msg) ~= "string" then
 		error("first argument to vim.notify() must be a string, not '" .. type(msg) .. "'", 2)
 	end
+	local level = level ~= nil and level or vim.log.levels.INFO
 	if type(level) ~= "number" then
 		error("second argument to vim.notify() must be a number, not '" .. type(level) .. "'", 2)
 	end
