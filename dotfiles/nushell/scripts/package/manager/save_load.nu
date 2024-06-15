@@ -61,3 +61,120 @@ export def "load-data" [] {
         package-manager-load-data
     }
 }
+
+def "flatten-data" [] {
+    transpose platform managers |
+    update managers {|row| $row.managers | transpose manager closure } |
+    flatten --all
+}
+
+export def "data-diff" [right] {
+    let left = ($in)
+    let left_table = ($left | flatten-data)
+    let right_table = ($right | flatten-data)
+
+    let left_only_platforms = (
+        $left_table |
+        where platform not-in ($right_table | get platform)
+    )
+    let left_table = (
+        $left_table |
+        where platform not-in ($left_only_platforms | get platform)
+    )
+
+    let right_only_platforms = (
+        $right_table |
+        where platform not-in ($left_table | get platform)
+    )
+    let right_table = (
+        $right_table |
+        where platform not-in ($right_only_platforms | get platform)
+    )
+
+    let left_only_managers = (
+        $left_table |
+        filter {|left_row|
+            $left_row.manager not-in (
+                $right_table |
+                where platform == $left_row.platform |
+                get manager
+            )
+        }
+    )
+    let left_table = (
+        $left_table |
+        filter {|left_row|
+            $left_row.manager in (
+                $right_table |
+                where platform == $left_row.platform |
+                get manager
+            )
+        }
+    )
+
+    let right_only_managers = (
+        $right_table |
+        filter {|right_row|
+            $right_row.manager not-in (
+                $left_table |
+                where platform == $right_row.platform |
+                get manager
+            )
+        }
+    )
+    let right_table = (
+        $right_table |
+        filter {|right_row|
+            $right_row.manager in (
+                $left_table |
+                where platform == $right_row.platform |
+                get manager
+            )
+        }
+    )
+
+    let left_closures = (
+        $left_table |
+        filter {|left_row|
+            (view source $left_row.closure) not-in (
+                $right_table |
+                where platform == $left_row.platform and manager == $left_row.manager |
+                get closure |
+                each {|it| view source $it}
+            )
+        }
+    )
+    let identicals = (
+        $left_table |
+        filter {|left_row|
+            (view source $left_row.closure) in (
+                $right_table |
+                where platform == $left_row.platform and manager == $left_row.manager |
+                get closure |
+                each {|it| view source $it}
+            )
+        }
+    )
+
+    let right_closures = (
+        $right_table |
+        filter {|right_row|
+            (view source $right_row.closure) not-in (
+                $left_table |
+                where platform == $right_row.platform and manager == $right_row.manager |
+                get closure |
+                each {|it| view source $it}
+            )
+        }
+    )
+
+    {
+        'left_only_platforms': ($left_only_platforms),
+        'left_only_managers': ($left_only_managers),
+        'left_closures': ($left_closures),
+        'identical': ($identicals),
+        'right_only_platforms': ($right_only_platforms),
+        'right_only_managers': ($right_only_managers),
+        'right_closures': ($right_closures),
+    }
+}

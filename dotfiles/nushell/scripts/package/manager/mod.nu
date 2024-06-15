@@ -1,5 +1,5 @@
 use package/manager/simple_add.nu ['simple-add']
-export use package/manager/save_load.nu ['save-data', 'load-data']
+export use package/manager/save_load.nu ['save-data', 'load-data', 'data-diff']
 
 # can also save the data
 export def add [
