@@ -113,6 +113,7 @@ export def main [
         } else {
             let recursive_package_list = ($recursive_package_list | append $method.manager)
             main --recursive-package-list $recursive_package_list $method.manager
+            return (do $method.closure $method.id)
         }
     }
 }
