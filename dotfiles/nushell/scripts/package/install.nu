@@ -1,9 +1,8 @@
 use package/manager
 use package/search.nu
-use std [log]
+use package/consts.nu [platform]
 use utils.nu ["get c-p"]
-
-const platform = ($nu.os-info.name)
+use std [log]
 
 # uses the package name or `package search` output to install package(s)
 export def main [
