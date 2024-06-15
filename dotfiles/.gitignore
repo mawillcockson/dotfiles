@@ -8,6 +8,7 @@ nushell/logs/
 nushell/scripts/generated/*
 !nushell/scripts/generated/package
 nushell/scripts/generated/package/*
+!nushell/scripts/generated/package/bad-managers.nu
 !nushell/scripts/generated/package/managers.nu
 !nushell/scripts/generated/package/data.nu
 !nushell/scripts/generated/default_env.nu
