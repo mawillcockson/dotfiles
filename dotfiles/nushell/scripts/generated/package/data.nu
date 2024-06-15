@@ -184,6 +184,9 @@ export def "package-data-load-data" [] {
         do $install 'fnm'
         ^fnm install --lts
         ^fnm default lts-latest
+
+        use std [log]
+        log info "use a command like the folowing to find where node is installed:\nfnm exec --using=default nu -c `$env.PATH | first | path join 'node.exe'`"
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
     validate-data
 }
