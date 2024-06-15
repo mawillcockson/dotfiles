@@ -12,9 +12,7 @@ export def "save-data" [
     # optional path of where to save the package manager data to
     --path: path,
 ] {
-    # intentionally leaving this as `default` so that it runs each time, so
-    # slow performance will bother me
-    let data = default (load-data)
+    let data = ($in)
     let path = ($path | default $default_package_manager_data_path)
     let bad_path = ($path | path basename --replace ($'bad-($path | path basename)'))
 
