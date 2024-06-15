@@ -104,3 +104,56 @@ export def "load-data" [] {
         package-data-load-data
     }
 }
+
+export def "data-diff" [right] {
+    let left = ($in)
+    let left_packages = ($left | columns)
+    let right_packages = ($right | columns)
+
+    let left_only_packages = (
+        $left_packages |
+        filter {|p|
+            $p not-in $right_packages
+        }
+    )
+    let left_packages = (
+        $left_packages |
+        filter {|p|
+            $p not-in $left_only_packages
+        }
+    )
+
+    let right_only_packages = (
+        $right_packages |
+        filter {|p|
+            $p not-in $left_packages
+        }
+    )
+
+    let diff_datas = (
+        $left_packages |
+        filter {|p|
+            (
+                $left |
+                get $p |
+                update install {|rec| $rec.install | install-to-string}
+            ) != (
+                $right |
+                get $p |
+                update install {|rec| $rec.install | install-to-string}
+            )
+        }
+    )
+
+    let identicals = (
+        $left_packages |
+        filter {|p| $p not-in $diff_datas}
+    )
+
+    {
+        'left_only_packages': ($left_only_packages),
+        'right_only_packages': ($right_only_packages),
+        'identical': ($identicals),
+        'data_diverges': ($diff_datas),
+    }
+}

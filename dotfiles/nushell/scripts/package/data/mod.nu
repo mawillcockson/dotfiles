@@ -1,5 +1,6 @@
 export use package/data/simple_add.nu ['simple-add']
-export use package/data/save_load.nu ['save-data', 'load-data']
+export use package/data/save_load.nu ['save-data', 'load-data', 'data-diff']
+export use package/data/validate_data.nu ['validate-data']
 
 # add a package to the package metadata file (use `package path` to list it)
 export def add [
