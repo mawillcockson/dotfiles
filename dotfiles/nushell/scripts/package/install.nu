@@ -99,10 +99,11 @@ export def main [
             return (do $method.closure $method.id)
         }
 
-        # This is a recursive call, and if there's a cycle in the graph
-        # like (install package) -> (install package manager A) -> (install
-        # package manager B) -> (install package manager A)
-        # then this command may never return 🤷
+        # This is a recursive call to install a missing package manager, which
+        # may depend on a missing package manager, etc. If there's a cycle in
+        # the graph like (install package) -> (install package manager A) ->
+        # (install package manager B) -> (install package manager A) then this
+        # command may never return 🤷
         # NOTE::BUG this is probably not the best cycle detection
         let recursive_package_list = ($recursive_package_list | default [])
         if ($method.manager in $recursive_package_list) {
