@@ -32,6 +32,13 @@ export def "package-data-load-data" [] {
         ^python -X utf8 -m pip install --user --upgrade pip setuptools wheel pipx
         ^python -X utf8 -m pipx ensurepath
     }}} --tags [essential, "package manager"] |
+    simple-add "cargo" {"windows": {"custom": {|install: closure|
+        do $install 'rustup'
+        if (which 'cargo' | is-empty) {
+            ^rustup default stable-msvc
+        }
+        ^cargo --version
+    }}} --tags ["package manager", "rust", "language", "tooling"] --links ["https://rustup.rs/"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [essential, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [essential] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
@@ -114,7 +121,7 @@ export def "package-data-load-data" [] {
     simple-add "Microsoft.Teams.Free" {"windows": {"winget": "Microsoft.Teams.Free"}} --tags [exclude, remove] |
     simple-add "Mozilla.Firefox" {"windows": {"winget": "Mozilla.Firefox"}} --tags [essential, large] --reasons ["beloved browser"] |
     simple-add "Microsoft.OneDrive" {"windows": {"winget": "Microsoft.OneDrive"}} --tags [essential, system] --reasons ["what I use to sync all my files cross-platform"] |
-    simple-add "Rustlang.Rustup" {"windows": {"winget": "Rustlang.Rustup"}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
+    simple-add "rustup" {"windows": {"winget": "Rustlang.Rustup"}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
     simple-add "Valve.Steam" {"windows": {"winget": "Valve.Steam"}} --tags [gui, games, large] |
     simple-add "DigitalExtremes.Warframe" {"windows": {"winget": "DigitalExtremes.Warframe"}} --tags [exclude] |
     simple-add "universalmediaserver" {"windows": {"winget": "UniversalMediaServer.UniversalMediaServer"}} --tags [large] --reasons ["does all the local network hosting and live, on-the-fly transcoding of videos really easy", "upnp media server compatible with my Roku TV's Roku Media Player"] |
