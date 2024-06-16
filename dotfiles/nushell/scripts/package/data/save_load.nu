@@ -49,7 +49,7 @@ export def "save-data" [
     str join " |\n" |
     tee {$in | null} | # NOTE::BUG without this line, an extra newline is inserted into the string
     prepend $func_def |
-    append ['}'] |
+    append ["}\n"] |
     str join "\n" |
     if not ($in | nu-check --as-module) {
         # have this be first, otherwise $in becomes empty
