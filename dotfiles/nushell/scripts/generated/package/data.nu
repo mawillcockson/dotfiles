@@ -38,7 +38,7 @@ export def "package-data-load-data" [] {
             ^rustup default stable-msvc
         }
         ^cargo --version
-    }}} --tags ["package manager", "rust", "language", "tooling"] --links ["https://rustup.rs/"] |
+    }}} --tags ["package manager", rust, language, tooling] --links ["https://rustup.rs/"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [essential, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [essential] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
@@ -201,6 +201,6 @@ export def "package-data-load-data" [] {
         do $install 'protoc'
         do $install 'cargo'
         ^cargo --all-features --bins --keep-going 'atuin'
-    }}} --tags ["cli", "essential", "history"] --reasons ["syncs my command history across platforms and computers"] |
+    }}} --tags [cli, essential, history] --reasons ["syncs my command history across platforms and computers"] |
     validate-data
 }
