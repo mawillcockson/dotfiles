@@ -19,6 +19,11 @@ vim.notify(
 	{}
 )
 
+local enable = has_compiler and has_tree_sitter
+if not enable then
+  vim.notify("disabling tree-sitter since compiler and tree-sitter-cli aren't both present", vim.log.levels.WARN)
+end
+
 -- NOTE: so far, the MSVC compiler hasn't been working, while the zig compiler
 -- has. It'd be nice to get a warning that the MSVC compiler was having issues.
 -- Also, the MSVC compiler has to be started in an environment when
@@ -29,7 +34,7 @@ vim.notify(
 -- :lua for _,k in ipairs{"python", "markdown", "javascript"} do vim.cmd(":TSInstall "..k) end
 return {
 	"nvim-treesitter/nvim-treesitter",
-	enabled = has_compiler and has_tree_sitter,
+	enabled = enable,
 	version = "*",
 	build = ":TSUpdateSync",
 	config = function()
