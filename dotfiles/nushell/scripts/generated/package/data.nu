@@ -29,8 +29,8 @@ export def "package-data-load-data" [] {
     simple-add "pipx" {"windows": {"custom": {|install: closure|
         do $install 'scoop'
         do $install 'python'
-        ^python -m pip install --user --upgrade pip setuptools wheel pipx
-        ^python -m pipx ensurepath
+        ^python -X utf8 -m pip install --user --upgrade pip setuptools wheel pipx
+        ^python -X utf8 -m pipx ensurepath
     }}} --tags [essential, "package manager"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [essential, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
