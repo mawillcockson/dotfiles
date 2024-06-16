@@ -31,6 +31,7 @@ overlay use utils.nu
 overlay use --prefix dt.nu
 
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
+alias fennel = ^luajit ~/.local/bin/fennel
 
 let commands = (scope commands | get name)
 if $nu.is-interactive and ('my-banner' in $commands) {

@@ -204,8 +204,8 @@ export def "package-data-load-data" [] {
     }}} --tags [cli, essential, history] --reasons ["syncs my command history across platforms and computers"] |
     simple-add "fennel" {"windows": {"custom": {|install: closure|
         do $install 'luajit'
-        http get 'https://fennel-lang.org/downloads/fennel--windows32.exe' |
-        save -f ~/.local/bin/fennel.exe
+        http get 'https://fennel-lang.org/downloads/fennel-' |
+        save -f ~/.local/bin/fennel
     }}} --tags [small, lua, language, fennel, compiler, undecided] --reasons ["cool, type-safe language that transpiles to Lua"] --links ["https://fennel-lang.org"] |
     validate-data
 }
