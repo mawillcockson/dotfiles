@@ -200,7 +200,7 @@ export def "package-data-load-data" [] {
     simple-add "atuin" {"windows": {"custom": {|install: closure|
         do $install 'protoc'
         do $install 'cargo'
-        ^cargo --all-features --bins --keep-going 'atuin'
+        ^cargo install --all-features --bins --keep-going 'atuin'
     }}} --tags [cli, essential, history] --reasons ["syncs my command history across platforms and computers"] |
     validate-data
 }
