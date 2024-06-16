@@ -196,5 +196,11 @@ export def "package-data-load-data" [] {
         use std [log]
         log info "use a command like the folowing to find where node is installed:\nfnm exec --using=default nu -c `$env.PATH | first | path join 'node.exe'`"
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
+    simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 (and maybe up?) on Windows"] |
+    simple-add "atuin" {"windows": {"custom": {|install: closure|
+        do $install 'protoc'
+        do $install 'cargo'
+        ^cargo --all-features --bins --keep-going 'atuin'
+    }}} --tags ["cli", "essential", "history"] --reasons ["syncs my command history across platforms and computers"] |
     validate-data
 }
