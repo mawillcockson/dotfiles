@@ -44,7 +44,7 @@ else
     unset -v CARGO_BIN
 fi
 
-if nu -e exit 2>&1; then
+if nu -e exit 2>&1 && [ -z "${DONT_USE_NU+'set'}" ]; then
     exec nu --login
 fi
 
