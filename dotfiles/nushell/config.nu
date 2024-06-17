@@ -43,7 +43,8 @@ if $nu.is-interactive and ('my-banner' in $commands) {
     ) STRICT`
     stor open | query db `
     INSERT INTO state (name, value)
-        VALUES ('banner_shown', 'false')`
+        VALUES ('banner_shown', 'false'),
+               ('commandline_edited', 'false')`
     let original_prompt = $env.PROMPT_COMMAND
     $env.PROMPT_COMMAND = {||
         if (
@@ -52,6 +53,14 @@ if $nu.is-interactive and ('my-banner' in $commands) {
             | get value.0
         ) != 'true' {
             my-banner
+            stor open | query db `UPDATE state SET value = 'true' WHERE name = 'banner_shown'`
+        }
+        do $original_prompt
+        if (
+            stor open |
+            query db `SELECT value FROM state WHERE name = 'commandline_edited'` |
+            get value.0
+        ) != 'true' {
             if (which 'tmux' | is-not-empty) {
                 if ('TMUX' not-in $env) and ((^tmux has-session | complete | get exit_code) == 0) {
                     if (^tmux has-session -t ssh | complete | get exit_code) == 0 {
@@ -62,8 +71,7 @@ if $nu.is-interactive and ('my-banner' in $commands) {
                 }
                 commandline edit --replace 'try { tmux attach -d } catch { tmux -f ~/.tmux.conf }'
             }
-            stor open | query db `UPDATE state SET value = 'true' WHERE name = 'banner_shown'`
+            stor open | query db `UPDATE state SET value = 'true' WHERE name = 'commandline_edited'`
         }
-        do $original_prompt
     }
 }
