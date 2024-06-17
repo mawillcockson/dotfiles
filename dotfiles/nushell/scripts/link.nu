@@ -2,19 +2,6 @@ use utils.nu ["path is-link", "ln -s"]
 
 const platform = ($nu.os-info.name)
 
-let folders = ([
-    'starship',
-    'nvim',
-    'xonsh',
-    'atuin',
-    'nushell',
-] | append (match $platform {
-        'windows' => ['powershell', 'scoop', 'clink'],
-        'android' => ['termux'],
-        _ => [],
-    }
-))
-
 export def main [] {
     let configs = match $platform {
         'windows' => ($env | get OneDrive? ONEDRIVE? ONEDRIVECONSUMER? OneDriveConsumer? | compact --empty | first | path join 'Documents' 'configs'),
@@ -30,6 +17,18 @@ export def main [] {
             return (error make {msg: 'not implemented for this platform'})
         },
     } | path join 'projects' 'dotfiles' 'dotfiles'
+    let folders = ([
+        'starship',
+        'nvim',
+        'xonsh',
+        'atuin',
+        'nushell',
+    ] | append (match $platform {
+            'windows' => ['powershell', 'scoop', 'clink'],
+            'android' => ['termux'],
+            _ => [],
+        }
+    ))
 
     $folders | each {|name|
         let in_configs = $configs | path join $name
@@ -53,6 +52,6 @@ export def main [] {
             print -e $'rm: ($old_configs)'
             rm -r $old_configs
         }
-        return $res
+        $res
     }
 }
