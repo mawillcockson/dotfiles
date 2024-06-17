@@ -69,6 +69,8 @@ if $nu.is-interactive and ('my-banner' in $commands) {
                         commandline edit --replace 'tmux attach -d'
                     }
                 }
+                use std [log]
+                log info 'tried editing commandline'
                 commandline edit --replace 'try { tmux attach -d } catch { tmux -f ~/.tmux.conf }'
             }
             stor open | query db `UPDATE state SET value = 'true' WHERE name = 'commandline_edited'`
