@@ -44,29 +44,23 @@ else
     unset -v CARGO_BIN
 fi
 
-# if SSH_CONNECTION is set from agent forwarding over an ssh session, and
-# we're not inside a tmux session, and tmux doesn't have a session named ssh,
-# then we should load fancy prompts
-if [ -n "${SSH_CONNECTION:+"set"}" ]; then
-    export FANCY="true"
+if nu -e exit 2>&1; then
+    exec nu --login
 fi
 
-if [ -n "${FANCY:+"set"}" ]; then
+if [ -n "${SSH_CONNECTION:+"set"}" ]; then
     # ble.sh
     [[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none
 
     init_starship
     init_atuin
-fi
 
-if [ -n "${FANCY:+"set"}" ]; then
     # ble.sh
     # Add the following line at the end of ~/.bashrc
     [[ ${BLE_VERSION-} ]] && ble-attach
 
     if [ -z "${TMUX:+"set"}" ] && tmux has-session -t ssh; then
         tmux set-environment -t ssh SSH_AUTH_SOCK "${SSH_AUTH_SOCK}"
-        tmux set-environment -t ssh FANCY 'true'
         if [ "$(tmux list-windows -t ssh | wc -l)" -eq 1 ]; then
             tmux new-window -t ssh
         fi
