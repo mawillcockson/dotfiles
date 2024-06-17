@@ -8,7 +8,7 @@ const platform = ($nu.os-info.name)
 # NOTE::DONE This could close the running ssh-agent, and the WSL-SSH-Pageant,
 # before starting the latter again, as well as check for the existence of the
 # appropriate environment variable, and the presence of the necessary programs
-export def main [] {
+export def --env main [] {
     log debug 'setting environment variables for gpg and ssh'
     match $platform {
         'windows' => {
@@ -29,6 +29,17 @@ export def main [] {
         'linux' => {
             {'GPG_TTY': (^tty)}
             return (error make {'msg': 'linux platform has not been fully implemented'})
+        },
+        'android' => {
+            if ('SSH_AUTH_SOCK' not-in $env) {
+                let pattern = '(?i)^(?P<name>[A-Z_]+)="?(?P<value>.*?)"?$'
+                ^okc-ssh-agent |
+                split row ';' |
+                str trim |
+                filter {|it| $it =~ $pattern } |
+                parse --regex $pattern |
+                transpose --as-record --header-row
+            } else { {} }
         },
         _ => {return (error make {'msg': $'not implemented for platform: ($platform)'})},
     } | load-env
