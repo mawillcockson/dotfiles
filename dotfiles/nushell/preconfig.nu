@@ -72,8 +72,9 @@ if ($nu.os-info.name) != 'windows' {
                     str trim |
                     filter {|it| $it =~ $pattern } |
                     parse --regex $pattern |
-                    transpose --as-record --header-row
-                #'
+                    transpose --as-record --header-row |
+                    load-env
+                '#
             },
             _ => {
                 $postconfig_content ++= r#'return (error make {'msg': $'"init_ssh" not yet implemented for platform: ($nu.os-info.name)'})'#
