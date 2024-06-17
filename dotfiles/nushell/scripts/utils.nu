@@ -462,19 +462,3 @@ export def "setup-gitlocal" [] {
     git config --local user.email "matthew@willcockson.family"
     git config --local user.signingKey "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115"
 }
-
-export def --env init_ssh {
-    match ($nu.os-info.name) {
-        'windows' => { use start-ssh.nu; start-ssh; {} },
-        'android' => {
-            let pattern = '(?i)^(?P<name>[A-Z_]+)="?(?P<value>.*?)"?$'
-            ^okc-ssh-agent |
-            split row ';' |
-            str trim |
-            filter {|it| $it =~ $pattern } |
-            parse --regex $pattern |
-            transpose --as-record --header-row
-        },
-        _ => { return (error make {'msg': $'"init_ssh" is not implemented for this platform: ($nu.os-info.name)'}) },
-    } | load-env
-}

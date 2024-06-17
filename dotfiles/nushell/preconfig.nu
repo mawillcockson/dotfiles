@@ -53,7 +53,34 @@ if ($start_ssh | path exists) {
         print -e 'issue with start-ssh, not including'
     } else {
         $postconfig_content ++= $"export use ($start_ssh | to nuon)"
+        if ($nu.os-info.name) == 'windows' {
+            $postconfig_content ++= 'export def --env init_ssh {'
+            $postconfig_content ++= '    use start-ssh.nu; start-ssh'
+            $postconfig_content ++= '}'
+        }
     }
+}
+if ($nu.os-info.name) != 'windows' {
+    $postconfig_content ++= 'export def --env init_ssh {'
+    $postconfig_content ++= (
+        match ($nu.os-info.name) {
+            'android' => {
+                $postconfig_content ++= r#'
+                    let pattern = '(?i)^(?P<name>[A-Z_]+)="?(?P<value>.*?)"?$'
+                    ^okc-ssh-agent |
+                    split row ';' |
+                    str trim |
+                    filter {|it| $it =~ $pattern } |
+                    parse --regex $pattern |
+                    transpose --as-record --header-row
+                #'
+            },
+            _ => {
+                $postconfig_content ++= r#'return (error make {'msg': $'"init_ssh" not yet implemented for platform: ($nu.os-info.name)'})'#
+            },
+        }
+    )
+    $postconfig_content ++= '}'
 }
 
 # package module
