@@ -61,7 +61,7 @@ if ($start_ssh | path exists) {
     }
 }
 if ($nu.os-info.name) != 'windows' {
-    $postconfig_content ++= 'export def --env init_ssh {'
+    $postconfig_content ++= 'export def --env init_ssh [] {'
     $postconfig_content ++= (
         match ($nu.os-info.name) {
             'android' => {
