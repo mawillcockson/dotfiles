@@ -29,6 +29,8 @@ return {
 
 		-- from:
 		-- https://github.com/tjdevries/config.nvim/blob/c48edd3572c7b68b356ef7c54c41167b1f46e47c/lua/custom/snippets.lua#L6-L33
+		-- silence errors with nvim < 0.10
+		vim.snippet = vim.snippet or {}
 		vim.snippet.expand = ls.lsp_expand
 
 		---@diagnostic disable-next-line: duplicate-set-field

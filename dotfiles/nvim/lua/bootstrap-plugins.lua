@@ -13,6 +13,9 @@ local WARN = vim.log.levels.WARN
 local INFO = vim.log.levels.INFO
 local DEBUG = vim.log.levels.DEBUG
 
+-- nvim 0.10 introduced vim.uv
+local luv = vim.loop or vim.uv
+
 local function do_bootstrap()
 	-- run after VimEnter
 	local headless = ((#vim.api.nvim_list_uis()) == 0)
@@ -35,9 +38,9 @@ local function do_bootstrap()
 	if (not currentfile) or (currentfile == "") and (_G.arg[0] ~= nil) then
 		local relative_name = _G.arg[0]
 		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
-		if relative_name and vim.uv.fs_stat(relative_name) then
+		if relative_name and luv.fs_stat(relative_name) then
 			vim.notify("using relative name -> " .. tostring(relative_name), DEBUG, {})
-			currentfile = vim.fs.normalize(vim.uv.fs_realpath(relative_name))
+			currentfile = vim.fs.normalize(luv.fs_realpath(relative_name))
 		end
 	end
 	if (not currentfile) or (currentfile == "") then
@@ -50,7 +53,7 @@ local function do_bootstrap()
 		currentfile = vim.api.nvim_get_runtime_file("*/" .. tostring(this_filename), false)
 		assert(not vim.tbl_isempty(currentfile), "could not find " .. tostring(this_filename))
 		currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
-		-- currentfile = vim.uv.fs_realpath(currentfile)
+		-- currentfile = luv.fs_realpath(currentfile)
 	end
 	if (type(currentfile) ~= "string") or (currentfile == "") then
 		local msg = "couldn't determine the current file path -> " .. vim.inspect(currentfile)
@@ -86,7 +89,7 @@ local function do_bootstrap()
 	end
 	vim.notify("lazy.nvim installed to (lazypath): " .. tostring(vim.g.custom_lazypath), DEBUG, {})
 	local did_bootstrap = false
-	if not vim.uv.fs_stat(vim.g.custom_lazypath) then
+	if not luv.fs_stat(vim.g.custom_lazypath) then
 		vim.notify("bootstrapping lazy.nvim to: " .. vim.g.custom_lazypath, INFO, {})
 		did_bootstrap = vim.fn.system({
 			"git",
@@ -146,7 +149,7 @@ local function do_bootstrap()
 	if vim.g.lazy_install_plugins then
 		vim.notify("importing join_path", DEBUG, {})
 		local lockfile = require("utils").join_path(vim.fn.stdpath("config"), "lazy-lock.json")
-		if vim.uv.fs_stat(lockfile) then
+		if luv.fs_stat(lockfile) then
 			vim.notify("(lazy.nvim) restoring plugins as described in lockfile -> " .. tostring(lockfile), INFO, {})
 			lazy.restore({ wait = true, show = not headless })
 		else
