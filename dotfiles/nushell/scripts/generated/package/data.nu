@@ -74,7 +74,7 @@ export def "package-data-load-data" [] {
             save -f $tmpnames
 
             ^tar --extract --overwrite $'--directory=("~/.local/bin" | path expand)' $'--file=($tmparchive)' --gzip --strip-components=1 $'--files-from=($tmpnames)'
-        }
+        } catch {|e| log error $e.msg}
         rm -r $tmpdir
     }}} --tags [essential] --reasons ["makes installing stuff from GitHub releases much easier"] --links ["https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation"] |
     simple-add "fd" {"windows": {"scoop": "fd"}} --search-help [find, rust] --tags [essential, small] |
