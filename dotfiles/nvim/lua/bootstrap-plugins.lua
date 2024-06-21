@@ -31,10 +31,21 @@ local function do_bootstrap()
 
 	-- DONE: Need to switch to lazy.nvim
 	-- https://github.com/folke/lazy.nvim#-installation
+  --[=[ NOTE::DEBUG
 	vim.notify("args: " .. vim.inspect(vim.cmd([[:args]])), DEBUG, {})
 	vim.notify("_G.args: " .. vim.inspect(_G.arg), DEBUG, {})
 	vim.notify("v:argv -> " .. vim.inspect(vim.api.nvim_get_vvar("argv")), DEBUG, {})
-	local currentfile = vim.fn.expand("%:p")
+  --]=]
+  vim.notify("searching for " .. this_filename, DEBUG, {})
+  currentfile = vim.api.nvim_get_runtime_file("lua/" .. tostring(this_filename), false)
+  if vim.tbl_isempty(currentfile) then
+    vim.notify("could not find " .. tostring(this_filename), WARN)
+  end
+  currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
+  -- currentfile = luv.fs_realpath(currentfile)
+	if (not currentfile) or (currentfile == "") then
+    local currentfile = vim.fn.expand("%:p")
+  end
 	if (not currentfile) or (currentfile == "") and (_G.arg[0] ~= nil) then
 		local relative_name = _G.arg[0]
 		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
@@ -47,13 +58,6 @@ local function do_bootstrap()
 		local bufname = vim.api.nvim_buf_get_name(0)
 		vim.notify("trying buffer name -> " .. tostring(bufname), DEBUG, {})
 		currentfile = bufname
-	end
-	if (not currentfile) or (currentfile == "") then
-		vim.notify("searching for " .. this_filename, DEBUG, {})
-		currentfile = vim.api.nvim_get_runtime_file("*/" .. tostring(this_filename), false)
-		assert(not vim.tbl_isempty(currentfile), "could not find " .. tostring(this_filename))
-		currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
-		-- currentfile = luv.fs_realpath(currentfile)
 	end
 	if (type(currentfile) ~= "string") or (currentfile == "") then
 		local msg = "couldn't determine the current file path -> " .. vim.inspect(currentfile)
