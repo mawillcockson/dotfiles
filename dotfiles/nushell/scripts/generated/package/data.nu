@@ -50,7 +50,33 @@ export def "package-data-load-data" [] {
     simple-add "dark" {"windows": {"scoop": "dark"}} --tags [scoop, exclude, auto] |
     simple-add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}} --tags [essential] |
     simple-add "duckdb" {"windows": {"scoop": "duckdb"}} --tags [small, undecided] --reasons ["cool database engine in same space as SQLite, but under really cool, active development by academics, with really cool features"] |
-    simple-add "eget" {"windows": {"scoop": "eget"}} --tags [essential] --reasons ["makes installing stuff from GitHub releases much easier"] --links ["https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation"] |
+    simple-add "eget" {"windows": {"scoop": "eget"}, "android": {"custom": {|install: closure|
+        let asset = (
+            http get --max-time 3 'https://api.github.com/repos/zyedidia/eget/releases/latest' |
+            get assets |
+            where name =~ $'linux_(
+                if $nu.os-info.arch != "aarch64" {
+                    log warning "using 32-bit executable, I think?"
+                    "arm"
+                } else {
+                    "arm64"
+            })\.tar\.gz' |
+            first
+        )
+        let tmpdir = (mktemp -d)
+        let tmparchive = ($tmpdir | path join $asset.name)
+        let tmpnames = ($tmpdir | path join 'filenames.txt')
+        try {
+            http get --max-time 10 $asset.browser_download_url |
+            save -f $tmparchive
+
+            echo $'($asset.name | str replace --regex '\.tar\.gz$' '')/eget' |
+            save -f $tmpnames
+
+            ^tar --extract --overwrite $'--directory=("~/.local/bin" | path expand)' $'--file=($tmparchive)' --gzip --strip-components=1 $'--files-from=($tmpnames)'
+        }
+        rm -r $tmpdir
+    }}} --tags [essential] --reasons ["makes installing stuff from GitHub releases much easier"] --links ["https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation"] |
     simple-add "fd" {"windows": {"scoop": "fd"}} --search-help [find, rust] --tags [essential, small] |
     simple-add "ffmpeg" {"windows": {"scoop": "ffmpeg"}} --tags [large, essential, yt-dlp] |
     simple-add "filezilla" {"windows": {"scoop": "filezilla"}} --tags [filezilla] |
