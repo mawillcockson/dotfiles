@@ -1,13 +1,14 @@
 local M = {}
 
-function M.setup(_)
+function M.setup(opts)
 	vim.notify("ran uis", vim.log.levels.DEBUG, {})
 	--[[
-This is called from init.lua and tries to figure out what environment this is
-being run from, and calls the options specific to that environment.
+This tries to figure out what environment this is being run from, and calls the
+options specific to that environment.
 
-Generally, the only options that should be included here are settings for a
-specific environment, like enabling smooth scrolling and such.
+Generally, the only options that should be included in this package are
+settings for a specific environment, like enabling smooth scrolling and such.
+All general settings should go in init.lua, if possible.
 --]]
 
 	-- This can be helpful

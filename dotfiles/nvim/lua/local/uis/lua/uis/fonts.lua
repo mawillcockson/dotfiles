@@ -17,54 +17,58 @@ M.default_font_size = default_font_size or 11
 M.default_text_font = default_text_font or "ComicCode Nerd Font"
 M.default_term_font = default_term_font or "DejaVuSansM Nerd Font"
 if type(change_fonts) == "boolean" then
-  M.change_fonts = change_fonts
+	M.change_fonts = change_fonts
 else
-  M.change_fonts = true
+	M.change_fonts = true
 end
 
 function M.set_text_font(name, size)
-  local font_name = type(name) == string and name or M.default_text_font
-  local font_size = type(size) == "number" and size or M.default_font_size
-  local font = font_name..":h"..tostring(font_size)
-  vim.notify("setting font to: "..font, vim.log.levels.INFO, {})
-  -- NOTE: should consider using:
-  -- pcall(function() vim.rpcnotify(1, "Gui", "Font", font) end)
-  pcall(function() vim.opt.guifont = font end)
+	local font_name = type(name) == string and name or M.default_text_font
+	local font_size = type(size) == "number" and size or M.default_font_size
+	local font = font_name .. ":h" .. tostring(font_size)
+	vim.notify("setting font to: " .. font, vim.log.levels.INFO, {})
+	-- NOTE: should consider using:
+	-- pcall(function() vim.rpcnotify(1, "Gui", "Font", font) end)
+	pcall(function()
+		vim.opt.guifont = font
+	end)
 end
 
 function M.set_term_font(size)
-  local font_name = type(name) == string and name or M.default_term_font
-  local font_size = type(size) == "number" and size or M.default_font_size
-  local font = font_name..":h"..tostring(font_size)
-  vim.notify("setting font to: "..font, vim.log.levels.DEBUG, {})
-  pcall(function() vim.opt.guifont = font end)
+	local font_name = type(name) == string and name or M.default_term_font
+	local font_size = type(size) == "number" and size or M.default_font_size
+	local font = font_name .. ":h" .. tostring(font_size)
+	vim.notify("setting font to: " .. font, vim.log.levels.DEBUG, {})
+	pcall(function()
+		vim.opt.guifont = font
+	end)
 end
 
 M.fonts_autocmds_group_name = "fonts_autocmds"
 M.term_pattern = "term://*//*:*"
 
 function M.setup_font_changing()
-  if not M.change_fonts then return end
+	if not M.change_fonts then
+		return
+	end
 
-  vim.api.nvim_create_augroup(M.fonts_autocmds_group_name, { clear = true })
+	vim.api.nvim_create_augroup(M.fonts_autocmds_group_name, { clear = true })
 
-  if M.default_text_font ~= M.default_term_font then
-    -- only change the fonts if they're different
-    vim.notify("setting up terminal / text font switching", vim.log.levels.DEBUG, {})
-    vim.api.nvim_create_autocmd("BufEnter",
-      {
-        group = M.fonts_autocmds_group_name,
-        pattern = M.term_pattern,
-        callback = M.set_term_font,
-    })
+	if M.default_text_font ~= M.default_term_font then
+		-- only change the fonts if they're different
+		vim.notify("setting up terminal / text font switching", vim.log.levels.DEBUG, {})
+		vim.api.nvim_create_autocmd("BufEnter", {
+			group = M.fonts_autocmds_group_name,
+			pattern = M.term_pattern,
+			callback = M.set_term_font,
+		})
 
-    vim.api.nvim_create_autocmd("BufLeave",
-      {
-        group = M.fonts_autocmds_group_name,
-        pattern = M.term_pattern,
-        callback = M.set_text_font,
-    })
-  end
+		vim.api.nvim_create_autocmd("BufLeave", {
+			group = M.fonts_autocmds_group_name,
+			pattern = M.term_pattern,
+			callback = M.set_text_font,
+		})
+	end
 end
 
 return M
