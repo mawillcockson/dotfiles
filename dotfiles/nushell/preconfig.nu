@@ -37,7 +37,14 @@ if (which starship | is-not-empty) {
                 update custom.git_email.shell {|rec|
                     $rec.custom.git_email.shell |
                     skip 1 |
-                    prepend (which 'git' | get 0.path)
+                    prepend (
+                        which 'git' |
+                        get 0?.path? |
+                        default (
+                            $rec.custom.git_email.shell |
+                            first
+                        ) # starship won't run a nonexistent command
+                    )
                 } |
                 to toml |
                 save -f ($generated | path join 'starship.toml')
