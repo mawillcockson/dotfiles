@@ -40,6 +40,7 @@ local function do_bootstrap()
   currentfile = vim.api.nvim_get_runtime_file("lua/" .. tostring(this_filename), false)
   if vim.tbl_isempty(currentfile) then
     vim.notify("could not find " .. tostring(this_filename), WARN)
+    currentfile = nil
   end
   currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
   -- currentfile = luv.fs_realpath(currentfile)
