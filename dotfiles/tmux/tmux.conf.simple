@@ -16,7 +16,7 @@ set -g message-limit 999999
 set -g display-time 0
 #if-shell { nu -c 'if ($nu.os-info.name == `android`) {exit 0} else {exit 1}' } 'set -g default-shell /data/data/com.termux/files/home/.cargo/bin/nu' ''
 %if "$USER" set -ag update-environment USER %endif
-%if "$XXX" display "NOTE::BUG this is here so the above works" %endif
+%if "$HOSTNAME" set -ag update-environment HOSTNAME %endif
 
 
 ## Keybingings
