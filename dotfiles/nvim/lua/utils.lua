@@ -70,6 +70,19 @@ function M.calculate_nproc()
 			)
 			nproc = vim.g.max_nproc_default
 		end
+	elseif vim.fn.has("android") == 1 then
+		-- android test because nu v0.94.2 could not determine the number of cpus on the system
+		nproc = tonumber(run({ "nproc" }), 10)
+		if type(nproc) == "nil" then
+			vim.notify("andoid `nproc` did not return a sensible number for number of cpus", vim.log.levels.WARN)
+			nproc = vim.g.max_nproc_default
+		end
+	elseif vim.fn.executable("nu") == 1 then
+		nproc = tonumber(run({ "nu", "-c", "sys cpu | length | [($in), " .. tostring(1) .. "] | math max" }), 10)
+		if type(nproc) == "nil" then
+			vim.notify("nu did not return a sensible number for the number of cpus", vim.log.levels.WARN)
+			nproc = vim.g.max_nproc_default
+		end
 	else
 		vim.notify(
 			"non-windows platforms haven't been addressed yet " .. "so using a default of: " .. vim.g.max_nproc_default,
