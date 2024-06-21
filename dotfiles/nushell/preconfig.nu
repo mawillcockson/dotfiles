@@ -24,6 +24,23 @@ if (which starship | is-not-empty) {
     ^starship init nu | save -f ($generated | path join "starship.nu")
     # NOTE::BUG using `overlay use` instead of `source` causes very weird issues
     $postconfig_content ++= `source $"($generated)/starship.nu"`
+
+    if ($nu.os-info.name == 'android') and ('STARSHIP_CONFIG' not-in $env) {
+        let starship_config = (
+            $env |
+            get XDG_CONFIG_HOME |
+            path join 'starship' 'starship.toml'
+        )
+        open $starship_config |
+        update custom.git_email.shell {|rec|
+            $rec.custom.git_email.shell |
+            skip 1 |
+            prepend (which 'git' | get 0.path)
+        } |
+        to toml |
+        save -f ($generated | path join 'starship.toml')
+        $postconfig_content ++= `$env.STARSHIP_CONFIG = $"($generated)/starship.toml"`
+    }
 }
 
 
