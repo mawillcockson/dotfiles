@@ -211,8 +211,7 @@ disabled = true
 [spack]
 disabled = true
 
-[status]
-disabled = false
+# [status] # lower
 
 [sudo]
 disabled = true
@@ -321,6 +320,11 @@ style = "text bold"
 
 [shlvl]
 disabled = false
+
+[status]
+disabled = false
+# symbol = 'x'
+format = '[$status]($style) '
 
 [custom.git_email]
 disabled = false
