@@ -73,7 +73,6 @@ All general settings should go in init.lua, if possible.
 	}
 
 	vim.api.nvim_create_user_command("UisConfig", function(tbl)
-		vim.print(vim.inspect(tbl))
 		if tbl.args == "" or type(modules[tbl.args]) == "nil" then
 			error("Must be called with one of: " .. table.concat(vim.tbl_keys(modules), ", "), 2)
 		end
@@ -86,7 +85,6 @@ All general settings should go in init.lua, if possible.
 	end, {
 		nargs = 1,
 		complete = function(arg_lead, _, _)
-			vim.print(tostring(arg_lead))
 			local keys = vim.tbl_keys(modules)
 			if arg_lead == "" then
 				return keys
