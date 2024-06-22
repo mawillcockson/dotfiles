@@ -39,7 +39,7 @@ local function is_buf_visible(bufnr)
 	return vim.tbl_contains(vim.fn.tabpagebuflist(), bufnr)
 end
 
-local scratch_buf
+local scratch_buf = false
 --local run_sql -- forward declaration: https://www.lua.org/pil/6.2.html
 local wk = require("which-key")
 
