@@ -25,19 +25,8 @@ local M = {}
 -- use set_term_font and set_text_font as autocommand event callbacks
 --]]
 
-local set_text_font
-local set_term_font
-
-local defaults = {
-	font_size = 11,
-	text_font = "ComicCode Nerd Font",
-	term_font = "DejaVuSansM Nerd Font",
-	font_changing_enabled = true,
-	fonts_autocmds_group_name = "fonts_autocmds",
-	term_pattern = "term://*//*:*",
-  set_text_font = set_text_font,
-  set_term_font = set_term_font,
-}
+-- forward reference; defined lower once other functoins are available
+local defaults = {}
 
 function M.setup(opts)
 	M.opts = vim.tbl_extend("force", defaults, opts or {})
@@ -111,5 +100,14 @@ function M.configure_font_changing(opts)
 		end,
 	})
 end
+
+defaults["font_size"] = 11
+defaults["text_font"] = "ComicCode Nerd Font"
+defaults["term_font"] = "DejaVuSansM Nerd Font"
+defaults["font_changing_enabled"] = true
+defaults["fonts_autocmds_group_name"] = "fonts_autocmds"
+defaults["term_pattern"] = "term://*//*:*"
+defaults["set_text_font"] = set_text_font
+defaults["set_term_font"] = set_term_font
 
 return M
