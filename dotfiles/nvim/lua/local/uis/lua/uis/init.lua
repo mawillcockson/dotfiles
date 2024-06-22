@@ -28,6 +28,7 @@ All general settings should go in init.lua, if possible.
 	end
 
 	local fonts = require("uis.fonts")
+	local change_fonts = true
 
 	if vim.g.fvim_loaded then
 		require("uis.fvim")
@@ -53,14 +54,50 @@ All general settings should go in init.lua, if possible.
 		-- may(?) start nvim in --headless mode and use the RPC protocol.
 
 		-- changing fonts is pointless when the controling terminal sets everything
-		fonts.change_fonts = false
+		change_fonts = false
 		vim.o.termguicolors = true
 	else
 		vim.notify("unknown editor environment", vim.log.levels.WARN, {})
-		fonts.change_fonts = false
+		change_fonts = false
 	end
 
-	fonts.setup_font_changing()
+	fonts.setup({ font_changing_enabled = change_fonts })
+
+	local modules = {
+		["fvim"] = "fvim",
+		["goneovim"] = "goneovim",
+		["neovide"] = "neovide",
+		["neovim-qt"] = "neovim_qt",
+		["builtin tui"] = "tui_windows_terminal",
+		["default"] = "default",
+	}
+
+	vim.api.nvim_create_user_command("UisConfig", function(tbl)
+		if tbl.args == "" or type(modules[tbl.args]) == "nil" then
+			error("Must be called with one of: " .. table.concat(vim.tbl_keys(modules), ", "), 2)
+		end
+
+		local module_name = "uis." .. tostring(modules[tbl.args])
+		local ok, err = pcall(require, module_name)
+		if not ok then
+			vim.notify("problem loading '" .. module_name .. "' package: " .. tostring(err), vim.log.levels.ERROR)
+		end
+	end, {
+		nargs = 1,
+		complete = function(arg_lead, _, _)
+			local keys = vim.tbl_keys(modules)
+			if arg_lead == "" then
+				return keys
+			end
+			return vim.iter(keys)
+				:filter(function(key)
+					return vim.startswith(key, arg_lead)
+				end)
+				:totable()
+		end,
+		desc = "Runs the module for configuring Neovim for a particular ui frontend",
+		force = true,
+	})
 
 	local uis_autocmds_group_name = "uis_autocmds"
 	vim.api.nvim_create_augroup(uis_autocmds_group_name, { clear = true })
