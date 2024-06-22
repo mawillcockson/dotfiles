@@ -63,6 +63,44 @@ All general settings should go in init.lua, if possible.
 
 	fonts.setup({ font_changing_enabled = change_fonts })
 
+	local modules = {
+		["fvim"] = "fvim",
+		["goneovim"] = "goneovim",
+		["neovide"] = "neovide",
+		["neovim-qt"] = "neovim_qt",
+		["builtin tui"] = "tui_windows_terminal",
+		["default"] = "default",
+	}
+
+	vim.api.nvim_create_user_command("UisConfig", function(tbl)
+		vim.print(vim.inspect(tbl))
+		if tbl.args == "" or type(modules[tbl.args]) == "nil" then
+			error("Must be called with one of: " .. table.concat(vim.tbl_keys(modules), ", "), 2)
+		end
+
+		local module_name = "uis." .. tostring(modules[tbl.args])
+		local ok, err = pcall(require, module_name)
+		if not ok then
+			vim.notify("problem loading '" .. module_name .. "' package: " .. tostring(err), vim.log.levels.ERROR)
+		end
+	end, {
+		nargs = 1,
+		complete = function(arg_lead, _, _)
+			vim.print(tostring(arg_lead))
+			local keys = vim.tbl_keys(modules)
+			if arg_lead == "" then
+				return keys
+			end
+			return vim.iter(keys)
+				:filter(function(key)
+					return vim.startswith(key, arg_lead)
+				end)
+				:totable()
+		end,
+		desc = "Runs the module for configuring Neovim for a particular ui frontend",
+		force = true,
+	})
+
 	local uis_autocmds_group_name = "uis_autocmds"
 	vim.api.nvim_create_augroup(uis_autocmds_group_name, { clear = true })
 
