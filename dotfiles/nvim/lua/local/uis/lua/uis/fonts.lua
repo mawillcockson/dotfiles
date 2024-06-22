@@ -25,82 +25,89 @@ local M = {}
 -- use set_term_font and set_text_font as autocommand event callbacks
 --]]
 
+local set_text_font
+local set_term_font
+
+local defaults = {
+	font_size = 11,
+	text_font = "ComicCode Nerd Font",
+	term_font = "DejaVuSansM Nerd Font",
+	font_changing_enabled = true,
+	fonts_autocmds_group_name = "fonts_autocmds",
+	term_pattern = "term://*//*:*",
+  set_text_font = set_text_font,
+  set_term_font = set_term_font,
+}
+
 function M.setup(opts)
-	M.default_font_size = opts.default_font_size or 11
-	M.default_text_font = opts.default_text_font or "ComicCode Nerd Font"
-	M.default_term_font = opts.default_term_font or "DejaVuSansM Nerd Font"
-	if type(opts.change_fonts) == "boolean" then
-		M.change_fonts = opts.change_fonts
-	else
-		M.change_fonts = true
-	end
-
-	M.fonts_autocmds_group_name = "fonts_autocmds"
-	M.term_pattern = "term://*//*:*"
-
-	return M
+	M.opts = vim.tbl_extend("force", defaults, opts or {})
+	M.configure_font_changing(M.opts)
 end
 
-function M.set_text_font(name, size)
-	local font_name = type(name) == "string" and name or M.default_text_font
-	local font_size = type(size) == "number" and size or M.default_font_size
+local set_text_font = function(name, size)
+	local font_name = type(name) == "string" and name or M.opts.text_font
+	local font_size = type(size) == "number" and size or M.opts.font_size
 	local font = font_name .. ":h" .. tostring(font_size)
 	vim.notify("setting font to: " .. font, vim.log.levels.INFO, {})
 	-- NOTE: should consider using:
 	-- pcall(function() vim.rpcnotify(1, "Gui", "Font", font) end)
-	pcall(function()
+	local ok, err = pcall(function()
 		vim.opt.guifont = font
 	end)
+	if not ok then
+		vim.notify("problem changing text font: " .. tostring(err), vim.log.levels.WARN)
+	end
 end
 
-function M.set_term_font(name, size)
-	local font_name = type(name) == "string" and name or M.default_term_font
-	local font_size = type(size) == "number" and size or M.default_font_size
+M.set_text_font = set_text_font
+
+local set_term_font = function(name, size)
+	local font_name = type(name) == "string" and name or M.opts.term_font
+	local font_size = type(size) == "number" and size or M.opts.font_size
 	local font = font_name .. ":h" .. tostring(font_size)
 	vim.notify("setting font to: " .. font, vim.log.levels.DEBUG, {})
-	pcall(function()
+	local ok, err = pcall(function()
 		vim.opt.guifont = font
 	end)
+	if not ok then
+		vim.notify("problem changing text font: " .. tostring(err), vim.log.levels.WARN)
+	end
 end
 
-function M.configure_font_changing(opts)
-	vim.api.nvim_create_augroup(M.fonts_autocmds_group_name, { clear = true })
+M.set_term_font = set_term_font
 
-	if type(opts.enabled) == "nil" then
-		opts.enabled = true
+function M.configure_font_changing(opts)
+	local opts = vim.tbl_extend("force", defaults, opts or M.opts)
+
+	vim.api.nvim_create_augroup(opts.fonts_autocmds_group_name, { clear = true })
+
+	if type(opts.font_changing_enabled) == "nil" then
+		opts.font_changing_enabled = true
 	end
 
-	if not opts.enabled then
+	if not opts.font_changing_enabled then
 		return
 	end
 
-	if M.default_text_font == M.default_term_font then
+	if opts.text_font == opts.term_font then
 		vim.notify("text and term fonts are the same, not setting up font switching", vim.log.levels.INFO)
 		return
 	end
 
 	vim.notify("setting up terminal / text font switching", vim.log.levels.DEBUG, {})
 	vim.api.nvim_create_autocmd("BufEnter", {
-		group = M.fonts_autocmds_group_name,
-		pattern = M.term_pattern,
+		group = opts.fonts_autocmds_group_name,
+		pattern = opts.term_pattern,
 		callback = function(_)
-			if type(opts.set_term_font) == "function" then
-				opts.set_term_font()
-			else
-				M.set_term_font()
-			end
+			opts.set_term_font()
 		end,
 	})
 
 	vim.api.nvim_create_autocmd("BufLeave", {
-		group = M.fonts_autocmds_group_name,
-		pattern = M.term_pattern,
+		group = opts.fonts_autocmds_group_name,
+		pattern = opts.term_pattern,
 		callback = function(_)
-			if type(opts.set_text_font) == "function" then
-				opts.set_text_font()
-			else
-				M.set_text_font()
-			end
+			opts.set_text_font()
 		end,
 	})
 end

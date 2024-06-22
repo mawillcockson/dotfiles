@@ -6,6 +6,8 @@ if not ok then
 	return
 end
 
-fonts.default_font_size = 12
-fonts.default_text_font = fonts.default_term_font
-fonts.set_text_font()
+fonts.setup({
+	font_size = 12,
+	text_font = fonts.defaults.term_font,
+})
+fonts.opts.set_text_font()

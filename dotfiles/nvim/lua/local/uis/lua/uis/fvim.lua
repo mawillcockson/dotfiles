@@ -9,9 +9,9 @@ end
 -- from https://github.com/yatli/fvim/blob/b836b56bd0a0a16cf0921afcb468269b3648603b/README.md?plain=1#L57-L71
 -- Using non-NF ComicCode really messes with FVim (2022-07-29)
 if vim.g.fvim_os == "windows" or vim.g.fvim_render_scale > 1.0 then
-	fonts.default_font_size = 14
+	fonts.setup({ font_size = 14 })
 else
-	fonts.default_font_size = 18
+	fonts.setup({ font_size = 18 })
 end
 
 -- Font tweaks
@@ -40,7 +40,7 @@ vim.cmd([[
 -- Font debugging -- draw bounds around each glyph
 --vim.cmd[[FVimFontDrawBounds v:true]]
 
-fonts.set_text_font()
+fonts.opts.set_text_font()
 
 local fvim_autocmds_group_name = "fvim_autocmds"
 vim.api.nvim_create_augroup(fvim_autocmds_group_name, { clear = true })

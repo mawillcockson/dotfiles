@@ -28,6 +28,7 @@ All general settings should go in init.lua, if possible.
 	end
 
 	local fonts = require("uis.fonts")
+	local change_fonts = true
 
 	if vim.g.fvim_loaded then
 		require("uis.fvim")
@@ -53,14 +54,14 @@ All general settings should go in init.lua, if possible.
 		-- may(?) start nvim in --headless mode and use the RPC protocol.
 
 		-- changing fonts is pointless when the controling terminal sets everything
-		fonts.change_fonts = false
+		change_fonts = false
 		vim.o.termguicolors = true
 	else
 		vim.notify("unknown editor environment", vim.log.levels.WARN, {})
-		fonts.change_fonts = false
+		change_fonts = false
 	end
 
-	fonts.setup_font_changing()
+	fonts.setup({ font_changing_enabled = change_fonts })
 
 	local uis_autocmds_group_name = "uis_autocmds"
 	vim.api.nvim_create_augroup(uis_autocmds_group_name, { clear = true })

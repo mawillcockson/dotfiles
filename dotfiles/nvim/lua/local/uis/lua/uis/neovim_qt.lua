@@ -31,17 +31,22 @@ update_for_neovim_qt = function()
 
 	-- redefine font-setting functions using the rpcnotify() calls used in the
 	-- share/nvim-qt/runtime/plugin/nvim_gui_shim.vim
-	fonts.set_term_font = function(_, size)
-		local font_size = type(size) == "number" and size or fonts.default_font_size
-		local guifont = fonts.default_term_font .. ":h" .. tostring(font_size)
+	local set_term_font = function(_, size)
+		local font_size = type(size) == "number" and size or fonts.opts.font_size
+		local guifont = fonts.opts.term_font .. ":h" .. tostring(font_size)
 		pcall(vim.rpcnotify, 0, "Gui", "Font", guifont, true)
 	end
-	fonts.set_text_font = function(name, size)
-		local font_name = type(name) == string and name or fonts.default_text_font
-		local font_size = type(size) == "number" and size or fonts.default_font_size
+	local set_text_font = function(name, size)
+		local font_name = type(name) == string and name or fonts.opts.text_font
+		local font_size = type(size) == "number" and size or fonts.opts.font_size
 		local guifont = font_name .. ":h" .. tostring(font_size)
 		pcall(vim.rpcnotify, 0, "Gui", "Font", guifont, true)
 	end
+
+	fonts.setup({
+		set_term_font = set_term_font,
+		set_text_font = set_text_font,
+	})
 
 	--[[ this should be set when the plugin is loaded, not here, otherwise the
   ---- plugin sees that guifont isn't set, and throws an error and picks a
@@ -56,44 +61,32 @@ update_for_neovim_qt = function()
   end
   --]]
 
-	fonts.default_text_font = fonts.default_term_font
+	-- NOTE: temporarily make fonts the same, since ComicCode looks not great
+	-- currently
+	fonts.opts.text_font = fonts.opts.term_font
 
-	vim.notify("clearing augroup: " .. fonts.fonts_autocmds_group_name, vim.log.levels.DEBUG, {})
-	vim.api.nvim_create_augroup(fonts.fonts_autocmds_group_name, { clear = true })
+	vim.notify("clearing augroup: " .. fonts.opts.fonts_autocmds_group_name, vim.log.levels.DEBUG, {})
+	vim.api.nvim_create_augroup(fonts.opts.fonts_autocmds_group_name, { clear = true })
 
-	if fonts.default_term_font == fonts.default_text_font then
+	if fonts.opts.term_font == fonts.opts.text_font then
 		vim.notify(
 			"the term and text fonts are the same, " .. "so no point in running autocmds to change between the two",
 			vim.log.levels.DEBUG,
 			{}
 		)
-		fonts.set_text_font()
+		fonts.opts.set_text_font()
 		return
 	end
 
-	vim.notify("adding new BufEnter", vim.log.levels.DEBUG, {})
-	vim.api.nvim_create_autocmd("BufEnter", {
-		group = fonts.fonts_autocmds_group_name,
-		pattern = fonts.term_pattern,
-		callback = fonts.set_term_font,
-	})
-
-	vim.notify("adding new BufLeave", vim.log.levels.DEBUG, {})
-	vim.api.nvim_create_autocmd("BufLeave", {
-		group = fonts.fonts_autocmds_group_name,
-		pattern = fonts.term_pattern,
-		callback = fonts.set_text_font,
-	})
-
 	vim.notify("adding new ChanInfo", vim.log.levels.DEBUG, {})
 	vim.api.nvim_create_autocmd("ChanInfo", {
-		group = fonts.fonts_autocmds_group_name,
+		group = fonts.opts.fonts_autocmds_group_name,
 		pattern = "*",
 		callback = update_for_neovim_qt,
 	})
 
-	vim.notify("setting text font to " .. fonts.default_text_font, vim.log.levels.DEBUG, {})
-	fonts.set_text_font()
+	vim.notify("setting text font to " .. fonts.opts.text_font, vim.log.levels.DEBUG, {})
+	fonts.opts.set_text_font()
 end
 
 return update_for_neovim_qt

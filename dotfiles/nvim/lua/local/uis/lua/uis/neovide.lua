@@ -17,5 +17,5 @@ if not ok then
 	return
 end
 
-fonts.default_font_size = 12
-fonts.set_text_font()
+fonts.setup({ font_size = 12 })
+fonts.opts.set_text_font()
