@@ -56,22 +56,23 @@ if $nu.is-interactive and ('my-banner' in $commands) {
             stor open | query db `UPDATE state SET value = 'true' WHERE name = 'banner_shown'`
         }
         do $original_prompt
-        if (
-            stor open |
-            query db `SELECT value FROM state WHERE name = 'commandline_edited'` |
-            get value.0
-        ) != 'true' {
-            if (which 'tmux' | is-not-empty) {
-                if ('TMUX' not-in $env) and ((^tmux has-session | complete | get exit_code) == 0) {
-                    if (^tmux has-session -t ssh | complete | get exit_code) == 0 {
-                        commandline edit --replace 'tmux attach -t ssh'
-                    } else {
-                        commandline edit --replace 'tmux attach -d'
-                    }
-                }
-                commandline edit --replace 'try { tmux attach -d } catch { tmux -f ~/.tmux.conf }'
-            }
-            stor open | query db `UPDATE state SET value = 'true' WHERE name = 'commandline_edited'`
-        }
+
+        # if (
+        #     stor open |
+        #     query db `SELECT value FROM state WHERE name = 'commandline_edited'` |
+        #     get value.0
+        # ) != 'true' {
+        #     if (which 'tmux' | is-not-empty) {
+        #         if ('TMUX' not-in $env) and ((^tmux has-session | complete | get exit_code) == 0) {
+        #             if (^tmux has-session -t ssh | complete | get exit_code) == 0 {
+        #                 commandline edit --replace 'tmux attach -t ssh'
+        #             } else {
+        #                 commandline edit --replace 'tmux attach -d'
+        #             }
+        #         }
+        #         commandline edit --replace 'try { tmux attach -d } catch { tmux -f ~/.tmux.conf }'
+        #     }
+        #     stor open | query db `UPDATE state SET value = 'true' WHERE name = 'commandline_edited'`
+        # }
     }
 }
