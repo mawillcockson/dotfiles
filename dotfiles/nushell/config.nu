@@ -9,6 +9,14 @@ const postconfig = $"($generated)/postconfig.nu"
 # can't be read
 source $postconfig
 
+let banner_once = r#'
+    my-banner
+    $env.config.hooks.pre_prompt = (
+        $env.config.hooks.pre_prompt |
+        filter {|it| $it != {code: $banner_once} }
+    )
+'# #'
+
 $env.config = (
     $env.config
     # NOTE::BUG There's a note in `config nu --default` that the session has
@@ -25,6 +33,12 @@ $env.config = (
     )
     | upsert edit_mode 'vi'
     | upsert show_banner false
+    | upsert hooks.pre_prompt {|config|
+        $config |
+        get hooks.pre_prompt? |
+        default [] |
+        append {code: $banner_once}
+    }
 )
 
 overlay use utils.nu
