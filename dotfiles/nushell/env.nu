@@ -16,10 +16,10 @@ source $default_env
     if not ($it | path exists) {
         mkdir ($it | path dirname)
         touch $it
-    } else if ($it | str ends-with '.nu') and (not (nu-check $it)) {
+    } else if (not (nu-check $it)) {
         use std [log]
-        log error $'not a valid .nu file! -> ($it)'
-        log warning 'truncating it'
+        log error $'not a valid nu module! -> ($it)'
+        log warning $'truncating -> ($it)'
         echo '' | save -f $it
     }
 } | null
