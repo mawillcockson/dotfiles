@@ -1,1 +1,1 @@
-export use windows_terminal.nu
+export use setup/windows.nu
