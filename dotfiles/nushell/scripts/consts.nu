@@ -5,8 +5,8 @@ export const generated = $'($scripts)/generated'
 export const postconfig = $'($generated)/postconfig.nu'
 export const version_file = $'($generated)/version.nuon'
 
-export const default_env = $"($generated)/default_env.nu"
-export const default_config = $"($generated)/default_config.nu"
+export const default_env = $'($generated)/default_env.nu'
+export const default_config = $'($generated)/default_config.nu'
 
 # package
 export const default_package_path = $'($generated)/package'
