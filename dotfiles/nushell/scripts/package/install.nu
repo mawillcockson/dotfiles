@@ -1,6 +1,6 @@
 use package/manager
 use package/search.nu
-use package/consts.nu [platform]
+use package/package_consts.nu [platform]
 use utils.nu ["get c-p"]
 use std [log]
 

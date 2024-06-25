@@ -1,7 +1,7 @@
 use package/data
 use package/manager
 use utils.nu [powershell-safe]
-use package/consts.nu [platform]
+use package/package_consts.nu [platform]
 use std [log]
 
 

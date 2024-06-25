@@ -1,5 +1,5 @@
 use std [log]
-use package/consts.nu [platform, default_package_data_path]
+use package/package_consts.nu [platform, default_package_data_path]
 use package/data/validate_data.nu [validate-data]
 
 # saves package data, optionally to a specified path
@@ -97,7 +97,7 @@ export def "install-to-string" [] {
 # load the package manager data from the default path
 export def "load-data" [] {
     do {
-        use package/consts.nu ['default_package_data_path']
+        use package/package_consts.nu ['default_package_data_path']
         use $default_package_data_path ['package-data-load-data']
         package-data-load-data
     }

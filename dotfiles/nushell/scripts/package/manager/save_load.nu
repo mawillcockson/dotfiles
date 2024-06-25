@@ -2,8 +2,7 @@
 # const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
 use std [log]
 use utils.nu [powershell-safe]
-# this line is here purely so the function is re-exported in the expected namespace
-use package/consts.nu [default_package_manager_data_path]
+use package/package_consts.nu [default_package_manager_data_path]
 
 # saves package manager data, optionally to a path we specify
 # if no data is provided, it automatically uses `package manager generate-data`
@@ -54,7 +53,7 @@ export def "save-data" [
 # load the package manager data from the default path
 export def "load-data" [] {
     do {
-        use package/consts.nu ['default_package_manager_data_path']
+        use package/package_consts.nu ['default_package_manager_data_path']
         use $default_package_manager_data_path ['package-manager-load-data']
         package-manager-load-data
     }

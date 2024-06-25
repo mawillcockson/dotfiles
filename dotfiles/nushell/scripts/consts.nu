@@ -11,5 +11,5 @@ export const default_config = $"($generated)/default_config.nu"
 # package
 export const default_package_path = $'($generated)/package'
 export const default_package_manager_data_path = $'($default_package_path)/managers.nu'
-export const default_package_data_path = $'($default_package_path)/data.nuon'
+export const default_package_data_path = $'($default_package_path)/data.nu'
 #export const default_package_customs_path = $'($default_package_path)/customs.nu'

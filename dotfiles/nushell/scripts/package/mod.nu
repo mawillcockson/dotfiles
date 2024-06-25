@@ -9,7 +9,7 @@ export use package/collect.nu
 export use package/install.nu
 
 export def "path" [] {
-    use package/consts.nu [default_package_data_path, default_package_manager_data_path]
+    use package/package_consts.nu [default_package_data_path, default_package_manager_data_path]
     {
         'data': $default_package_data_path,
         'manager': $default_package_manager_data_path,

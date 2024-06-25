@@ -1,4 +1,4 @@
-use package/consts.nu [platform]
+use package/package_consts.nu [platform]
 
 # validates that the input package data has the right shape
 export def "validate-data" [] {
