@@ -17,34 +17,42 @@ let banner_once = r#'
     )
 '# #'
 
-# NOTE: this still doesn't work
-let tmux_once = r##'
-    # $env.NU_LOG_LEVEL = 'debug'
-    if (which 'tmux' | is-not-empty) and ('TMUX' not-in $env) {
-        let has_session = ((^tmux has-session | complete | get exit_code) == 0)
+# $env.NU_LOG_LEVEL = 'debug'
+let tmux_command = if (which 'tmux' | is-not-empty) and ('TMUX' not-in $env) {
+    let has_session = ((^tmux has-session | complete | get exit_code) == 0)
 
-        if ($has_session) == true {
-            let has_ssh = ((^tmux has-session -t ssh | complete | get exit_code) == 0)
-            if ($has_ssh) == true {
-                commandline edit --replace 'tmux attach -t ssh'
-            } else {
-                commandline edit --replace 'tmux attach -d'
-            }
+    if ($has_session) == true {
+        let has_ssh = ((^tmux has-session -t ssh | complete | get exit_code) == 0)
+        if ($has_ssh) == true {
+            'tmux attach -t ssh'
         } else {
-            match ($nu.os-info.name) {
-                'android' => { commandline edit --replace 'tmux -f ~/.tmux.conf' },
-                _ => { commandline edit --replace 'tmux' },
-            }
+            'tmux attach -d'
         }
-    } else if (which 'tmux' | is-not-empty) {
-        print 'tmux already running'
     } else {
-        commandline edit --replace 'nu -c `use package; package install tmux`'
+        match ($nu.os-info.name) {
+            'android' => { 'tmux -f ~/.tmux.conf' },
+            _ => { 'tmux' },
+        }
     }
+} else if (which 'tmux' | is-not-empty) {
+    ' # tmux already running'
+} else {
+    'nu -c `use package; package install tmux`'
+}
 
+let remove_tmux_helpers = r##'
     $env.config.keybindings = (
         $env.config.keybindings |
-        filter {|it| ($it | get name?) != 'tmux_helper' }
+        each {|it|
+            if ($it | get name?) == 'tmux_helper' {
+                $it | update event null
+            } else { $it }
+        }
+    )
+
+    $env.config.hooks.pre_execution = (
+        $env.config.hooks.pre_execution |
+        filter {|it| ($it != {code: ($remove_tmux_helpers)}) }
     )
 '## ##'
 
@@ -72,6 +80,14 @@ $env.config = (
             {code: ($banner_once)},
         ]
     }
+    | upsert hooks.pre_execution {|config|
+        $config |
+        get hooks.pre_execution? |
+        default [] |
+        append [
+            {code: ($remove_tmux_helpers)}
+        ]
+    }
     | upsert keybindings {|config|
         $config |
         get keybindings? |
@@ -80,14 +96,16 @@ $env.config = (
             {
                 name: 'tmux_helper',
                 modifier: 'control',
-                keycode: 'char_g',
+                keycode: 'char_t',
                 mode: ['vi_normal', 'vi_insert'],
                 event: [
                     {
-                        send: 'executehostcommand',
-                        cmd: ($tmux_once),
+                        edit: 'insertstring',
+                        value: ($tmux_command),
                     },
-                    {send: 'Enter'},
+                    {
+                        send: 'Enter',
+                    },
                 ],
             },
         ]
