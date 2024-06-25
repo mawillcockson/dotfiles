@@ -20,31 +20,31 @@ let banner_once = r#'
 # NOTE: this still doesn't work
 let tmux_once = r##'
     # $env.NU_LOG_LEVEL = 'debug'
-    if (which 'tmux' | is-not-empty) {
-        use std [log]
-        if ('TMUX' not-in $env) and ((^tmux has-session | complete | get exit_code) == 0) {
-            if (^tmux has-session -t ssh | complete | get exit_code) == 0 {
+    if (which 'tmux' | is-not-empty) and ('TMUX' not-in $env) {
+        let has_session = ((^tmux has-session | complete | get exit_code) == 0)
+
+        if ($has_session) == true {
+            let has_ssh = ((^tmux has-session -t ssh | complete | get exit_code) == 0)
+            if ($has_ssh) == true {
                 commandline edit --replace 'tmux attach -t ssh'
-                log debug 'tmux attach -t ssh'
             } else {
                 commandline edit --replace 'tmux attach -d'
-                log debug 'tmux attach -d'
             }
         } else {
-            commandline edit --replace 'try { tmux attach -d } catch { tmux -f ~/.tmux.conf }'
-            log debug 'try { tmux attach -d } catch { tmux -f ~/.tmux.conf }'
+            match ($nu.os-info.name) {
+                'android' => { commandline edit --replace 'tmux -f ~/.tmux.conf' },
+                _ => { commandline edit --replace 'tmux' },
+            }
         }
+    } else if (which 'tmux' | is-not-empty) {
+        print 'tmux already running'
     } else {
-        use std [log]
-        # commandline edit --replace '# tmux not found'
-        log debug '# tmux not found'
+        commandline edit --replace 'nu -c `use package; package install tmux`'
     }
 
-    commandline edit --append '# commandline editing inside a hook worked!'
-
-    $env.config.hooks.pre_prompt = (
-        $env.config.hooks.pre_prompt |
-        filter {|it| $it != {code: $tmux_once} }
+    $env.config.keybindings = (
+        $env.config.keybindings |
+        filter {|it| ($it | get name?) != 'tmux_helper' }
     )
 '## ##'
 
@@ -69,8 +69,27 @@ $env.config = (
         get hooks.pre_prompt? |
         default [] |
         append [
-            {code: $banner_once},
-            {code: $tmux_once},
+            {code: ($banner_once)},
+        ]
+    }
+    | upsert keybindings {|config|
+        $config |
+        get keybindings? |
+        default [] |
+        append [
+            {
+                name: 'tmux_helper',
+                modifier: 'control',
+                keycode: 'char_g',
+                mode: ['vi_normal', 'vi_insert'],
+                event: [
+                    {
+                        send: 'executehostcommand',
+                        cmd: ($tmux_once),
+                    },
+                    {send: 'Enter'},
+                ],
+            },
         ]
     }
 )
