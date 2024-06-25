@@ -1,7 +1,6 @@
+use consts.nu [platform]
 use utils.nu [powershell-safe]
 use std [log]
-
-const platform = ($nu.os-info.name)
 
 # Based on:
 # https://github.com/mawillcockson/dotfiles/blob/798d6ea7267a73502ae8242fae1aa4b0d0618af5/INSTALL_windows.md

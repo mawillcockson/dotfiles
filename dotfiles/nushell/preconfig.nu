@@ -1,8 +1,11 @@
-let scripts = $nu.default-config-dir | path join "scripts"
-let generated = $scripts | path join "generated"
+use consts.nu [
+    scripts,
+    generated,
+    postconfig,
+]
+
 mkdir $scripts $generated
 
-let postconfig = $generated | path join "postconfig.nu"
 mut postconfig_content: list<string> = [
     '# the contents of this file are auto-generated in preconfig.nu, and should not be edited by hand',
     '',

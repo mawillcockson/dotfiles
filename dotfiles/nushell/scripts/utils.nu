@@ -1,4 +1,5 @@
-const scripts = $'($nu.default-config-dir)/scripts'
+use consts.nu [scripts]
+
 # uses powershell to get the target of a symlink
 # probably best used only on Windows, in powershell not pwsh
 export def "path resolve" [

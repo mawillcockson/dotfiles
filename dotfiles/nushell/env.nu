@@ -1,16 +1,17 @@
+use consts.nu [
+    default_env,
+    default_package_manager_data_path,
+    default_package_data_path,
+    preconfig,
+]
+
 do { use gen_defaults.nu; gen_defaults }
 
-const default_env = $"($nu.default-config-dir)/scripts/generated/default_env.nu"
 source $default_env
 
-# mirrored in package submodules
-const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
-const default_package_data_path = $'($nu.default-config-dir)/scripts/generated/package/data.nuon'
-const default_package_customs_path = $'($nu.default-config-dir)/scripts/generated/package/customs.nu'
 [
     $default_package_manager_data_path,
     $default_package_data_path,
-    $default_package_customs_path,
 ] | each {|it|
     if not ($it | path exists) {
         mkdir ($it | path dirname)
@@ -84,7 +85,6 @@ $env.PATH = (
 # this is done like this so that the correct directories can be created in
 # preconfig.nu and then sourced in postconfig.nu, and so that variables defined
 # here have already taken effect for nu
-const preconfig = $'($nu.default-config-dir)/preconfig.nu'
 source $preconfig
 #if ($preconfig | path exists) {
 #    nu $preconfig

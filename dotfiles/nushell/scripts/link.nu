@@ -1,6 +1,5 @@
+use consts.nu [platform]
 use utils.nu ["path is-link", "ln -s"]
-
-const platform = ($nu.os-info.name)
 
 export def main [] {
     let configs = match $platform {

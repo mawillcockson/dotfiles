@@ -1,6 +1,6 @@
+use consts.nu [platform]
 use std [log]
 
-const platform = ($nu.os-info.name)
 const pwsh_guid = '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}'
 const cmd_guid = '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}'
 const font_name = {
