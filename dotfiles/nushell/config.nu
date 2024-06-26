@@ -56,9 +56,6 @@ let remove_tmux_helpers = r##'
 
 $env.config = (
     $env.config
-    # NOTE::BUG There's a note in `config nu --default` that the session has
-    # to be reloaded in order for history.* to take effect, and they don't seem to
-    # be taking effect
 # Atuin should be able to handle a lot of history, so don't cull based on
 # number of entries
     | upsert history.max_size 10_000_000
