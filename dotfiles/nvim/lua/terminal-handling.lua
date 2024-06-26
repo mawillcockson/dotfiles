@@ -24,6 +24,8 @@ function M.open_and_switch()
 	-- https://github.com/akinsho/toggleterm.nvim
 	if (not M.terminal) or (not vim.api.nvim_buf_is_loaded(M.terminal.buf)) then
 		tabnew("term://" .. term_exe)
+		-- vim.cmd.startinsert() is not necessary, as and autocommand in the
+		-- local.lua plugin spec does this for every TermOpen
 		M.terminal = {
 			win = vim.api.nvim_get_current_win(),
 			buf = vim.api.nvim_get_current_buf(),
