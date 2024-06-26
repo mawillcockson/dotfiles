@@ -102,7 +102,7 @@ return {
 	},
 
 	config = function(_, opts)
-		vim.notify("setting keymaps", vim.log.levels.INFO, {})
+		vim.notify("setting keymaps", vim.log.levels.DEBUG, {})
 		local wk = require("which-key")
 
 		-- NOTE::BUG mapping just the leader to something, and then mapping something
