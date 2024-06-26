@@ -108,7 +108,6 @@ $env.config = (
 )
 
 overlay use utils.nu
-overlay use --prefix dt.nu
 
 alias profiletime = echo $'loading the profile takes (timeit-profile)'
 alias fennel = ^luajit ~/.local/bin/fennel

@@ -89,6 +89,15 @@ if ($start_ssh | path exists) {
     }
 }
 
+let dt = ($scripts | path join 'dt.nu')
+if ($dt | path exists) {
+    if not (nu-check --as-module $dt) {
+        print -e 'issue with dt.nu, not including'
+    } else {
+        $postconfig_content ++= $'export use ($dt | to nuon)'
+    }
+}
+
 # package module
 # NOTE: should make a table to add things in a for loop
 #overlay use --prefix --reload package
