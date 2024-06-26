@@ -35,11 +35,6 @@ $env.NU_LOG_FORMAT = '%ANSI_START%%DATE% [%LEVEL%]%ANSI_STOP% - %MSG%%ANSI_STOP%
 $env.NU_LOG_LEVEL = 'info'
 
 $env.SHLVL = ($env | get SHLVL? | default 0 | into int | $in + 1)
-$env.STARSHIP_CONFIG = (
-    $env
-    | get STARSHIP_CONFIG?
-    | default ($nu.default-config-dir | path join '..' 'starship' 'starship.toml' | path expand)
-)
 
 $env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $nu.home-path)
 
