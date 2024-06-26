@@ -13,24 +13,23 @@ mkdir $scripts $generated
 mut postconfig_content: list<string> = [
     '# the contents of this file are auto-generated in preconfig.nu, and should not be edited by hand',
     '',
-    'const default_config_dir = $nu.default-config-dir',
-    'const scripts = $"($default_config_dir)/scripts"',
-    'const generated = $"($scripts)/generated"',
 ]
 
+let atuin_nu = ($generated | path join 'atuin.nu')
 if (which atuin | is-not-empty) {
     # currently, atuin can automatically run the command when <Enter> is
     # pressed in other shells, but can't in nu
     # https://github.com/atuinsh/atuin/issues/1392
     # this disables atuin filling in for the up arrow
-    ^atuin init --disable-up-arrow nu | save -f ($generated | path join "atuin.nu")
-    $postconfig_content ++= `source $"($generated)/atuin.nu"`
+    ^atuin init --disable-up-arrow nu | save -f $atuin_nu
+    $postconfig_content ++= $'source ($atuin_nu | to nuon)'
 }
 
+let starship_nu = ($generated | path join 'starship.nu')
 if (which starship | is-not-empty) {
-    ^starship init nu | save -f ($generated | path join "starship.nu")
+    ^starship init nu | save -f $starship_nu
     # NOTE::BUG using `overlay use` instead of `source` causes very weird issues
-    $postconfig_content ++= `source $"($generated)/starship.nu"`
+    $postconfig_content ++= $'source ($starship_nu | to nuon)'
 
     if 'STARSHIP_CONFIG' not-in $env {
         let starship_config = (
@@ -55,7 +54,7 @@ if (which starship | is-not-empty) {
                 } |
                 to toml |
                 save -f ($generated | path join 'starship.toml')
-                $postconfig_content ++= `$env.STARSHIP_CONFIG = $"($generated)/starship.toml"`
+                $postconfig_content ++= $'$env.STARSHIP_CONFIG = ($generated | path join 'starship.toml' | to nuon)'
             }
         } else {
             print -e 'cannot find starship.toml'
@@ -64,12 +63,12 @@ if (which starship | is-not-empty) {
 }
 
 
-let clipboard = ($scripts | path join 'clipboard.nu')
-if ($clipboard | path exists) {
-    if not (nu-check --as-module $clipboard) {
+let clipboard_nu = ($scripts | path join 'clipboard.nu')
+if ($clipboard_nu | path exists) {
+    if not (nu-check --as-module $clipboard_nu) {
         print -e 'issue with clipboard, not including'
     } else {
-        $postconfig_content ++= $"export use ($clipboard | to nuon)"
+        $postconfig_content ++= $'export use ($clipboard_nu | to nuon)'
     }
 }
 
@@ -84,21 +83,21 @@ if ($clipboard | path exists) {
 
 $postconfig_content ++= `export use std`
 
-let start_ssh = ($scripts | path join 'start-ssh.nu')
-if ($start_ssh | path exists) {
-    if not (nu-check --as-module $start_ssh) {
+let start_ssh_nu = ($scripts | path join 'start-ssh.nu')
+if ($start_ssh_nu | path exists) {
+    if not (nu-check --as-module $start_ssh_nu) {
         print -e 'issue with start-ssh, not including'
     } else {
-        $postconfig_content ++= $"export use ($start_ssh | to nuon)"
+        $postconfig_content ++= $'export use ($start_ssh_nu | to nuon)'
     }
 }
 
-let dt = ($scripts | path join 'dt.nu')
-if ($dt | path exists) {
-    if not (nu-check --as-module $dt) {
+let dt_nu = ($scripts | path join 'dt.nu')
+if ($dt_nu | path exists) {
+    if not (nu-check --as-module $dt_nu) {
         print -e 'issue with dt.nu, not including'
     } else {
-        $postconfig_content ++= $'export use ($dt | to nuon)'
+        $postconfig_content ++= $'export use ($dt_nu | to nuon)'
     }
 }
 
