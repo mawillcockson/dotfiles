@@ -4,6 +4,10 @@ use consts.nu [
     postconfig,
 ]
 
+# This file is mainly used for generating and saving init scripts that, in
+# other shells, would be used like `eval "$(tool completions --init)"`.
+# It can be a bit fragile, and sensitive to the whims of nu
+
 mkdir $scripts $generated
 
 mut postconfig_content: list<string> = [
