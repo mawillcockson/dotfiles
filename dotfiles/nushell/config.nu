@@ -103,6 +103,27 @@ $env.config = (
                     },
                 ],
             },
+            {
+# https://www.nushell.sh/book/line_editor.html#removing-a-default-keybinding
+                modifier: 'control',
+                keycode: 'char_n',
+                mode: ['vi_normal', 'vi_insert'],
+                event: null,
+            },
+            {
+                name: 'history_word_or_ide_completion'
+                modifier: 'control',
+                keycode: 'char_n',
+                mode: ['vi_normal', 'vi_insert'],
+                event: {
+                    until: [
+                        { send: 'HistoryHintWordComplete' },
+                        { send: 'menu', name: 'ide_completion_menu' },
+                        { send: 'menunext' },
+                        { edit: 'complete' },
+                    ],
+                },
+            },
         ]
     }
 )
