@@ -1,7 +1,9 @@
+use std [log]
 use consts.nu [
     scripts,
     generated,
     postconfig,
+    platform,
 ]
 
 # This file is mainly used for generating and saving init scripts that, in
@@ -25,41 +27,74 @@ if (which atuin | is-not-empty) {
     $postconfig_content ++= $'source ($atuin_nu | to nuon)'
 }
 
+def --env "modify-starship-config" [modify: closure] {
+    let starship_config = (
+        $env |
+        get STARSHIP_CONFIG? |
+        default (
+            $env |
+            get XDG_CONFIG_HOME |
+            path join 'starship' 'starship.toml'
+        )
+    )
+    if not ($starship_config | path exists) {
+        return (error make {
+            'msg': $'cannot find starship config in expected location -> ($starship_config | to nuon)',
+        })
+    }
+
+    let computer_name = try { ^hostname } catch { random uuid }
+    let modified_config = (
+        $starship_config |
+        path basename --replace (
+            $starship_config |
+            path basename |
+            str replace --regex '\.toml$' $'-($computer_name).toml'
+        )
+    )
+    touch $modified_config
+
+    open $starship_config |
+    do $modify |
+    into record |
+    to toml |
+    save -f $modified_config
+
+    $env.STARSHIP_CONFIG = $modified_config
+
+    return {
+        'original': $starship_config,
+        'modified': $modified_config,
+    }
+}
+
 let starship_nu = ($generated | path join 'starship.nu')
 if (which starship | is-not-empty) {
     ^starship init nu | save -f $starship_nu
     # NOTE::BUG using `overlay use` instead of `source` causes very weird issues
     $postconfig_content ++= $'source ($starship_nu | to nuon)'
 
-    if 'STARSHIP_CONFIG' not-in $env {
-        let starship_config = (
-            $env |
-            get XDG_CONFIG_HOME |
-            path join 'starship' 'starship.toml'
-        )
-        if ($starship_config | path exists) {
-            if not (open $starship_config | get custom.git_email.shell | first | path exists) {
-                open $starship_config |
-                update custom.git_email.shell {|rec|
-                    $rec.custom.git_email.shell |
-                    skip 1 |
-                    prepend (
-                        which 'git' |
-                        get 0?.path? |
-                        default (
-                            $rec.custom.git_email.shell |
-                            first
-                        ) # starship won't run a nonexistent command
-                    )
-                } |
-                to toml |
-                save -f ($generated | path join 'starship.toml')
-                $postconfig_content ++= $'$env.STARSHIP_CONFIG = ($generated | path join 'starship.toml' | to nuon)'
+    # $env.NU_LOG_LEVEL = 'debug'
+    try {
+        modify-starship-config {||
+            update custom.git_email.shell {|rec|
+                $rec.custom.git_email.shell |
+                skip 1 |
+                prepend (
+                    which 'git' |
+                    get 0?.path? |
+                    default (
+                        $rec.custom.git_email.shell |
+                        first
+                    ) # starship won't run a nonexistent command
+                )
+            } |
+            match ($platform) {
+                'android' => { reject 'battery' },
+                _ => { tee { log debug $'no modifications for platform -> ($platform | to nuon)' } },
             }
-        } else {
-            print -e 'cannot find starship.toml'
         }
-    }
+    } catch {|err| log error $'problem with modifying starship config -> ($err.msg)' }
 }
 
 
