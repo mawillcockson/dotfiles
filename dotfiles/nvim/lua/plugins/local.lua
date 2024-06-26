@@ -16,7 +16,7 @@ local local_empty = join_path(local_dir, "empty")
 return {
 	{
 		name = "keymaps",
-		dir = local_empty,
+		dir = join_path(local_empty, "keymaps"),
 		enabled = false,
 		lazy = false,
 		priority = load_order_add("keymaps"),
@@ -26,7 +26,7 @@ return {
 	},
 	{
 		name = "commands",
-		dir = local_empty,
+		dir = join_path(local_empty, "commands"),
 		lazy = true,
 		event = "VeryLazy",
 		priority = load_order_add("commands"),
@@ -53,7 +53,7 @@ return {
 	},
 	{
 		name = "autocommands",
-		dir = local_empty,
+		dir = join_path(local_empty, "autocommands"),
 		lazy = true,
 		event = "VeryLazy",
 		priority = load_order_add("autocommands"),
