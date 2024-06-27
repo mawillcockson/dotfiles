@@ -46,13 +46,11 @@ def --env "modify-starship-config" [modify: closure] {
     let computer_name = try { ^hostname } catch { random uuid }
     let modified_config = (
         $starship_config |
-        path basename --replace (
-            $starship_config |
-            path basename |
-            str replace --regex '\.toml$' $'-($computer_name).toml'
-        )
+        path parse |
+        update parent {|rec| $rec.parent | path expand --strict } |
+        mktemp --suffix $'.($in.extension)' --tmpdir $'($in.stem)-XXX'
+        #mktemp --suffix $'.($in.extension)' --tmpdir-path $in.parent $'($in.stem)-XXX'
     )
-    touch $modified_config
 
     open $starship_config |
     do $modify |
