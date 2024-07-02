@@ -88,7 +88,7 @@ if (which starship | is-not-empty) {
                 )
             } |
             match ($platform) {
-                'android' => { reject 'battery' },
+                'android' => { reject battery? },
                 _ => { tee { log debug $'no modifications for platform -> ($platform | to nuon)' } },
             }
         }
