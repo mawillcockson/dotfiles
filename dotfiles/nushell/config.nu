@@ -54,6 +54,15 @@ let remove_tmux_helpers = r##'
     )
 '## ##'
 
+let collect_old_starship_env = r##'
+    $env.PREVIOUS_STARSHIP_CONFIG = (
+        $env |
+        get PREVIOUS_STARSHIP_CONFIG? |
+        default [] |
+        append $after
+    )
+'## ##'
+
 $env.config = (
     $env.config
 # Atuin should be able to handle a lot of history, so don't cull based on
@@ -80,8 +89,22 @@ $env.config = (
         get hooks.pre_execution? |
         default [] |
         append [
-            {code: ($remove_tmux_helpers)}
+            {code: ($remove_tmux_helpers)},
+            # {code: 'if (commandline) == "exit" { use utils.nu ["delete-temp-starship-configs"]; delete-temp-starship-configs }'},
         ]
+    }
+    | upsert hooks.env_change {|config|
+        $config |
+        get hooks.env_change? |
+        default {} |
+        upsert STARSHIP_CONFIG {|envs|
+            $envs |
+            get STARSHIP_CONFIG? |
+            default [] |
+            append [
+                {code: ($collect_old_starship_env)},
+            ]
+        }
     }
     | upsert keybindings {|config|
         $config |

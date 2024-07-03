@@ -463,3 +463,17 @@ export def "setup-gitlocal" [] {
     git config --local user.email "matthew@willcockson.family"
     git config --local user.signingKey "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115"
 }
+
+export def "delete-temp-starship-configs" [] {
+    $env |
+    get PREVIOUS_STARSHIP_CONFIG? |
+    default [] |
+    each {|it|
+        try {
+            rm $it
+        } catch {|err|
+            use std [log]
+            log error $'could not delete previous starship config: ($err.msg)'
+        }
+    }
+}
