@@ -43,13 +43,39 @@ def --env "modify-starship-config" [modify: closure] {
         })
     }
 
-    let computer_name = try { ^hostname } catch { random uuid }
+    let pattern = 'starship-(?P<descriminator>...)-(?P<num>\d+).toml'
     let modified_config = (
-        $starship_config |
-        path parse |
-        update parent {|rec| $rec.parent | path expand --strict } |
-        mktemp --suffix $'.($in.extension)' --tmpdir $'($in.stem)-XXX'
-        #mktemp --suffix $'.($in.extension)' --tmpdir-path $in.parent $'($in.stem)-XXX'
+        if ($starship_config | path basename) =~ $pattern {
+            $starship_config |
+            path dirname |
+            path join (
+                $starship_config |
+                path basename |
+                parse --regex $pattern |
+                first |
+                into int num |
+                update num {|rec| $rec.num + 1 } |
+                $'starship-($in.descriminator)-($in.num).toml'
+            )
+        } else {
+            let tmp = (
+                $starship_config |
+                path parse |
+                update parent {|rec| $rec.parent | path expand --strict } |
+                mktemp --suffix $'.($in.extension)' --tmpdir $'($in.stem)-XXX'
+                #mktemp --suffix $'.($in.extension)' --tmpdir-path $in.parent $'($in.stem)-XXX'
+            )
+            let new = (
+                $tmp |
+                path basename --replace (
+                    $tmp |
+                    path parse |
+                    $'($in.stem)-1.($in.extension)'
+                )
+            )
+            try { mv $tmp $new } catch {|err| log error $'could not move temp starship config -> ($err.msg)' }
+            $new
+        }
     )
 
     open $starship_config |
