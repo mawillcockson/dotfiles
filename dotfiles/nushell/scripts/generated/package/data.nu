@@ -250,6 +250,6 @@ export def "package-data-load-data" [] {
         ^janet bootstrap.janet
         cd $old_dir
         rm -r $tmpdir
-    }}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
+    }}, "windows": {"scoop": "janet"}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
     validate-data
 }
