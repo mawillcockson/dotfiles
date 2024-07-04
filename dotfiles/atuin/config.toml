@@ -19,6 +19,11 @@ filter_mode = 'host'
 search_mode_shell_up_key_binding = 'fuzzy'
 filter_mode_shell_up_key_binding = 'directory'
 
+# ignore anything that ends with `# atuin:ignore`
+history_filter = [
+    '# atuin:ignore$',
+]
+
 [sync]
 records = true
 
