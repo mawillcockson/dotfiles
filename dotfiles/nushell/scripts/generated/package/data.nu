@@ -233,5 +233,23 @@ export def "package-data-load-data" [] {
         http get 'https://fennel-lang.org/downloads/fennel-' |
         save -f ~/.local/bin/fennel
     }}} --tags [small, lua, language, fennel, compiler, undecided] --reasons ["cool, type-safe language that transpiles to Lua"] --links ["https://fennel-lang.org"] |
+    simple-add "janet" {"android": {"custom": {|install: closure|
+        let old_dir = ($env.PWD)
+        ^pkg install --assume-yes libandroid-spawn binutils llvm
+        let tmpdir = (mktemp --directory --tmpdir)
+        let janet_json = (http get 'https://api.github.com/repos/janet-lang/janet/releases/latest')
+        let tag = ($janet_json | get tag_name)
+        cd $tmpdir
+        git clone --depth 1 --single-branch --branch $tag 'https://github.com/janet-lang/janet.git' ./janet
+        git clone --depth 1 --single-branch 'https://github.com/janet-lang/jpm.git' ./jpm
+        cd ./janet
+        $env.AR = 'llvm-ar'
+        ^make -j
+        make install
+        cd ($tmpdir | path join 'jpm')
+        ^janet bootstrap.janet
+        cd $old_dir
+        rm -r $tmpdir
+    }}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
     validate-data
 }
