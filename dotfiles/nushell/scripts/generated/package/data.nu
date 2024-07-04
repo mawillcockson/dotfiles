@@ -250,6 +250,77 @@ export def "package-data-load-data" [] {
         ^janet bootstrap.janet
         cd $old_dir
         rm -r $tmpdir
-    }}, "windows": {"scoop": "janet"}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
+    }}, "windows": {"custom": {|install: closure|
+        use std [log]
+        use utils.nu [powershell-safe]
+
+        let janet_json = (http get 'https://api.github.com/repos/janet-lang/janet/releases/latest')
+        let tag = ($janet_json | get tag_name)
+        let tmpdir = (mktemp --directory --tmpdir)
+        print $'tmpdir -> ($tmpdir)'
+        let wix_zip = ($tmpdir | path join 'wix314-binaries.zip')
+        let wix_dir = ($tmpdir | path join 'wix')
+        log info 'downloading wix toolset'
+        http get 'https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip' | save -f $wix_zip
+
+        log info 'unpacking wix toolset'
+        [($wix_zip), ($wix_dir)] |
+        str join "\u{0}" |
+        powershell-safe -c '$in = ($Input -split [char]0x0); Expand-Archive -LiteralPath $in[0] -DestinationPath $in[1] -Force'
+
+        git clone --depth 1 --single-branch --branch $tag 'https://github.com/janet-lang/janet.git' ($tmpdir | path join 'janet')
+        git clone --depth 1 --single-branch 'https://github.com/janet-lang/jpm.git' ($tmpdir | path join 'jpm')
+
+        log info 'building janet'
+        let build_dir = (
+            run-external (
+                $env |
+                get 'PROGRAMFILES(X86)' |
+                path join 'Microsoft Visual Studio' 'Installer' 'vswhere.exe'
+            ) '-format' 'json' '-utf8' '-products' '*' '-latest' |
+            from json |
+            into record |
+            get installationPath
+        )
+        cd $build_dir
+        let vcvars = $'call ("VC" | path join "Auxiliary" "build" "vcvars64.bat")'
+        with-env {PATH: ($env.PATH | append $wix_dir)} {
+            cmd /c $'($vcvars) && cd ($tmpdir) && cd janet && call build_win.bat && call build_win.bat test && call build_win.bat dist'
+        }
+
+        log info 'installing janet'
+        msiexec /passive /norestart /i (
+            $tmpdir |
+            path join 'janet' |
+            do {
+                cd $in
+                glob '*.msi' |
+                first
+            }
+        )
+        cd ($tmpdir | path join 'jpm')
+        let janet_bin_dir = ($env.LOCALAPPDATA | path join 'Apps' 'Janet' 'bin')
+        if ($janet_bin_dir | path exists) {
+            log info $'janet installed to -> ($janet_bin_dir)'
+            if ($janet_bin_dir not-in $env.PATH) {
+                $env.PATH |
+                append $janet_bin_dir |
+                append ('~/scoop' | path expand | path join 'apps' 'git' 'current' 'mingw64' 'libexec' 'git-core') | # https://stackoverflow.com/a/50833818
+                uniq |
+                do $env.ENV_CONVERSIONS.PATH.to_string $in |
+                powershell-safe -c '$in = $Input; [Environment]::SetEnvironmentVariable("Path", $in, "User")'
+            }
+            $env.PATH = ($env.PATH | append $janet_bin_dir)
+            $env.JANET_PATH = ($janet_bin_dir | path dirname | path join 'Library')
+            log info $'setting JANET_PATH to -> ($env.JANET_PATH)'
+            mkdir $env.JANET_PATH
+            run-external ($janet_bin_dir | path join 'janet.exe') 'bootstrap.janet'
+        } else {
+            log warning 'the janet installer ran, but I do not know where it was installed to'
+            log error 'jpm not installed, have to install manually'
+        }
+        cd ~
+        rm -r $tmpdir
+    }}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
     validate-data
 }
