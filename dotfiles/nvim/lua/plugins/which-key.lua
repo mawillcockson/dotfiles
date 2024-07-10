@@ -222,6 +222,52 @@ return {
 			["<C-h>"] = { "<Cmd>:tabprevious<CR>", "switch tab leftwards" },
 		}, { mode = { "n", "i", "t" } })
 
+		wk.register({
+			["<leader>m"] = {
+				name = "miscellaneous",
+				i = {
+					vim.cmd.Inspect,
+					":Inspect the syntax and highlighting of the text under the cursor",
+				},
+				h = {
+					function()
+						local info = vim.inspect_pos(nil, nil, nil, {
+							syntax = false,
+							treesitter = true,
+							extmarks = false,
+							semantic_tokens = false,
+						})
+						local ts_info = info.treesitter
+						local last = ts_info[#ts_info]
+						if last == nil then
+							vim.notify("no treesitter stuff under cursor", vim.log.levels.WARN)
+						end
+						local hl_group = last.hl_group
+						local syntax_id = vim.fn.synIDtrans(vim.fn.hlID(hl_group))
+						local fg = tostring(vim.fn.synIDattr(syntax_id, "fg#"))
+						local bg = tostring(vim.fn.synIDattr(syntax_id, "bg#"))
+
+						-- create a highlight group in the global namespace
+						local temp_hl_name = "TempHighlightGroup"
+						local fg_hl_name = temp_hl_name .. "FG"
+						local bg_hl_name = temp_hl_name .. "BG"
+						vim.api.nvim_set_hl(0, fg_hl_name, { fg = fg, force = true })
+						vim.api.nvim_set_hl(0, bg_hl_name, { bg = bg, force = true })
+            if vim.fn.has("clipboard") == 1 then
+              vim.fn.setreg("+", (fg or bg):gsub("#",""))
+            end
+						vim.api.nvim_echo({
+							{ "fg: ", "None" },
+							{ fg, fg_hl_name },
+							{ ", bg: ", "None" },
+							{ bg, bg_hl_name },
+						}, true, { verbose = false })
+					end,
+					"try to show the :Inspect colors under the cursor",
+				},
+			},
+		})
+
 		wk.setup(opts)
 	end,
 }
