@@ -1,4 +1,0 @@
-[submodule "dotdrop"]
-	path = dotdrop
-	url = https://github.com/mawillcockson/dotdrop.git
-    branch = mawillcockson
