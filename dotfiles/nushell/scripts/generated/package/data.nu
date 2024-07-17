@@ -324,5 +324,6 @@ export def "package-data-load-data" [] {
         cd ~
         rm -r $tmpdir
     }}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
+    simple-add "hererocks" {"windows": {"pipx": "git+https://github.com/luarocks/hererocks"}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["helps to install lua and luarocks"] --links ["https://github.com/luarocks/hererocks"] |
     validate-data
 }
