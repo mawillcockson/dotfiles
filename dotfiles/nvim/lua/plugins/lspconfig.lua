@@ -71,27 +71,7 @@ return {
 		opts = { max_concurrent_installers = require("utils").calculate_nproc() or vim.g.max_nproc_default or 1 },
 		config = function(_, opts)
 			require("mason").setup(opts)
-
-			if vim.fn.executable("fnm") == 1 then
-				local utils = require("utils")
-				local ok, node_dir = pcall(utils.run, {
-					"fnm",
-					"exec",
-					"--using=default",
-					"nu",
-					"-c",
-					"$env | get Path? PATH? | first | first",
-				})
-				if not ok then
-					vim.notify(
-						"fnm is installed but node isn't; try `fnm install --lts`; ignore if node isn't needed\n"
-							.. tostring(node_dir),
-						vim.log.levels.WARN
-					)
-				else
-					utils.add_to_path(node_dir)
-				end
-			end
+			require("utils").try_add_nodejs()
 		end,
 	},
 	{

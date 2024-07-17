@@ -96,4 +96,35 @@ function M.calculate_nproc()
 	return nproc
 end
 
+function M.try_add_nodejs()
+	if vim.fn.executable("node") == 1 then
+		vim.notify("node already available", vim.log.levels.INFO)
+		return true
+	end
+
+	if vim.fn.executable("fnm") ~= 1 then
+		vim.notify("cannot find `fnm` in $PATH", vim.log.levels.WARN)
+		return false
+	end
+
+	local ok, node_dir = pcall(M.run, {
+		"fnm",
+		"exec",
+		"--using=default",
+		"nu",
+		"-c",
+		"$env | get Path? PATH? | first | first",
+	})
+	if not ok then
+		vim.notify(
+			"fnm is installed but node isn't? Try `fnm install --lts`\n" .. tostring(node_dir),
+			vim.log.levels.WARN
+		)
+		return false
+	end
+
+	M.add_to_path(node_dir)
+	return true
+end
+
 return M

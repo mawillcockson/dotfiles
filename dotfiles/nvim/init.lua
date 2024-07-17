@@ -113,7 +113,9 @@ vim.g.maplocalleader = " "
 
 -- PATH handling
 local path_additions = { "~/apps/eget-bin" }
-require("utils").add_to_path(path_additions)
+local utils = require("utils")
+utils.add_to_path(path_additions)
+utils.try_add_nodejs()
 
 -- On Windows, the scoop apps (neovim, neovim-qt, neovide, etc) are started
 -- with the current directory set as that app's installation directory.
