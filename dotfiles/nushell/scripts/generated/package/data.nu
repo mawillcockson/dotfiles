@@ -325,5 +325,37 @@ export def "package-data-load-data" [] {
         rm -r $tmpdir
     }}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
     simple-add "hererocks" {"windows": {"pipx": "git+https://github.com/luarocks/hererocks"}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["helps to install lua and luarocks"] --links ["https://github.com/luarocks/hererocks"] |
+    simple-add "luarocks" {"windows": {"custom": {|install: closure|
+        # do $install "Microsoft.VisualStudio.2022.BuildTools"
+        do $install 'hererocks'
+        use std [log]
+        use utils.nu [powershell-safe]
+
+        # put it in the place lazy.nvim expects it, because why not
+        let hererocks_dir = ($env.LOCALAPPDATA | path join 'nvim-data' 'lazy-data' 'hererocks')
+        let cache_dir = ($env.LOCALAPPDATA | path join 'HereRocks' 'Cache')
+        let downloads = ($cache_dir | path join 'downloads')
+        let builds = ($cache_dir | path join 'builds')
+        mkdir $hererocks_dir $downloads $builds
+
+        ^hererocks $hererocks_dir --luarocks 'latest' --lua 'latest' --patch --target 'vs' --downloads $downloads --builds $builds --verbose
+
+        let bin_dir = ($hererocks_dir | path join 'bin')
+        if ($bin_dir | path exists) {
+            log info $'luarocks installed to -> ($bin_dir)'
+            if ($bin_dir not-in $env.PATH) {
+                powershell-safe -c '[Environment]::GetEnvironmentVariable("Path", "User")' |
+                get stdout |
+                do $env.ENV_CONVERSIONS.PATH.from_string $in |
+                append $env.PATH |
+                append $bin_dir |
+                uniq |
+                do $env.ENV_CONVERSIONS.PATH.to_string $in |
+                powershell-safe -c '$in = $Input; [Environment]::SetEnvironmentVariable("Path", $in, "User")'
+            }
+            $env.PATH = ($env.PATH | append $bin_dir)
+        }
+
+}}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["package manager for Lua and moonscript, and can be used by lazy.nvim"] --links ["https://luarocks.org/"] |
     validate-data
 }
