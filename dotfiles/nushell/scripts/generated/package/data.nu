@@ -325,8 +325,14 @@ export def "package-data-load-data" [] {
         rm -r $tmpdir
     }}} --tags [undecided, small, language, janet] --reasons ["embeddable language that has it's own package manager, is <2M, and has some cool features"] --links ["https://janet-lang.org"] |
     simple-add "hererocks" {"windows": {"pipx": "git+https://github.com/luarocks/hererocks"}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["helps to install lua and luarocks"] --links ["https://github.com/luarocks/hererocks"] |
+    simple-add "lua51" {"windows": {"custom": {|install: closure|
+        do $install 'scoop'
+        ^scoop bucket add versions
+        ^scoop install lua51
+}}} --tags [small, language, lua, tooling, lazy.nvim] --reasons ["needed by lazy.nvim"] |
     simple-add "luarocks" {"windows": {"custom": {|install: closure|
         # do $install "Microsoft.VisualStudio.2022.BuildTools"
+        do $install 'lua51'
         do $install 'hererocks'
         use std [log]
         use utils.nu [powershell-safe]
