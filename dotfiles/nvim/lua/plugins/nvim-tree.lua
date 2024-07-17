@@ -23,16 +23,21 @@ return {
 			nvim_tree_api.config.mappings.default_on_attach(bufnr)
 
 			--[[
-			require("which-key").register(
-				{ ["-"] = {
+			require("which-key").add({
+				{
+					"-",
 					function()
 						nvim_tree_api.tree.change_root_to_parent()
 					end,
-					"Go up a directory",
-				} },
-				{ buffer = bufnr, noremap = true, silent = true, nowait = true }
-			)
-			--]]
+					desc = "Go up a directory",
+
+					buffer = bufnr,
+					noremap = true,
+					silent = true,
+					nowait = true,
+				},
+			})
+      --]]
 		end,
 	},
 	dependencies = {

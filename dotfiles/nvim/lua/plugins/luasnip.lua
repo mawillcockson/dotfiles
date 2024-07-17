@@ -61,36 +61,37 @@ return {
 		vim.snippet.stop = ls.unlink_current
 
 		local wk = require("which-key")
-		wk.register({
-			["<leader>ls"] = {
-				name = "LuaSnip",
-				e = {
-					function()
-						require("luasnip.loaders").edit_snippet_files()
-					end,
-					"edit snippet files dialogue",
-				},
-				l = {
-					ls.log.open,
-					"open log file",
-				},
+		wk.add({
+			{ "<leader>ls", group = "LuaSnip" },
+			{
+				"<leader>lse",
+				function()
+					require("luasnip.loaders").edit_snippet_files()
+				end,
+				desc = "edit snippet files dialogue",
 			},
-		})
-
-		wk.register({
-			["<C-k>"] = {
+			{
+				"<leader>lsl",
+				ls.log.open,
+				desc = "open log file",
+			},
+			{
+				"<C-k>",
 				function()
 					return vim.snippet.active({ direction = 1 }) and vim.snippet.jump(1)
 				end,
-				"expand snippet or jump to next node",
+				desc = "expand snippet or jump to next node",
+				mode = "i",
 			},
-			["<C-j>"] = {
+			{
+				"<C-j>",
 				function()
 					return vim.snippet.active({ direction = -1 }) and vim.snippet.jump(-1)
 				end,
-				"jump to previous node",
+				desc = "jump to previous node",
+				mode = "i",
 			},
-		}, { mode = "i" })
+		})
 
 		ls.setup(opts)
 		-- from:

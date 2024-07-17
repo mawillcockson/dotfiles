@@ -169,16 +169,16 @@ return {
 			local wk = require("which-key")
 
 			if vim.version.range("<=0.9"):has(vim_version) then
-				wk.register({
-					["<C-W>"] = {
-						d = { vim.diagnostic.open_float, "open floating window of diagnostics" },
-						["<C-d>"] = { vim.diagnostic.open_float, "open floating window of diagnostics" },
-					},
-					["[d"] = { vim.diagnostic.goto_prev, "goto previous diagnostic" },
-					["]d"] = { vim.diagnostic.goto_next, "goto next diagnostic" },
+				wk.add({
+					{ "<C-W>d", vim.diagnostic.open_float, desc = "open floating window of diagnostics" },
+					{ "<C-W><C-d>", vim.diagnostic.open_float, desc = "open floating window of diagnostics" },
+					{ "[d", vim.diagnostic.goto_prev, desc = "goto previous diagnostic" },
+					{ "]d", vim.diagnostic.goto_next, desc = "goto next diagnostic" },
 				})
 			end
-			wk.register({ "<leader>q", { vim.diagnostic.setloclist, "no idea" } })
+			wk.add({
+				{ "<leader>q", vim.diagnostic.setloclist, desc = "no idea" },
+			})
 			-- Use LspAttach autocommand to only map the following keys after the
 			-- language server attaches to the current buffer
 			local lsp_group = vim.api.nvim_create_augroup("UserLspConfig", {})
@@ -190,45 +190,44 @@ return {
 
 					-- Buffer local mappings.
 					-- See `:help vim.lsp.*` for documentation on any of the below functions
-					local opts = { buffer = ev.buf }
 					if vim.version.range("<=0.9"):has(vim_version) then
-						wk.register({ K = { vim.lsp.buf.hover, "open hover" } }, opts)
+						wk.add({ "K", vim.lsp.buf.hover, desc = "open hover", buffer = ev.buf })
 					end
-					-- wk.register({  }, opts)
-					wk.register({
-						gD = { vim.lsp.buf.declaration, "goto declaration" },
-						gd = { vim.lsp.buf.definition, "goto definition" },
-						-- gi = { vim.lsp.buf.implementation, "goto implementation" },
-						["<C-k>"] = { vim.lsp.buf.signature_help, "signature_help()" },
-						["<leader>"] = {
-							-- conform.nvim will handle formatting, falling back to the lsp
-							-- optionally
-							-- f = {function() vim.lsp.bug.format{async=true} end, "lsp format"},
-							w = {
-								name = "workspace",
-								a = { vim.lsp.buf.add_workspace_folder, "add folder" },
-								r = { vim.lsp.buf.remove_workspace_folder, "remove folder" },
-								l = {
-									function()
-										vim.notify(
-											vim.inspect(vim.lsp.buf.list_workspace_folders()),
-											vim.log.levels.INFO,
-											{}
-										)
-									end,
-									"list folders",
-								},
-							},
-							D = { vim.lsp.buf.type_definition, "goto type definition" },
-							rn = { vim.lsp.buf.rename, "rename buffer" },
+					wk.add(vim.iter({
+						{ "gD", vim.lsp.buf.declaration, desc = "goto declaration" },
+						{ "gd", vim.lsp.buf.definition, desc = "goto definition" },
+						-- {"gi", vim.lsp.buf.implementation,desc= "goto implementation" },
+						{ "<C-k>", vim.lsp.buf.signature_help, desc = "signature_help()" },
+						{ "<leader>w", group = "workspace" },
+						-- conform.nvim will handle formatting, falling back to the lsp
+						-- optionally
+						-- {"<leader>wf", function() vim.lsp.bug.format{async=true} end,desc= "lsp format"},
+						{ "<leader>wa", vim.lsp.buf.add_workspace_folder, dec = "add folder" },
+						{ "<leader>wr", vim.lsp.buf.remove_workspace_folder, desc = "remove folder" },
+						{
+							"<leader>wl",
+							function()
+								vim.notify(vim.inspect(vim.lsp.buf.list_workspace_folders()), vim.log.levels.INFO, {})
+							end,
+							desc = "list folders",
 						},
-						gr = { vim.lsp.buf.references, "goto references" },
-					}, opts)
-					opts.mode = { "n", "v" }
-					wk.register(
-						{ ["<leader>ca"] = { vim.lsp.buf.code_action, "code action (CTRL-P in VSCode)" } },
-						opts
-					)
+						{ "<leader>D", vim.lsp.buf.type_definition, desc = "goto type definition" },
+						{ "<leader>rn", vim.lsp.buf.rename, desc = "rename buffer" },
+						{ "gr", vim.lsp.buf.references, desc = "goto references" },
+					})
+						:map(function(t)
+							return vim.tbl_extend("keep", t, { buffer = ev.buf })
+						end)
+						:totable())
+					wk.add({
+						{
+							"<leader>ca",
+							vim.lsp.buf.code_action,
+							desc = "code action (CTRL-P in VSCode)",
+							buffer = ev.buf,
+							mode = { "n", "v" },
+						},
+					})
 				end,
 			})
 		end,
