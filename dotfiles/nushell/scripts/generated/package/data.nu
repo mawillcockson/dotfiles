@@ -354,12 +354,12 @@ export def "package-data-load-data" [] {
                 get stdout |
                 do $env.ENV_CONVERSIONS.PATH.from_string $in |
                 append $env.PATH |
-                append $bin_dir |
+                prepend $bin_dir |
                 uniq |
                 do $env.ENV_CONVERSIONS.PATH.to_string $in |
                 powershell-safe -c '$in = $Input; [Environment]::SetEnvironmentVariable("Path", $in, "User")'
             }
-            $env.PATH = ($env.PATH | append $bin_dir)
+            $env.PATH = ($env.PATH | prepend $bin_dir)
         }
 
 }}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["package manager for Lua and moonscript, and can be used by lazy.nvim"] --links ["https://luarocks.org/"] |
