@@ -51,7 +51,8 @@ mkdir $eget_bin
 } | match $nu.os-info.name {
     'windows' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean.exe']} |
-        insert 'getsops/sops' {'asset_filters': ['.exe', '^.json']}
+        insert 'getsops/sops' {'asset_filters': ['.exe', '^.json']} |
+        insert 'twpayne/chezmoi' {'asset_filters': ['.zip']}
     },
     'linux' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']}
