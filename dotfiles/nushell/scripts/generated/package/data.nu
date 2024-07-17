@@ -251,6 +251,8 @@ export def "package-data-load-data" [] {
         cd $old_dir
         rm -r $tmpdir
     }}, "windows": {"custom": {|install: closure|
+        # do $install "Microsoft.VisualStudio.2022.BuildTools"
+
         use std [log]
         use utils.nu [powershell-safe]
 
