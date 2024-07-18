@@ -22,6 +22,7 @@ export def main [] {
         'xonsh',
         'atuin',
         'nushell',
+        'chezmoi',
     ] | append (match $platform {
             'windows' => ['powershell', 'scoop', 'clink'],
             'android' => ['termux'],

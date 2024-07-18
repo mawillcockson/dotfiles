@@ -1,0 +1,4 @@
+progress = true
+
+[gitHub]
+refreshPeriod = '1h'
