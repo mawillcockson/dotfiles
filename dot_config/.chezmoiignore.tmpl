@@ -1,0 +1,17 @@
+{{ if .chezmoi.os | ne "windows" -}}
+# not windows
+clink/
+powershell
+scoop/
+{{- end }}
+{{ if .chezmoi.os | ne "linux" -}}
+# not linux
+systemd/
+tilda/
+tmux/
+zsh/
+{{- end }}
+{{ if .chezmoi.os | ne "android" -}}
+# not android
+termux/
+{{- end }}

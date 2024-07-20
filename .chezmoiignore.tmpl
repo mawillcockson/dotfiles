@@ -1,17 +1,7 @@
+LICENSE
+README.md
 docs/
 packages/
 python_dev/
 win_specific/
 windows_terminal/
-
-{{ if .chezmoi.os | eq "windows" -}}
-# Windows
-*.lnk
-Thumb.db
-desktop.ini
-
-.config/systemd/
-.config/termux/
-.config/tilda/
-.config/tmux/
-{{- end -}}
