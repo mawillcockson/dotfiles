@@ -3,28 +3,26 @@ packages/
 python_dev/
 windows_terminal/
 
-#apps/
-#projects/
-#Contacts/
-#Documents/
-#Downloads/
-#Music/
-#Videos/
+# nushell
+.config/nushell/history.txt
+.config/nushell/history-*.txt
+.config/nushell/history.sqlite3
+.config/nushell/history.sqlite3-shm
+.config/nushell/history.sqlite3-wal
+.config/nushell/history-*.sqlite3
+.config/nushell/history-*.sqlite3-shm
+.config/nushell/history-*.sqlite3-wal
+.config/nushell/scripts/generated/postconfig.nu
+
 
 {{ if .chezmoi.os | eq "windows" -}}
 # Windows
-#*.lnk
-#Thumb.db
-#desktop.ini
-#Favorites/
-#Links/
-#OneDrive/
-#Saved Games/
-#scoop/
-#Searches/
-#
-#systemd/
-#termux/
-#tilda/
-#tmux/
+*.lnk
+Thumb.db
+desktop.ini
+
+.config/systemd/
+.config/termux/
+.config/tilda/
+.config/tmux/
 {{- end -}}
