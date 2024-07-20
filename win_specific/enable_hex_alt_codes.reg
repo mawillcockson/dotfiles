@@ -1,0 +1,6 @@
+Windows Registry Editor Version 5.00
+
+; https://altcodeunicode.com/how-to-use-alt-codes/
+
+[HKEY_CURRENT_USER\Control Panel\Input Method]
+"EnableHexNumpad"=hex(1):31,00,00,00

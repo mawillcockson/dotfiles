@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+; From: https://www.askvg.com/guide-how-to-create-registry-script-reg-files-in-windows/#f_deleting_keys_and_values_from_registry_editor_using_registry_script_file
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+"Scancode Map"=-

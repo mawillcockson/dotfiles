@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Service
+Actions=open;
+Exec=vlc ~/Music/keep_speakers_on.flac
+Type=Application
+Terminal=false
+Icon=vlc

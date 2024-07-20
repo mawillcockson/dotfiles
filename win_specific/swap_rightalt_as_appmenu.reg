@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; From: https://superuser.com/a/1264295
+; Also: https://docs.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input#scan-codes
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+"Scancode Map"=hex:00,00,00,00,\
+                   00,00,00,00,\
+                   02,00,00,00,\
+                   5d,e0,38,e0,\
+                   00,00,00,00

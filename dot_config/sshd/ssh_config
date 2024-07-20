@@ -1,0 +1,18 @@
+Host borgbackup
+    HostName truenas.internal.vpn.m-k.me
+    UserKnownHostsFile ~/.ssh/borgbackup_known_hosts
+    # TrueNAS truncated name to 8 characters
+    User borgback
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/omen_ed25519
+    CertificateFile ~/.ssh/omen_ed25519-cert.pub
+    StrictHostKeyChecking  ask
+    VerifyHostKeyDNS no
+    ControlMaster auto
+    ControlPersist 60
+    ControlPath ~/.ssh/%C.socket
+Host *
+    VerifyHostKeyDNS yes
+    ControlMaster auto
+    ControlPersist 60
+    ControlPath ~/.ssh/%C.socket

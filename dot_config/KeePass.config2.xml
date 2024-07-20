@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Meta>
+		<PreferUserConfiguration>false</PreferUserConfiguration>
+		<OmitItemsWithDefaultValues>true</OmitItemsWithDefaultValues>
+		<DpiFactorX>1</DpiFactorX>
+		<DpiFactorY>1</DpiFactorY>
+	</Meta>
+	<Application>
+		<LastUpdateCheck>2022-03-05T05:44:19Z</LastUpdateCheck>
+		<LastUsedFile>
+			<Path>https://mailbox.willcockson.family/cloud/remote.php/dav/files/keepass@m-k.me/keepass_master.kdbx</Path>
+			<UserName>keepass@m-k.me</UserName>
+			<CredProtMode>Obf</CredProtMode>
+			<CredSaveMode>UserNameOnly</CredSaveMode>
+		</LastUsedFile>
+		<MostRecentlyUsed>
+			<MaxItemCount>12</MaxItemCount>
+			<Items>
+				<ConnectionInfo>
+					<Path>https://mailbox.willcockson.family/cloud/remote.php/dav/files/keepass@m-k.me/keepass_master.kdbx</Path>
+					<UserName>keepass@m-k.me</UserName>
+					<CredProtMode>Obf</CredProtMode>
+					<CredSaveMode>UserNameOnly</CredSaveMode>
+				</ConnectionInfo>
+			</Items>
+		</MostRecentlyUsed>
+		<WorkingDirectories>
+			<Item>Database@..\..\..\..\OneDrive\Documents</Item>
+			<Item>Export@..\..\..\..\OneDrive\Documents</Item>
+			<Item>Sync@..\..\..\..\OneDrive\Documents</Item>
+			<Item>Attachments@..\..\..\..\AppData\Roaming\KeePass</Item>
+		</WorkingDirectories>
+		<Start>
+			<CheckForUpdate>true</CheckForUpdate>
+			<CheckForUpdateConfigured>true</CheckForUpdateConfigured>
+		</Start>
+		<FileOpening />
+		<FileClosing />
+		<TriggerSystem>
+			<Triggers>
+				<Trigger>
+					<Guid>s75yGJrR+k6XwMd315po3A==</Guid>
+					<Name>Make backup file if it does not exist</Name>
+					<Events>
+						<Event>
+							<TypeGuid>lcGm/XJ8QMei+VsPoJljHA==</TypeGuid>
+							<Parameters>
+								<Parameter>1</Parameter>
+								<Parameter>keepass_master.kdbx</Parameter>
+							</Parameters>
+						</Event>
+					</Events>
+					<Conditions>
+						<Condition>
+							<TypeGuid>y0qeNFaMTJWtZ00coQQZvA==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}keepass_master_backup.kdbx</Parameter>
+							</Parameters>
+							<Negate>true</Negate>
+						</Condition>
+					</Conditions>
+					<Actions>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter />
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>P7gzLdYWToeZBWTbFkzWJg==</TypeGuid>
+							<Parameters>
+								<Parameter>keepass_master.kdbx</Parameter>
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>D5prW87VRr65NO2xP5RIIg==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}keepass_master_backup.kdbx</Parameter>
+								<Parameter>KeePass KDBX (2.x)</Parameter>
+								<Parameter />
+								<Parameter />
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter />
+								<Parameter>1</Parameter>
+							</Parameters>
+						</Action>
+					</Actions>
+				</Trigger>
+				<Trigger>
+					<Guid>OLIdTGW2LUKACJIDRqZ8UQ==</Guid>
+					<Name>Backup database if backup file exists</Name>
+					<Enabled>false</Enabled>
+					<Events>
+						<Event>
+							<TypeGuid>lcGm/XJ8QMei+VsPoJljHA==</TypeGuid>
+							<Parameters>
+								<Parameter>1</Parameter>
+								<Parameter>keepass_master.kdbx</Parameter>
+							</Parameters>
+						</Event>
+					</Events>
+					<Conditions>
+						<Condition>
+							<TypeGuid>y0qeNFaMTJWtZ00coQQZvA==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}keepass_master_backup.kdbx</Parameter>
+							</Parameters>
+							<Negate>false</Negate>
+						</Condition>
+					</Conditions>
+					<Actions>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter />
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter>Make backup file if it does not exist</Parameter>
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>Iq135Bd4Tu2ZtFcdArOtTQ==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}keepass_master_backup.kdbx</Parameter>
+								<Parameter />
+								<Parameter />
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter>Make backup file if it does not exist</Parameter>
+								<Parameter>1</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter />
+								<Parameter>1</Parameter>
+							</Parameters>
+						</Action>
+					</Actions>
+				</Trigger>
+				<Trigger>
+					<Guid>qqTT5OETP0uvY8p7/t2m3g==</Guid>
+					<Name>Export and synchronize with backup and 2ndbillingcycle</Name>
+					<Events>
+						<Event>
+							<TypeGuid>s6j9/ngTSmqcXdW6hDqbjg==</TypeGuid>
+							<Parameters>
+								<Parameter>1</Parameter>
+								<Parameter>keepass_master.kdbx</Parameter>
+							</Parameters>
+						</Event>
+					</Events>
+					<Conditions>
+						<Condition>
+							<TypeGuid>y0qeNFaMTJWtZ00coQQZvA==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}keepass_master_backup.kdbx</Parameter>
+							</Parameters>
+							<Negate>false</Negate>
+						</Condition>
+					</Conditions>
+					<Actions>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter />
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter>Make backup file if it does not exist</Parameter>
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>P7gzLdYWToeZBWTbFkzWJg==</TypeGuid>
+							<Parameters>
+								<Parameter>keepass_master.kdbx</Parameter>
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>D5prW87VRr65NO2xP5RIIg==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}2ndbillingcycle_export.kdbx</Parameter>
+								<Parameter>KeePass KDBX (2.x)</Parameter>
+								<Parameter>/Internet/Main Alt</Parameter>
+								<Parameter />
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>/UFV1XmPRPqrifL4cO+UuA==</TypeGuid>
+							<Parameters>
+								<Parameter>{REF:A@I:B6A37F8C861B7842893BC5A5E22E3AD4}</Parameter>
+								<Parameter>{REF:U@I:B6A37F8C861B7842893BC5A5E22E3AD4}</Parameter>
+								<Parameter>{REF:P@I:B6A37F8C861B7842893BC5A5E22E3AD4}</Parameter>
+								<Parameter>{REF:P@I:77285D4555CF2F45BBED16BA9F849092}</Parameter>
+								<Parameter />
+								<Parameter>False</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>P7gzLdYWToeZBWTbFkzWJg==</TypeGuid>
+							<Parameters>
+								<Parameter>2ndbillingcycle.kdbx</Parameter>
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>Iq135Bd4Tu2ZtFcdArOtTQ==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}2ndbillingcycle_export.kdbx</Parameter>
+								<Parameter />
+								<Parameter />
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>W79FnVS/Sb2X+yzuX5kKZw==</TypeGuid>
+							<Parameters />
+						</Action>
+						<Action>
+							<TypeGuid>P7gzLdYWToeZBWTbFkzWJg==</TypeGuid>
+							<Parameters>
+								<Parameter>keepass_master.kdbx</Parameter>
+								<Parameter>0</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>Iq135Bd4Tu2ZtFcdArOtTQ==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}2ndbillingcycle_export.kdbx</Parameter>
+								<Parameter />
+								<Parameter />
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>Iq135Bd4Tu2ZtFcdArOtTQ==</TypeGuid>
+							<Parameters>
+								<Parameter>{CMD:/powershell -c "echo $env:HOMEDRIVE$env:HOMEPATH"/M=C,O=1,W=1,WS=H/}{ENV_DIRSEP}OneDrive{ENV_DIRSEP}Documents{ENV_DIRSEP}keepass_master_backup.kdbx</Parameter>
+								<Parameter />
+								<Parameter />
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>9VdhS/hMQV2pE3o5zRDwvQ==</TypeGuid>
+							<Parameters />
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter>Make backup file if it does not exist</Parameter>
+								<Parameter>1</Parameter>
+							</Parameters>
+						</Action>
+						<Action>
+							<TypeGuid>tkamn96US7mbrjykfswQ6g==</TypeGuid>
+							<Parameters>
+								<Parameter />
+								<Parameter>1</Parameter>
+							</Parameters>
+						</Action>
+					</Actions>
+				</Trigger>
+			</Triggers>
+		</TriggerSystem>
+		<PluginCompatibility>
+			<Item>@YuXmLTzn9brgbOV2cEpQy71dyCiKCILhCIG3fx45uSY=@2.50.0.20886@1</Item>
+			<Item>@uCOrnTV0CPgf2mGZooMXpzuhWmDJx1L2Lr0xlmFqKrw=@2.50.0.20886@1</Item>
+		</PluginCompatibility>
+	</Application>
+	<Logging />
+	<MainWindow>
+		<X>324</X>
+		<Y>95</Y>
+		<Width>670</Width>
+		<Height>525</Height>
+		<SplitterHorizontalFrac>0.8333</SplitterHorizontalFrac>
+		<SplitterVerticalFrac>0.25</SplitterVerticalFrac>
+		<ToolBar />
+		<EntryView />
+		<TanView />
+		<EntryListColumnCollection>
+			<Column>
+				<Type>Title</Type>
+				<Width>90</Width>
+			</Column>
+			<Column>
+				<Type>UserName</Type>
+				<Width>134</Width>
+			</Column>
+			<Column>
+				<Type>Password</Type>
+				<Width>90</Width>
+				<HideWithAsterisks>true</HideWithAsterisks>
+			</Column>
+			<Column>
+				<Type>Url</Type>
+				<Width>90</Width>
+			</Column>
+			<Column>
+				<Type>Notes</Type>
+				<Width>90</Width>
+			</Column>
+		</EntryListColumnCollection>
+		<EntryListColumnDisplayOrder>0 1 2 3 4</EntryListColumnDisplayOrder>
+		<ListSorting>
+			<Column>0</Column>
+			<Order>Ascending</Order>
+		</ListSorting>
+	</MainWindow>
+	<UI>
+		<TrayIcon />
+		<Hiding />
+		<StandardFont>
+			<Family>Microsoft Sans Serif</Family>
+			<Size>8.25</Size>
+			<GraphicsUnit>Point</GraphicsUnit>
+			<Style>Regular</Style>
+			<OverrideUIDefault>false</OverrideUIDefault>
+		</StandardFont>
+		<PasswordFont>
+			<Family>Courier New</Family>
+			<Size>8.25</Size>
+			<GraphicsUnit>Point</GraphicsUnit>
+			<Style>Regular</Style>
+			<OverrideUIDefault>false</OverrideUIDefault>
+		</PasswordFont>
+		<BannerStyle>WinVistaBlack</BannerStyle>
+		<DataEditorFont>
+			<Family>Microsoft Sans Serif</Family>
+			<Size>8.25</Size>
+			<GraphicsUnit>Point</GraphicsUnit>
+			<Style>Regular</Style>
+			<OverrideUIDefault>false</OverrideUIDefault>
+		</DataEditorFont>
+		<UIFlags>0</UIFlags>
+		<KeyCreationFlags>0</KeyCreationFlags>
+		<KeyPromptFlags>0</KeyPromptFlags>
+	</UI>
+	<Security>
+		<WorkspaceLocking>
+			<LockAfterTime>0</LockAfterTime>
+			<LockAfterGlobalTime>0</LockAfterGlobalTime>
+		</WorkspaceLocking>
+		<Policy />
+		<MasterPassword>
+			<MinimumLength>0</MinimumLength>
+			<MinimumQuality>0</MinimumQuality>
+		</MasterPassword>
+	</Security>
+	<Native />
+	<PasswordGenerator>
+		<AutoGeneratedPasswordsProfile>
+			<GeneratorType>CharSet</GeneratorType>
+			<Length>20</Length>
+			<CharSetRanges>ULD_______</CharSetRanges>
+		</AutoGeneratedPasswordsProfile>
+		<LastUsedProfile>
+			<Name>readable phrase hyphense</Name>
+			<GeneratorType>Custom</GeneratorType>
+			<Length>20</Length>
+			<CharSetRanges>ULDS_m__B_</CharSetRanges>
+			<CustomAlgorithmUuid>7oI1yw2g4ki+MOklBA8hJA==</CustomAlgorithmUuid>
+			<CustomAlgorithmOptions>
+&lt;ReadablePassphraseConfig&gt;
+&lt;WordSeparator value="Custom"/&gt;
+&lt;CustomSeparator value="-"/&gt;
+&lt;PhraseStrength value="RandomShort"/&gt;
+&lt;PhraseDescription&gt;
+&lt;/PhraseDescription&gt;
+&lt;UseCustomDictionary value="False"/&gt;
+&lt;PathOfCustomDictionary value=""/&gt;
+&lt;MinLength value="1"/&gt;
+&lt;MaxLength value="999"/&gt;
+&lt;Mutator value="Custom"/&gt;
+&lt;UpperStyle value="WholeWord"/&gt;
+&lt;UpperCount value="1"/&gt;
+&lt;NumericStyle value="EndOfWord"/&gt;
+&lt;NumericCount value="2"/&gt;
+&lt;ConstantStyle value="Anywhere"/&gt;
+&lt;ConstantValue value="?"/&gt;
+&lt;/ReadablePassphraseConfig&gt;
+</CustomAlgorithmOptions>
+		</LastUsedProfile>
+		<UserProfiles>
+			<Profile>
+				<Name>readable phrase hyphense</Name>
+				<GeneratorType>Custom</GeneratorType>
+				<Length>20</Length>
+				<CharSetRanges>ULDS_m__B_</CharSetRanges>
+				<CustomAlgorithmUuid>7oI1yw2g4ki+MOklBA8hJA==</CustomAlgorithmUuid>
+				<CustomAlgorithmOptions>
+&lt;ReadablePassphraseConfig&gt;
+&lt;WordSeparator value="Custom"/&gt;
+&lt;CustomSeparator value="-"/&gt;
+&lt;PhraseStrength value="RandomShort"/&gt;
+&lt;PhraseDescription&gt;
+&lt;/PhraseDescription&gt;
+&lt;UseCustomDictionary value="False"/&gt;
+&lt;PathOfCustomDictionary value=""/&gt;
+&lt;MinLength value="1"/&gt;
+&lt;MaxLength value="999"/&gt;
+&lt;Mutator value="Custom"/&gt;
+&lt;UpperStyle value="WholeWord"/&gt;
+&lt;UpperCount value="1"/&gt;
+&lt;NumericStyle value="EndOfWord"/&gt;
+&lt;NumericCount value="2"/&gt;
+&lt;ConstantStyle value="Anywhere"/&gt;
+&lt;ConstantValue value="?"/&gt;
+&lt;/ReadablePassphraseConfig&gt;
+</CustomAlgorithmOptions>
+			</Profile>
+			<Profile>
+				<Name>readable phrase spaces</Name>
+				<GeneratorType>Custom</GeneratorType>
+				<Length>20</Length>
+				<CharSetRanges>ULDS_m__B_</CharSetRanges>
+				<CustomAlgorithmUuid>7oI1yw2g4ki+MOklBA8hJA==</CustomAlgorithmUuid>
+				<CustomAlgorithmOptions>
+&lt;ReadablePassphraseConfig&gt;
+&lt;WordSeparator value="Space"/&gt;
+&lt;CustomSeparator value=""/&gt;
+&lt;PhraseStrength value="RandomShort"/&gt;
+&lt;PhraseDescription&gt;
+&lt;/PhraseDescription&gt;
+&lt;UseCustomDictionary value="False"/&gt;
+&lt;PathOfCustomDictionary value=""/&gt;
+&lt;MinLength value="1"/&gt;
+&lt;MaxLength value="999"/&gt;
+&lt;Mutator value="Custom"/&gt;
+&lt;UpperStyle value="WholeWord"/&gt;
+&lt;UpperCount value="1"/&gt;
+&lt;NumericStyle value="EndOfWord"/&gt;
+&lt;NumericCount value="2"/&gt;
+&lt;ConstantStyle value="Anywhere"/&gt;
+&lt;ConstantValue value="?"/&gt;
+&lt;/ReadablePassphraseConfig&gt;
+</CustomAlgorithmOptions>
+			</Profile>
+		</UserProfiles>
+	</PasswordGenerator>
+	<Search>
+		<LastUsedProfile>
+			<Name>(Custom)</Name>
+			<SearchMode>Simple</SearchMode>
+			<SearchInUserNames>false</SearchInUserNames>
+			<SearchInUrls>false</SearchInUrls>
+			<SearchInNotes>false</SearchInNotes>
+			<SearchInOther>false</SearchInOther>
+			<SearchInTags>false</SearchInTags>
+			<ComparisonMode>InvariantCultureIgnoreCase</ComparisonMode>
+		</LastUsedProfile>
+		<UserProfiles />
+	</Search>
+	<Defaults>
+		<OptionsTabIndex>0</OptionsTabIndex>
+		<KeySources>
+			<Association>
+				<DatabasePath>https://mailbox.willcockson.family/cloud/remote.php/dav/files/keepass@m-k.me/keepass_master.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+			<Association>
+				<DatabasePath>https://main.2ndbillingcycle.stream/cloud/remote.php/dav/files/keepass@2ndbillingcycle.stream/2ndbillingcycle.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+			<Association>
+				<DatabasePath>..\..\..\..\Documents\2ndbillingcycle.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+			<Association>
+				<DatabasePath>..\..\..\..\OneDrive\Documents\a.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+			<Association>
+				<DatabasePath>..\..\..\..\OneDrive\Documents\a_export.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+			<Association>
+				<DatabasePath>..\..\..\..\Downloads\2ndbillingcycle.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+			<Association>
+				<DatabasePath>..\..\..\..\OneDrive\Documents\keepass_master_backup.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
+		</KeySources>
+	</Defaults>
+	<Integration>
+		<UrlSchemeOverrides>
+			<BuiltInOverridesEnabled>16777216</BuiltInOverridesEnabled>
+			<CustomOverrides />
+		</UrlSchemeOverrides>
+		<AutoTypeAbortOnWindows />
+	</Integration>
+	<Custom>
+		<Item>
+			<Key>firstinstall_shown</Key>
+			<Value>true</Value>
+		</Item>
+	</Custom>
+</Configuration>

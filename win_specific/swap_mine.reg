@@ -1,0 +1,14 @@
+Windows Registry Editor Version 5.00
+
+; Does
+; CapsLock <-> LControl
+; RAlt      -> AppMenu
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+"Scancode Map"=hex:00,00,00,00,\
+                   00,00,00,00,\
+                   04,00,00,00,\
+                   1d,00,3a,00,\
+                   3a,00,1d,00,\
+                   5d,e0,38,e0,\
+                   00,00,00,00
