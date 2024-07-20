@@ -1,0 +1,48 @@
+[core]
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
+	logAllRefUpdates = always
+	safecrlf = true
+	autocrlf = input
+	abbrev = no
+[{{ .chezmoi.config.gpg.command }}]
+	program = {{ .chezmoi.homeDir }}/scoop/apps/gnupg/current/bin/{{ .chezmoi.config.gpg.command }}.exe
+	minTrustLevel = ultimate
+[{{ .chezmoi.config.gpg.command }} "openpgp"]
+	program = {{ .chezmoi.homeDir }}/scoop/apps/gnupg/current/bin/{{ .chezmoi.config.gpg.command }}.exe
+[{{ .chezmoi.config.gpg.command }} "ssh"]
+	program = C:/Windows/System32/OpenSSH/ssh-keygen.exe
+[gc]
+	auto = 0
+	pruneExpire = never
+	worktreePruneExpire = never
+	reflogExpire = never
+	reflogExpireUnreachable = never
+[maintenance]
+	auto = false
+	strategy = none
+[maintenance "gc"]
+	enabled = false
+[receive]
+	autogc = false
+[push]
+	gpgSign = if-asked
+	default = simple
+[tag]
+	gpgSign = true
+	forceSignAnnotated = true
+[commit]
+	gpgSign = true
+[init]
+	defaultBranch = main
+[clean]
+	requireForce = true
+[protocol "{{ .chezmoi.config.git.command }}"]
+	allow = never
+[protocol "http"]
+	allow = never
+[status]
+	branch = true
+[user]
+	useConfigOnly = true
+[pull]
+	ff = only
