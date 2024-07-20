@@ -1,5 +1,9 @@
 progress = true
-destDir = {{default (joinPath (env "ONEDRIVE") "Documents" "configs" ) (env "XDG_CONFIG_HOME") | toToml}}
+destDir = {{ .chezmoi.homeDir | toToml }}
+sourceDir = {{ joinPath .chezmoi.homeDir "projects" "dotfiles" | toToml }}
 
 [gitHub]
 refreshPeriod = '1h'
+
+[data]
+github_username = 'mawillcockson'
