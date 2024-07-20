@@ -1,5 +1,0 @@
-history.shared = True
-# True -> behave like pressing Up in PowerShell
-# False -> behave like pressing up in Bash
-history.sticky_search = False
-lua.debug = False

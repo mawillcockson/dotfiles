@@ -1,0 +1,30 @@
+docs/
+packages/
+python_dev/
+windows_terminal/
+
+#apps/
+#projects/
+#Contacts/
+#Documents/
+#Downloads/
+#Music/
+#Videos/
+
+{{ if .chezmoi.os | eq "windows" -}}
+# Windows
+#*.lnk
+#Thumb.db
+#desktop.ini
+#Favorites/
+#Links/
+#OneDrive/
+#Saved Games/
+#scoop/
+#Searches/
+#
+#systemd/
+#termux/
+#tilda/
+#tmux/
+{{- end -}}
