@@ -187,7 +187,14 @@ export def "package-data-load-data" [] {
     simple-add "pyclip" {"windows": {"pipx": "pyclip"}} --tags [essential, clipboard] --reasons ["makes working with the clipboard consistent across platforms; even Windows"] |
     simple-add "pygount" {"windows": {"pipx": "pygount"}} --tags [small, rarely, python, tooling] --reasons ["python LOCs (lines of code) reporting tool (recognizes languages other than Python"] |
     simple-add "pylint" {"windows": {"pipx": "pylint"}} --tags [python, tooling] --reasons ["linting for Python", "ruff is cirrently doing a great job", "detects the most things"] |
-    simple-add "pytest" {"windows": {"pipx": "pytest"}} --tags [python, tooling, essential] --reasons ["incredible python testing framework", indispensible] |
+    simple-add "pytest" {"windows": {"custom": {|install: closure|
+        do $install 'pipx'
+        ^python -X utf8 -m pipx install pytest
+        ^python -X utf8 -m pipx inject pytest "pytest-cov"
+        ^python -X utf8 -m pipx inject pytest "pytest-subtests"
+        ^python -X utf8 -m pipx inject pytest "mypy"
+        ^python -X utf8 -m pipx inject pytest "pylint"
+    }}} --tags [python, tooling, essential] --reasons ["incredible python testing framework", indispensible] |
     simple-add "ruff" {"windows": {"pipx": "ruff"}} --tags [python, tooling, essential] --reasons ["auto formats and lints python code incredibly quickly"] |
     simple-add "ruff-lsp" {"windows": {"pipx": "ruff-lsp"}} --tags [python, tooling, neovim] --reasons ["makes ruff easy to use with neovim; used by conform.nvim"] |
     simple-add "sqlfluff" {"windows": {"pipx": "sqlfluff"}} --tags [sql, tooling] --reasons ["linting for sql", "don't know how to use/configure it"] |
