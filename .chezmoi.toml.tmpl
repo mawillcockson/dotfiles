@@ -7,7 +7,7 @@ sourceDir = {{ joinPath .chezmoi.homeDir "projects" "dotfiles" | toToml }}
 {{- if env "XDG_CONFIG_HOME" }}
 XDG_CONFIG_HOME = {{ env "XDG_CONFIG_HOME" | toToml }}
 {{ else -}}
-XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" "XDG_CONFIG_HOME" $defaultConfigHome }}
+XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" "XDG_CONFIG_HOME" $defaultConfigHome | toToml }}
 {{- end }}
 
 [gitHub]
