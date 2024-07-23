@@ -1,3 +1,4 @@
+{{- if .chezmoi.os | eq "windows" -}}
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true
@@ -12,3 +13,4 @@ winget install --id "Nushell.Nushell" --exact --accept-package-agreements --acce
 if ($LastExitCode -ne 0) {
     throw "error with winget"
 }
+{{- end -}}
