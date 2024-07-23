@@ -1,6 +1,2 @@
-{{ if .chezmoi.os | ne "windows" }}
-run_after_once_50-install_nushell.ps1
-{{ end }}
-{{ if (.chezmoi.os | ne "linux") | or (.chezmoi.os | ne "android") }}
-run_after_once_51-install_nushell.sh
-{{ end }}
+install_nushell.ps1
+install_nushell.sh
