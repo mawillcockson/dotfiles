@@ -1,6 +1,7 @@
+{{- /* disabled until it's needed */ -}}
+{{ if false }}
 --cookies-from-browser "firefox"
 # --path "temp:$LocalAppData\Temp"
-# --path "home:$OneDrive\Videos\shimoneta"
 --path "temp:D:\yt-dlp\temp"
 --path "home:D:\yt-dlp\home"
 --extractor-args "crunchyrollbeta:format=download_dash,download_hls,adaptive_hls;hardsub=en-US,None"
@@ -14,3 +15,4 @@
 -f "[language^=ja]"
 -o "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
 # -O "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
+{{ end }}
