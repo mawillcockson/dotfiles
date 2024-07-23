@@ -3,7 +3,7 @@ gnupg/drduh_gpg.conf
 {{ if .chezmoi.os | ne "windows" -}}
 # not windows
 clink/
-powershell
+powershell/
 {{- end }}
 {{ if (.chezmoi.os | ne "linux") | or (.chezmoi.os | ne "anrdoid") -}}
 # not linux-y
