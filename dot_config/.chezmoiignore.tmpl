@@ -4,8 +4,8 @@ clink/
 powershell
 scoop/
 {{- end }}
-{{ if .chezmoi.os | ne "linux" -}}
-# not linux
+{{ if (.chezmoi.os | ne "linux") | or (.chezmoi.os | ne "anrdoid") -}}
+# not linux-y
 systemd/
 tilda/
 tmux/
