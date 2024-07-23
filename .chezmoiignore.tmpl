@@ -4,6 +4,7 @@ catppuccin/
 docs/
 packages/
 python_dev/
+termux/
 win_specific/
 windows_terminal/
 
@@ -12,4 +13,6 @@ bootstrap/run_after_50-install_nushell.ps1
 {{ end }}
 {{ if (.chezmoi.os | ne "linux") | or (.chezmoi.os | ne "android") }}
 bootstrap/run_after_51-install_nushell.sh
+.bashrc
+.bash_profile
 {{ end }}
