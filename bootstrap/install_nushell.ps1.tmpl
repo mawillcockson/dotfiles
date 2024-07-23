@@ -32,11 +32,12 @@ if (
         ($in.patch >= {{ .patch }})
     )
 ) {
-    log info "nu version is new enough"
+    log info 'nu version is new enough'
     exit 0
 } else {
-    log error "nu version is not new enough"
+    log error 'nu version is not new enough'
     exit 1
+}
 '@
 #{{ end }}
 
