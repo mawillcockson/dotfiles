@@ -3,12 +3,12 @@ destDir = {{ .chezmoi.homeDir | toToml }}
 sourceDir = {{ joinPath .chezmoi.homeDir "projects" "dotfiles" | toToml }}
 
 [env]
-{{- $defaultConfigHome := joinPath .chezmoi.homeDir ".config" }}
-{{- if env "XDG_CONFIG_HOME" }}
+{{ $defaultConfigHome := joinPath .chezmoi.homeDir ".config" }}
+{{ if env "XDG_CONFIG_HOME" }}
 XDG_CONFIG_HOME = {{ env "XDG_CONFIG_HOME" | toToml }}
-{{ else -}}
+{{ else }}
 XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" "XDG_CONFIG_HOME" $defaultConfigHome | toToml }}
-{{- end }}
+{{ end }}
 
 [gitHub]
 refreshPeriod = '1h'
