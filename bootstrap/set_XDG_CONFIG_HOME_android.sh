@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 set -eu
 
-PROFILE_D='/data/data/com.termux/files/etc/profile.d'
+PROFILE_D="${PREFIX}/etc/profile.d"
 FILE="${PROFILE_D}/set_XDG_CONFIG_HOME.sh"
 touch "${FILE}"
 chmod a+x "${FILE}"
