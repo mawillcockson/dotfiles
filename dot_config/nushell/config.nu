@@ -63,7 +63,7 @@ $env.config = (
     | upsert buffer_editor (
         if ('NVIM' in $env) and (which nvr | is-not-empty) {
             [nvr -cc split --remote-wait]
-        } else {''}
+        } else {null}
     )
     | upsert edit_mode 'vi'
     | upsert show_banner false
