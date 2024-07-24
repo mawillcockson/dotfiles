@@ -1,3 +1,2 @@
-{{ if false }}
 setx XDG_CONFIG_HOME "%XDG_CONFIG_HOME%"
-{{ end }}
+REM start cmd /u /d /c pause

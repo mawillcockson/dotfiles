@@ -6,7 +6,7 @@ FILE="${PROFILE_D}/set_XDG_CONFIG_HOME.sh"
 touch "${FILE}"
 chmod a+x "${FILE}"
 
-DATA='XDG_CONFIG_HOME='\''{{ env "XDG_CONFIG_HOME" }}'\''
+DATA='XDG_CONFIG_HOME='"${XDG_CONFIG_HOME}"'
 export XDG_CONFIG_HOME'
 
 printf '%s\n' "${DATA}" > "${FILE}"
