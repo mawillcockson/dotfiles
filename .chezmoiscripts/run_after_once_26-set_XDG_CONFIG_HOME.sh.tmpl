@@ -1,0 +1,3 @@
+{{- if .chezmoi.os | eq "android" -}}
+{{ includeTemplate "set_XDG_CONFIG_HOME_android.sh" }}
+{{- end -}}
