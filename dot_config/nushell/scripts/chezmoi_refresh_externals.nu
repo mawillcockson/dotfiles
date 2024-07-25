@@ -1,7 +1,7 @@
 use std [log]
 
 def main [] {
-    cd ~/projects/dotfiles
+    cd (chezmoi dump-config --format=json | from json | get 'workingTree')
     open --raw .chezmoiexternal.toml.tmpl |
     from toml |
     transpose path data |
