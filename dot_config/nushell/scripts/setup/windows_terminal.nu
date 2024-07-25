@@ -7,61 +7,35 @@ const font_name = {
     'term': 'DejaVuSansM Nerd Font',
     'text': 'ComicCode Nerd Font',
 }
-const catppuccin_defaults = {
-    latte: 'https://github.com/catppuccin/windows-terminal/raw/4d8bb2f00fb86927a98dd3502cdec74a76d25d7b/latte.json',
-    latte_theme: 'https://github.com/catppuccin/windows-terminal/raw/4d8bb2f00fb86927a98dd3502cdec74a76d25d7b/latteTheme.json',
-    mocha: 'https://github.com/catppuccin/windows-terminal/raw/4d8bb2f00fb86927a98dd3502cdec74a76d25d7b/mocha.json',
-    mocha_theme: 'https://github.com/catppuccin/windows-terminal/raw/4d8bb2f00fb86927a98dd3502cdec74a76d25d7b/mochaTheme.json',
-}
 const themes_program = 'catppuccin'
 const profiles_program = 'mawillcockson'
 const nvim_profile_filename = 'neovim.json'
 const open_quake_profile_filename = 'open_quake.json'
-const default_dotfiles_dir = '~/projects/dotfiles/dotfiles'
 
-export def "ensure catppuccin" [
-    --no-check
-] {
-    let catppuccin_dir = (get dotfiles-dir | path join 'windows_terminal' 'catppuccin')
-    mkdir $catppuccin_dir
-    (
-        $catppuccin_defaults
-        | transpose
-        | rename name url
-        | insert path {|row| $catppuccin_dir | path join $'($row.name).json'}
-        | insert data {|row|
-            let data = if ($row.path | path exists) {
-                log debug $'using existing catppuccin ($row.name)'
-                {'json': (open $row.path), 'fetched': false}
-            } else {
-                log info $'downloading catppuccin ($row.name)'
-                {'json': (http get --max-time 3 $row.url), 'fetched': true}
-            }
-
-            if $data.fetched {
-                log info $'saving catppuccin ($row.name) to ($row.path)'
-                $data.json | save $row.path
-            } else if not $no_check {
-                let current_json = (http get --max-time 3 $row.url)
-                if ($data.json == $current_json) {
-                    log debug $'catppuccin ($row.name) does not need to be updated'
-                } else {
-                    let update_path = ($row.path | path basename --replace $'($row.name)_new.json')
-                    log warning $'catppuccin ($row.name) has an update; saving to ($update_path)'
-                    $current_json | save $update_path
-                }
-            }
-
-            $data.json
-        }
-        | each {|it| {($it.name): ($it | reject name)}}
-        | reduce {|it,acc| $acc | merge $it}
-    )
+export def "get-catppuccin" [] {
+    get dotfiles-dir |
+    path join 'catppuccin' |
+    do {
+        cd $in
+        glob --no-dir --no-symlink --depth 1 'windows_terminal_*.json'
+    } |
+    each {|it|
+        let name = (
+            $it |
+            path basename |
+            str replace --regex '^.*windows_terminal_(?P<name>.*?)\.json$' '$name'
+        )
+        {($name): (open $it)}
+    } |
+    reduce {|it,acc| $acc | merge $it}
 }
 
 # return the path to my dotfiles
 export def "get dotfiles-dir" [] {
-    $default_dotfiles_dir | path expand
+    ^chezmoi dump-config --format=json |
+    from json |
+    get 'workingTree' |
+    path expand --strict
 }
 
 # return the path to the directory where profile fragments can be placed
@@ -103,28 +77,35 @@ export def install [] {
     }
 }
 
+export def "get-computername" [] {
+    let env_var = (
+        $env |
+        get COMPUTERNAME?
+    )
+    if ($env_var | is-not-empty) {
+        return $env_var
+    }
+
+    let host = try {^hostname | str trim}
+    if ($host | is-not-empty) {
+        return $host
+    }
+
+    return (random uuid)
+}
+
 export def "configure whole-file" [--start-on-login] {
     let terminal_settings_file = (get terminal-settings-file)
     log info $'reading current settings from: ($terminal_settings_file)'
     let original_contents = (open $terminal_settings_file)
 
     let backup_dir = (
-        [
-            ('~/projects/dotfiles/dotfiles' | path expand),
-        ]
-        | append (
-            $env
-            | get USERPROFILE? UserProfile?
-            | first
-            | default ('~' | path expand)
-        )
-        | filter {|it| $it | path exists}
-        | first
-        | path join 'windows_terminal'
+        get dotfiles-dir |
+        path join 'windows_terminal'
     )
     log info $'creating backup dir at ($backup_dir)'
     mkdir $backup_dir
-    mut backup_name = $'($env.COMPUTERNAME)_settings.json'
+    mut backup_name = $'(get-computername)_settings.json'
     let existing_backups = do {
         cd $backup_dir
         glob --no-dir --no-symlink '*settings.json'
@@ -145,7 +126,7 @@ export def "configure whole-file" [--start-on-login] {
     let open_quake_profile = (get fragments-dir | path join $profiles_program $open_quake_profile_filename)
     let open_quake_quid = (
         ^python
-            ($nu.default-config-dir | path join '..' 'windows_terminal' 'profile_guid.py')
+            (get dotfiles-dir | path join 'windows_terminal' 'profile_guid.py')
             'fragment'
             $profiles_program
             (open $open_quake_profile | get profiles.0.name)
@@ -195,7 +176,7 @@ export def "configure whole-file" [--start-on-login] {
             if ($nvim_profile | path exists) {
                 (
                     ^python
-                        ($nu.default-config-dir | path join '..' 'windows_terminal' 'profile_guid.py')
+                        (get dotfiles-dir | path join 'windows_terminal' 'profile_guid.py')
                         'fragment'
                         $profiles_program
                         (open $nvim_profile | get profiles.0.name)
@@ -323,11 +304,11 @@ export def "configure fragments" [
     let themes_dir = ($fragments_dir | path join $themes_program)
     mkdir $themes_dir
 
-    let catppuccin = (ensure catppuccin)
+    let catppuccin = (get-catppuccin)
     log info $'constructing ($themes_program) fragment and writing to ($themes_dir)'
     {
-        'schemes': [($catppuccin.latte.data), ($catppuccin.mocha.data)],
-        'themes': [($catppuccin.latte_theme.data), ($catppuccin.mocha_theme.data)],
+        'schemes': [($catppuccin.latte), ($catppuccin.mocha)],
+        'themes': [($catppuccin.latte_theme), ($catppuccin.mocha_theme)],
     } | to json --tabs 1 | save -f ($themes_dir | path join 'themes_and_schemes.json')
 
     let profiles_dir = ($fragments_dir | path join $profiles_program)
@@ -338,8 +319,8 @@ export def "configure fragments" [
             {
                 'updates': ($pwsh_guid),
                 'colorScheme': {
-                    'light': ($catppuccin.latte.data.name),
-                    'dark': ($catppuccin.mocha.data.name),
+                    'light': ($catppuccin.latte.name),
+                    'dark': ($catppuccin.mocha.name),
                 },
                 'font': {
                     'face': ($font_name.term),
@@ -348,8 +329,8 @@ export def "configure fragments" [
             {
                 'updates': ($cmd_guid),
                 'colorScheme': {
-                    'light': ($catppuccin.latte.data.name),
-                    'dark': ($catppuccin.mocha.data.name),
+                    'light': ($catppuccin.latte.name),
+                    'dark': ($catppuccin.mocha.name),
                 },
                 'font': {
                     'face': ($font_name.term),
@@ -384,8 +365,8 @@ export def "configure fragments" [
                         'face': ($font_name.term),
                     },
                     'colorScheme': {
-                        'light': ($catppuccin.latte.data.name),
-                        'dark': ($catppuccin.mocha.data.name),
+                        'light': ($catppuccin.latte.name),
+                        'dark': ($catppuccin.mocha.name),
                     },
                     'icon': ($nvim_ico),
                 },
