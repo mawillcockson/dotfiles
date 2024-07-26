@@ -39,11 +39,11 @@ $env.SHLVL = ($env | get SHLVL? | default 0 | into int | $in + 1)
 $env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $nu.home-path)
 
 $env.EGET_CONFIG = ($env.XDG_CONFIG_HOME | path join '.eget.toml')
-let eget_bin = ($env.HOME | path join 'apps' 'eget-bin')
-mkdir $eget_bin
+$env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
+mkdir $env.EGET_BIN
 {
     'global': {
-        'target': ($eget_bin),
+        'target': ($env.EGET_BIN),
         'upgrade_only': true,
     },
 } | match $nu.os-info.name {
@@ -70,7 +70,7 @@ $env.PATH = (
     | get PATH? Path?
     | first
     | split row (char env_sep)
-    | append ($eget_bin)
+    | append ($env.EGET_BIN)
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | uniq
     | path expand
