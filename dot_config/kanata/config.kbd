@@ -1,0 +1,24 @@
+(defsrc)
+
+(deflayermap (start)
+  caps (tap-hold 200 200 esc lctrl)
+  lctrl caps
+  f (tap-hold 200 200 f (layer-while-held arrows))
+  e (tap-hold 200 200 e (layer-while-held cluster))
+)
+(deflayermap (arrows)
+  h left
+  j down
+  k up
+  l right
+)
+(deflayermap (cluster)
+  h Home
+  l End
+  j PageDown
+  k PageUp
+)
+
+(defcfg
+  process-unmapped-keys yes
+)
