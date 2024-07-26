@@ -50,7 +50,8 @@ mkdir $eget_bin
     'windows' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean.exe']} |
         insert 'getsops/sops' {'asset_filters': ['.exe', '^.json']} |
-        insert 'twpayne/chezmoi' {'asset_filters': ['.zip']}
+        insert 'twpayne/chezmoi' {'asset_filters': ['.zip']} |
+        insert 'jtroo/kanata' {'asset_filters': ['winIOv2.exe']}
     },
     'linux' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']}
