@@ -2,9 +2,10 @@
 
 (deflayermap (start)
   caps (tap-hold 200 200 esc lctrl)
-  lctrl caps
+  lctrl (fork CapsLock lrld (rctrl))
   f (tap-hold 200 200 f (layer-while-held arrows))
   e (tap-hold 200 200 e (layer-while-held cluster))
+  0 (tap-hold 200 200 0 (layer-while-held mousebtns))
 )
 (deflayermap (arrows)
   h left
@@ -17,6 +18,9 @@
   l End
   j PageDown
   k PageUp
+)
+(deflayermap (mousebtns)
+  9 ContextMenu
 )
 
 (defcfg
