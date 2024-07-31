@@ -6,7 +6,7 @@
   lctrl (fork CapsLock lrld (rctrl))
   f (tap-hold 200 200 f (layer-while-held arrows))
   e (tap-hold 200 200 e (layer-while-held cluster))
-  j (tap-hold 200 200 j (layer-while-held right-hold))
+  n (tap-hold 200 200 n (layer-while-held right-hold))
   0 (tap-hold 200 200 0 (layer-while-held mousebtns))
 )
 (deflayermap (arrows)
@@ -25,7 +25,8 @@
   9 ContextMenu
 )
 (deflayermap (right-hold)
-  n RightShift
+  j RightShift
+  k Enter
 )
 (deflayermap (normal)
   F1 (tap-dance 200 (F1 (layer-switch start)))
