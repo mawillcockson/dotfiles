@@ -2,6 +2,7 @@
 
 (deflayermap (start)
   F1 (tap-dance 200 (F1 (layer-switch normal)))
+  F2 (tap-dance 200 (F2 (layer-switch emoji)))
   caps (tap-hold 200 200 esc lctrl)
   lctrl (fork CapsLock lrld (rctrl))
   f (tap-hold 200 200 f (layer-while-held arrows))
@@ -37,6 +38,259 @@
   F1 (tap-dance 200 (F1 (layer-switch start)))
 )
 
+(defalias
+  variation-selector-16 (unicode ️)
+  zero-width-joiner (unicode ‍)
+)
+
+(defalias
+  vs16 @variation-selector-16
+  fp1-2 (unicode 🏻)
+  fp3 (unicode 🏼)
+  fp4 (unicode 🏽)
+  fp5 (unicode 🏾)
+  fp6 (unicode 🏿)
+  waving-white-flag (unicode 🏳)
+  rainbow (unicode 🌈)
+  zwj @zero-width-joiner
+)
+
+(defalias
+  exclamation (unicode ❗)
+  double-exclamation (macro (unicode ‼) @vs16)
+  double-question (unicode ⁇)
+  exclamation-question (macro (unicode ⁉) @vs16)
+  en-dash (unicode –)
+  em-dash (unicode —)
+  2-em-dash (unicode ⸺)
+  3-em-dash (unicode ⸻)
+  open-double-quote (unicode “)
+  close-double-quote (unicode ”)
+  open-single-quote (unicode ‘)
+  close-single-quote (unicode ’)
+  middot (unicode ·)
+  swung-dash (unicode ⁓)
+  save-dash (unicode 〜)
+  almost-equal (unicode ≈)
+  approximately-equal (unicode ≅)
+
+  smile (unicode 😄)
+  smile2 (macro (unicode ☺) @vs16)
+  happy (unicode 😊)
+
+  grin (unicode 😁)
+  smile-sweatdrop (unicode 😅)
+  lol (unicode 😂)
+  upside-down-face (unicode 🙃)
+  melting (unicode 🫠)
+  wink (unicode 😉)
+  love-received (unicode 🥰)
+  heart-eyes (unicode 😍)
+  star-eyes (unicode 🤩)
+  blow-kiss (unicode 😘)
+  delicious (unicode 😋)
+  tongue-out (unicode 😛)
+  tongue-out-wink (unicode 😜)
+  hugging-face (unicode 🤗)
+  covering-laugh (unicode 🤭)
+  peek (unicode 🫣)
+  hush (unicode 🤫)
+  think (unicode 🤔)
+  zipper-face (unicode 🤐)
+  eyebrow (unicode 🤨)
+  flat-face (unicode 😑)
+  grimace (unicode 😬)
+  smirk (unicode 😏)
+  side-eye (unicode 😒)
+  eye-roll (unicode 🙄)
+  exhale (macro (unicode 😮) @zero-width-joiner (unicode 💨))
+  pleased (unicode 😌)
+  sad (unicode 😔)
+  drool (unicode 🤤)
+  injured (unicode 🤕)
+  nose-blow (unicode 🤧)
+  hot (unicode 🥵)
+  freeze (unicode 🥶)
+  head-explosion (unicode 🤯)
+  party-face (unicode 🥳)
+  monocle (unicode 🧐)
+  diagonal-mouth (unicode 🫤)
+  worried (unicode 😟)
+  slight-frown (unicode 🙁)
+  big-frown (macro (unicode ☹) @vs16)
+  oh-face (unicode 😮)
+  interested (unicode 😯)
+  wow-face (unicode 😲)
+  blush (unicode 😳)
+  plead (unicode 🥺)
+  happy-cry (unicode 🥹)
+  concerned (unicode 😧)
+  fearful (unicode 😨)
+  worried-sweat (unicode 😥)
+  >~< (unicode 😖)
+  the-scream (unicode 😱)
+  bawling (unicode 😭)
+  sorry (unicode 😣)
+  very-sad (unicode 😞)
+  downcast-with-sweat (unicode 😓)
+  yawn (unicode 🥱)
+  harumph (unicode 😤)
+  devil (unicode 😈)
+  skull (unicode 💀)
+
+  hand-wave (unicode 👋)
+  ok-hand (unicode 👌)
+  fingers-crossed (unicode 🤞)
+  point-left (unicode 👈)
+  point-right (unicode 👉)
+  thumbs-up (unicode 👍)
+  solidarity (unicode ✊)
+  highfive (unicode 🙌)
+  eyes (unicode 👀)
+  eye (unicode 👁)
+  tongue (unicode 👅)
+  mouth (unicode 👄)
+  lip-bite (unicode 🫦)
+
+  person-no (unicode 🙅)
+  person-hand (unicode 💁)
+  bow (unicode 🙇)
+  facepalm (unicode 🤦)
+  shrug (unicode 🤷)
+  walking (unicode 🚶)
+  standing (unicode 🧍)
+  running (unicode 🏃)
+  hug (unicode 🫂)
+
+  heart-hands (macro (unicode 🫶) @fp1-2)
+  heart (macro (unicode ❤) @vs16)
+  sparkling-heart (unicode 💖)
+  heart-with-ribbon (unicode 💝)
+
+  sloth (unicode 🦥)
+  butterfly (unicode 🦋)
+  flowers (unicode 💐)
+  four-leaf-clover (unicode 🍀)
+  leaves (unicode 🍃)
+  banana (unicode 🍌)
+  peach (unicode 🍑)
+  eggplant (unicode 🍆)
+  taxi (unicode 🚕)
+  car (unicode 🚗)
+  hourglass (unicode ⌛)
+  milky-way (unicode 🌌)
+  thundercloud-with-rain (macro (unicode ⛈) @vs16)
+  umbrella-with-rain (unicode ☔)
+  lightning (unicode ⚡)
+  sparkles (unicode ✨)
+  party (unicode 🎉)
+  confetti (unicode 🎊)
+  ping-pong (unicode 🏓)
+  spade-suit (macro (unicode ♠) @vs16)
+  yarn (unicode 🧶)
+  knot (unicode 🪢)
+  mute (unicode 🔇)
+  loud (unicode 🔊)
+  loudspeaker (unicode 📢)
+  megaphone (unicode 📣)
+  bullhorn-with-sound-waves (unicode 🕬)
+  battery-low (unicode 🪫)
+  computer (macro (unicode 🖥) @vs16)
+  clapper-board (unicode 🎬)
+  bookmark (unicode 🔖)
+  flying-money (unicode 💸)
+  calendar (unicode 📅)
+  warning-sign (macro (unicode ⚠) @vs16)
+  do-not-enter (unicode ⛔)
+  blocked (unicode 🚫)
+  soon-arrow (unicode 🔜)
+  trans-symbol (macro (unicode ⚧) @vs16)
+  infinity (macro (unicode ♾) @vs16)
+  
+  free-of-charge (unicode 🈚)
+  pride-flag (macro @waving-white-flag @vs16 @zwj @rainbow)
+  trans-flag (macro @waving-white-flag @vs16 @zwj (unicode ⚧) @vs16)
+
+  music-notes (unicode 🎶)
+  nice-house (unicode 🏡)
+  sweat (unicode 💦)
+  no-18 (unicode 🔞)
+  fire (unicode 🔥)
+  clock (unicode 🕓)
+  lightning-mood (unicode 🗲)
+  checkbox-check (unicode ☑)
+  checkbox-empty (unicode ☐)
+  checkbox-crossed (unicode ☒)
+  hammer-and-sickle (unicode ☭)
+  lane-merge (unicode ⛙)
+  inverted-pentagram (unicode ⛧)
+  penis (unicode 𓂺)
+  penis-with-emission (unicode 𓂸)
+)
+
+(deflayermap (emoji)
+  F2 (tap-dance 200 (F2 (layer-switch start)))
+  ShiftLeft (layer-while-held shift-emoji)
+  ShiftRight (layer-while-held shift-emoji)
+  Backquote nop0
+  1 nop0
+  2 nop0
+  3 nop0
+  4 nop0
+  5 nop0
+  6 nop0
+  7 nop0
+  8 nop0
+  9 nop0
+  0 nop0
+  Minus (tap-dance 200 (@en-dash @em-dash @2-em-dash @3-em-dash))
+  Equal nop0
+  Backspace Backspace
+  Tab nop0
+  q nop0
+  w nop0
+  e nop0
+  r nop0
+  t nop0
+  y nop0
+  u nop0
+  i nop0
+  o nop0
+  p nop0
+  BracketLeft nop0
+  BracketRight nop0
+  Backslash nop0
+  CapsLock nop0
+  a nop0
+  s nop0
+  d nop0
+  f nop0
+  g nop0
+  h (tap-dance 200 (@heart @heart-hands))
+  j nop0
+  k nop0
+  l nop0
+  Semicolon nop0
+  Quote (tap-dance 200 ((unicode ‘) (unicode ’)))
+  Enter Enter
+  z nop0
+  x nop0
+  c nop0
+  v nop0
+  b nop0
+  n nop0
+  m nop0
+  Comma nop0
+  Period @middot
+  Slash nop0
+  Space @zwj
+)
+
+(deflayermap (shift-emoji)
+  1 (tap-dance 200 ((unicode ❗) (unicode ‼)))
+  Quote (tap-dance 200 ((unicode “) (unicode ”)))
+  p (tap-dance 200 (@penis @penis-with-emission))
+)
 
 (defcfg
   process-unmapped-keys yes
