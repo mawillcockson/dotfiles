@@ -1,6 +1,7 @@
 (defsrc)
 
 (deflayermap (start)
+  F1 (tap-dance 200 (F1 (layer-switch normal)))
   caps (tap-hold 200 200 esc lctrl)
   lctrl (fork CapsLock lrld (rctrl))
   f (tap-hold 200 200 f (layer-while-held arrows))
@@ -26,6 +27,10 @@
 (deflayermap (right-hold)
   n RightShift
 )
+(deflayermap (normal)
+  F1 (tap-dance 200 (F1 (layer-switch start)))
+)
+
 
 (defcfg
   process-unmapped-keys yes
