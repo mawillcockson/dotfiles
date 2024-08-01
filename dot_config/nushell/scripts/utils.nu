@@ -477,3 +477,15 @@ export def "delete-temp-starship-configs" [] {
         }
     }
 }
+
+export def "chezmoi-edit" [file: path] {
+    if not ($file | path exists) {
+        echo "" | save -f $file
+        chezmoi add --prompt $file
+    }
+    with-env {
+        EDITOR: ($env.config.buffer_editor | str join ' '),
+    } {
+        chezmoi edit --apply $file
+    }
+}
