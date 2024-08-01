@@ -247,29 +247,29 @@
   Equal nop0
   Backspace Backspace
   Tab nop0
-  q nop0
-  w nop0
-  e nop0
-  r nop0
-  t nop0
-  y nop0
-  u nop0
-  i nop0
-  o nop0
-  p nop0
-  BracketLeft nop0
-  BracketRight nop0
-  Backslash nop0
-  CapsLock nop0
-  a nop0
-  s nop0
-  d nop0
-  f nop0
-  g nop0
+  q @smile
+  w @happy
+  e @grin
+  r @smile-sweatdrop
+  t @lol
+  y @upside-down-face
+  u @melting
+  i @wink
+  o @covering-laugh
+  p @heart-eyes
+  BracketLeft @star-eyes
+  BracketRight @blow-kiss
+  Backslash @delicious
+  CapsLock @tongue-out
+  a @tongue-out-wink
+  s @peek
+  d @hush
+  f @think
+  g @zipper-face
   h (tap-dance 200 (@heart @heart-hands))
-  j nop0
-  k nop0
-  l nop0
+  j @blow-kiss
+  k @love-received
+  l @hugging-face
   Semicolon nop0
   Quote (tap-dance 200 ((unicode ‘) (unicode ’)))
   Enter Enter
