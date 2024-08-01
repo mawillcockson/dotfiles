@@ -480,7 +480,7 @@ export def "delete-temp-starship-configs" [] {
 
 export def "edit dotfile" [file: path] {
     if not ($file | path exists) {
-        echo "" | save -f $file
+        echo "contents so chezmoi knows not to prefix the filename with empty_" | save -f $file
         chezmoi add --prompt $file
     }
     with-env {
