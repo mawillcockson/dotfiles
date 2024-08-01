@@ -478,7 +478,7 @@ export def "delete-temp-starship-configs" [] {
     }
 }
 
-export def "chezmoi-edit" [file: path] {
+export def "edit dotfile" [file: path] {
     if not ($file | path exists) {
         echo "" | save -f $file
         chezmoi add --prompt $file
