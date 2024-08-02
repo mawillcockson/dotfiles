@@ -389,7 +389,7 @@ export def "banner-message" [
                     lines
                 } else {
                     split chars |
-                    group $msg_width |
+                    chunks $msg_width |
                     each {|e| $e | str join ''}
                 }
             },
@@ -433,7 +433,7 @@ export def "banner-message" [
         | skip ($mascot_rest | length)
         | str join ''
         | split chars
-        | group $banner_width
+        | chunks $banner_width
         | each {|e| $e | str join ''}
     )
     return ($mascot_first_line | append $mascot_rest | append $msg_rest | str join "\n")
