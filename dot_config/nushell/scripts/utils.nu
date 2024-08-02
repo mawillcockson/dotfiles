@@ -136,7 +136,7 @@ export def "ln -s" [
             })
             (
             [($link_type), ($link | path dirname), ($link | path basename), $target]
-            | str join "\u{0}"
+            | str join (char nul)
             | powershell-safe -c '$temp = $input -split [char]0x0;
                 New-Item -Type ($temp[0]) -Path $temp[1] -Name $temp[2] -Value $temp[3]'
             )
@@ -177,7 +177,7 @@ export def "ln -s" [
 # Also, this pattern can be used to pipe arbitrary, difficult-to-quote strings
 # to powershell:
 # ['`#$^*@', 'slightly easier to quote'] |
-# str join "\u{0}" |
+# str join (char nul) |
 # ^powershell -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy RemoteSigned -Command '
 # <# Put this after so that scoop has a default environment. I remember it not liking me changing $ErrorActionPreference
 # # https://github.com/PowerShell/PowerShell/issues/3415#issuecomment-1354457563 #>

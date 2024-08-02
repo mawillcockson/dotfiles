@@ -274,7 +274,7 @@ export def "package-data-load-data" [] {
 
         log info 'unpacking wix toolset'
         [($wix_zip), ($wix_dir)] |
-        str join "\u{0}" |
+        str join (char nul) |
         powershell-safe -c '$in = ($Input -split [char]0x0); Expand-Archive -LiteralPath $in[0] -DestinationPath $in[1] -Force'
 
         git clone --depth 1 --single-branch --branch $tag 'https://github.com/janet-lang/janet.git' ($tmpdir | path join 'janet')
