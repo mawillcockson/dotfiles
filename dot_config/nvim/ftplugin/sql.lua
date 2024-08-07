@@ -74,18 +74,17 @@ local function run_sql()
 	if scratch_buf == false then
 		scratch_buf = vim.api.nvim_create_buf(true, true)
 		-- https://vi.stackexchange.com/a/21390
-		wk.register(
+		wk.add({
+			{ keys.open, run_sql, desc = "run_sql()" },
 			{
-				[keys.open] = { run_sql, "run_sql()" },
-				[keys.close] = {
-					function()
-						close_buf(scratch_buf)
-					end,
-					"close run buffer",
-				},
+				keys.close,
+				function()
+					close_buf(scratch_buf)
+				end,
+				"close run buffer",
+				buffer = scratch_buf,
 			},
-			{ buffer = scratch_buf }
-		)
+		})
 		vim.api.nvim_set_option_value("buflisted", true, { buf = scratch_buf })
 		vim.api.nvim_set_option_value("buftype", "nofile", { buf = scratch_buf })
 		vim.api.nvim_set_option_value("bufhidden", "hide", { buf = scratch_buf })
@@ -112,15 +111,19 @@ local function run_sql()
 	vim.api.nvim_buf_set_lines(scratch_buf, 0, -1, true, output)
 end
 
-wk.register(
+wk.add({
 	{
-		[keys.open] = { run_sql, "run_sql() on run buffer" },
-		[keys.close] = {
-			function()
-				close_buf(scratch_buf)
-			end,
-			"close run buffer",
-		},
+		keys.open,
+		run_sql,
+		desc = "run_sql() on run buffer",
+		buffer = this_bufnr,
 	},
-	{ buffer = this_bufnr }
-)
+	{
+		keys.close,
+		function()
+			close_buf(scratch_buf)
+		end,
+		desc = "close run buffer",
+		buffer = this_bufnr,
+	},
+})
