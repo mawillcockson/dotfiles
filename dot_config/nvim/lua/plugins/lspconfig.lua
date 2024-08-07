@@ -182,7 +182,7 @@ return {
 						-- conform.nvim will handle formatting, falling back to the lsp
 						-- optionally
 						-- {"<leader>wf", function() vim.lsp.bug.format{async=true} end,desc= "lsp format"},
-						{ "<leader>wa", vim.lsp.buf.add_workspace_folder, dec = "add folder" },
+						{ "<leader>wa", vim.lsp.buf.add_workspace_folder, desc = "add folder" },
 						{ "<leader>wr", vim.lsp.buf.remove_workspace_folder, desc = "remove folder" },
 						{
 							"<leader>wl",
