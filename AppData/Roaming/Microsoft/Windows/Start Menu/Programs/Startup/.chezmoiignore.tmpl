@@ -1,6 +1,6 @@
 {{ if not ((lookPath "kanata.exe") | or (lookPath "kanata_winIOv2.exe")) }}
 kanata.lnk
 {{ end }}
-{{ if .chezmoi.os | ne "windows" | or not (lookPath "autohotkey.exe") }}
+{{ if not (.chezmoi.os | eq "windows" | and (lookPath "autohotkey.exe")) }}
 autohotkey.ahk
 {{ end }}
