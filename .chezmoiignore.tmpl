@@ -30,4 +30,8 @@ AppData/
 .chezmoiscripts/28-set_NU_USE_IR.sh
 .chezmoiscripts/50-install_nushell.ps1
 .chezmoiscripts/51-install_nushell.sh
+.chezmoiscripts/75-setup.nu
+{{ end }}
+{{if not .run_setup }}
+.chezmoiscripts/75-setup.nu
 {{ end }}
