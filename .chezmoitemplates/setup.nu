@@ -1,4 +1,4 @@
 use consts.nu [platform]
-use setup.nu
+use setup
 
 setup $platform
