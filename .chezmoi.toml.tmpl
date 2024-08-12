@@ -19,5 +19,5 @@ git_name = 'Matthew W'
 git_email = 'matthew@willcockson.family'
 git_signingKey = 'EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115'
 minimum_nu_version = { major = 0, minor = 95, patch = 0 }
-set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide?" false | toToml }}
-install_nu = {{ promptBoolOnce . "install_nu" "Would you like to (try to) install Nushell?" false }}
+set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide (y/n)" false | toToml }}
+install_nu = {{ promptBoolOnce . "install_nu" "Would you like to (try to) install Nushell (y/n)" false }}
