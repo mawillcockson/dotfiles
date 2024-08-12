@@ -83,7 +83,7 @@ export def "validate-data" [] {
         $row.data.install |
         transpose platform managers |
         each {|it|
-            if $it.platform not-in ["windows", "mac", "linux"] {
+            if $it.platform not-in ["windows", "mac", "linux", "android"] {
                 log warning $'package ($row.package | to nuon) has unusual platform ($it.platform | to nuon)'
             }
 
