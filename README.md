@@ -34,6 +34,15 @@ Alternatively, [`chezmoi`][] can be installed separately, and then the following
 chezmoi init mawillcockson --apply --depth 1 --source ~/projects/dotfiles
 ```
 
+I use some of the tools on their own often enough that I'm including a few oneliners for them here:
+
+```powershell
+$asset = (irm -useb "https://api.github.com/repos/jtroo/kanata/releases/latest" | Select-Object -ExpandProperty "assets" | Where-Object -Property "name" -Like -Value "*winIOv2*" | Select-Object -First 1 )
+irm -useb -uri $asset.browser_download_url -outfile $asset.name
+irm -useb "https://github.com/mawillcockson/dotfiles/raw/main/dot_config/kanata/kanata.kbd" -outfile kanata.kbd
+& $asset.name --cfg kanata.kbd
+```
+
 ## Contents
 
 The following software features prominently in my configs:
