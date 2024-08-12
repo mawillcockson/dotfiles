@@ -4,7 +4,7 @@ $PSNativeCommandUseErrorActionPreference = $true
 
 $tmpdir = (Join-Path $Env:TEMP "kanata")
 $kanata_path = (Join-Path $tmpdir "kanata_path.txt")
-$config = (Join-Path $Env:TEMP "kanata.kbd")
+$config = (Join-Path $tmpdir "kanata.kbd")
 
 if (-not (Test-Path -LiteralPath $tmpdir)) {
     New-Item -ItemType "directory" -Path $tmpdir
