@@ -1,18 +1,27 @@
 {{- /* disabled until it's needed */ -}}
-{{ if false }}
+{{ if .chezmoi.os | eq "windows" }}
 --cookies-from-browser "firefox"
-# --path "temp:$LocalAppData\Temp"
---path "temp:D:\yt-dlp\temp"
---path "home:D:\yt-dlp\home"
+--path "home:{{ joinPath (env "OneDrive") "Videos" }}"
+--path "temp:{{ joinPath (env "TEMP") }}"
+--concurrent-fragments "4"
+{{ end }}
+{{ if .chezmoi.os | eq "android" }}
+--path "home:/sdcard/Movies"
+# --path "temp:{{ env "HOME" }}"
+{{ end }}
+
+# Crunchyroll
 --extractor-args "crunchyrollbeta:format=download_dash,download_hls,adaptive_hls;hardsub=en-US,None"
 --convert-subs "srt"
 --sub-langs "en.*,-live_chat"
 # --embed-subs
+# -f "[language^=ja]"
+# -o "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
+# -O "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
+
+# General
 --audio-multistreams
 --video-multistreams
---concurrent-fragments "4"
 --yes-playlist
--f "[language^=ja]"
--o "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
-# -O "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
-{{ end }}
+--windows-filenames
+--trime-filenames 20
