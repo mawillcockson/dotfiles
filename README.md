@@ -39,7 +39,7 @@ I use some of the tools on their own often enough that I'm including a few oneli
 - kanata:
 
 ```powershell
-powershell -ex remotesigned "irm -useb https://github.com/mawillcockson/dotfiles/raw/main/docs/install_kanata.ps1 | iex"
+powershell -ex remotesigned "irm -useb https://mw.je/install_kanata.ps1 | iex"
 ```
 
 ## Contents
