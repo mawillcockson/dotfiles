@@ -33,7 +33,15 @@ function M.setup(opts)
 	M.configure_font_changing(M.opts)
 end
 
+local function is_enabled()
+	return type(M.opts) == "table" and type(M.opts.font_changing_enabled) == "boolean" and M.opts.font_changing_enabled
+end
+
 local set_text_font = function(name, size)
+	if not is_enabled() then
+		return
+	end
+
 	local font_name = type(name) == "string" and name or M.opts.text_font
 	local font_size = type(size) == "number" and size or M.opts.font_size
 	local font = font_name .. ":h" .. tostring(font_size)
@@ -44,13 +52,18 @@ local set_text_font = function(name, size)
 		vim.opt.guifont = font
 	end)
 	if not ok then
-		vim.notify("problem changing text font: " .. tostring(err), vim.log.levels.WARN)
+		vim.notify("problem changing to text font: " .. tostring(err), vim.log.levels.WARN)
+		M.clear_font_augroup()
 	end
 end
 
 M.set_text_font = set_text_font
 
 local set_term_font = function(name, size)
+	if not is_enabled() then
+		return
+	end
+
 	local font_name = type(name) == "string" and name or M.opts.term_font
 	local font_size = type(size) == "number" and size or M.opts.font_size
 	local font = font_name .. ":h" .. tostring(font_size)
@@ -59,7 +72,8 @@ local set_term_font = function(name, size)
 		vim.opt.guifont = font
 	end)
 	if not ok then
-		vim.notify("problem changing text font: " .. tostring(err), vim.log.levels.WARN)
+		vim.notify("problem changing to term font: " .. tostring(err), vim.log.levels.WARN)
+		M.clear_font_augroup()
 	end
 end
 
@@ -99,6 +113,19 @@ function M.configure_font_changing(opts)
 			opts.set_text_font()
 		end,
 	})
+end
+
+function M.clear_font_augroup()
+	vim.notify("clearing font changing autocommand group", vim.log.levels.DEBUG)
+	if
+		type(M.opts) ~= "nil"
+		and type(M.opts.fonts_autocmds_group_name) == "string"
+		and #M.opts.fonts_autocmds_group_name > 0
+	then
+		vim.api.nvim_clear_autocmds({ group = M.opts.fonts_autocmds_group_name })
+	else
+		error("cannot clear font changing autocommand group because M.opts.fonts_autocmds_group_name is not set", 2)
+	end
 end
 
 defaults["font_size"] = 11
