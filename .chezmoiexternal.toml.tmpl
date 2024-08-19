@@ -40,12 +40,6 @@ stripComponents = 1
 path = 'eget{{ if $OS | eq "windows" }}.exe{{ end }}'
 refreshPeriod = {{ $commonRefreshPeriod }}
 
-[{{ .rel_bootstrap_curl | toToml }}]
-type = 'file'
-executable = true
-url = 'https://cosmo.zip/pub/cosmos/v/3.7.1/bin/curl'
-refreshPeriod = {{ $commonRefreshPeriod }}
-
 ["catppuccin/starship_latte.toml"]
 type = 'file'
 url = 'https://raw.githubusercontent.com/catppuccin/starship/main/palettes/latte.toml'

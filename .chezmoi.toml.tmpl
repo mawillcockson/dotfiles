@@ -42,13 +42,9 @@ abs_bootstrap_nu = {{ joinPath $absBootstrapDir "nu.exe" | toToml }}
 rel_bootstrap_nu = {{ joinPath $relBootstrapDir "nu.exe" | toToml }}
 abs_bootstrap_eget = {{ joinPath $absBootstrapDir "eget.exe" | toToml }}
 rel_bootstrap_eget = {{ joinPath $relBootstrapDir "eget.exe" | toToml }}
-abs_bootstrap_curl = {{ joinPath $absBootstrapDir "curl.exe" | toToml }}
-rel_bootstrap_curl = {{ joinPath $relBootstrapDir "curl.exe" | toToml }}
 {{ else }}
 abs_bootstrap_nu = {{ joinPath $absBootstrapDir "nu" | toToml }}
 rel_bootstrap_nu = {{ joinPath $relBootstrapDir "nu" | toToml }}
 abs_bootstrap_eget = {{ joinPath $absBootstrapDir "eget" | toToml }}
 rel_bootstrap_eget = {{ joinPath $relBootstrapDir "eget" | toToml }}
-abs_bootstrap_curl = {{ joinPath $absBootstrapDir "curl" | toToml }}
-rel_bootstrap_curl = {{ joinPath $relBootstrapDir "curl" | toToml }}
 {{ end }}
