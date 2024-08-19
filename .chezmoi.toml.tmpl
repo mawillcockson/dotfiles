@@ -9,6 +9,12 @@ XDG_CONFIG_HOME = {{ env "XDG_CONFIG_HOME" | toToml }}
 {{ else }}
 XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" "XDG_CONFIG_HOME" $defaultConfigHome | toToml }}
 {{ end }}
+{{ $bootstrapDir := joinPath .chezmoi.config.tempDir "chezmoi-bootstrap" }}
+{{ if .chezmoi.os | eq "windows" }}
+PATH = {{ list (env "PATH") $bootstrapDir | join ";" | toToml }}
+{{ else }}
+PATH = {{ list (env "PATH") $bootstrapDir | join ":" | toToml }}
+{{ end }}
 
 [gitHub]
 refreshPeriod = '1h'
@@ -26,4 +32,12 @@ install_nushell = {{ $install_nushell | toToml }}
 run_setup = {{ promptBoolOnce . "run_setup" "Would you like to run the system-wide setup (y/n)" true | toToml }}
 {{ else }}
 run_setup = false
+{{ end }}
+bootstrapDir = {{ $bootstrapDir | toToml }}
+{{ if .chezmoi.os | eq "windows" }}
+bootstrap_nu = {{ joinPath $bootstrapDir "nu.exe" | toToml }}
+bootstrap_eget = {{ joinPath $bootstrapDir "eget.exe" | toToml }}
+{{ else }}
+bootstrap_nu = {{ joinPath $bootstrapDir "nu" | toToml }}
+bootstrap_eget = {{ joinPath $bootstrapDir "eget" | toToml }}
 {{ end }}
