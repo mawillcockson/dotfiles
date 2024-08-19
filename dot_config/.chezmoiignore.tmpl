@@ -3,7 +3,7 @@
 clink/
 powershell/
 {{- end }}
-{{ if (.chezmoi.os | ne "linux") | or (.chezmoi.os | ne "anrdoid") -}}
+{{ if (.chezmoi.os | ne "linux") | and (.chezmoi.os | ne "android") -}}
 # not linux-y
 systemd/
 tilda/
