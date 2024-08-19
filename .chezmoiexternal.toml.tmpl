@@ -1,15 +1,18 @@
-{{ $commonRefreshPeriod := "730h" /* 1 month */ | toToml }}
+{{- /* 730 hours is 1 month */ -}}
+{{ $commonRefreshPeriod := "730h" | toToml }}
+{{ $nuArch := "" }}
 {{ if .chezmoi.arch | eq "amd64" }}
-{{ $nuArch := "x86_64" }}
+{{ $nuArch = "x86_64" }}
 {{ else if .chezmoi.arch | eq "arm64" }}
-{{ $nuArch := "aarch64" }}
+{{ $nuArch = "aarch64" }}
 {{ else }}
-{{ $nuArch := .chezmoi.arch }}
+{{ $nuArch = .chezmoi.arch }}
 {{ end }}
+{{ $OS := "" }}
 {{ if .chezmoi.os | eq "android" | or (.chezmoi.os | eq "linux") }}
-{{ $OS := "linux" }}
+{{ $OS = "linux" }}
 {{ else }}
-{{ $OS := .chezmoi.os }}
+{{ $OS = .chezmoi.os }}
 {{ end }}
 
 [{{ .bootstrap_nu | toToml }}]
