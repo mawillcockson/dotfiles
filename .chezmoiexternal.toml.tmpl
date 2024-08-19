@@ -15,7 +15,7 @@
 {{ $OS = .chezmoi.os }}
 {{ end }}
 
-[{{ .bootstrap_nu | toToml }}]
+[{{ .rel_bootstrap_nu | toToml }}]
 type = 'archive-file'
 executable = true
 {{ if $OS | eq "windows" }}
@@ -32,12 +32,18 @@ path = 'nu'
 {{ end }}
 refreshPeriod = {{ $commonRefreshPeriod }}
 
-[{{ .bootstrap_eget | toToml }}]
+[{{ .rel_bootstrap_eget | toToml }}]
 type = 'archive-file'
 executable = true
 url = {{ gitHubLatestReleaseAssetURL "zyedidia/eget" (printf "eget-*-%s_%s*" $OS .chezmoi.arch) | toToml }}
 stripComponents = 1
-path = 'nu{{ if $OS | eq "windows" }}.exe{{ end }}'
+path = 'eget{{ if $OS | eq "windows" }}.exe{{ end }}'
+refreshPeriod = {{ $commonRefreshPeriod }}
+
+[{{ .rel_bootstrap_curl | toToml }}]
+type = 'file'
+executable = true
+url = 'https://cosmo.zip/pub/cosmos/v/3.7.1/bin/curl'
 refreshPeriod = {{ $commonRefreshPeriod }}
 
 ["catppuccin/starship_latte.toml"]
@@ -73,10 +79,4 @@ refreshPeriod = {{ $commonRefreshPeriod }}
 [".config/gnupg/drduh_gpg.conf"]
 type = 'file'
 url = 'https://github.com/drduh/config/raw/master/gpg.conf'
-refreshPeriod = {{ $commonRefreshPeriod }}
-
-[".local/bin/curl{{ if .chezmoi.os | eq "windows" }}.exe{{ end }}"]
-type = 'file'
-executable = true
-url = 'https://cosmo.zip/pub/cosmos/v/3.7.1/bin/curl'
 refreshPeriod = {{ $commonRefreshPeriod }}

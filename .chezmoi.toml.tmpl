@@ -10,11 +10,12 @@ XDG_CONFIG_HOME = {{ env "XDG_CONFIG_HOME" | toToml }}
 {{ else }}
 XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" (printf "$XDG_CONFIG_HOME (must be in %s)" $destDir) $defaultConfigHome | toToml }}
 {{ end }}
-{{ $bootstrapDir := joinPath .chezmoi.config.tempDir "chezmoi-bootstrap" }}
+{{ $relBootstrapDir := ".chezmoi-bootstrap" }}
+{{ $absBootstrapDir := joinPath $destDir $relBootstrapDir }}
 {{ if .chezmoi.os | eq "windows" }}
-PATH = {{ list (env "PATH") $bootstrapDir | join ";" | toToml }}
+PATH = {{ list (env "PATH") $absBootstrapDir | join ";" | toToml }}
 {{ else }}
-PATH = {{ list (env "PATH") $bootstrapDir | join ":" | toToml }}
+PATH = {{ list (env "PATH") $absBootstrapDir | join ":" | toToml }}
 {{ end }}
 
 [gitHub]
@@ -34,11 +35,20 @@ run_setup = {{ promptBoolOnce . "run_setup" "Would you like to run the system-wi
 {{ else }}
 run_setup = false
 {{ end }}
-bootstrapDir = {{ $bootstrapDir | toToml }}
+relBootstrapDir = {{ $relBootstrapDir | toToml }}
+absBootstrapDir = {{ $absBootstrapDir | toToml }}
 {{ if .chezmoi.os | eq "windows" }}
-bootstrap_nu = {{ joinPath $bootstrapDir "nu.exe" | toToml }}
-bootstrap_eget = {{ joinPath $bootstrapDir "eget.exe" | toToml }}
+abs_bootstrap_nu = {{ joinPath $absBootstrapDir "nu.exe" | toToml }}
+rel_bootstrap_nu = {{ joinPath $relBootstrapDir "nu.exe" | toToml }}
+abs_bootstrap_eget = {{ joinPath $absBootstrapDir "eget.exe" | toToml }}
+rel_bootstrap_eget = {{ joinPath $relBootstrapDir "eget.exe" | toToml }}
+abs_bootstrap_curl = {{ joinPath $absBootstrapDir "curl.exe" | toToml }}
+rel_bootstrap_curl = {{ joinPath $relBootstrapDir "curl.exe" | toToml }}
 {{ else }}
-bootstrap_nu = {{ joinPath $bootstrapDir "nu" | toToml }}
-bootstrap_eget = {{ joinPath $bootstrapDir "eget" | toToml }}
+abs_bootstrap_nu = {{ joinPath $absBootstrapDir "nu" | toToml }}
+rel_bootstrap_nu = {{ joinPath $relBootstrapDir "nu" | toToml }}
+abs_bootstrap_eget = {{ joinPath $absBootstrapDir "eget" | toToml }}
+rel_bootstrap_eget = {{ joinPath $relBootstrapDir "eget" | toToml }}
+abs_bootstrap_curl = {{ joinPath $absBootstrapDir "curl" | toToml }}
+rel_bootstrap_curl = {{ joinPath $relBootstrapDir "curl" | toToml }}
 {{ end }}
