@@ -48,3 +48,10 @@ rel_bootstrap_nu = {{ joinPath $relBootstrapDir "nu" | toToml }}
 abs_bootstrap_eget = {{ joinPath $absBootstrapDir "eget" | toToml }}
 rel_bootstrap_eget = {{ joinPath $relBootstrapDir "eget" | toToml }}
 {{ end }}
+
+[interpreters]
+{{ if .chezmoi.os | eq "windows" }}
+nu = { command = {{ joinPath $absBootstrapDir "nu.exe" | toToml }} }
+{{ else }}
+nu = { command = {{ joinPath $absBootstrapDir "nu" | toToml }} }
+{{ end }}
