@@ -1,0 +1,3 @@
+This file exists purely so git will pay attention to this folder, and so that chezmoi will as well.
+
+This folder exists because chezmoi can't place externals into a folder if that folder doesn't already exist (on Windows), and the existence of this folder causes chezmoi to create it.
