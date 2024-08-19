@@ -1,13 +1,14 @@
 progress = true
-destDir = {{ .chezmoi.homeDir | toToml }}
+{{ $destDir := .chezmoi.homeDir }}
+destDir = {{ $destDir | toToml }}
 sourceDir = {{ joinPath .chezmoi.homeDir "projects" "dotfiles" | toToml }}
 
 [env]
-{{ $defaultConfigHome := joinPath .chezmoi.homeDir ".config" }}
+{{ $defaultConfigHome := joinPath $destDir ".config" }}
 {{ if env "XDG_CONFIG_HOME" }}
 XDG_CONFIG_HOME = {{ env "XDG_CONFIG_HOME" | toToml }}
 {{ else }}
-XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" "XDG_CONFIG_HOME" $defaultConfigHome | toToml }}
+XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" (printf "$XDG_CONFIG_HOME (must be in %s)" $destDir) $defaultConfigHome | toToml }}
 {{ end }}
 {{ $bootstrapDir := joinPath .chezmoi.config.tempDir "chezmoi-bootstrap" }}
 {{ if .chezmoi.os | eq "windows" }}
