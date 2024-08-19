@@ -1,0 +1,15 @@
+[Unit]
+Description=Kanata keyboard remapper
+Documentation=https://github.com/jtroo/kanata
+Documentation=https://github.com/jtroo/kanata/blob/main/docs/setup-linux.md#5a-to-create-and-enable-a-systemd-daemon-service
+
+[Service]
+ExecSearchPath=%h/apps/eget-bin/
+WorkingDirectory=%E/kanata/
+Environment=DISPLAY=:0
+Type=simple
+ExecStart=kanata
+Restart=no
+
+[Install]
+WantedBy=default.target
