@@ -1,34 +1,79 @@
+{{ $commonRefreshPeriod := "730h" /* 1 month */ | toToml }}
+{{ if .chezmoi.arch | eq "amd64" }}
+{{ $nuArch := "x86_64" }}
+{{ else if .chezmoi.arch | eq "arm64" }}
+{{ $nuArch := "aarch64" }}
+{{ else }}
+{{ $nuArch := .chezmoi.arch }}
+{{ end }}
+{{ if .chezmoi.os | eq "android" | or (.chezmoi.os | eq "linux") }}
+{{ $OS := "linux" }}
+{{ else }}
+{{ $OS := .chezmoi.os }}
+{{ end }}
+
+[{{ .bootstrap_nu | toToml }}]
+type = 'archive-file'
+executable = true
+{{ if $OS | eq "windows" }}
+url = {{ gitHubLatestReleaseAssetURL "nushell/nushell" (printf "nu-*-%s-*-windows*.zip" $nuArch) | toToml }}
+path = 'nu.exe'
+{{ else if $OS | eq "linux" }}
+url = {{ gitHubLatestReleaseAssetURL "nushell/nushell" (printf "nu-*-%s-*-linux*.tar.gz" $nuArch) | toToml }}
+stripComponents = 1
+path = 'nu'
+{{ else }}
+url = {{ gitHubLatestReleaseAssetURL "nushell/nushell" (printf "nu-*-%s-*-%s*" $nuArch .chezmoi.os) | toToml }}
+stripComponents = 1
+path = 'nu'
+{{ end }}
+refreshPeriod = {{ $commonRefreshPeriod }}
+
+[{{ .bootstrap_eget | toToml }}]
+type = 'archive-file'
+executable = true
+url = {{ gitHubLatestReleaseAssetURL "zyedidia/eget" (printf "eget-*-%s_%s*" $OS .chezmoi.arch) | toToml }}
+stripComponents = 1
+path = 'nu{{ if $OS | eq "windows" }}.exe{{ end }}'
+refreshPeriod = {{ $commonRefreshPeriod }}
+
 ["catppuccin/starship_latte.toml"]
 type = 'file'
 url = 'https://raw.githubusercontent.com/catppuccin/starship/main/palettes/latte.toml'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
 
 ["catppuccin/starship_macchiato.toml"]
 type = 'file'
 url = 'https://github.com/catppuccin/starship/raw/main/palettes/macchiato.toml'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
 
 ["catppuccin/windows_terminal_latte.json"]
 type = 'file'
 url = 'https://github.com/catppuccin/windows-terminal/raw/main/latte.json'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
 
 ["catppuccin/windows_terminal_latte_theme.json"]
 type = 'file'
 url = 'https://github.com/catppuccin/windows-terminal/raw/main/latteTheme.json'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
 
 ["catppuccin/windows_terminal_mocha.json"]
 type = 'file'
 url = 'https://github.com/catppuccin/windows-terminal/raw/main/mocha.json'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
 
 ["catppuccin/windows_terminal_mocha_theme.json"]
 type = 'file'
 url = 'https://github.com/catppuccin/windows-terminal/raw/main/mochaTheme.json'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
 
 [".config/gnupg/drduh_gpg.conf"]
 type = 'file'
 url = 'https://github.com/drduh/config/raw/master/gpg.conf'
-refreshPeriod = '730h' # 1 month
+refreshPeriod = {{ $commonRefreshPeriod }}
+
+[".local/bin/curl{{ if .chezmoi.os | eq "windows" }}.exe{{ end }}"]
+type = 'file'
+executable = true
+url = 'https://cosmo.zip/pub/cosmos/v/3.7.1/bin/curl'
+refreshPeriod = {{ $commonRefreshPeriod }}
