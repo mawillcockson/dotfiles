@@ -30,47 +30,6 @@ export def main [] {
         })
     }
 
-    def find_current [p: path] {
-        for dir in (
-            $p |
-            path split |
-            0..<($in | length) |
-            each {|it| $p | path split | drop $it | path join}
-        ) {
-            if ($dir | path basename) == 'current' {
-                return $dir
-            }
-
-            if ($dir | path type) != 'dir' {
-                continue
-            }
-
-            let current = (
-                ls --all --full-paths $dir |
-                filter {|it|
-                    $it.type == 'symlink' and ($it.name | path basename) == 'current'
-                }
-            )
-            if ($current | is-not-empty) {
-                let current = ($current | get 0.name)
-                let rest = (
-                    $p |
-                    path relative-to ($current | path expand --strict)
-                )
-                let current_file = (
-                    $current |
-                    path join $rest
-                )
-                if not ($current_file | path exists) {
-                    return (error make {
-                        'msg': $"constructed incorrect path:\n$current: ($current)\n$rest: ($rest)\n$dir: ($dir)\n$p: ($p)",
-                    })
-                }
-                return $current_file
-            }
-        }
-    }
-
     if (which 'gpg' | is-not-empty) {
         let gpg_program = (
             which 'gpg' |
@@ -82,5 +41,46 @@ export def main [] {
         git config --global "gpg.openpgp.program" $gpg_program
     } else {
         log warning 'cannot find gpg, should install and rerun'
+    }
+}
+
+def find_current [p: path] {
+    for dir in (
+        $p |
+        path split |
+        0..<($in | length) |
+        each {|it| $p | path split | drop $it | path join}
+    ) {
+        if ($dir | path basename) == 'current' {
+            return $dir
+        }
+
+        if ($dir | path type) != 'dir' {
+            continue
+        }
+
+        let current = (
+            ls --all --full-paths $dir |
+            filter {|it|
+                $it.type == 'symlink' and ($it.name | path basename) == 'current'
+            }
+        )
+        if ($current | is-not-empty) {
+            let current = ($current | get 0.name)
+            let rest = (
+                $p |
+                path relative-to ($current | path expand --strict)
+            )
+            let current_file = (
+                $current |
+                path join $rest
+            )
+            if not ($current_file | path exists) {
+                return (error make {
+                    'msg': $"constructed incorrect path:\n$current: ($current)\n$rest: ($rest)\n$dir: ($dir)\n$p: ($p)",
+                })
+            }
+            return $current_file
+        }
     }
 }
