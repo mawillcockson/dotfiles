@@ -1,12 +1,14 @@
+use std [log]
 use consts.nu [platform]
 export use setup/windows.nu
+export use setup/gitconfig.nu
 
 export def main [platform: string = $platform] {
+    gitconfig
     match $platform {
         'windows' => { windows },
-        _ => { return (error make {
-            'msg': $'platform not yet implemented -> ($platform | to nuon)',
-            })
+        _ => {
+            log info $"no platform-specific setup for ($platform | to nuon) at this time"
         },
     }
 }
