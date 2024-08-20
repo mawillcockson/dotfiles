@@ -7,8 +7,6 @@
   - Add fonts to the system from OneDrive
     - Maybe consider adding fonts to dotfiles repo?
       - Would have to encrypt ComicCode since it's licensed
-- Bootstrap nu and eget
-  - could be done ~~while only depending on chezmoi's ability to make https requests: e.g. I need to know what the latest version of nu is, so I can make an externals entry for a "file" from the github api, and parse it using the fromJson function~~ using chezmoi's builtin GitHub functions <https://www.chezmoi.io/reference/templates/github-functions/>
 - add eget methods for all essential software that needs to be up-to-date
 - add apt-get as installation method, with the method for installing apt-get being just a test to see if it's installed already
 - add installation scripts for
@@ -30,3 +28,8 @@
 ## non-linux
 
 - codify temporary ncspot login-flow
+
+## completed
+
+- Bootstrap nu and eget
+  - could be done ~~while only depending on chezmoi's ability to make https requests: e.g. I need to know what the latest version of nu is, so I can make an externals entry for a "file" from the github api, and parse it using the fromJson function~~ using chezmoi's builtin GitHub functions <https://www.chezmoi.io/reference/templates/github-functions/>
