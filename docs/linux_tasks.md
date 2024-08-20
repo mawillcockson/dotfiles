@@ -7,6 +7,7 @@
   - Add fonts to the system from OneDrive
     - Maybe consider adding fonts to dotfiles repo?
       - Would have to encrypt ComicCode since it's licensed
+- add DejaVu Sans Mono NerdFont to system
 - add eget methods for all essential software that needs to be up-to-date
 - add apt-get as installation method, with the method for installing apt-get being just a test to see if it's installed already
 - add installation scripts for
@@ -24,6 +25,17 @@
 - starship notifications about amount of time a command took present as a window that steals focus
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
+- find a place for the following note:
+
+```
+# If this gets stuck, the plugins.lua probably didn't appropriately call
+# :quitall
+# Thankfully, Neovim starts a remote server session every time it starts.
+# On Windows, as of 2022-October, these are named pipes like
+# \\.\pipe\nvim.xxxx.x
+# The following command will connect neovim-qt to the first one:
+# nvim-qt --server "\\.\pipe\$((gci \\.\pipe\ | Where-Object -Property Name -Like "nvim*" | Select-Object -First 1).Name)"
+```
 
 ## non-linux
 
