@@ -11,6 +11,10 @@ export def --env main [] {
     log debug 'setting environment variables for gpg and ssh'
     match $platform {
         'windows' => {
+            # Based on:
+            # https://github.com/mawillcockson/dotfiles/blob/798d6ea7267a73502ae8242fae1aa4b0d0618af5/INSTALL_windows.md
+            # This is the default name of the named pipe used Windows' builtin ssh, set explicitly here. More info:
+            # https://github.com/PowerShell/Win32-OpenSSH/issues/1136#issuecomment-500549297
             # This is the default name of the named pipe used Windows' builtin ssh,
             # set explicitly here. More info:
             # https://github.com/PowerShell/Win32-OpenSSH/issues/1136#issuecomment-500549297
