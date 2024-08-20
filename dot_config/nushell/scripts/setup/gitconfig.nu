@@ -7,7 +7,7 @@ use consts.nu [platform]
 # git config --local "user.signingKey" "fingerprint"
 # available as `use utils.nu [setup-gitlocal]`
 
-def main [] {
+export def main [] {
 # Don't automatically delete commits, no matter what
     git config --global "gc.auto" 0
     git config --global "gc.pruneExpire" "never"

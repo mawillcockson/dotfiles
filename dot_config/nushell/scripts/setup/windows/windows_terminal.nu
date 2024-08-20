@@ -1,16 +1,16 @@
 use consts.nu [platform]
 use std [log]
 
-const pwsh_guid = '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}'
-const cmd_guid = '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}'
-const font_name = {
+export const pwsh_guid = '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}'
+export const cmd_guid = '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}'
+export const font_name = {
     'term': 'DejaVuSansM Nerd Font',
     'text': 'ComicCode Nerd Font',
 }
-const themes_program = 'catppuccin'
-const profiles_program = 'mawillcockson'
-const nvim_profile_filename = 'neovim.json'
-const open_quake_profile_filename = 'open_quake.json'
+export const themes_program = 'catppuccin'
+export const profiles_program = 'mawillcockson'
+export const nvim_profile_filename = 'neovim.json'
+export const open_quake_profile_filename = 'open_quake.json'
 
 export def "get-catppuccin" [] {
     get dotfiles-dir |

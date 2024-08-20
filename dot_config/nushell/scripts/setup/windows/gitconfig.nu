@@ -1,6 +1,6 @@
 use std [log]
 
-def main [] {
+export def main [] {
 # ensure the scoop version of git uses the builtin Windows version of SSH, not the version packaged with Git-for-Windows
     if (which 'ssh' | is-not-empty) {
         let sshCommand = (
