@@ -39,6 +39,13 @@ export def "package-data-load-data" [] {
         }
         ^cargo --version
     }}} --tags ["package manager", rust, language, tooling] --links ["https://rustup.rs/"] |
+    simple-add "apt-get" {"linux": {"custom": {||
+        if (which apt-get | is-empty) {
+            return (error make {
+                'msg': "apt-get not found!"
+            })
+        }
+    }}} --tags ["package manager"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [want, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
