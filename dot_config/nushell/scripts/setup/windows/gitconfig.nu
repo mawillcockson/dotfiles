@@ -40,7 +40,7 @@ export def main [] {
         git config --global "gpg.program" $gpg_program
         git config --global "gpg.openpgp.program" $gpg_program
     } else {
-        log warning 'cannot find gpg, should install and rerun'
+        log warning 'cannot find gpg, could try an install and rerun'
     }
 }
 
