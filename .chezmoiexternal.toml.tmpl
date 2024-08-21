@@ -40,6 +40,26 @@ stripComponents = 1
 path = 'eget{{ if $OS | eq "windows" }}.exe{{ end }}'
 refreshPeriod = {{ $commonRefreshPeriod }}
 
+{{ if $OS | eq "linux" }}
+[".profile.d/01_log.sh"]
+type = 'file'
+executable = true
+url = 'https://github.com/mawillcockson/path_additions/raw/main/log.sh'
+refreshPeriod = {{ $commonRefreshPeriod }}
+
+[".profile.d/02_in_path.sh"]
+type = 'file'
+executable = true
+url = 'https://github.com/mawillcockson/path_additions/raw/main/in_path.sh'
+refreshPeriod = {{ $commonRefreshPeriod }}
+
+[".profile.d/03_path_additions.sh"]
+type = 'file'
+executable = true
+url = 'https://github.com/mawillcockson/path_additions/raw/main/path_additions.sh'
+refreshPeriod = {{ $commonRefreshPeriod }}
+{{ end }}
+
 ["catppuccin/starship_latte.toml"]
 type = 'file'
 url = 'https://raw.githubusercontent.com/catppuccin/starship/main/palettes/latte.toml'
