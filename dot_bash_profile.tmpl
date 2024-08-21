@@ -1,3 +1,1 @@
-{{- if .chezmoi.os | eq "android -}}
-{{- include "termux/.bash_profile" -}}
-{{- end }}
+{{- includeTemplate ".bash_profile" . -}}

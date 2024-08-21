@@ -1,5 +1,1 @@
-{{- if .chezmoi.os | eq "android -}}
-{{- include "termux/.bashrc" -}}
-{{- else if .chezmoi.os | eq "linux" -}}
-{{- include "debian/.bashrc" -}}
-{{- end }}
+{{- includeTemplate ".bashrc" . -}}
