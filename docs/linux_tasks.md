@@ -16,8 +16,6 @@
   - neovim
   - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
 - configure KeePass backup triggers
-- Ensure paths to e.g. eget-bin and  nvim are setup
-  - KRunner should be able to find my apps
 - start-ssh
 - starship notifications about amount of time a command took present as a window that steals focus
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
@@ -46,3 +44,5 @@
   - git
   - gpg
 - add apt-get as installation method, with the method for installing apt-get being just a test to see if it's installed already
+- Ensure paths to e.g. eget-bin and  nvim are setup
+  - KRunner should be able to find my apps
