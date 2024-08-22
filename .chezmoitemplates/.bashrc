@@ -79,7 +79,7 @@ fi
 if [ -d "${HOME}/.profile.d" ] && [ -z "${ALREADY_SOURCED_USER_PROFILE_D+"set"}" ]; then
     ALREADY_SOURCED_USER_PROFILE_D="true"
     export ALREADY_SOURCED_USER_PROFILE_D
-    for file in "${HOME}/.profile.d"/.*sh; do
+    for file in "${HOME}/.profile.d"/*.sh; do
         if ! . "$file"; then
             printf '%s did not load correctly\n' "$file"
         fi
