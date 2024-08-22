@@ -1,3 +1,9 @@
+if [ -r ~/.profile ] && [ -z "${ALREADY_SOURCED_USER_PROFILE+"set"}" ]; then
+    if ! . ~/.profile; then
+        echo "problem with ~/.profile"
+    fi
+fi
+
 init_starship() {
     if ! command -v starship >/dev/null 2>&1; then
         printf '%s\n' 'starship not found'
