@@ -33,10 +33,6 @@ init_atuin() {
 alias init_ssh='eval "$(okc-ssh-agent)"'
 alias init_ssh_agent='init_ssh'
 
-# Created by `pipx` on 2022-08-14 17:26:29
-# modified by me
-export PATH="${PATH}:${HOME}/.local/bin"
-
 if [ -n "${OLD:+"set"}" ]; then
     printf '%s\n' "Environment variable 'OLD' is already in use!"
 else
