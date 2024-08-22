@@ -1,11 +1,12 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- /* https://www.chezmoi.io/user-guide/manage-different-types-of-file/#manage-part-but-not-all-of-a-file */ -}}
+{{- $current := .chezmoi.stdin -}}
 {{- $guardComment := "# chezmoi-managed portion (elkjw8)" -}}
 {{- $managed := includeTemplate ".bashrc" . -}}
 {{- $pattern := list (regexQuoteMeta $guardComment) ".*" (regexQuoteMeta $guardComment) | join "" -}}
-{{- $chunk := list .chezmoi.stdin "\n" $guardComment $managed $guardComment | join "\n" -}}
-{{- if .chezmoi.stdin | contains $guardComment -}}
-{{- mustRegexReplaceAllLiteral $pattern .chezmoi.stdin $chunk -}}
+{{- $chunk := list $guardComment $managed $guardComment | join "\n" -}}
+{{- if $current | contains $guardComment -}}
+{{- mustRegexReplaceAllLiteral $pattern $current $chunk -}}
 {{- else -}}
-{{- $chunk }}
+{{- list $chunk $current | join "\n\n" }}
 {{- end -}}
