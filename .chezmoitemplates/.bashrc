@@ -33,18 +33,6 @@ init_atuin() {
 alias init_ssh='eval "$(okc-ssh-agent)"'
 alias init_ssh_agent='init_ssh'
 
-if [ -n "${OLD:+"set"}" ]; then
-    printf '%s\n' "Environment variable 'OLD' is already in use!"
-else
-    OLD="$(pwd -P)"
-    if cd ~/.cargo/bin >/dev/null 2>&1 && CARGO_BIN="$(pwd -P)"; then
-        PATH="${PATH}:${CARGO_BIN}"
-    fi
-    cd "${OLD}" || echo "cannot cd into \$OLD -> \"${OLD}\""
-    unset -v OLD || true
-    unset -v CARGO_BIN || true
-fi
-
 if command -v nu >/dev/null 2>&1 && nu -e exit 2>&1 && [ -n "${PLEASE_USE_NU+"set"}" ]; then
     exec nu --login
 fi
