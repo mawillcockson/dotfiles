@@ -11,4 +11,5 @@ export def "package-manager-load-data" [] {
     simple-add --platform "windows" "cargo" {|id: string| ^cargo --bins --all-features --keep-going $id} |
     simple-add --platform "linux" "apt-get" {|id: string| ^apt-get --no-install-recommends --quiet --assume-yes --default-release --update install $id } |
     simple-add --platform "android" "pkg" {|id: string| ^pkg install $id}
+    simple-add --platform "linux" "flatpak" {|id: string| ^flatpak install --or-update --user --assumeyes --noninteractive flathub $id}
 }

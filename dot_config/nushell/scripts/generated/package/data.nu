@@ -46,6 +46,11 @@ export def "package-data-load-data" [] {
             })
         }
     }}} --tags ["package manager"] |
+    simple-add "flatpak" {"linux": {"apt-get": "flatpak"}} --tags ["flatpak", "package manager"] --reasons ["cross-distribution package manager that is farily well-used"] --links ["https://flatpak.org/setup/Debian"] |
+    simple-add "flathub" {"linux": {"custom": {|install: closure|
+        do $install 'flatpak'
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    }}} --tags ["flatpak"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [want, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
@@ -110,7 +115,7 @@ export def "package-data-load-data" [] {
     simple-add "mariadb" {"windows": {"scoop": "mariadb"}} --tags [large, rarely] |
     simple-add "mpv" {"windows": {"scoop": "mpv"}} --tags [want] --reasons ["has fewer visual \"glitches\" than vlc, and plays as wide a variety of media, including HEVC/h.265 for free"] |
     simple-add "neovide" {"windows": {"scoop": "neovide"}} --tags [want] |
-    simple-add "neovim" {"windows": {"scoop": "neovim"}} --tags [essential] |
+    simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"flatpak": "io.neovim.nvim"}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}} --tags [essential, small] |
     simple-add "obs-studio" {"windows": {"scoop": "obs-studio"}} --tags [large] |
