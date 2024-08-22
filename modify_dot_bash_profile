@@ -1,0 +1,11 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /* https://www.chezmoi.io/user-guide/manage-different-types-of-file/#manage-part-but-not-all-of-a-file */ -}}
+{{- $guardComment := "# chezmoi-managed portion (f4b3b)" -}}
+{{- $managed := includeTemplate ".bash_profile" . -}}
+{{- if .chezmoi.stdin | contains $guardComment -}}
+{{- $pattern := list (regexQuoteMeta $guardComment) ".*" (regexQuoteMeta $guardComment) | join "" -}}
+{{- $chunk := list .chezmoi.stdin "\n" $guardComment $managed $guardComment | join "\n" -}}
+{{- mustRegexReplaceAllLiteral $pattern .chezmoi.stdin $chunk -}}
+{{- else -}}
+{{- $chunk }}
+{{- end -}}
