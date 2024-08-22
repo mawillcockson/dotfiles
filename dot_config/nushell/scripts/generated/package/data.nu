@@ -50,6 +50,7 @@ export def "package-data-load-data" [] {
     simple-add "flathub" {"linux": {"custom": {|install: closure|
         do $install 'flatpak'
         flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     }}} --tags ["flatpak"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [want, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
