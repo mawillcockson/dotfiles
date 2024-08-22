@@ -57,7 +57,7 @@ else
     unset -v CARGO_BIN || true
 fi
 
-if nu -e exit 2>&1 && [ -n "${PLEASE_USE_NU+"set"}" ]; then
+if command -v nu >/dev/null 2>&1 && nu -e exit 2>&1 && [ -n "${PLEASE_USE_NU+"set"}" ]; then
     exec nu --login
 fi
 
