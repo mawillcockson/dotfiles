@@ -35,7 +35,7 @@ let tmux_command = if (which 'tmux' | is-not-empty) and ('TMUX' not-in $env) {
 } else if (which 'tmux' | is-not-empty) {
     ' # tmux already running'
 } else {
-    'nu -c `use package; package install tmux`'
+    'nu -c "use package; package install tmux"'
 }
 
 let remove_tmux_helpers = r##'

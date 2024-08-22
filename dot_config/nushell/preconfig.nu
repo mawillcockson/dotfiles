@@ -140,7 +140,7 @@ if ($clipboard_nu | path exists) {
 #    }
 #}
 
-$postconfig_content ++= `export use std`
+$postconfig_content ++= 'export use std'
 
 let start_ssh_nu = ($scripts | path join 'start-ssh.nu')
 if ($start_ssh_nu | path exists) {
