@@ -1,3 +1,6 @@
+ALREADY_SOURCED_USER_PROFILE="true"
+export ALREADY_SOURCED_USER_PROFILE
+
 # {{ if .chezmoi.os | eq "android" }}
 SUB_PREFIX="${PREFIX:+"$(dirname "${PREFIX}")"}"
 export HOME="${HOME:-"${SUB_PREFIX-}/home"}"
@@ -8,8 +11,6 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-"${HOME}/.config"}"
 
 # from:
 # https://github.com/mawillcockson/dotfiles/blob/d9cd2ef8ca9293c8f7b86de8c5b23246135b6f5c/dotfiles/.profile
-ALREADY_SOURCED_USER_PROFILE="true"
-export ALREADY_SOURCED_USER_PROFILE
 if [ -d /etc/profile.d ] && [ -z "${ALREADY_SOURCED_SYSTEM_PROFILE_D+"set"}" ]; then
     ALREADY_SOURCED_SYSTEM_PROFILE_D="true"
     export ALREADY_SOURCED_SYSTEM_PROFILE_D
