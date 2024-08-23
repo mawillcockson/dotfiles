@@ -318,6 +318,11 @@ export def "package-data-load-data" [] {
         do $install 'protoc'
         do $install 'cargo'
         ^cargo install --all-features --bins --keep-going 'atuin'
+    }}, "linux": {"custom": {|install: closure|
+        let tmpfile = (mktemp)
+        http get --redirect-mode 'follow' --max-time 3 'https://setup.atuin.sh' | save -f $tmpfile
+        ^sh $tmpfile
+        rm $tmpfile
     }}} --tags [cli, want, history] --reasons ["syncs my command history across platforms and computers"] |
     simple-add "fennel" {"windows": {"custom": {|install: closure|
         do $install 'luajit'
