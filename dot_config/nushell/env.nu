@@ -71,6 +71,8 @@ $env.PATH = (
     | first
     | split row (char env_sep)
     | append ($env.EGET_BIN)
+    # https://www.nushell.sh/book/configuration.html#pyenv
+    | if (which 'pyenv' | is-not-empty) {prepend (^pyenv root | path join 'shims')} else {$in}
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | uniq
     | path expand

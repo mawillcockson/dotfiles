@@ -52,7 +52,51 @@ export def "package-data-load-data" [] {
         try { flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo }
         flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     }}} --tags ["flatpak"] |
-    simple-add "python" {"windows": {"scoop": "python"}} --tags [want, language] |
+    simple-add "pyenv" {"linux": {"custom": {|install: closure|
+        use std [log]
+        if (which 'pyenv' | is-not-empty) {
+            log info 'pyenv already installed'
+            return true
+        }
+
+        log info 'installing prerequisites'
+        do $install 'apt-get'
+        # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+        ^sudo apt-get update --assume-yes
+        (
+            ^sudo apt-get install
+                --no-install-recommends
+                --quiet
+                --assume-yes
+                --default-release stable
+                build-essential
+                libssl-dev
+                zlib1g-dev
+                libbz2-dev
+                libreadline-dev
+                libsqlite3-dev
+                curl
+                git
+                libncursesw5-dev
+                xz-utils
+                tk-dev
+                libxml2-dev
+                libxmlsec1-dev
+                libffi-dev
+                liblzma-dev
+        )
+
+        let $tmpfile = (mktemp)
+        http get --max-time 3 'https://pyenv.run' | save -f $tmpfile
+        ^bash $tmpfile
+        rm $mktemp
+    }}} --tags ["language manager", python] --reasons ["helps manage python installations"] |
+    simple-add "python" {"windows": {"scoop": "python"}, "linux": {"custom": {|install: closure|
+        use std [log]
+        do $install 'pyenv'
+        ^pyenv update
+        ^pyenv latest --known '3.'
+    }}} --tags [python, want, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
     simple-add "git" {"windows": {"scoop": "git"}} --tags [want] --reasons ["revision control and source management", "downloading programs"] --links ["https://git-scm.com/docs"] |
