@@ -49,7 +49,7 @@ export def "package-data-load-data" [] {
     simple-add "flatpak" {"linux": {"apt-get": "flatpak"}} --tags ["flatpak", "package manager"] --reasons ["cross-distribution package manager that is farily well-used"] --links ["https://flatpak.org/setup/Debian"] |
     simple-add "flathub" {"linux": {"custom": {|install: closure|
         do $install 'flatpak'
-        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        try { flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo }
         flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     }}} --tags ["flatpak"] |
     simple-add "python" {"windows": {"scoop": "python"}} --tags [want, language] |
