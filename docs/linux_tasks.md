@@ -21,7 +21,6 @@
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
 - The place that the flatpak-ed neovim searching for init.vim needs to be symlinked to ~/.config/nvim
-- The symlink for nvim should only be created if `io.neovim.nvim` exists
 - find a place for the following note:
 
 ```
@@ -50,3 +49,4 @@
   - KRunner should be able to find my apps
 - Find a way to add `nvim` executable on $PATH
   - Maybe a symlink can be dropped into ~/.local/bin if the flatpak neovim is installed?
+  - The symlink for nvim should only be created if `io.neovim.nvim` exists
