@@ -116,7 +116,15 @@ export def "package-data-load-data" [] {
     simple-add "mariadb" {"windows": {"scoop": "mariadb"}} --tags [large, rarely] |
     simple-add "mpv" {"windows": {"scoop": "mpv"}} --tags [want] --reasons ["has fewer visual \"glitches\" than vlc, and plays as wide a variety of media, including HEVC/h.265 for free"] |
     simple-add "neovide" {"windows": {"scoop": "neovide"}} --tags [want] |
-    simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"flatpak": "io.neovim.nvim"}} --tags [essential] |
+    simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
+        do $install 'flathub'
+        flatpak install --or-update --user --assumeyes --noninteractive flathub 'io.neovim.nvim'
+
+        let flatpak_config_home = ($env.HOME | path join '.var' 'app' 'io.neovim.nvim' 'config')
+        # if path doesn't exist -> make symlink
+        # if path does exists -> if it isn't symlink, raise warning; else check if it points to the right place
+        ^ln -s ($env.XDG_CONFIG_HOME | path join 'nvim') 
+    }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}} --tags [essential, small] |
     simple-add "obs-studio" {"windows": {"scoop": "obs-studio"}} --tags [large] |
