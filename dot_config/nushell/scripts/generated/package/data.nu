@@ -105,7 +105,32 @@ export def "package-data-load-data" [] {
     simple-add "audacity" {"windows": {"scoop": "audacity"}} --tags [rarely, large] |
     simple-add "caddy" {"windows": {"scoop": "caddy", "winget": "CaddyServer.Caddy"}, "linux": {"apt-get": "caddy"}} --tags [small, rarely] |
     simple-add "dark" {"windows": {"scoop": "dark"}} --tags [scoop, exclude, auto] |
-    simple-add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}} --tags [want] |
+    simple-add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}, "linux": {"custom": {|install: closure|
+        use std [log]
+        [] |
+        append ( if (which 'xz' | is-empty) {'xz-utils'} else {null} ) |
+        append ( if (which 'tar' | is-empty) {'tar'} else {null} |
+        (
+            ^sudo apt-get install
+                --no-install-recommends
+                --quiet
+                --assume-yes
+                --default-release stable
+                ...($in)
+        )
+        # https://gist.github.com/matthewjberger/7dd7e079f282f8138a9dc3b045ebefa0?permalink_comment_id=3847557#gistcomment-3847557
+        let asset = (
+            http get --max-time 3 'https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest' |
+            get assets |
+            where name =~ '(?i)DejaVuSansMono\.tar\.xz' |
+            first
+        )
+        let tmpfile = (mktemp)
+        http get $asset.browser_download_url | save -f $tmpfile
+        let fonts_dir = ($env.HOME | path join '.fonts')
+        ^tar -xJf $tmpfile -C $fonts_dir --wildcards '*.ttf'
+        fc-cache -fv
+    }}} --tags [want, fonts] |
     simple-add "duckdb" {"windows": {"scoop": "duckdb"}} --tags [small, undecided] --reasons ["cool database engine in same space as SQLite, but under really cool, active development by academics, with really cool features"] |
     simple-add "eget" {"windows": {"scoop": "eget"}, "android": {"custom": {|install: closure|
         let asset = (
