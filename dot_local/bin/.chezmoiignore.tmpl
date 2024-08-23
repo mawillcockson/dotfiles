@@ -1,0 +1,3 @@
+{{ if not (joinPath .chezmoi.homeDir ".local" "share" "flatpak" "exports" "bin" "io.neovim.nvim" | stat) }}
+nvim
+{{ end }}
