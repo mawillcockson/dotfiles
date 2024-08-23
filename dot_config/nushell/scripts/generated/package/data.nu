@@ -229,7 +229,41 @@ export def "package-data-load-data" [] {
     simple-add "Microsoft.VCLibs.Desktop.14" {"windows": {"winget": "Microsoft.VCLibs.Desktop.14"}} --tags [exclude] |
     simple-add "Microsoft.WindowsTerminal" {"windows": {"winget": "Microsoft.WindowsTerminal"}} --tags [want, gui, windows] --reasons ["use to be my favorite terminal emulator before neovide+neovim"] |
     simple-add "Microsoft.Teams.Free" {"windows": {"winget": "Microsoft.Teams.Free"}} --tags [exclude, remove] |
-    simple-add "Mozilla.Firefox" {"windows": {"winget": "Mozilla.Firefox"}} --tags [want, large] --reasons ["beloved browser"] |
+    simple-add "firefox" {"windows": {"winget": "Mozilla.Firefox"}, "linux": {"custom": {|install: closure|
+        use std [log]
+        do $install 'gnupg2'
+
+        # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
+        log info "Create a directory to store APT repository keys if it doesn't exist"
+        ^sudo install -d -m 0755 /etc/apt/keyrings
+
+        log info "Import the Mozilla APT repository signing key"
+        let tmpfile = (mktemp)
+        http get 'https://packages.mozilla.org/apt/repo-signing-key.gpg' | save -f $tmpfile
+        let target = '/etc/apt/keyrings/packages.mozilla.org.asc'
+        ^sudo cp $tmpfile $target
+        ^sudo chmod u=rw,g=r,o=r $target
+
+        log info 'check fingerprint'
+        ^gpg -n -q --import --import-options import-show $target |
+        ^awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
+
+        log info 'Next, add the Mozilla APT repository to your sources list'
+        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+
+        log info 'Configure APT to prioritize packages from the Mozilla repository'
+        echo '
+        Package: *
+        Pin: origin packages.mozilla.org
+        Pin-Priority: 1000
+        ' | sudo tee /etc/apt/preferences.d/mozilla
+
+        log info 'Update your package list and install the Firefox .deb package'
+        ^sudo apt-get update --assume-yes
+        ^sudo apt-get install --no-install-recommends --quiet --assume-yes --default-release stable firefox
+
+        rm $tmpfile
+    }}} --tags [want, large] --reasons ["beloved browser"] |
     simple-add "Microsoft.OneDrive" {"windows": {"winget": "Microsoft.OneDrive"}} --tags [want, system] --reasons ["what I use to sync all my files cross-platform"] |
     simple-add "rustup" {"windows": {"winget": "Rustlang.Rustup"}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
     simple-add "Valve.Steam" {"windows": {"winget": "Valve.Steam"}} --tags [gui, games, large] |
