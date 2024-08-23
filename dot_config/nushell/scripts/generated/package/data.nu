@@ -121,9 +121,27 @@ export def "package-data-load-data" [] {
         flatpak install --or-update --user --assumeyes --noninteractive flathub 'io.neovim.nvim'
 
         let flatpak_config_home = ($env.HOME | path join '.var' 'app' 'io.neovim.nvim' 'config')
-        # if path doesn't exist -> make symlink
-        # if path does exists -> if it isn't symlink, raise warning; else check if it points to the right place
-        ^ln -s ($env.XDG_CONFIG_HOME | path join 'nvim') 
+        let target = ($env.XDG_CONFIG_HOME | path join 'nvim')
+        match ($flatpak_config_home | path type) {
+            null => {
+                ^ln -s $target $flatpak_config_home
+                return true
+            },
+            'symlink' => {
+                if ($flatpak_config_home | path expand) == ($target | path expand) {
+                    return true
+                }
+                use std [log]
+                log warning $'directory ($flatpak_config_home | to nuon) is already a symlink, but points to ($flatpak_config_home | path expand | to nuon) instead of ($target | path expand | to nuon)'
+                return false
+            },
+            _ => {
+                use std [log]
+                log warning "can't symlink config directory"
+                log warning $'expected to find nothing, or a symlink, but found ($flatpak_config_home | path type | to nuon) -> ($flatpak_config_home | to nuon)'
+                return false
+            },
+        }
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}} --tags [essential, small] |
