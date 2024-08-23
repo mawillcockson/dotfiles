@@ -120,6 +120,7 @@ export def "package-data-load-data" [] {
         do $install 'flathub'
         flatpak install --or-update --user --assumeyes --noninteractive flathub 'io.neovim.nvim'
 
+        # NOTE:BUG it appears to need access to the whole ~/.config directory?
         let flatpak_config_home = ($env.HOME | path join '.var' 'app' 'io.neovim.nvim' 'config')
         let target = ($env.XDG_CONFIG_HOME | path join 'nvim')
         match ($flatpak_config_home | path type) {
