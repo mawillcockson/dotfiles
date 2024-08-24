@@ -17,6 +17,8 @@ windows_terminal/
 AppData/
 {{ end }}
 {{ if (.chezmoi.os | ne "linux") | and (.chezmoi.os | ne "android") }}
+.profile
+.profile.d/
 .bashrc
 .bash_profile
 .tmux.conf
