@@ -7,7 +7,6 @@
   - Add fonts to the system from OneDrive
     - Maybe consider adding fonts to dotfiles repo?
       - Would have to encrypt ComicCode since it's licensed
-- add DejaVu Sans Mono NerdFont to system
 - add eget methods for all essential software that needs to be up-to-date
 - add installation scripts for
   - kanata (udev rules, group membership, modprobe)
@@ -51,3 +50,4 @@
 - add installation scripts for
   - neovim
     - The place that the flatpak-ed neovim searching for init.vim needs to be symlinked to ~/.config/nvim
+- add DejaVu Sans Mono NerdFont to system

@@ -110,14 +110,17 @@ export def "package-data-load-data" [] {
         [] |
         append ( if (which 'xz' | is-empty) {'xz-utils'} else {null} ) |
         append ( if (which 'tar' | is-empty) {'tar'} else {null} |
-        (
-            ^sudo apt-get install
-                --no-install-recommends
-                --quiet
-                --assume-yes
-                --default-release stable
-                ...($in)
-        )
+        compact |
+        if ($in | is-not-empty) {
+            (
+                ^sudo apt-get install
+                    --no-install-recommends
+                    --quiet
+                    --assume-yes
+                    --default-release stable
+                    ...($in)
+            )
+        }
         # https://gist.github.com/matthewjberger/7dd7e079f282f8138a9dc3b045ebefa0?permalink_comment_id=3847557#gistcomment-3847557
         let asset = (
             http get --max-time 3 'https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest' |
