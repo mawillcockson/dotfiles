@@ -117,12 +117,12 @@ export def "ln -s" [
             let link_type = (match ($target | path type) {
                 'file' => {
                     if not (is-admin) {
-                        print -e `symlinking to a file on windows is usually only possible if you're running with administrator privileges; normally, only directory junctions are allowed`
+                        print -e "symlinking to a file on windows is usually only possible if you're running with administrator privileges; normally, only directory junctions are allowed"
                     }
                     'SymbolicLink'
                 },
                 'symlink' => {
-                    print -e `I have no idea if this will work`
+                    print -e 'I have no idea if this will work'
                     'SymbolicLink'
                 },
                 'dir' => { 'Junction' },
@@ -150,7 +150,7 @@ export def "ln -s" [
                         'LINK': ($link),
                         'TARGET': ($target),
                     } {
-                        do {^sh -euc `ln -s "${TARGET}" "${LINK}"`} | complete
+                        do {^sh -euc 'ln -s "${TARGET}" "${LINK}"'} | complete
                     }
                 )
             }
@@ -213,16 +213,16 @@ export def "powershell-safe" [
     })}
 
     let script = ([
-        `$OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding`,
+        '$OutputEncoding = [Console]::InputEncoding = [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding',
     ] | append $command | prepend (if not $less_safe {[
-            # `<# Put this after so that scoop has a default environment. I remember it not liking me changing $ErrorActionPreference`,
-            # `# https://github.com/PowerShell/PowerShell/issues/3415#issuecomment-1354457563 #>`,
-            # `if (($host.version.Major -eq 7) -and ($host.version.Minor -ge 4)) {`,
-            # `  Enable-ExperimentalFeature PSNativeCommandErrorActionPreference`,
-            # `}`,
-            `Set-StrictMode -Version Latest`,
-            `$ErrorActionPreference = "Stop"`,
-            `$PSNativeCommandUseErrorActionPreference = $true`,
+            # '<# Put this after so that scoop has a default environment. I remember it not liking me changing $ErrorActionPreference',
+            # '# https://github.com/PowerShell/PowerShell/issues/3415#issuecomment-1354457563 #>',
+            # 'if (($host.version.Major -eq 7) -and ($host.version.Minor -ge 4)) {',
+            # '  Enable-ExperimentalFeature PSNativeCommandErrorActionPreference',
+            # '}',
+            'Set-StrictMode -Version Latest',
+            '$ErrorActionPreference = "Stop"',
+            '$PSNativeCommandUseErrorActionPreference = $true',
         ]}
     ))
     let args = [
@@ -326,8 +326,8 @@ export def "get c-p" [
 }
 
 export def "timeit-profile" [] {
-    let with_profile = (timeit { nu -c `source $nu.env-path;source $nu.config-path;echo "hello"`})
-    let without_profile = (timeit { nu -c `echo "hello"` })
+    let with_profile = (timeit { nu -c 'source $nu.env-path;source $nu.config-path;echo "hello"'})
+    let without_profile = (timeit { nu -c 'echo "hello"' })
     return ($with_profile - $without_profile)
 }
 

@@ -79,7 +79,7 @@ export def --env main [] {
     match $platform {
         'windows' => {
             log debug 'starting background wsl-ssh-pageant'
-            powershell-safe -c `& {start-process -filepath wsl-ssh-pageant.exe -ArgumentList ('-systray','-winssh','openssh-ssh-agent','-wsl',(gpgconf --list-dirs agent-ssh-socket),'-force') -WindowStyle hidden }`
+            powershell-safe -c r#'& {start-process -filepath wsl-ssh-pageant.exe -ArgumentList ('-systray','-winssh','openssh-ssh-agent','-wsl',(gpgconf --list-dirs agent-ssh-socket),'-force') -WindowStyle hidden }'#
         },
         'android' => { log debug 'already started background process' },
         _ => {return (error make {'msg': $'not implemented for platform: ($platform)'})},

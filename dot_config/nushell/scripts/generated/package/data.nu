@@ -9,21 +9,21 @@ export def "package-data-load-data" [] {
     simple-add "winget" {"windows": {"custom": {||
         use utils.nu [powershell-safe]
         powershell-safe -c ([
-            `if (-not (Get-AppxPackage Microsoft.DesktopAppInstaller)) {`,
-            `    Add-AppxPackage "https://aka.ms/getwinget"`,
+            'if (-not (Get-AppxPackage Microsoft.DesktopAppInstaller)) {',
+            '    Add-AppxPackage "https://aka.ms/getwinget"',
         # https://learn.microsoft.com/en-us/windows/package-manager/winget/
-            `    Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe`,
-            `}`,
+            '    Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe',
+            '}',
         ] | str join '')
     }}} --tags [want, "package manager"] |
     simple-add "scoop" {"windows": {"custom": {||
         use utils.nu [powershell-safe]
         powershell-safe --less-safe -c ([
-            `if (-not (gcm scoop -ErrorAction SilentlyContinue)) {`,
-            `    irm -useb "https://get.scoop.sh" | iex`,
-            `    scoop install aria2 git`,
-            `    scoop bucket add extras`,
-            `}`,
+            'if (-not (gcm scoop -ErrorAction SilentlyContinue)) {',
+            '    irm -useb "https://get.scoop.sh" | iex',
+            '    scoop install aria2 git',
+            '    scoop bucket add extras',
+            '}',
         ] | str join '')
     }}} --tags [want, "package manager"] |
     simple-add "pipx" {"windows": {"custom": {|install: closure|
@@ -370,7 +370,7 @@ export def "package-data-load-data" [] {
         ^fnm default lts-latest
 
         use std [log]
-        log info "use a command like the folowing to find where node is installed:\nfnm exec --using=default nu -c `$env.PATH | first | path join 'node.exe'`"
+        log info "use a command like the folowing to find where node is installed:\nfnm exec --using=default nu -c '$env.PATH | first | path join \"node.exe\"'"
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
     simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 (and maybe up?) on Windows"] |
     simple-add "atuin" {"windows": {"custom": {|install: closure|

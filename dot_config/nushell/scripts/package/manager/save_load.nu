@@ -16,12 +16,12 @@ export def "save-data" [
     let bad_path = ($path | path basename --replace ($'bad-($path | path basename)'))
 
     let func_def = [
-        `# this file is auto-generated`,
-        '# please use `package manager add --save` instead',
-        ``,
-        `# returns the package manager data`,
-        `export def "package-manager-load-data" [] {`,
-        `    use package/manager/simple_add.nu ['simple-add']`,
+        r#'# this file is auto-generated'#,
+        r#'# please use `package manager add --save` instead'#,
+        r#''#,
+        r#'# returns the package manager data'#,
+        r#'export def "package-manager-load-data" [] {'#,
+        r#'    use package/manager/simple_add.nu ['simple-add']'#,
     ]
 
     $data | transpose platform_name install |
@@ -33,7 +33,7 @@ export def "save-data" [
         str join " |\n"
     } | str join " |\n" |
     tee {$in | null} | # NOTE::BUG without this line, an extra newline is inserted into the string
-    prepend $func_def | append [`}`] |
+    prepend $func_def | append ['}'] |
     str join "\n" |
     if not ($in | nu-check --as-module) {
         # have this be first, otherwise $in becomes empty
