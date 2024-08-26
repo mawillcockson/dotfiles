@@ -14,14 +14,14 @@ export def "save-data" [
     let bad_path = ($path | path basename --replace ($'bad-($path | path basename)'))
 
     let func_def = [
-        r#'# this file is auto-generated'#,
-        r#'# please use `package add --save` instead'#,
-        r#''#,
-        r#'# returns the package data'#,
-        r#'export def "package-data-load-data" [] {'#,
-        r#'    use package/data/simple_add.nu ['simple-add']'#,
-        r#'    use package/data/validate_data.nu ['validate-data']'#,
-        r#''#,
+        r##'# this file is auto-generated'##,
+        r##'# please use `package add --save` instead'##,
+        r##''##,
+        r##'# returns the package data'##,
+        r##'export def "package-data-load-data" [] {'##,
+        r##'    use package/data/simple_add.nu ['simple-add']'##,
+        r##'    use package/data/validate_data.nu ['validate-data']'##,
+        r##''##,
     ]
 
     # NOTE::DEBUG

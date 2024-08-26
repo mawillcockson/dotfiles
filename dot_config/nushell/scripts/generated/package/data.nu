@@ -109,7 +109,7 @@ export def "package-data-load-data" [] {
         use std [log]
         [] |
         append ( if (which 'xz' | is-empty) {'xz-utils'} else {null} ) |
-        append ( if (which 'tar' | is-empty) {'tar'} else {null} |
+        append ( if (which 'tar' | is-empty) {'tar'} else {null} ) |
         compact |
         if ($in | is-not-empty) {
             (

@@ -16,12 +16,12 @@ export def "save-data" [
     let bad_path = ($path | path basename --replace ($'bad-($path | path basename)'))
 
     let func_def = [
-        r#'# this file is auto-generated'#,
-        r#'# please use `package manager add --save` instead'#,
-        r#''#,
-        r#'# returns the package manager data'#,
-        r#'export def "package-manager-load-data" [] {'#,
-        r#'    use package/manager/simple_add.nu ['simple-add']'#,
+        r##'# this file is auto-generated'##,
+        r##'# please use `package manager add --save` instead'##,
+        r##''##,
+        r##'# returns the package manager data'##,
+        r##'export def "package-manager-load-data" [] {'##,
+        r##'    use package/manager/simple_add.nu ['simple-add']'##,
     ]
 
     $data | transpose platform_name install |
