@@ -190,8 +190,9 @@ export def "package-data-load-data" [] {
     simple-add "neovide" {"windows": {"scoop": "neovide"}} --tags [want] |
     simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
         do $install 'asdf'
-        $nu.current-exe -c 'asdf plugin add neovim'
-        $nu.current-exe -c 'asdf install neovim stable'
+        run-external $nu.current-exe '-l' '-c' 'asdf plugin add neovim'
+        run-external $nu.current-exe '-l' '-c' 'asdf install neovim stable'
+        run-external $nu.current-exe '-l' '-c' 'asdf global neovim stable'
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}} --tags [essential, small] |
@@ -504,7 +505,7 @@ export def "package-data-load-data" [] {
         do $install 'curl'
 
         git clone --single-branch --branch v0.14.1 'https://github.com/asdf-vm/asdf.git' ~/.asdf
-        $nu.current-exe -l -c 'asdf update'
+        run-external $nu.current-exe '-l' '-c' 'asdf update'
     }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
