@@ -219,7 +219,15 @@ export def "package-data-load-data" [] {
     simple-add "windirstat" {"windows": {"scoop": "windirstat"}} --tags [want, small] --reasons ["visualizes hard drive allocation by file size", "makes it much, much easier to find large files taking up hard drive space and delete them"] |
     simple-add "wsl-ssh-pageant" {"windows": {"scoop": "wsl-ssh-pageant"}} --tags [want, gnupg, windows] --reasons ["makes it possible to use gnupg as an ssh agent on Windows"] |
     simple-add "xmplay" {"windows": {"scoop": "xmplay"}} --tags [small, gui, music, rarely] --reasons ["has a cool rabbit hole visualizer plugin, and can play MOD files"] |
-    simple-add "zig" {"windows": {"scoop": "zig"}} --tags [language, want, compiler, zig] --reasons ["cool language", "acts as my cross-platform C compiler"] |
+    simple-add "snap" {"linux": {"custom": {|install: closure|
+        do $install 'apt-get'
+        sudo apt-get install --no-install-recommends --assume-yes --default-release stable snapd
+        try {snap install core} catch {snap refresh core}
+}}} --tags ["package manager"] --reasons ["currently used to install zig on linux"] |
+    simple-add "zig" {"windows": {"scoop": "zig"}, "linux": {"custom": {|install: closure|
+        do $install 'snap'
+        snap install zig --classic --beta
+    }}} --tags [language, want, compiler, zig] --reasons ["cool language", "acts as my cross-platform C compiler"] |
     simple-add "zls" {"windows": {"scoop": "zls"}} --tags [tooling, zig] --reasons ["official zig language server"] |
     simple-add "zstd" {"windows": {"scoop": "zstd"}} --tags [small, why_even] --reasons ["allows me to get more compression out of zstd than PeaZip"] |
     simple-add "mullvadvpn" {"windows": {"winget": "MullvadVPN.MullvadVPN"}} --tags [small, vpn] --reasons ["beloved, occasionally used vpn client"] |
