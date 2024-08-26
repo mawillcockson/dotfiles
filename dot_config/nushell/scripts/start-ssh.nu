@@ -30,8 +30,10 @@ export def --env main [] {
             {'SSH_AUTH_SOCK': ($named_pipe)}
         },
         'linux' => {
-            {'GPG_TTY': (^tty)}
-            return (error make {'msg': 'linux platform has not been fully implemented'})
+            {
+                'GPG_TTY': (^tty),
+                'SSH_AUTH_SOCK': (^gpgconf --list-dirs agent-ssh-socket),
+            }
         },
         'android' => {
             if ('SSH_AUTH_SOCK' not-in $env) {
@@ -46,18 +48,22 @@ export def --env main [] {
         },
         _ => {return (error make {'msg': $'not implemented for platform: ($platform)'})},
     } | load-env
-    log debug 'killing all gpg services'
-    ^gpgconf --kill all
-    let wsl_ssh_pageant_pids = (
-        ps
-        | str contains --ignore-case 'wsl-ssh-pageant.exe' name
-        | where name == true
-        | get pid
-    )
-    if ($wsl_ssh_pageant_pids | is-not-empty) {
-        log debug $'killing wsl-ssh-pageant -> ($wsl_ssh_pageant_pids | to nuon)'
-        kill ($wsl_ssh_pageant_pids | first) ...($wsl_ssh_pageant_pids | skip 1)
+
+    if ($platform == 'windows') {
+        log debug 'killing all gpg services'
+        ^gpgconf --kill all
+        let wsl_ssh_pageant_pids = (
+            ps
+            | str contains --ignore-case 'wsl-ssh-pageant.exe' name
+            | where name == true
+            | get pid
+        )
+        if ($wsl_ssh_pageant_pids | is-not-empty) {
+            log debug $'killing wsl-ssh-pageant -> ($wsl_ssh_pageant_pids | to nuon)'
+            kill ($wsl_ssh_pageant_pids | first) ...($wsl_ssh_pageant_pids | skip 1)
+        }
     }
+
     let agent_ssh_socket = (^gpgconf --list-dirs agent-ssh-socket)
     if ($agent_ssh_socket | path exists) {
         log debug $'trying to remove agent ssh socket -> ($agent_ssh_socket | to nuon)'
@@ -67,13 +73,30 @@ export def --env main [] {
                 powershell-safe -c 'Remove-Item -Path (gpgconf --list-dirs agent-ssh-socket) -Force -ErrorAction SilentlyContinue'
             },
             _ => {
-                rm --force $agent_ssh_socket
+                log debug $'leaving socket as-is -> ($agent_ssh_socket)'
+                #rm --force $agent_ssh_socket
             },
         }
     }
-    if ($agent_ssh_socket | path exists) {
-        log warning $'was not able to remove file -> ($agent_ssh_socket | to nuon)'
+
+    match ($platform) {
+        'windows' => {
+            if ($agent_ssh_socket | path exists) {
+                log warning $'was not able to remove file -> ($agent_ssh_socket | to nuon)'
+            }
+        },
+        'linux' => {
+            if not ($agent_ssh_socket | path exists) {
+                log info 'trying to restart the gpg-agent-ssh.socket service'
+                try {^systemctl --user stop gpg-agent.service}
+                try {^systemctl --user restart gpg-agent-ssh.socket}
+                ^systemctl --user gpg-agent.service gpg-agent-ssh.socket
+            }
+        },
+        _ => {
+        },
     }
+
     log debug 'reloading gpg-agent'
     try {^gpg-connect-agent updatestartuptty /bye}
     match $platform {
@@ -82,9 +105,12 @@ export def --env main [] {
             powershell-safe -c r#'& {start-process -filepath wsl-ssh-pageant.exe -ArgumentList ('-systray','-winssh','openssh-ssh-agent','-wsl',(gpgconf --list-dirs agent-ssh-socket),'-force') -WindowStyle hidden }'#
         },
         'android' => { log debug 'already started background process' },
+        'linux' => { log debug 'background translation process not necessary' },
         _ => {return (error make {'msg': $'not implemented for platform: ($platform)'})},
     }
-    sleep 3sec
+    if ($platform == 'windows') {
+        sleep 3sec
+    }
     log debug 'can ssh-add interact with the running gpg agent providing ssh support?'
     ^ssh-add -l
 }
