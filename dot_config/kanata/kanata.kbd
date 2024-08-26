@@ -16,6 +16,20 @@
   j down
   k up
   l right
+  e (layer-while-held numpad)
+)
+
+(deflayermap (numpad)
+  u 7
+  i 8
+  o 9
+  j 4
+  k 5
+  l 6
+  m 1
+  , 2
+  . 3
+  0 0
 )
 
 (deflayermap (cluster)
