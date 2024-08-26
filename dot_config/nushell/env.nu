@@ -54,7 +54,8 @@ mkdir $env.EGET_BIN
         insert 'jtroo/kanata' {'asset_filters': ['winIOv2.exe']}
     },
     'linux' => {
-        insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']}
+        insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']} |
+        insert 'jtroo/kanata' {'asset_filters': ['kanata', '^.']}
     },
     'macos' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-macos']}

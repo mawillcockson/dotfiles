@@ -517,6 +517,11 @@ export def "package-data-load-data" [] {
         run-external $nu.current-exe '-l' '-c' 'asdf update'
     }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
-    simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
+    simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|
+        do $install 'eget'
+        eget 'jtroo/kanata'
+        ^systemctl --user enable kanata.service
+        ^systemctl --user restart kanata.service
+    }}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
     validate-data
 }
