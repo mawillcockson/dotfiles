@@ -225,6 +225,7 @@ export def "package-data-load-data" [] {
         try {snap install core} catch {snap refresh core}
 }}} --tags ["package manager"] --reasons ["currently used to install zig on linux"] |
     simple-add "zig" {"windows": {"scoop": "zig"}, "linux": {"custom": {|install: closure|
+        # https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager#ubuntu-snap
         do $install 'snap'
         snap install zig --classic --beta
     }}} --tags [language, want, compiler, zig] --reasons ["cool language", "acts as my cross-platform C compiler"] |
