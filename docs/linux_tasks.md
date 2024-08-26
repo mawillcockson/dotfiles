@@ -1,5 +1,6 @@
 # Tasks for changes that need to be made to Linux
 
+- I get desktop notifications about apt package updates, but not eget or asdf ones
 - Nvim font changing doesn't work
   - Find a way to tell if fonts are missing and issue a warning
     - Don't disable font changing, because it may be the detection method should be updated, but do add a hint on how to disable font changing temporarily
