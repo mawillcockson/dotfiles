@@ -90,7 +90,7 @@ export def "package-data-load-data" [] {
         http get --max-time 3 'https://pyenv.run' | save -f $tmpfile
         ^bash $tmpfile
         rm $mktemp
-    }}} --tags ["language manager", python] --reasons ["helps manage python installations"] |
+    }}} --tags ["language manager", python, "version manager"] --reasons ["helps manage python installations"] |
     simple-add "python" {"windows": {"scoop": "python"}, "linux": {"custom": {|install: closure|
         use std [log]
         do $install 'pyenv'
