@@ -14,7 +14,6 @@
   - keepass (needs mono-complete, download plugins)
   - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
 - configure KeePass backup triggers
-- start-ssh
 - starship notifications about amount of time a command took present as a window that steals focus
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
@@ -51,3 +50,4 @@
   - neovim
     - The place that the flatpak-ed neovim searching for init.vim needs to be symlinked to ~/.config/nvim
 - add DejaVu Sans Mono NerdFont to system
+- start-ssh
