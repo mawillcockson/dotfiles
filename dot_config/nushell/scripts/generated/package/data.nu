@@ -89,7 +89,7 @@ export def "package-data-load-data" [] {
         let $tmpfile = (mktemp)
         http get --max-time 3 'https://pyenv.run' | save -f $tmpfile
         ^bash $tmpfile
-        rm $mktemp
+        rm $tmpfile
     }}} --tags ["language manager", python, "version manager"] --reasons ["helps manage python installations"] |
     simple-add "python" {"windows": {"scoop": "python"}, "linux": {"custom": {|install: closure|
         use std [log]
