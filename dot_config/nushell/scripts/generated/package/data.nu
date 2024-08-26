@@ -99,7 +99,7 @@ export def "package-data-load-data" [] {
     }}} --tags [python, want, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
-    simple-add "git" {"windows": {"scoop": "git"}} --tags [want] --reasons ["revision control and source management", "downloading programs"] --links ["https://git-scm.com/docs"] |
+    simple-add "git" {"windows": {"scoop": "git"}, "linux": {"apt-get": "git"}} --tags [want] --reasons ["revision control and source management", "downloading programs"] --links ["https://git-scm.com/docs"] |
     simple-add "7zip" {"windows": {"scoop": "7zip"}} --tags [scoop, exclude, auto] |
     simple-add "7zip19.00-helper" {"windows": {"scoop": "7zip19.00-helper"}} --tags [scoop, exclude, auto] |
     simple-add "audacity" {"windows": {"scoop": "audacity"}} --tags [rarely, large] |
@@ -189,32 +189,9 @@ export def "package-data-load-data" [] {
     simple-add "mpv" {"windows": {"scoop": "mpv"}} --tags [want] --reasons ["has fewer visual \"glitches\" than vlc, and plays as wide a variety of media, including HEVC/h.265 for free"] |
     simple-add "neovide" {"windows": {"scoop": "neovide"}} --tags [want] |
     simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
-        do $install 'flathub'
-        flatpak install --or-update --user --assumeyes --noninteractive flathub 'io.neovim.nvim'
-
-        # NOTE:BUG it appears to need access to the whole ~/.config directory?
-        let flatpak_config_home = ($env.HOME | path join '.var' 'app' 'io.neovim.nvim' 'config')
-        let target = ($env.XDG_CONFIG_HOME | path join 'nvim')
-        match ($flatpak_config_home | path type) {
-            null => {
-                ^ln -s $target $flatpak_config_home
-                return true
-            },
-            'symlink' => {
-                if ($flatpak_config_home | path expand) == ($target | path expand) {
-                    return true
-                }
-                use std [log]
-                log warning $'directory ($flatpak_config_home | to nuon) is already a symlink, but points to ($flatpak_config_home | path expand | to nuon) instead of ($target | path expand | to nuon)'
-                return false
-            },
-            _ => {
-                use std [log]
-                log warning "can't symlink config directory"
-                log warning $'expected to find nothing, or a symlink, but found ($flatpak_config_home | path type | to nuon) -> ($flatpak_config_home | to nuon)'
-                return false
-            },
-        }
+        do $install 'asdf'
+        $nu.current-exe -c 'asdf plugin add neovim'
+        $nu.current-exe -c 'asdf install neovim stable'
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}} --tags [essential, small] |
@@ -521,6 +498,14 @@ export def "package-data-load-data" [] {
         }
 
 }}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["package manager for Lua and moonscript, and can be used by lazy.nvim"] --links ["https://luarocks.org/"] |
+    simple-add "curl" {"windows": {"scoop": "curl"}, "linux": {"apt-get": "curl"}} --tags ["download", "small", "want"] --reasons ["quite the ubiquitous internet protocol tool"] |
+    simple-add "asdf" {"linux": {"custom": {|install: closure|
+        do $install 'git'
+        do $install 'curl'
+
+        git clone --single-branch --branch v0.14.1 'https://github.com/asdf-vm/asdf.git' ~/.asdf
+        $nu.current-exe -l -c 'asdf update'
+    }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
     validate-data

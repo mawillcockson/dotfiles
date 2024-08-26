@@ -122,6 +122,17 @@ if (which starship | is-not-empty) {
 }
 
 
+$env.ASDF_DIR = ($env.HOME | path join '.asdf')
+let asdf_nu = ($env.ASDF_DIR | path join 'asdf.nu')
+if ($asdf_nu | path exists) {
+    if (nu-check $asdf_nu) {
+        $postconfig_content ++= $'source ($asdf_nu)'
+    } else {
+        print -e $'issue with asdf.nu -> ($asdf_nu)'
+    }
+}
+
+
 let clipboard_nu = ($scripts | path join 'clipboard.nu')
 if ($clipboard_nu | path exists) {
     if not (nu-check --as-module $clipboard_nu) {
