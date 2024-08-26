@@ -518,10 +518,62 @@ export def "package-data-load-data" [] {
     }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|
+        use std [log]
+
+        let user = (id -un)
+        log info $'using ($user) as username'
+        let input_exists = (
+            do {getent group input} |
+            complete |
+            get exit_code |
+            ($in == 0)
+        )
+        if not $input_exists {
+            sudo addgroup --system input
+        }
+        let uinput_exists (
+            do {getend group uinput} |
+            complete |
+            get exit_code |
+            ($in == 0)
+        )
+        if not $uinput_exists {
+            sudo addgroup --system uinput
+        }
+        if not (
+            getent group input |
+            parse '{group}:{something}:{gid}:{user}' |
+            get user |
+            split row ',' |
+            any {|it| $it == $user}
+        ) {
+            sudo usermod -a -G input $user
+        }
+        if not (
+            getent group uinput |
+            parse '{group}:{something}:{gid}:{user}' |
+            get user |
+            split row ',' |
+            any {|it| $it == $user}
+        ) {
+            sudo usermod -a -G uinput $user
+        }
+        let $kanata_rules = '/etc/udev/rules.d/01-kanata.rules'
+        if not ($kanata_rules | path exists) {
+            sudo cp ($env.HOME | path join 'projects' 'dotfiles' 'dot_config' 'kanata' '01-kanata.rules') $kanata_rules
+        }
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
+
         do $install 'eget'
         eget 'jtroo/kanata'
+
         ^systemctl --user enable kanata.service
-        ^systemctl --user restart kanata.service
+        try {
+            ^systemctl --user restart kanata.service
+        } catch {
+            log info 'may have to log in and out again to get the group membership and such to register'
+        }
     }}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
     validate-data
 }

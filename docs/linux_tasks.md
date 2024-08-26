@@ -10,7 +10,6 @@
       - Would have to encrypt ComicCode since it's licensed
 - add eget methods for all essential software that needs to be up-to-date
 - add installation scripts for
-  - kanata (udev rules, group membership, modprobe)
   - firefox (custom apt repo)
   - keepass (needs mono-complete, download plugins)
   - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
@@ -52,3 +51,5 @@
     - The place that the flatpak-ed neovim searching for init.vim needs to be symlinked to ~/.config/nvim
 - add DejaVu Sans Mono NerdFont to system
 - start-ssh
+- add installation scripts for
+  - kanata (udev rules, group membership, modprobe)
