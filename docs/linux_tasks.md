@@ -17,6 +17,9 @@
 - starship notifications about amount of time a command took present as a window that steals focus
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
+- Environment variables:
+  - NU_USE_IR should be set for the user
+  - XDG_CONFIG_HOME should be set system-wide
 - find a place for the following note:
 
 ```
