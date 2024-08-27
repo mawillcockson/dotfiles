@@ -141,7 +141,7 @@ export def "package-data-load-data" [] {
         )
         let tmpfile = (mktemp)
         http get $asset.browser_download_url | save -f $tmpfile
-        let fonts_dir = ($env.HOME | path join '.fonts')
+        let fonts_dir = ($env.HOME | path join '.local' 'share' 'fonts')
         ^tar -xJf $tmpfile -C $fonts_dir --wildcards '*.ttf'
         fc-cache -fv
     }}} --tags [want, fonts] |
