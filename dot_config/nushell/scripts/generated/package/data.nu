@@ -105,6 +105,17 @@ export def "package-data-load-data" [] {
     simple-add "audacity" {"windows": {"scoop": "audacity"}} --tags [rarely, large] |
     simple-add "caddy" {"windows": {"scoop": "caddy", "winget": "CaddyServer.Caddy"}, "linux": {"apt-get": "caddy"}} --tags [small, rarely] |
     simple-add "dark" {"windows": {"scoop": "dark"}} --tags [scoop, exclude, auto] |
+    simple-add "tar" {"windows": {"custom": {|install: closure|
+        use std [log]
+
+        if (which tar | is-not-empty) {
+            log info 'tar is already installed (on Windows 10 build 17063+)'
+            return true
+        }
+
+        do $install 'scoop'
+        run-external $nu.current-exe '-c' 'scoop install tar'
+    }}, "linux": {"apt-get": "tar"}} --tags [small, want] |
     simple-add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}, "linux": {"custom": {|install: closure|
         use std [log]
         [] |
@@ -230,7 +241,7 @@ export def "package-data-load-data" [] {
         snap install zig --classic --beta
     }}} --tags [language, want, compiler, zig] --reasons ["cool language", "acts as my cross-platform C compiler"] |
     simple-add "zls" {"windows": {"scoop": "zls"}} --tags [tooling, zig] --reasons ["official zig language server"] |
-    simple-add "zstd" {"windows": {"scoop": "zstd"}} --tags [small, why_even] --reasons ["allows me to get more compression out of zstd than PeaZip"] |
+    simple-add "zstd" {"windows": {"scoop": "zstd"}, "linux": {"apt-get": "zstd"}} --tags [small] --reasons ["allows me to get more compression out of zstd than PeaZip"] |
     simple-add "mullvadvpn" {"windows": {"winget": "MullvadVPN.MullvadVPN"}} --tags [small, vpn] --reasons ["beloved, occasionally used vpn client"] |
     simple-add "Microsoft.VisualStudio.2022.BuildTools" {"windows": {"winget": "Microsoft.VisualStudio.2022.BuildTools"}} --tags [large, compiler, rust, tooling, C, C++] --reasons ["used by rust to compile/link stuff on Windows"] |
     simple-add "discord" {"windows": {"winget": "Discord.Discord"}} --tags [large, gui, chat] |
