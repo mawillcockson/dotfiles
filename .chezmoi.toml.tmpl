@@ -2,6 +2,12 @@ progress = true
 {{ $destDir := .chezmoi.homeDir }}
 destDir = {{ $destDir | toToml }}
 sourceDir = {{ joinPath .chezmoi.homeDir "projects" "dotfiles" | toToml }}
+encryption = 'age'
+useBuiltinAge = true
+
+[age]
+identity = {{ joinPath $destDir ".age" "chezmoi_age_identity.txt" | toToml }}
+symmetric = true
 
 [env]
 {{ $defaultConfigHome := joinPath $destDir ".config" }}
