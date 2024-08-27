@@ -46,7 +46,9 @@ mkdir $env.EGET_BIN
         'target': ($env.EGET_BIN),
         'upgrade_only': true,
     },
-} | match $nu.os-info.name {
+} |
+insert 'FiloSottile/age' {'asset_filters': ['^.proof']} |
+match $nu.os-info.name {
     'windows' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean.exe']} |
         insert 'getsops/sops' {'asset_filters': ['.exe', '^.json']} |
