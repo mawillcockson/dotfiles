@@ -45,7 +45,14 @@ export def "package-data-load-data" [] {
                 'msg': "apt-get not found!"
             })
         }
-    }}} --tags ["package manager"] |
+    }}} --tags ["package manager", presumed] |
+    simple-add "pkg" {"android": {"custom": {|install: closure|
+        if (which pkg | is-empty) {
+            return (error make {
+                'msg': 'pkg not found! cannot install anything',
+            })
+        }
+    }}} --tags ["package manager", presumed] |
     simple-add "flatpak" {"linux": {"apt-get": "flatpak"}} --tags ["flatpak", "package manager"] --reasons ["cross-distribution package manager that is farily well-used"] --links ["https://flatpak.org/setup/Debian"] |
     simple-add "flathub" {"linux": {"custom": {|install: closure|
         do $install 'flatpak'
