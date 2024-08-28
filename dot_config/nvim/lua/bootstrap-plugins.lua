@@ -43,22 +43,22 @@ nvim-qt --server "\\.\pipe\$((gci \\.\pipe\ | Where-Object -Property Name -Like 
 
 	-- DONE: Need to switch to lazy.nvim
 	-- https://github.com/folke/lazy.nvim#-installation
-  --[=[ NOTE::DEBUG
+	--[=[ NOTE::DEBUG
 	vim.notify("args: " .. vim.inspect(vim.cmd([[:args]])), DEBUG, {})
 	vim.notify("_G.args: " .. vim.inspect(_G.arg), DEBUG, {})
 	vim.notify("v:argv -> " .. vim.inspect(vim.api.nvim_get_vvar("argv")), DEBUG, {})
   --]=]
-  vim.notify("searching for " .. this_filename, DEBUG, {})
-  currentfile = vim.api.nvim_get_runtime_file("lua/" .. tostring(this_filename), false)
-  if vim.tbl_isempty(currentfile) then
-    vim.notify("could not find " .. tostring(this_filename), WARN)
-    currentfile = nil
-  end
-  currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
-  -- currentfile = luv.fs_realpath(currentfile)
+	vim.notify("searching for " .. this_filename, DEBUG, {})
+	currentfile = vim.api.nvim_get_runtime_file("lua/" .. tostring(this_filename), false)
+	if vim.tbl_isempty(currentfile) then
+		vim.notify("could not find " .. tostring(this_filename), WARN)
+		currentfile = nil
+	end
+	currentfile = (type(currentfile) == "table") and currentfile[1] or currentfile
+	-- currentfile = luv.fs_realpath(currentfile)
 	if (not currentfile) or (currentfile == "") then
-    local currentfile = vim.fn.expand("%:p")
-  end
+		local currentfile = vim.fn.expand("%:p")
+	end
 	if (not currentfile) or (currentfile == "") and (_G.arg[0] ~= nil) then
 		local relative_name = _G.arg[0]
 		vim.notify("first arg is -> " .. tostring(_G.arg[0]), DEBUG, {})
