@@ -1,3 +1,5 @@
+# shellcheck shell=sh
+# shellcheck disable=SC1090
 ALREADY_SOURCED_USER_PROFILE="true"
 export ALREADY_SOURCED_USER_PROFILE
 
@@ -25,8 +27,13 @@ if [ -d "${HOME}/.profile.d" ] && [ -z "${ALREADY_SOURCED_USER_PROFILE_D+"set"}"
     ALREADY_SOURCED_USER_PROFILE_D="true"
     export ALREADY_SOURCED_USER_PROFILE_D
     for file in "${HOME}/.profile.d"/*.sh; do
-        if ! . "$file"; then
-            printf '%s did not load correctly\n' "$file"
+        export file
+        if [ "$(basename "${file}")" = 'ALREADY_SOURCED_SYSTEM_PROFILE_D.sh' ]; then
+            continue
+        fi
+
+        if ! . "${file}"; then
+            printf '%s did not load correctly\n' "${file}"
         fi
     done
 fi
