@@ -15,11 +15,6 @@
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
 
-
-## non-linux
-
-- codify temporary ncspot login-flow
-
 ## completed
 
 - Bootstrap nu and eget
