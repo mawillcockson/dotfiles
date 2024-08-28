@@ -205,7 +205,7 @@ export def "package-data-load-data" [] {
     simple-add "luajit" {"windows": {"scoop": "luajit"}} --tags [small, language, lua] --reasons ["fast lua runtime"] |
     simple-add "mariadb" {"windows": {"scoop": "mariadb"}} --tags [large, rarely] |
     simple-add "mpv" {"windows": {"scoop": "mpv"}} --tags [want] --reasons ["has fewer visual \"glitches\" than vlc, and plays as wide a variety of media, including HEVC/h.265 for free"] |
-    simple-add "neovide" {"windows": {"scoop": "neovide"}} --tags [want] |
+    simple-add "neovide" {"windows": {"scoop": "neovide"}, "linux": {"eget": "neovide/neovide"}} --tags [want, neovim] |
     simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
         do $install 'asdf'
         run-external $nu.current-exe '-l' '-c' 'asdf plugin add neovim'
