@@ -47,7 +47,7 @@ export def main [
     )
 
     $variables |
-    transpose name value
+    transpose name value |
     to json |
     powershell-safe -c '$Input | ConvertFrom-Json | ForEach-Object { [Environment]::SetEnvironmentVariable($_.name, $_.value, "User") }'
 
