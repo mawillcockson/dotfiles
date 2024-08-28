@@ -15,7 +15,6 @@
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
 - Environment variables:
-  - NU_USE_IR should be set for the user
   - XDG_CONFIG_HOME should be set system-wide
 
 
@@ -48,3 +47,5 @@
   - Maybe consider adding fonts to dotfiles repo?
     - Would have to encrypt ComicCode since it's licensed
 - add eget methods for all essential software that needs to be up-to-date
+- Environment variables:
+  - NU_USE_IR should be set for the user
