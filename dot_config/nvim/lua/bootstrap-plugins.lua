@@ -29,6 +29,18 @@ local function do_bootstrap()
 		end
 	end
 
+	if headless then
+		vim.notify(
+			[[If this gets stuck, the plugins.lua probably didn't appropriately call :quitall
+Thankfully, Neovim starts a remote server session every time it starts.
+On Windows, as of 2022-October, these are named pipes like
+\\.\pipe\nvim.xxxx.x
+The following powershell command will connect neovim-qt to the first one:
+nvim-qt --server "\\.\pipe\$((gci \\.\pipe\ | Where-Object -Property Name -Like "nvim*" | Select-Object -First 1).Name)"]],
+			INFO
+		)
+	end
+
 	-- DONE: Need to switch to lazy.nvim
 	-- https://github.com/folke/lazy.nvim#-installation
   --[=[ NOTE::DEBUG

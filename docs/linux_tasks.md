@@ -20,17 +20,7 @@
 - Environment variables:
   - NU_USE_IR should be set for the user
   - XDG_CONFIG_HOME should be set system-wide
-- find a place for the following note:
 
-```
-# If this gets stuck, the plugins.lua probably didn't appropriately call
-# :quitall
-# Thankfully, Neovim starts a remote server session every time it starts.
-# On Windows, as of 2022-October, these are named pipes like
-# \\.\pipe\nvim.xxxx.x
-# The following command will connect neovim-qt to the first one:
-# nvim-qt --server "\\.\pipe\$((gci \\.\pipe\ | Where-Object -Property Name -Like "nvim*" | Select-Object -First 1).Name)"
-```
 
 ## non-linux
 
@@ -56,3 +46,4 @@
 - start-ssh
 - add installation scripts for
   - kanata (udev rules, group membership, modprobe)
+- find a place for the note
