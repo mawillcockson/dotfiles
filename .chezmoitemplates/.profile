@@ -17,8 +17,8 @@ if [ -d /etc/profile.d ] && [ -z "${ALREADY_SOURCED_SYSTEM_PROFILE_D+"set"}" ]; 
     ALREADY_SOURCED_SYSTEM_PROFILE_D="true"
     export ALREADY_SOURCED_SYSTEM_PROFILE_D
     for file in /etc/profile.d/*.sh; do
-        if ! . "$file"; then
-            printf '%s did not load correctly\n' "$file"
+        if ! . "${file}"; then
+            printf '%s did not load correctly\n' "${file}"
         fi
     done
 fi
