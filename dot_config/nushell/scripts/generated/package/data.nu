@@ -213,7 +213,7 @@ export def "package-data-load-data" [] {
         run-external $nu.current-exe '-l' '-c' 'asdf global neovim stable'
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
-    simple-add "nu" {"windows": {"scoop": "nu"}} --tags [essential, small] |
+    simple-add "nu" {"windows": {"scoop": "nu"}, "linux": {"eget": "nushell/nushell"}, "android": {"pkg": "nushell"}} --tags [essential, small] |
     simple-add "obs-studio" {"windows": {"scoop": "obs-studio"}} --tags [large] |
     simple-add "pandoc" {"windows": {"scoop": "pandoc"}} --tags [small, rarely] --reasons ["really good at converting one document format to another"] |
     simple-add "peazip" {"windows": {"scoop": "peazip"}} --tags [want] --reasons ["much nicer interface than 7zip, can do all the same stuff"] |
