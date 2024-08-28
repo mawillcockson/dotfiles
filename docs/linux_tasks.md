@@ -5,10 +5,6 @@
   - Find a way to tell if fonts are missing and issue a warning
     - Don't disable font changing, because it may be the detection method should be updated, but do add a hint on how to disable font changing temporarily
   - Find a way to tell when neovide or neovim can't set the font
-  - Add fonts to the system from OneDrive
-    - Maybe consider adding fonts to dotfiles repo?
-      - Would have to encrypt ComicCode since it's licensed
-- add eget methods for all essential software that needs to be up-to-date
 - add installation scripts for
   - firefox (custom apt repo)
   - keepass (needs mono-complete, download plugins)
@@ -47,3 +43,7 @@
 - add installation scripts for
   - kanata (udev rules, group membership, modprobe)
 - find a place for the note
+- Add fonts to the system
+  - Maybe consider adding fonts to dotfiles repo?
+    - Would have to encrypt ComicCode since it's licensed
+- add eget methods for all essential software that needs to be up-to-date
