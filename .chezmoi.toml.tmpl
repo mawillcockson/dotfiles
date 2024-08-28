@@ -38,13 +38,7 @@ git_email = 'matthew@willcockson.family'
 git_signingKey = 'EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115'
 minimum_nu_version = { major = 0, minor = 97, patch = 1 }
 set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide (y/n)" false | toToml }}
-{{ $install_nushell := promptBoolOnce . "install_nushell" "Would you like to (try to) install Nushell (y/n)" false }}
-install_nushell = {{ $install_nushell | toToml }}
-{{ if $install_nushell }}
 run_setup = {{ promptBoolOnce . "run_setup" "Would you like to run the system-wide setup (y/n)" true | toToml }}
-{{ else }}
-run_setup = false
-{{ end }}
 relBootstrapDir = {{ $relBootstrapDir | toToml }}
 absBootstrapDir = {{ $absBootstrapDir | toToml }}
 {{ if .chezmoi.os | eq "windows" }}
