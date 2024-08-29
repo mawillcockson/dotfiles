@@ -538,6 +538,8 @@ export def "package-data-load-data" [] {
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|
         use std [log]
 
+        log info "following the instructions from:\nhttps://github.com/jtroo/kanata/blob/main/docs/setup-linux.md"
+
         let user = (id -un)
         log info $'using ($user) as username'
         let input_exists = (
@@ -547,8 +549,9 @@ export def "package-data-load-data" [] {
             ($in == 0)
         )
         if not $input_exists {
+            log info 'group "input" does not exist; creating it'
             sudo addgroup --system input
-        }
+        } else {log info 'group "input" exists'}
         let uinput_exists (
             do {getend group uinput} |
             complete |
@@ -556,8 +559,9 @@ export def "package-data-load-data" [] {
             ($in == 0)
         )
         if not $uinput_exists {
+            log info 'group "uinput" does not exist; creating it'
             sudo addgroup --system uinput
-        }
+        } else {log info 'group "uinput" exists'}
         if not (
             getent group input |
             parse '{group}:{something}:{gid}:{user}' |
@@ -565,8 +569,9 @@ export def "package-data-load-data" [] {
             split row ',' |
             any {|it| $it == $user}
         ) {
+            log info $'($user) is not a member of group "input"; adding'
             sudo usermod -a -G input $user
-        }
+        } else {log info $'($user) is already a member of group "input"'}
         if not (
             getent group uinput |
             parse '{group}:{something}:{gid}:{user}' |
@@ -574,18 +579,23 @@ export def "package-data-load-data" [] {
             split row ',' |
             any {|it| $it == $user}
         ) {
+            log info $'($user) is not a member of group "uinput"; adding'
             sudo usermod -a -G uinput $user
-        }
+        } else {log info $'($user) is already a member of group "uinput"'}
         let $kanata_rules = '/etc/udev/rules.d/01-kanata.rules'
         if not ($kanata_rules | path exists) {
+            log info $'creating udev rules for kanata at ($kanata_rules)'
             sudo cp ($env.HOME | path join 'projects' 'dotfiles' 'dot_config' 'kanata' '01-kanata.rules') $kanata_rules
-        }
+        } else {log info $'udev rules for kanata already exist at ($kanata_rules)'}
+        log info 'reloading udev rules and triggering(???) them'
         sudo udevadm control --reload-rules
         sudo udevadm trigger
 
+        log info 'downloading kanata'
         do $install 'eget'
         eget 'jtroo/kanata'
 
+        log info 'starting kanata and setting to autostart'
         ^systemctl --user enable kanata.service
         try {
             ^systemctl --user restart kanata.service
