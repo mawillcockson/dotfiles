@@ -362,7 +362,7 @@ export def "package-data-load-data" [] {
                     glob 'sops*.exe' | first | mv $in 'sops.exe'
                 }
             }, "scoop": "sops"}} --tags [encryption, small] --reasons ["maintained, accessible usage of Shamir's Secret Sharing Algorithm (SSSS)"] --links ["https://github.com/getsops/sops"] |
-    simple-add "age" {"windows": {"scoop": "age"}, "linux": {"eget": "FoliSottile/age"}} --tags [encryption, small] --reasons ["very simply file encryption"] --links ["https://github.com/FiloSottile/age"] |
+    simple-add "age" {"windows": {"scoop": "age"}, "linux": {"eget": "FiloSottile/age"}} --tags [encryption, small] --reasons ["very simply file encryption"] --links ["https://github.com/FiloSottile/age"] |
     simple-add "fzf" {"windows": {"scoop": "fzf"}} --tags [small, rarely] --reasons ["very simple interactive fuzzy finder that can be used from other scripts"] --links ["https://github.com/junegunn/fzf"] |
     simple-add "nvr" {"windows": {"pipx": "neovim-remote"}} --tags [want, small, neovim] --reasons ["allows opening a file from within a :terminal session, inside the editor that :terminal is running within, instead of opening a nested editor", "will be essential until --remote-wait is natively supported by neovim: https://neovim.io/doc/user/remote.html#E5600"] --links ["https://github.com/mhinz/neovim-remote"] |
     simple-add "nvm" {"windows": {"scoop": "nvm"}} --tags [javascript, tooling, rarely] --reasons ["helps install various js-based tooling", "nvm4win may be deprecated soon in favor of Runtime"] --links ["https://github.com/coreybutler/nvm-windows/discussions/565#discussioncomment-58112", "https://github.com/nvm-sh/nvm"] |
