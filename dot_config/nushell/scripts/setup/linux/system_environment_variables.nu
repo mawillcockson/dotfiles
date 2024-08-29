@@ -23,19 +23,19 @@ export def main [
             path join $'($rec.name).sh'
         } |
         insert source_found {|rec|
-            $it.source | path exists
+            $rec.source | path exists
         } |
         insert source_content {|rec|
-            if $it.source_found {
-                open $it.source
+            if $rec.source_found {
+                open $rec.source
             } else {null}
         } |
         insert destination_exists {|rec|
-            $it.destination | path exists
+            $rec.destination | path exists
         } |
         insert destination_content {|rec|
-            if $it.destination_exists {
-                open $it.destination
+            if $rec.destination_exists {
+                open $rec.destination
             } else {null}
         }
 
@@ -49,7 +49,7 @@ export def main [
     }
 
     let content_mismatch = ($vars | where source_found and destination_exists and source_content != destination_content)
-    let vars = ($vars | filter {|it| (not $it.destination_exists) or ($it.destination_exists and $it.source_content == $it.destination_content)}
+    let vars = ($vars | filter {|it| (not $it.destination_exists) or ($it.destination_exists and $it.source_content == $it.destination_content)})
     $content_mismatch |
     each {|it|
         log error $"source content differs from already existing destination content!\n($it | reject source_found destination_exists | table)"
