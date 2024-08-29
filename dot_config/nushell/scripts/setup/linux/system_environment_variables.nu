@@ -1,15 +1,17 @@
 use std [log]
 
+export const variable_names = [
+    'ALREADY_SOURCED_SYSTEM_PROFILE_D',
+    'XDG_CONFIG_HOME',
+]
+
 export def main [
     # copy ones that can be copied
     --continue
-    variable_names: list<string> = [
-        'ALREADY_SOURCED_SYSTEM_PROFILE_D',
-        'XDG_CONFIG_HOME',
-    ],
+    variable_names_: list<string> = $variable_names,
 ] {
     let vars = (
-        $variable_names |
+        $variable_names_ |
         wrap name |
         insert source {|rec|
             $env.HOME |

@@ -6,15 +6,15 @@ export use setup/gitconfig.nu
 export use setup/gpg.nu
 export use setup/fonts.nu
 
-export def main [platform: string = $platform] {
+export def main [platform_: string = $platform] {
     gitconfig
     gpg
     fonts
-    match $platform {
+    match $platform_ {
         'windows' => { windows },
         'linux' => { linux },
         _ => {
-            log info $"no platform-specific setup for ($platform | to nuon) at this time"
+            log info $"no platform-specific setup for ($platform_ | to nuon) at this time"
         },
     }
 }
