@@ -6,7 +6,6 @@
     - Don't disable font changing, because it may be the detection method should be updated, but do add a hint on how to disable font changing temporarily
   - Find a way to tell when neovide or neovim can't set the font
 - add installation scripts for
-  - there should be a consistent way to modify the apt configuration into the shape I want
   - firefox (custom apt repo)
   - keepass (needs mono-complete, download plugins)
   - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
@@ -34,6 +33,7 @@
 - add DejaVu Sans Mono NerdFont to system
 - start-ssh
 - add installation scripts for
+  - there should be a consistent way to modify the apt configuration into the shape I want
   - kanata (udev rules, group membership, modprobe)
 - find a place for the note
 - Add fonts to the system
