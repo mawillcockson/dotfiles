@@ -4,4 +4,9 @@ export use setup/linux/system_environment_variables.nu
 export def main [] {
     fonts
     system_environment_variables
+    kanata
+}
+
+export def kanata [] {
+    nu -c 'use package; package install kanata'
 }
