@@ -547,7 +547,7 @@ export def "package-data-load-data" [] {
             log info 'group "input" does not exist; creating it'
             sudo addgroup --system input
         } else {log info 'group "input" exists'}
-        let uinput_exists (
+        let uinput_exists = (
             do {getend group uinput} |
             complete |
             get exit_code |
