@@ -1,0 +1,6 @@
+# https://support.mozilla.org/en-US/kb/install-firefox-linux
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+signed-by: /etc/apt/keyrings/packages.mozilla.org.asc

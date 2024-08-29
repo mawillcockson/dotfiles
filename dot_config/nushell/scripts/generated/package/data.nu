@@ -275,6 +275,7 @@ export def "package-data-load-data" [] {
         http get 'https://packages.mozilla.org/apt/repo-signing-key.gpg' | save -f $tmpfile
         let target = '/etc/apt/keyrings/packages.mozilla.org.asc'
         ^sudo cp $tmpfile $target
+        rm $tmpfile
         ^sudo chmod u=rw,g=r,o=r $target
 
         log info 'check fingerprint'
@@ -282,20 +283,14 @@ export def "package-data-load-data" [] {
         ^awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
 
         log info 'Next, add the Mozilla APT repository to your sources list'
-        echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" | sudo tee -a /etc/apt/sources.list.d/mozilla.list > /dev/null
+        sudo cp ~/projects/dotfiles/debian/etc/apt/sources.list.d/mozilla.sources /etc/apt/sources.list.d/mozilla.sources
 
         log info 'Configure APT to prioritize packages from the Mozilla repository'
-        echo '
-        Package: *
-        Pin: origin packages.mozilla.org
-        Pin-Priority: 1000
-        ' | sudo tee /etc/apt/preferences.d/mozilla
+        sudo cp ~/projects/dotfiles/debian/etc/apt/preferences.d/mozilla /etc/apt/preferences.d/mozilla
 
         log info 'Update your package list and install the Firefox .deb package'
         ^sudo apt-get update --assume-yes
         ^sudo apt-get install --no-install-recommends --quiet --assume-yes --default-release stable firefox
-
-        rm $tmpfile
     }}} --tags [want, large] --reasons ["beloved browser"] |
     simple-add "Microsoft.OneDrive" {"windows": {"winget": "Microsoft.OneDrive"}} --tags [want, system] --reasons ["what I use to sync all my files cross-platform"] |
     simple-add "rustup" {"windows": {"winget": "Rustlang.Rustup"}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
