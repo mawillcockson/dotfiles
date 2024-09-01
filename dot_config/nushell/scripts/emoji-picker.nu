@@ -1,4 +1,4 @@
-export const default_query = [
+export const suggested_default_query = [
     '-or',
     'g:smileys',
     'g:hand-fingers-open',
@@ -9,6 +9,7 @@ export const default_query = [
     'g:body-parts',
     'g:person-gesture',
 ]
+export const default_query = []
 export const uni_cmd = [
     'uni',
     '--compact',
@@ -20,11 +21,10 @@ export const uni_cmd = [
 def main [...query: string] {
     let query = (
         if ($query | is-empty) {
-            $default_query
+            $default_query | str join ' '
         } else {
             $query
-        } |
-        str join ' '
+        }
     )
     with-env {
         'FZF_DEFAULT_COMMAND': ($uni_cmd | append $query | str join ' '),
