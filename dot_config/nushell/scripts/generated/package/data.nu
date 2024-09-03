@@ -612,6 +612,7 @@ export def "package-data-load-data" [] {
         eget 'jtroo/kanata'
 
         log info 'starting kanata and setting to autostart'
+        ^systemctl --user daemon-reload
         ^systemctl --user enable kanata.service
         try {
             ^systemctl --user restart kanata.service
