@@ -204,7 +204,20 @@ export def "package-data-load-data" [] {
     simple-add "inkscape" {"windows": {"scoop": "inkscape"}} --tags [large] |
     simple-add "innounp" {"windows": {"scoop": "innounp"}} --tags [scoop, exclude, auto] |
     simple-add "jq" {"windows": {"scoop": "jq"}} --tags [small] |
-    simple-add "keepass" {"windows": {"scoop": "keepass"}} --tags [want, keepass] |
+    simple-add "keepass" {"windows": {"scoop": "keepass"}, "linux": {"custom": {|install: closure|
+        use std [log]
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        do $apt_get 'mono-complete'
+        do $apt_get 'keepass2'
+        run-external $nu.current-exe '-c' 'use setup; setup linux keepass_plugins'
+    }}} --tags [want, keepass] |
     simple-add "keepass-plugin-keetraytotp" {"windows": {"scoop": "keepass-plugin-keetraytotp"}} --tags [want, keepass] |
     simple-add "keepass-plugin-readable-passphrase" {"windows": {"scoop": "keepass-plugin-readable-passphrase"}} --tags [want, keepass] |
     simple-add "libreoffice" {"windows": {"scoop": "libreoffice"}} --tags [large] --reasons ["libreoffice draw is good at editing PDFs in complex ways"] |
