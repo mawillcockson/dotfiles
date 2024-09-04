@@ -11,14 +11,24 @@ export def main [--force-update] {
 
     # ideally, the services won't download the plugins unless a new version is available, and will keep track of the current versions in a `versions.nuon` file
 
+    let absBootstrapDir = (chezmoi dump-config --format=json | from json | get data.absBootstrapDir)
+    let temp_keetraytotp_plgx = ($absBootstrapDir | path join 'KeeTrayTOTP.plgx')
+    let temp_readable_passphrase_plgx = ($absBootstrapDir | path join 'ReadablePassphrase.plgx')
     let keetraytotp_plgx = ($plugin_dir | path join 'KeeTrayTOTP.plgx')
     let readable_passphrase_plgx = ($plugin_dir | path join 'ReadablePassphrase.plgx')
 
-    if $force_update or not ($keetraytotp_plgx | path exists) {
-        keetraytotp --to $keetraytotp_plgx
+    if $force_update or not ($temp_keetraytotp_plgx | path exists) {
+        keetraytotp --to $temp_keetraytotp_plgx
     }
-    if $force_update or not ($readable_passphrase_plgx | path exists) {
-        readable-passphrase --to $readable_passphrase_plgx
+    if $force_update or not ($temp_readable_passphrase_plgx | path exists) {
+        readable-passphrase --to $temp_readable_passphrase_plgx
+    }
+
+    if not ($keetraytotp_plgx | path exists) {
+        ^sudo cp $temp_keetraytotp_plgx $keetraytotp_plgx
+    }
+    if not ($readable_passphrase_plgx | path exists) {
+        ^sudo cp $temp_readable_passphrase_plgx $readable_passphrase_plgx
     }
 }
 
