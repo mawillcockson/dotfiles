@@ -101,7 +101,7 @@ export def "configure whole-file" [--start-on-login] {
 
     let backup_dir = (
         get dotfiles-dir |
-        path join 'windows_terminal'
+        path join 'windows' 'windows_terminal'
     )
     log info $'creating backup dir at ($backup_dir)'
     mkdir $backup_dir
@@ -126,7 +126,7 @@ export def "configure whole-file" [--start-on-login] {
     let open_quake_profile = (get fragments-dir | path join $profiles_program $open_quake_profile_filename)
     let open_quake_quid = (
         ^python
-            (get dotfiles-dir | path join 'windows_terminal' 'profile_guid.py')
+            (get dotfiles-dir | path join 'windows' 'windows_terminal' 'profile_guid.py')
             'fragment'
             $profiles_program
             (open $open_quake_profile | get profiles.0.name)
@@ -176,7 +176,7 @@ export def "configure whole-file" [--start-on-login] {
             if ($nvim_profile | path exists) {
                 (
                     ^python
-                        (get dotfiles-dir | path join 'windows_terminal' 'profile_guid.py')
+                        (get dotfiles-dir | path join 'windows' 'windows_terminal' 'profile_guid.py')
                         'fragment'
                         $profiles_program
                         (open $nvim_profile | get profiles.0.name)
