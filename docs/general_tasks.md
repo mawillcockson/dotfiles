@@ -7,3 +7,6 @@ released a new version, primarily on GitHub
 - `package install` doesn't give a great error message when trying to `do
 $install 'package'` and the `'package'` cites a package manager that isn't
 implemented for the current platform
+- add more logging to package installation process
+- add more logging to setup module
+- make default `main` function in each setup `mod.nu` allow choosing of which submodules to run
