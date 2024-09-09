@@ -150,7 +150,7 @@ download_plugin_from_state() {
         info "for plugin #${INDEX}, using filename ${FILENAME}"
 
         info "downloading plugin from url -> ${URL}"
-        curl --fail "${URL}" > "${TMP}"
+        curl --fail -L "${URL}" > "${TMP}"
 
         info 'copying downloaded plugin to cache directory'
         cp "${TMP}" "${CACHE_DIR}/${FILENAME}"
