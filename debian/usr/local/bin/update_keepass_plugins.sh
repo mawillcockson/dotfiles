@@ -192,3 +192,5 @@ default_state() {
   }
 ]'
 }
+
+main
