@@ -68,6 +68,8 @@ match $nu.os-info.name {
     },
 } | to toml | prepend ['# this file is auto-generated in env.nu', ''] | str join "\n" | save -f $env.EGET_CONFIG
 
+let zint_dir = ($env.HOME | path join 'apps' 'zint')
+
 $env.PATH = (
     $env
     # NOTE::IMPROVEMENT I would like caseinsensitive environment variables
@@ -78,6 +80,7 @@ $env.PATH = (
     # https://www.nushell.sh/book/configuration.html#pyenv
     | if (which 'pyenv' | is-not-empty) {prepend (^pyenv root | path join 'shims')} else {$in}
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
+    | if ($zint_dir | path exists) {append $zint_dir} else {$in}
     | uniq
     | path expand
 )
