@@ -2,6 +2,9 @@ use std [log]
 
 export const plugin_dir = '/usr/lib/keepass2/Plugins'
 
+# I should install the script in /usr/local/bin
+# https://askubuntu.com/a/308048
+
 export def main [--force-update] {
     ^sudo mkdir -p $plugin_dir
 
