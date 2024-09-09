@@ -82,6 +82,7 @@ update_state() {
         # if the cached_at date is newer than 1 day, don't update cache
         if < "${STATE}" jq --argjson 'index' "${INDEX}" -e '.[$index].cached_at > (now - 86400)'; then
             info "cache #${INDEX} is recent enough"
+            INDEX="$((INDEX+1))"
             continue
         fi
 
@@ -130,6 +131,7 @@ download_plugin_from_state() {
     while test "${INDEX}" -le "${MAX_INDEX}"; do
         if < "${STATE}" jq --argjson 'index' "${INDEX}" -e '.[$index] | (.downloaded_release_id) == (.data.id)'; then
             info "for plugin #${INDEX} downloaded release is the same as current release, no need to update"
+            INDEX="$((INDEX+1))"
             continue
         fi
 
