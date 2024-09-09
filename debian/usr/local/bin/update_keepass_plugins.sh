@@ -48,7 +48,7 @@ info "using ${TMP} as a temporary file"
 
 
 check_all_names_unique() {
-    if < "${STATE}" jq -e '([.[].name] | length) == ([.[].name] | unique)'; then
+    if < "${STATE}" jq -e '[.[].name] | (. | length) == (. | unique | length)'; then
         return 0
     else
         error "all the names given to plugin objects in state file ${STATE} must be unique"
