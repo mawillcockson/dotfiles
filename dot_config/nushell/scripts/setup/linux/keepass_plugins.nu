@@ -27,7 +27,7 @@ export def main [] {
     }
     ^sudo cp ...($auxiliaries) $shell_includes_dir
     let systemd_units = do {
-        cd ($sourceDir | path join 'debian' 'etc' 'system')
+        cd ($sourceDir | path join 'debian' 'etc' 'systemd' 'system')
         glob 'update_keepass_plugins.*'
     }
     ^sudo cp ...($systemd_units) $custom_systemd_units_dir
