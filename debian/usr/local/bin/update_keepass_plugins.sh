@@ -73,10 +73,11 @@ update_state() {
     fi
     info "looping over ${NUM_PLUGINS} plugin objects"
     MAX_INDEX="$((NUM_PLUGINS-1))"
+    info "plugin array has \$MAX_INDEX of ${MAX_INDEX}"
 
     info 'refreshing each plugin'\''s cache if it needs to be'
     INDEX='0'
-    while test "${MAX_INDEX}" -le "${INDEX}"; do
+    while test "${INDEX}" -le "${MAX_INDEX}"; do
         # 1 day = 86400 seconds
         # if the cached_at date is newer than 1 day, don't update cache
         if INDEX="${INDEX}" < "${STATE}" jq -e '.[$ENV.INDEX].cached_at > (now - 86400)'; then
@@ -126,7 +127,7 @@ download_plugin_from_state() {
 
     info 'checking for new plugins and downloading'
     INDEX='0'
-    while test "${MAX_INDEX}" -le "${INDEX}"; do
+    while test "${INDEX}" -le "${MAX_INDEX}"; do
         if INDEX="${INDEX}" < "${STATE}" jq -e '.[$ENV.INDEX].downloaded_release_id == .[$ENV.INDEX].data.id'; then
             info "for plugin #${INDEX} downloaded release is the same as current release, no need to update"
             continue
