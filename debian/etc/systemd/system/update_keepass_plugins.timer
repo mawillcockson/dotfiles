@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for updates to the keepass plugins I use
+Documentation=https://github.com/mawillcockson/dotfiles
+
+[Timer]
+# first of every month
+OnCalendar=*-*-01 00:00:00
+
+[Install]
+WantedBy=timers.target

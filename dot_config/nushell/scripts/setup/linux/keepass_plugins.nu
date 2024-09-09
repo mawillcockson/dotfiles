@@ -1,63 +1,36 @@
 use std [log]
 
-export const plugin_dir = '/usr/lib/keepass2/Plugins'
-
+export const keepass_plugin_dir = '/usr/lib/keepass2/Plugins'
+export const shell_includes_dir = '/usr/local/share/sh'
 # I should install the script in /usr/local/bin
 # https://askubuntu.com/a/308048
+export const custom_scripts_dir = '/usr/local/bin'
+# This is the place indicated in the documentation for "System units created by the administrator":
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.unit.html#id-1.8.4
+export const custom_systemd_units_dir = '/etc/systemd/system'
 
-export def main [--force-update] {
-    ^sudo mkdir -p $plugin_dir
-
-    # copy and enable:
-    # - services that download the plugins, overwriting the current plugin files, but only when keepass isn't running
-    # - timers to run those services
-
-    # ideally, the services won't download the plugins unless a new version is available, and will keep track of the current versions in a `versions.nuon` file
-
-    let absBootstrapDir = (chezmoi dump-config --format=json | from json | get data.absBootstrapDir)
-    let temp_keetraytotp_plgx = ($absBootstrapDir | path join 'KeeTrayTOTP.plgx')
-    let temp_readable_passphrase_plgx = ($absBootstrapDir | path join 'ReadablePassphrase.plgx')
-    let keetraytotp_plgx = ($plugin_dir | path join 'KeeTrayTOTP.plgx')
-    let readable_passphrase_plgx = ($plugin_dir | path join 'ReadablePassphrase.plgx')
-
-    if $force_update or not ($temp_keetraytotp_plgx | path exists) {
-        keetraytotp --to $temp_keetraytotp_plgx
-    }
-    if $force_update or not ($temp_readable_passphrase_plgx | path exists) {
-        readable-passphrase --to $temp_readable_passphrase_plgx
-    }
-
-    if not ($keetraytotp_plgx | path exists) {
-        ^sudo cp $temp_keetraytotp_plgx $keetraytotp_plgx
-    }
-    if not ($readable_passphrase_plgx | path exists) {
-        ^sudo cp $temp_readable_passphrase_plgx $readable_passphrase_plgx
-    }
+export def "get-sourcedir" [] {
+    chezmoi dump-config --format=json | from json | get sourceDir
 }
 
-export def keetraytotp [--to: path] {
-    let url = (
-        http get 'https://api.github.com/repos/KeeTrayTOTP/KeeTrayTOTP/releases/latest' |
-        get assets |
-        where name == 'KeeTrayTOTP.plgx' |
-        get browser_download_url
-    )
-    http get $url |
-    save -f $to
-}
+export def main [] {
+    ^sudo mkdir -p $keepass_plugin_dir $shell_includes_dir $custom_scripts_dir
 
-export def "readable-passphrase" [--to: path] {
-    let release = (http get 'https://api.github.com/repos/ligos/readablepassphrasegenerator/releases/latest')
-    let version = (
-        $release |
-        get tag_name |
-        str substring ('release-' | split chars | length)..
-    )
-    let url = (
-        get assets |
-        where name == $'ReadablePassphrase.($version).plgx' |
-        get browser_download_url
-    )
-    http get $url |
-    save -f $to
+    let sourceDir = get-sourcedir
+    let script = ($sourceDir | path join 'debian' 'usr' 'local' 'bin' 'update_keepass_plugins.sh')
+    ^sudo cp $script $custom_scripts_dir
+    # not strictly necessary, but nice
+    ^sudo chmod a+x ($custom_scripts_dir | path join 'update_keepass_plugins.sh')
+    let auxiliaries = do {
+        cd ($sourceDir | path join 'debian' 'usr' 'local' 'share' 'sh')
+        glob '*.sh'
+    }
+    ^sudo cp ...($auxiliaries) $shell_includes_dir
+    let systemd_units = do {
+        cd ($sourceDir | path join 'debian' 'etc' 'system')
+        glob 'update_keepass_plugins.*'
+    }
+    ^sudo cp ...($systemd_units) $custom_systemd_units_dir
+    ^sudo systemctl daemon-reload
+    ^sudo systemctl enable ($custom_systemd_units_dir | path join 'update_keepass_plugins.timer')
 }

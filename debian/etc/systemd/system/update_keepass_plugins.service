@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for updates to the keepass plugins I use
+Documentation=https://github.com/mawillcockson/dotfiles
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /usr/local/bin/update_keepass_plugins.sh
+
+# This unit is activated by a timer of the same name, and therefore does not
+# need, and should not have, an [Install] section
