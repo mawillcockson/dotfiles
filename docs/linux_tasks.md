@@ -7,6 +7,7 @@
   - Find a way to tell when neovide or neovim can't set the font
 - add installation scripts for
   - keepass (needs mono-complete, download plugins)
+    - I want to write a shell script that uses `curl` and `jq` to download the plugins, and also a janet script that's compiled
   - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
 - configure KeePass backup triggers
 - starship notifications about amount of time a command took present as a window that steals focus
