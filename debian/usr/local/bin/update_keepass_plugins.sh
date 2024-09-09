@@ -80,13 +80,13 @@ update_state() {
     while test "${INDEX}" -le "${MAX_INDEX}"; do
         # 1 day = 86400 seconds
         # if the cached_at date is newer than 1 day, don't update cache
-        if INDEX="${INDEX}" < "${STATE}" jq -e '.[$ENV.INDEX].cached_at > (now - 86400)'; then
+        if < "${STATE}" jq --argjson 'index' "${INDEX}" -e '.[$index].cached_at > (now - 86400)'; then
             info "cache #${INDEX} is recent enough"
             continue
         fi
 
         info "trying to get the url for where to download cache info from for #${INDEX}"
-        INDEX="${INDEX}" < "${STATE}" jq --raw-output '.[$ENV.INDEX].url' > "${TMP}"
+        < "${STATE}" jq --raw-output --argjson 'index' "${INDEX}" '.[$index].url' > "${TMP}"
 
         URL="$(cat "${TMP}")"
         info "#${INDEX} has url -> ${URL}"
@@ -101,7 +101,7 @@ update_state() {
 
         info "caching downloaded plugin info to state file -> ${STATE}"
         DATA="$(cat "${TMP}")"
-        INDEX="${INDEX}" jq --null-input --indent 2 --argjson 'data' "${DATA}" '.[$ENV.INDEX].data = $data' > "${TMP}"
+        < "${STATE}" jq --indent 2 --argjson 'data' "${DATA}" --argjson 'index' "${INDEX}" '.[$index].data = $data | .[$index].cached_at = now' > "${TMP}"
         cp "${TMP}" "${STATE}"
 
         INDEX="$((INDEX+1))"
@@ -128,18 +128,18 @@ download_plugin_from_state() {
     info 'checking for new plugins and downloading'
     INDEX='0'
     while test "${INDEX}" -le "${MAX_INDEX}"; do
-        if INDEX="${INDEX}" < "${STATE}" jq -e '.[$ENV.INDEX].downloaded_release_id == .[$ENV.INDEX].data.id'; then
+        if < "${STATE}" jq --argjson 'index' "${INDEX}" -e '.[$index] | (.downloaded_release_id) == (.data.id)'; then
             info "for plugin #${INDEX} downloaded release is the same as current release, no need to update"
             continue
         fi
 
-        if ! INDEX="${INDEX}" < "${STATE}" jq --raw-output '.[$ENV.INDEX].data.assets.[] |= select(.name | endswith(".plgx")) | first | .browser_download_url' > "${TMP}"; then
+        if ! < "${STATE}" jq --raw-output --argjson 'index' "${INDEX}" '.[$index].data.assets | map(select(.name | endswith(".plgx"))) | first | .browser_download_url' > "${TMP}"; then
             error "plugin data not in expected shape; could not find an asset name ending in .plgx ->"
-            INDEX="${INDEX}" < "${STATE}" jq -C '.[$ENV.INDEX].data.assets'
+            < "${STATE}" jq --argjson 'index' "${INDEX}" -C '.[$index].data.assets'
             return 1
         fi
         URL="$(cat "${TMP}")"
-        if ! INDEX="${INDEX}" < "${STATE}" jq --raw-output '.[$ENV.INDEX].name' > "${TMP}"; then
+        if ! < "${STATE}" jq --raw-output --argjson 'index' "${INDEX}" '.[$index].name' > "${TMP}"; then
             error "name not set for plugin object #${INDEX}"
             return 1
         fi
@@ -154,7 +154,7 @@ download_plugin_from_state() {
         cp "${TMP}" "${CACHE_DIR}/${FILENAME}"
 
         info 'updating which release id the plugin was downloaded from'
-        INDEX="${INDEX}" < "${STATE}" jq --sort-keys --indent 2 '.[$ENV.INDEX].downloaded_release_id = .[$ENV.INDEX].data.id' > "${TMP}"
+        < "${STATE}" jq --sort-keys --indent 2 --argjson 'index' "${INDEX}" '.[$index].downloaded_release_id = .[$index].data.id' > "${TMP}"
 
         info 'first copying plugin into correct place, then copying update state file, so that if something fails in between, the plugin will be re-updated'
         cp "${CACHE_DIR}/${FILENAME}" "${PLUGIN_DIR}/${FILENAME}"
