@@ -160,6 +160,8 @@ download_plugin_from_state() {
 
         info 'first copying plugin into correct place, then copying update state file, so that if something fails in between, the plugin will be re-updated'
         cp "${CACHE_DIR}/${FILENAME}" "${PLUGIN_DIR}/${FILENAME}"
+        info 'setting permissions on plugin so it can be used'
+        chmod a+r "${PLUGIN_DIR}/${FILENAME}"
         cp "${TMP}" "${STATE}"
 
         INDEX="$((INDEX+1))"
