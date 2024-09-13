@@ -224,7 +224,7 @@ export def "package-data-load-data" [] {
         } catch {|e| log error $e.msg}
         rm -r $tmpdir
     }}} --tags [want, "package manager"] --reasons ["makes installing stuff from GitHub releases much easier"] --links ["https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation"] |
-    simple-add "fd" {"windows": {"scoop": "fd"}} --search-help [find, rust] --tags [want, small] |
+    simple-add "fd" {"windows": {"scoop": "fd"}, "linux": {"eget": "sharkdp/fd", "apt-get": "fd-find"}} --search-help [find, rust] --tags [want, small] |
     simple-add "ffmpeg" {"windows": {"scoop": "ffmpeg"}} --tags [large, yt-dlp] |
     simple-add "filezilla" {"windows": {"scoop": "filezilla"}} --tags [filezilla] |
     simple-add "fontforge" {"windows": {"scoop": "fontforge"}} --tags [rarely] |
