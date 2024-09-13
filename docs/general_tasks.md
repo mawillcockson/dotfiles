@@ -10,3 +10,6 @@ implemented for the current platform
 - add more logging to package installation process
 - add more logging to setup module
 - make default `main` function in each setup `mod.nu` allow choosing of which submodules to run
+- `package install` should first try to find a package manager that's already
+installed, and if there's not one installed, it should run the installation for
+it
