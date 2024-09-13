@@ -33,10 +33,14 @@ export def "package-data-load-data" [] {
         ^python -X utf8 -m pipx ensurepath
     }}, "linux": {"custom": {|install: closure|
         do $install 'python'
-        ^python -X utf8 -m pip install --user --upgrade pip setuptools wheel pipx
-        # unnecessary, because the ~/.profile.d/add-to-path will already add
-        # the appropriate directories to $PATH
-        #^python -X utf8 -m pipx ensurepath
+        do {
+            use pyenv_setup.nu; pyenv_setup
+
+            ^python -X utf8 -m pip install --user --upgrade pip setuptools wheel pipx
+            # unnecessary, because the ~/.profile.d/add-to-path will already add
+            # the appropriate directories to $PATH
+            #^python -X utf8 -m pipx ensurepath
+        }
     }}} --tags [want, "package manager"] |
     simple-add "cargo" {"windows": {"custom": {|install: closure|
         do $install 'rustup'
