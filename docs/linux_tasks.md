@@ -13,6 +13,8 @@
 - starship notifications about amount of time a command took present as a window that steals focus
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
+- `path_additions` should still warn about missing directories, but shouldn't decline to add them to `$PATH`
+  - I'm thinking it could collect them in a `MISSING` environment variable, and append that to `$PATH` at the end of things
 
 ## completed
 
