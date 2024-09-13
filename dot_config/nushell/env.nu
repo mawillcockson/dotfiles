@@ -76,7 +76,9 @@ $env.PATH = (
     # NOTE::IMPROVEMENT I would like caseinsensitive environment variables
     | get PATH? Path?
     | first
-    | split row (char env_sep)
+    | if ($in | describe | str replace --regex '<.*' '') == 'string' {
+        $in | split row (char env_sep)
+    } else {$in}
     | append ($env.EGET_BIN)
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | if ($zint_dir | path exists) {append $zint_dir} else {$in}
