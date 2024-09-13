@@ -31,6 +31,12 @@ export def "package-data-load-data" [] {
         do $install 'python'
         ^python -X utf8 -m pip install --user --upgrade pip setuptools wheel pipx
         ^python -X utf8 -m pipx ensurepath
+    }}, "linux": {"custom": {|install: closure|
+        do $install 'python'
+        ^python -X utf8 -m pip install --user --upgrade pip setuptools wheel pipx
+        # unnecessary, because the ~/.profile.d/add-to-path will already add
+        # the appropriate directories to $PATH
+        #^python -X utf8 -m pipx ensurepath
     }}} --tags [want, "package manager"] |
     simple-add "cargo" {"windows": {"custom": {|install: closure|
         do $install 'rustup'
@@ -91,6 +97,12 @@ export def "package-data-load-data" [] {
                 libxmlsec1-dev
                 libffi-dev
                 liblzma-dev
+                # To use Clang instead
+                #llvm
+                #llvm-ar
+                #lld
+                #llvm-bolt
+                #merge-fdata
         )
 
         let $tmpfile = (mktemp)
@@ -101,8 +113,32 @@ export def "package-data-load-data" [] {
     simple-add "python" {"windows": {"scoop": "python"}, "linux": {"custom": {|install: closure|
         use std [log]
         do $install 'pyenv'
-        ^pyenv update
-        ^pyenv latest --known '3.'
+        do {
+            use pyenv_setup.nu; pyenv_setup
+
+            ^pyenv update
+            log info $'will install python verion (^pyenv latest --known 3)'
+            let optimizations = if (sys host | get hostname) ends-with 'usb' {
+                # if this is a portable OS, I want a portable Python, minus the speed
+                {}
+            } else {
+                {
+                    # https://github.com/pyenv/pyenv/blob/master/plugins/python-build/README.md#building-for-maximum-performance
+                    # https://docs.python.org/3/using/configure.html#performance-options
+                    'PYTHON_TASK': '-m test.regrtest --pgo -j0',
+                    'PYTHON_CONFIGURE_OPTS': '--enable-optimizations --with-lto',
+                    'PYTHON_CFLAGS': '-march=native -mtune=native',
+                }
+            }
+            with-env $optimizations {
+                ^pyenv install --verbose '3:latest'
+            }
+            ^pyenv global 'system' (
+                ^pyenv latest 3 |
+                decode 'utf8' |
+                str trim --right
+            )
+        }
     }}} --tags [python, want, language] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |

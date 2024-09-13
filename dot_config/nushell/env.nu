@@ -77,13 +77,14 @@ $env.PATH = (
     | first
     | split row (char env_sep)
     | append ($env.EGET_BIN)
-    # https://www.nushell.sh/book/configuration.html#pyenv
-    | if (which 'pyenv' | is-not-empty) {prepend (^pyenv root | path join 'shims')} else {$in}
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | if ($zint_dir | path exists) {append $zint_dir} else {$in}
     | uniq
     | path expand
 )
+
+use pyenv_setup.nu
+pyenv_setup
 
 # generate stuff that can then be sourced in config.nu
 # this is done like this so that the correct directories can be created in
