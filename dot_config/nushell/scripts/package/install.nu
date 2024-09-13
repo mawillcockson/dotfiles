@@ -85,6 +85,7 @@ export def main [
                 } |
                 tee {log debug $"package record:\n($in | table -e)"}
             } |
+            tee {log debug $"before rejecting customs:\n($in | table -e)"} |
             if ($in | length) > 1 {
                 reject custom?
             } else {
