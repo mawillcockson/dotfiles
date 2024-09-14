@@ -1,16 +1,10 @@
 # Tasks for changes that need to be made to Linux
 
-- I get desktop notifications about apt package updates, but not eget or asdf ones
-- Nvim font changing doesn't work
+- In nvim:
   - Find a way to tell if fonts are missing and issue a warning
     - Don't disable font changing, because it may be the detection method should be updated, but do add a hint on how to disable font changing temporarily
   - Find a way to tell when neovide or neovim can't set the font
-- add installation scripts for
-  - keepass (needs mono-complete, download plugins)
-    - I want to write a shell script that uses `curl` and `jq` to download the plugins, and also a janet script that's compiled
-  - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
 - configure KeePass backup triggers
-- starship notifications about amount of time a command took present as a window that steals focus
 - A chezmoi data entry should be made and used to determine what kind of computer this is, and what should be installed
   - currently, there's the notion of 'bootstrap' or not, but I think this should be further expanded to a bevy of indicators, like os, hostname, etc
 - `path_additions` should still warn about missing directories, but shouldn't decline to add them to `$PATH`
@@ -46,3 +40,7 @@
 - Environment variables:
   - NU_USE_IR should be set for the user
   - XDG_CONFIG_HOME should be set system-wide
+- add installation scripts for
+  - for pip: python3-pip needs to be installed, or a generic solution using <https://pip.pypa.io/en/stable/installation/#get-pip-py>
+- Nvim font changing doesn't work
+- starship notifications about amount of time a command took present as a window that steals focus
