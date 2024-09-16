@@ -4,6 +4,7 @@
   F1 (tap-dance 200 (F1 (layer-switch normal)))
   F2 (tap-dance 200 (F2 (layer-switch emoji)))
   caps (tap-hold 200 200 esc lctrl)
+;; live reload configuration by pressing and holding the original right-ctrl, and then pressing the original left-ctrl
   lctrl (fork CapsLock lrld (rctrl))
   f (tap-hold 200 200 f (layer-while-held arrows))
   e (tap-hold 200 200 e (layer-while-held cluster))
