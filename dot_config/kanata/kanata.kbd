@@ -3,6 +3,7 @@
 (deflayermap (start)
   F1 (tap-dance 200 (F1 (layer-switch normal)))
   F2 (tap-dance 200 (F2 (layer-switch emoji)))
+  F3 (tap-dance 200 (F3 (layer-switch click)))
   caps (tap-hold 200 200 esc lctrl)
 ;; live reload configuration by pressing and holding the original right-ctrl, and then pressing the original left-ctrl
   lctrl (fork CapsLock lrld (rctrl))
@@ -55,6 +56,37 @@
 
 (deflayermap (normal)
   F1 (tap-dance 200 (F1 (layer-switch start)))
+)
+
+(deflayermap (click)
+  q mlft
+  w mlft
+  e mlft
+  r mlft
+  t mlft
+  y mlft
+  u mlft
+  i mlft
+  o mlft
+  p mlft
+  a mlft
+  s mlft
+  d mlft
+  f mlft
+  g mlft
+  h mlft
+  j mlft
+  k mlft
+  l mlft
+  z mlft
+  x mlft
+  c mlft
+  v mlft
+  b mlft
+  n mlft
+  m mlft
+  Space mlft
+  F3 (tap-dance 200 (XX (layer-switch start)))
 )
 
 (defalias
