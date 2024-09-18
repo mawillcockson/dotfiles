@@ -92,7 +92,40 @@ $env.config = (
             get PWD? |
             default [] |
             append [
-                {code: {|before,after| use std [log]; log debug $'cd-ing ($before) -> ($after)' }},
+                #{code: {|before,after| use std [log]; log debug $'cd-ing ($before) -> ($after)' }},
+                {
+                    # if I cd into a directory named 'ziglings.org', prepend
+                    # '~/apps/zigmaster' to $PATH
+                    'condition': {|_, after|
+                        (
+                            (($after | path basename) == 'ziglings.org')
+                            and
+                            ('~/apps/zigmaster/' | path expand | path exists)
+                        )
+                    },
+                    'code': {|_, _| load-env {'PATH': ($env.PATH | prepend ('~/apps/zigmaster' | path expand --strict))}},
+                },
+                {
+                    # if I leave a directory that has 'ziglings.org' as it or a
+                    # parent's name, remove '~/apps/zigmaster' from $PATH
+                    'condition': {|before, after|
+                        (
+                            ($before | is-not-empty) # happens on startup
+                            and
+                            ('ziglings.org' in ($before | path split))
+                            and
+                            ('ziglings.org' not-in ($after | path split))
+                        )
+                    },
+                    'code': {|_, _|
+                        load-env {
+                            'PATH': (
+                                $env.PATH |
+                                filter {|it| $it != ('~/apps/zigmaster' | path expand) }
+                            ),
+                        }
+                    },
+                },
             ]
         }
     }
