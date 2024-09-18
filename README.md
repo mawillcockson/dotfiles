@@ -28,7 +28,7 @@ sh -c "$(curl -fsSL https://get.chezmoi.io | sh -s -- -b ~/.local/bin init mawil
 
 > _Note: on Windows, if there's an SSL error, run `iwr -useb https://github.com`, then try again_
 
-Alternatively, [`chezmoi`][] can be installed separately, and then the following command can be run:
+Alternatively, [`chezmoi`][chezmoi] can be installed separately, and then the following command can be run:
 
 ```sh
 chezmoi init mawillcockson --apply --depth 1 --source ~/projects/dotfiles
