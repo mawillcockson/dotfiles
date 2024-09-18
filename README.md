@@ -44,11 +44,15 @@ powershell -ex remotesigned "irm -useb https://mw.je/install_kanata.ps1 | iex"
 
 ## Contents
 
-The following software features prominently in my configs:
+This may be an up-to-date list of the software that these files configure:
 
 - [nushell][]
 - [NeoVim][]
 - [gnupg2][]
+- [eget][]
+- [starship][]
+- Windows
+  - [Windows Terminal][]
 - Linux
   - [tmux][]
 
@@ -59,3 +63,6 @@ The following software features prominently in my configs:
 [tmux]: <https://github.com/tmux/tmux>
 [gnupg2]: <https://gnupg.org/>
 [nushell]: <https://www.nushell.sh/>
+[windows terminal]: <https://learn.microsoft.com/en-us/windows/terminal/>
+[eget]: <https://github.com/zyedidia/eget>
+[starship]: <https://starship.rs>
