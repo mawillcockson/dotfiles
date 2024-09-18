@@ -17,13 +17,13 @@ The dotfiles can be installed at the same time as [`chezmoi`][chezmoi].
 In PowerShell, it would be:
 
 ```powershell
-iex "&{$(irm -useb 'https://get.chezmoi.io/ps1')} -b ~/.local/bin init mawillcockson --apply --depth 1 --source ~/projects/dotfiles"
+iex "&{$(irm -useb 'https://get.chezmoi.io/ps1')} -b ~/apps/eget-bin init mawillcockson --apply --depth 1 --source ~/projects/dotfiles"
 ```
 
 In POSIX shell it would be:
 
 ```sh
-sh -c "$(curl -fsSL https://get.chezmoi.io | sh -s -- -b ~/.local/bin init mawillcockson --apply --depth 1 --source ~/projects/dotfiles)"
+sh -c "$(curl -fsSL https://get.chezmoi.io | sh -s -- -b ~/apps/eget-bin init mawillcockson --apply --depth 1 --source ~/projects/dotfiles)"
 ```
 
 > _Note: on Windows, if there's an SSL error, run `iwr -useb https://github.com`, then try again_
