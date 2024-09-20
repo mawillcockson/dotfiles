@@ -1,18 +1,84 @@
-(defsrc)
-
-(deflayermap (start)
-  F1 (tap-dance 200 (F1 (layer-switch normal)))
-  F2 (tap-dance 200 (F2 (layer-switch emoji)))
-  F3 (tap-dance 200 (F3 (layer-switch click)))
-  caps (tap-hold 200 200 esc lctrl)
-;; live reload configuration by pressing and holding the original right-ctrl, and then pressing the original left-ctrl
-  lctrl (fork CapsLock lrld (rctrl))
-  f (tap-hold 200 200 f (layer-while-held arrows))
-  e (tap-hold 200 200 e (layer-while-held cluster))
-  n (tap-hold 200 200 n (layer-while-held right-hold))
-  0 (tap-hold 200 200 0 (layer-while-held mousebtns))
+(defsrc
+  ;; https://github.com/jtroo/kanata/blob/main/parser/src/keys/mod.rs#L159
+  esc    F1   F2   F3   F4        F5   F6   F7   F8   F9  F10 F11  F12
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet cmp rctl
 )
 
+#| empty
+  _      _    _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _   _
+|#
+
+(defcfg
+  process-unmapped-keys no
+)
+
+(defvar
+  tap-timeout 200
+  hold-timeout 200
+  tt $tap-timeout
+  ht $hold-timeout
+)
+
+(defalias
+  norm (tap-dance $tt (F1 (layer-switch normal)))
+  moj (tap-dance $tt (F2 (layer-switch emoji)))
+  clk (tap-dance $tt (F3 (layer-switch click)))
+  capl (tap-hold $tt $ht esc lctrl)
+;; live reload configuration by pressing and holding the original right-ctrl, and then pressing the original left-ctrl
+  rld (fork CapsLock lrld (rctrl))
+  ⇈ (tap-hold $tt $ht f (layer-while-held arrows))
+  📃⇈ (tap-hold $tt $ht e (layer-while-held cluster))
+  👉 (tap-hold $tt $ht n (layer-while-held right-hold))
+  🖱️ (tap-hold $tt $ht 0 (layer-while-held mousebtns))
+)
+
+#|
+(deflayer start
+  F1 (tap-dance $tt (F1 (layer-switch normal)))
+  F2 (tap-dance $tt (F2 (layer-switch emoji)))
+  F3 (tap-dance $tt (F3 (layer-switch click)))
+  caps (tap-hold $tt $ht esc lctrl)
+;; live reload configuration by pressing and holding the original right-ctrl, and then pressing the original left-ctrl
+  lctrl (fork CapsLock lrld (rctrl))
+  f (tap-hold $tt $ht f (layer-while-held arrows))
+  e (tap-hold $tt $ht e (layer-while-held cluster))
+  n (tap-hold $tt $ht n (layer-while-held right-hold))
+  0 (tap-hold $tt $ht 0 (layer-while-held mousebtns))
+)
+|#
+
+(deflayer start
+   _   @norm @moj @clk  _         _    _    _    _    _   _   _    _
+   _   _    _    _    _    _    _    _    _    _    @🖱️   _    _    _
+   _   _    _    @📃⇈ _    _    _    _    _    _    _    _    _    _
+ @capl _    _    _    @⇈   _    _    _    _    _    _    _     _
+   _   _    _    _    _    _    @👉  _    _    _    _     _
+  @rld  _    _              _              _    _    _   _
+)
+
+(defalias
+  numpd (layer-while-held numpad)
+)
+
+(deflayer arrows
+  _      _    _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _  @numpd _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    ◀    ▼    ▲    ▶    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _   _
+)
+
+#|
 (deflayermap (arrows)
   h left
   j down
@@ -20,7 +86,36 @@
   l right
   e (layer-while-held numpad)
 )
+|#
 
+(deflayer cluster
+  _      _    _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    Home pgdn pgup End  _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _   _
+)
+
+#|
+(deflayermap (cluster)
+  h Home
+  l End
+  j PageDown
+  k PageUp
+)
+|#
+
+(deflayer numpad
+  _      _    _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    7    8    9    -    -    _    _
+  _    _    _    _    _    _    _    4    5    6    _    _    _    _
+  _    _    _    _    _    _    _    1    2    3    _    _    _
+  _    _    _    _    _    _    _    0    0    .    _    _
+  _    _    _              _              _    _    _   _
+)
+
+#|
 (deflayermap (numpad)
   7 7
   8 8
@@ -37,56 +132,73 @@
   , 0
   . .
 )
+|#
 
-(deflayermap (cluster)
-  h Home
-  l End
-  j PageDown
-  k PageUp
+(deflayer mousebtns
+  _      _    _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    _    _    comp _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _   _
 )
 
+#|
 (deflayermap (mousebtns)
   9 ContextMenu
 )
+|#
 
+(deflayer right-hold
+  _      _    _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    ⇧›   ↩    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _   _
+)
+
+#|
 (deflayermap (right-hold)
   j RightShift
   k Enter
 )
+|#
 
-(deflayermap (normal)
-  F1 (tap-dance 200 (F1 (layer-switch start)))
+(defalias
+  strt (tap-dance $tt (F1 (layer-switch start)))
 )
 
-(deflayermap (click)
-  q mlft
-  w mlft
-  e mlft
-  r mlft
-  t mlft
-  y mlft
-  u mlft
-  i mlft
-  o mlft
-  p mlft
-  a mlft
-  s mlft
-  d mlft
-  f mlft
-  g mlft
-  h mlft
-  j mlft
-  k mlft
-  l mlft
-  z mlft
-  x mlft
-  c mlft
-  v mlft
-  b mlft
-  n mlft
-  m mlft
-  Space mlft
-  F3 (tap-dance 200 (XX (layer-switch start)))
+(deflayer normal
+  _     @strt _    _    _         _    _    _    _    _   _   _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _   _
+)
+
+#|
+(deflayermap (normal)
+  F1 @strt
+)
+|#
+
+(defalias
+  strn (tap-dance $tt (XX (layer-switch start)))
+  ;; NOTE::IMPROVEMENT It could instead be a key_up of MouseLeft, followed by
+  ;; pressing MouseLeft again. Or it could be mapped to a press+release instead of
+  ;; letting it be held.
+  !🖱️ ‹🖰
+)
+
+(deflayer click
+  @!🖱️ @strn  @!🖱️ @!🖱️ @!🖱️      @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️
+  @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️
+  @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️
+  @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️
+  @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️ @!🖱️
+  @!🖱️ @!🖱️ @!🖱️           @!🖱️           @!🖱️ @!🖱️ @!🖱️ @!🖱️
 )
 
 (defalias
@@ -257,7 +369,7 @@
   soon-arrow (unicode 🔜)
   trans-symbol (macro (unicode ⚧) @vs16)
   infinity (macro (unicode ♾) @vs16)
-  
+
   free-of-charge (unicode 🈚)
   pride-flag (macro @waving-white-flag @vs16 @zwj @rainbow)
   trans-flag (macro @waving-white-flag @vs16 @zwj (unicode ⚧) @vs16)
@@ -280,7 +392,7 @@
 )
 
 (deflayermap (emoji)
-  F2 (tap-dance 200 (F2 (layer-switch start)))
+  F2 (tap-dance $tt (F2 (layer-switch start)))
   ShiftLeft (layer-while-held shift-emoji)
   ShiftRight (layer-while-held shift-emoji)
   Backquote nop0
@@ -294,7 +406,7 @@
   8 nop0
   9 nop0
   0 nop0
-  Minus (tap-dance 200 (@en-dash @em-dash @2-em-dash @3-em-dash))
+  Minus (tap-dance $tt (@en-dash @em-dash @2-em-dash @3-em-dash))
   Equal nop0
   Backspace Backspace
   Tab nop0
@@ -322,7 +434,7 @@
   k @love-received
   l @hugging-face
   Semicolon nop0
-  Quote (tap-dance 200 ((unicode ‘) (unicode ’)))
+  Quote (tap-dance $tt ((unicode ‘) (unicode ’)))
   Enter Enter
   z nop0
   x nop0
@@ -338,11 +450,7 @@
 )
 
 (deflayermap (shift-emoji)
-  1 (tap-dance 200 ((unicode ❗) (unicode ‼)))
-  Quote (tap-dance 200 ((unicode “) (unicode ”)))
-  p (tap-dance 200 (@penis @penis-with-emission))
-)
-
-(defcfg
-  process-unmapped-keys yes
+  1 (tap-dance $tt ((unicode ❗) (unicode ‼)))
+  Quote (tap-dance $tt ((unicode “) (unicode ”)))
+  p (tap-dance $tt (@penis @penis-with-emission))
 )
