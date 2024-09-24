@@ -91,7 +91,7 @@
 (deflayer cluster
   _      _    _    _    _         _    _    _    _    _   _   _    _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    bspc del  _    _    _
   _    _    _    _    _    _    Home pgdn pgup End  _    _    _
   _    _    _    _    _    _    _    _    _    _    _    _
   _    _    _              _              _    _    _   _
@@ -103,6 +103,8 @@
   l End
   j PageDown
   k PageUp
+  o Backspace
+  p Delete
 )
 |#
 
