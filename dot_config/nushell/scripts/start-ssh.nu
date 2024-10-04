@@ -43,7 +43,10 @@ export def --env main [] {
                 str trim |
                 filter {|it| $it =~ $pattern } |
                 parse --regex $pattern |
-                transpose --as-record --header-row
+                (
+                    # NOTE::IMPROVEMENT may be able to replace with `into record`
+                    transpose --as-record --header-row
+                )
             } else { {} }
         },
         _ => {return (error make {'msg': $'not implemented for platform: ($platform)'})},

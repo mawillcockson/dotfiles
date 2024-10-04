@@ -25,7 +25,11 @@ export def main [
             ($it.data.links | any {|e| $name in $e})
             or
             ($it.data.reasons | any {|e| $name in $e})
-        )} | transpose --header-row --as-record |
+        )} | (
+            # NOTE::IMPROVEMENT
+            # may be able to replace this with `into record`
+            transpose --header-row --as-record
+        ) |
         items {|name,rec|
             $rec |
             insert name $name |
