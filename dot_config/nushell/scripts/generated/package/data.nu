@@ -147,7 +147,15 @@ export def "package-data-load-data" [] {
     simple-add "elm" {"windows": {"custom": {|install: closure|
         do $install 'eget'
         eget elm/compiler
-        mv ($env.EGET_BIN | path join 'compiler') ($env.EGET_CONFIG | path join 'elm')
+        let output = (
+            do {
+                cd $env.EGET_BIN
+                glob 'compiler*'
+            } |
+            first
+        )
+        let dest = ($env.EGET_CONFIG | path join 'elm.exe')
+        mv $output $dest
     }}} --tags [elm, language] |
     simple-add "elm-test" {"windows": {"custom": {|install: closure|
         do $install 'node'
