@@ -32,6 +32,7 @@ return {
 			sh = { "shellcheck" },
 			sql = { "sqlfluff" },
 			zig = { "zigfmt" },
+			elm = { "elm_format" },
 		},
 	},
 	config = function(name, opts)
