@@ -4,6 +4,7 @@
   "cmp-conjure": { "branch": "master", "commit": "8c9a88efedc0e5bf3165baa6af8a407afe29daf6" },
   "conform.nvim": { "branch": "master", "commit": "50649648851cd0e126dfedd0f3c33b900a6f1ef8" },
   "conjure": { "branch": "master", "commit": "1157614e1c757cdbe062b08d617d162fb34ed3a3" },
+  "elm-vim": { "branch": "master", "commit": "4b71facd77297cb33bbb3b14894676cff0a9bd1d" },
   "font-resize.nvim": { "branch": "main", "commit": "64f5b570c36070c5eeebbf15bc58ef7a4c6063df" },
   "lazy.nvim": { "branch": "main", "commit": "077102c5bfc578693f12377846d427f49bc50076" },
   "love2d": { "branch": "main", "commit": "98f7684525a6e866ffa6df449b7aef406a807dae" },
