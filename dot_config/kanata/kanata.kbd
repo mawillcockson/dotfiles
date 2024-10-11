@@ -39,6 +39,7 @@
   📃⇈ (tap-hold $tt $ht e (layer-while-held cluster))
   👉 (tap-hold $tt $ht n (layer-while-held right-hold))
   🖱️ (tap-hold $tt $ht 0 (layer-while-held mousebtns))
+  sw (fork w ShiftLeft (e f CapsLock))
 )
 
 #|
@@ -50,6 +51,7 @@
 ;; live reload configuration by pressing and holding the original right-ctrl, and then pressing the original left-ctrl
   lctrl (fork CapsLock lrld (rctrl))
   f (tap-hold $tt $ht f (layer-while-held arrows))
+  w (fork w ShiftLeft (CapsLock e f))
   e (tap-hold $tt $ht e (layer-while-held cluster))
   n (tap-hold $tt $ht n (layer-while-held right-hold))
   0 (tap-hold $tt $ht 0 (layer-while-held mousebtns))
@@ -59,7 +61,7 @@
 (deflayer start
    _   @norm @moj @clk  _         _    _    _    _    _   _   _    _
    _   _    _    _    _    _    _    _    _    _    @🖱️   _    _    _
-   _   _    _    @📃⇈ _    _    _    _    _    _    _    _    _    _
+   _   _    @sw  @📃⇈ _    _    _    _    _    _    _    _    _    _
  @capl _    _    _    @⇈   _    _    _    _    _    _    _     _
    _   _    _    _    _    _    @👉  _    _    _    _     _
   @rld  _    _              _              _    _    _   _
@@ -72,7 +74,7 @@
 (deflayer arrows
   _      _    _    _    _         _    _    _    _    _   _   _    _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _  @numpd _    _    _    _    _    _    _    _    _    _
+  _    _   ‹⇧  @numpd _    _    _    _    _    _    _    _    _    _
   _    _    _    _    _    _    ◀    ▼    ▲    ▶    _    _    _
   _    _    _    _    _    _    _    _    _    _    _    _
   _    _    _              _              _    _    _   _
@@ -85,13 +87,14 @@
   k up
   l right
   e (layer-while-held numpad)
+  w ‹⇧
 )
 |#
 
 (deflayer cluster
   _      _    _    _    _         _    _    _    _    _   _   _    _
   _    _    _    _    _    _    _    _    _    _    _    _    _    _
-  _    _    _    _    _    _    _    _    _    bspc del  _    _    _
+  _    _    ‹⇧   _    _    _    _    _    _    bspc del  _    _    _
   _    _    _    _    _    _    Home pgdn pgup End  _    _    _
   _    _    _    _    _    _    _    _    _    _    _    _
   _    _    _              _              _    _    _   _
@@ -105,6 +108,7 @@
   k PageUp
   o Backspace
   p Delete
+  w ShiftLeft
 )
 |#
 
