@@ -144,6 +144,19 @@ export def "package-data-load-data" [] {
             )
         }
     }}} --tags [python, want, language] |
+    simple-add "elm" {"windows": {"custom": {|install: closure|
+        do $install 'eget'
+        eget elm/compiler
+        mv ($env.EGET_BIN | path join 'compiler') ($env.EGET_CONFIG | path join 'elm')
+    }}} --tags [elm, language] |
+    simple-add "elm-test" {"windows": {"custom": {|install: closure|
+        do $install 'node'
+        fnm exec --using=default nu -c "npm install --global elm-test@latest"
+    }}} --tags [elm, tooling] |
+    simple-add "elm-format" {"windows": {"custom": {|install: closure|
+        do $install 'node'
+        fnm exec --using=default nu -c "npm install --global elm-format@latest"
+    }}} --tags [elm, tooling] |
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
     simple-add "git" {"windows": {"scoop": "git"}, "linux": {"apt-get": "git"}} --tags [want] --reasons ["revision control and source management", "downloading programs"] --links ["https://git-scm.com/docs"] |
