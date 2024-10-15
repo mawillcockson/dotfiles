@@ -33,6 +33,7 @@ return {
 			sql = { "sqlfluff" },
 			zig = { "zigfmt" },
 			elm = { "elm_format" },
+			dart = { "dart_format" },
 		},
 	},
 	config = function(name, opts)
