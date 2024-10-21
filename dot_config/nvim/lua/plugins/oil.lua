@@ -77,14 +77,17 @@ return {
 		keymaps = {
 			["g?"] = "actions.show_help",
 			["<CR>"] = "actions.select",
+			--[==[
 			["<C-CR>"] = {
 				callback = function()
-					require("oil").select()
-					require("oil.actions").tcd.callback()
+					local actions = require("oil.actions")
+					actions.select.callback()
+					actions.cd.callback({scope = "tab"})
 				end,
 				desc = "(oil) open selection and :tcd",
 				mode = "n",
 			},
+      --]==]
 			["<C-s>"] = false, --"actions.select_vsplit",
 			["<C-h>"] = false, --"actions.select_split",
 			["<C-x>"] = "actions.select_split",
@@ -94,18 +97,20 @@ return {
 			["<C-l>"] = false, --"actions.refresh",
 			["<M-l>"] = "actions.refresh",
 			["-"] = "actions.parent",
+			--[==[
 			["<M-->"] = {
 				callback = function()
 					local actions = require("oil.actions")
 					actions.parent.callback()
-					actions.tcd.callback()
+					actions.cd.callback({scope = "tab"})
 				end,
 				desc = "(oil) go to parent and :tcd",
 				mode = "n",
 			},
+      --]==]
 			["_"] = "actions.open_cwd",
-			["`"] = false, --"actions.cd",
-			["~"] = false, --"actions.tcd",
+			["`"] = { "actions.cd", opts = { scope = "tab" }, desc = ":tcd to current old directory" }, --"actions.cd",
+			["~"] = false, --{ "actions.cd", opts = { scope = "tab" }, desc = ":tcd to current old directory"}
 			["gs"] = false, --"actions.change_sort",
 			["gx"] = false, --"actions.open_external",
 			["g."] = false, --"actions.toggle_hidden",
