@@ -2,7 +2,7 @@ use package/data
 use package/manager
 use utils.nu [powershell-safe]
 use package/package_consts.nu [platform]
-use std [log]
+use std/log
 
 
 # runs collectors to collect information from package managers

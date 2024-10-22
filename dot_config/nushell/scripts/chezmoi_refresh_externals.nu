@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 
 def main [] {
     cd (chezmoi dump-config --format=json | from json | get 'workingTree')

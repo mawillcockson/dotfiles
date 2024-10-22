@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 use consts.nu [platform]
 export use setup/windows
 export use setup/linux

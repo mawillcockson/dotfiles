@@ -92,7 +92,7 @@ $env.config = (
             get PWD? |
             default [] |
             append [
-                #{code: {|before,after| use std [log]; log debug $'cd-ing ($before) -> ($after)' }},
+                #{code: {|before,after| use std/log; log debug $'cd-ing ($before) -> ($after)' }},
                 {
                     # if I cd into a directory named 'ziglings.org', prepend
                     # '~/apps/zigmaster' to $PATH

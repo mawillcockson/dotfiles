@@ -18,7 +18,7 @@
 # required tools:
 # - sops: does SSSS part
 # - age: does the encryption and key generation part
-use std [log]
+use std/log
 
 const ssss_dir = $'($nu.default-config-dir)/scripts/ssss'
 const wordlist_file = $'($ssss_dir)/english-bip39-wordlist.txt'

@@ -1,5 +1,5 @@
 use consts.nu [platform]
-use std [log]
+use std/log
 
 export const pwsh_guid = '{61c54bbd-c2c6-5271-96e7-009a87ff44bf}'
 export const cmd_guid = '{0caa0dad-35be-5f56-a8ff-afceeeaa6101}'

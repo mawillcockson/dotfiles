@@ -17,7 +17,7 @@ source $default_env
         mkdir ($it | path dirname)
         touch $it
     } else if (not (nu-check $it)) {
-        use std [log]
+        use std/log
         log error $'not a valid nu module! -> ($it)'
         log warning $'truncating -> ($it)'
         echo '' | save -f $it

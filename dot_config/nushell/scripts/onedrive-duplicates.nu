@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 
 # NOTE::IMPROVEMENT this list should auto-update
 # it can be moved to a .nuon file, and every startup, $env.ONEDRIVE etc are

@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 
 export const keepass_plugin_dir = '/usr/lib/keepass2/Plugins'
 export const shell_includes_dir = '/usr/local/share/sh'

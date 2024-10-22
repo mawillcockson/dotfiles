@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 use consts.nu [platform]
 
 # configure the environment for pyenv

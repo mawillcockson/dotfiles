@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 export use setup/windows/gitconfig.nu
 export use setup/windows/windows_terminal.nu
 export use setup/windows/fonts.nu

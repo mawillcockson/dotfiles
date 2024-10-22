@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 use package/package_consts.nu [platform, default_package_data_path]
 use package/data/validate_data.nu [validate-data]
 

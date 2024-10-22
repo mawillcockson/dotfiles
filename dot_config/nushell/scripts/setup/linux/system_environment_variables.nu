@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 
 export const variable_names = [
     'ALREADY_SOURCED_SYSTEM_PROFILE_D',

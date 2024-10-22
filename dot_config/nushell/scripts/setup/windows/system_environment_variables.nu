@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 use utils.nu ["powershell-safe"]
 
 export def default_variables [] {

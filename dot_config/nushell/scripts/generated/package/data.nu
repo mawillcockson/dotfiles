@@ -70,7 +70,7 @@ export def "package-data-load-data" [] {
         flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
     }}} --tags ["flatpak"] |
     simple-add "pyenv" {"linux": {"custom": {|install: closure|
-        use std [log]
+        use std/log
         if (which 'pyenv' | is-not-empty) {
             log info 'pyenv already installed'
             return true
@@ -115,7 +115,7 @@ export def "package-data-load-data" [] {
         rm $tmpfile
     }}} --tags ["language manager", python, "version manager"] --reasons ["helps manage python installations"] |
     simple-add "python" {"windows": {"scoop": "python"}, "linux": {"custom": {|install: closure|
-        use std [log]
+        use std/log
         do $install 'pyenv'
         do {
             use pyenv_setup.nu; pyenv_setup
@@ -178,7 +178,7 @@ export def "package-data-load-data" [] {
     simple-add "caddy" {"windows": {"scoop": "caddy", "winget": "CaddyServer.Caddy"}, "linux": {"apt-get": "caddy"}} --tags [small, rarely] |
     simple-add "dark" {"windows": {"scoop": "dark"}} --tags [scoop, exclude, auto] |
     simple-add "tar" {"windows": {"custom": {|install: closure|
-        use std [log]
+        use std/log
 
         if (which tar | is-not-empty) {
             log info 'tar is already installed (on Windows 10 build 17063+)'
@@ -189,7 +189,7 @@ export def "package-data-load-data" [] {
         run-external $nu.current-exe '-c' 'scoop install tar'
     }}, "linux": {"apt-get": "tar"}} --tags [small, want] |
     simple-add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}, "linux": {"custom": {|install: closure|
-        use std [log]
+        use std/log
 
         log info 'installing prerequisites'
         [] |
@@ -270,7 +270,7 @@ export def "package-data-load-data" [] {
     simple-add "innounp" {"windows": {"scoop": "innounp"}} --tags [scoop, exclude, auto] |
     simple-add "jq" {"windows": {"scoop": "jq"}} --tags [small] |
     simple-add "keepass" {"windows": {"scoop": "keepass"}, "linux": {"custom": {|install: closure|
-        use std [log]
+        use std/log
         use consts.nu [platform]
         use package/manager
         let apt_get = (
@@ -292,7 +292,7 @@ export def "package-data-load-data" [] {
     simple-add "mariadb" {"windows": {"scoop": "mariadb"}} --tags [large, rarely] |
     simple-add "mpv" {"windows": {"scoop": "mpv"}} --tags [want] --reasons ["has fewer visual \"glitches\" than vlc, and plays as wide a variety of media, including HEVC/h.265 for free"] |
     simple-add "neovide" {"windows": {"custom": {|install: closure|
-        use std [log]
+        use std/log
         do $install 'scoop'
         if ('10' in (sys host | get os_version)) {
             log warning 'neovide does not work well on windows 10, as of 2024-09-25'
@@ -356,7 +356,7 @@ export def "package-data-load-data" [] {
     simple-add "Microsoft.WindowsTerminal" {"windows": {"winget": "Microsoft.WindowsTerminal"}} --tags [want, gui, windows] --reasons ["use to be my favorite terminal emulator before neovide+neovim"] |
     simple-add "Microsoft.Teams.Free" {"windows": {"winget": "Microsoft.Teams.Free"}} --tags [exclude, remove] |
     simple-add "firefox" {"windows": {"winget": "Mozilla.Firefox"}, "linux": {"custom": {|install: closure|
-        use std [log]
+        use std/log
         do $install 'gnupg2'
 
         # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
@@ -465,7 +465,7 @@ export def "package-data-load-data" [] {
         ^fnm install --lts
         ^fnm default lts-latest
 
-        use std [log]
+        use std/log
         log info "use a command like the folowing to find where node is installed:\nfnm exec --using=default nu -c '$env.PATH | first | path join \"node.exe\"'"
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
     simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 (and maybe up?) on Windows"] |
@@ -504,7 +504,7 @@ export def "package-data-load-data" [] {
     }}, "windows": {"custom": {|install: closure|
         # do $install "Microsoft.VisualStudio.2022.BuildTools"
 
-        use std [log]
+        use std/log
         use utils.nu [powershell-safe]
 
         let janet_json = (http get 'https://api.github.com/repos/janet-lang/janet/releases/latest')
@@ -585,7 +585,7 @@ export def "package-data-load-data" [] {
         # do $install "Microsoft.VisualStudio.2022.BuildTools"
         do $install 'lua51'
         do $install 'hererocks'
-        use std [log]
+        use std/log
         use utils.nu [powershell-safe]
 
         # put it in the place lazy.nvim expects it, because why not
@@ -624,7 +624,7 @@ export def "package-data-load-data" [] {
     }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|
-        use std [log]
+        use std/log
 
         log info "following the instructions from:\nhttps://github.com/jtroo/kanata/blob/main/docs/setup-linux.md"
 

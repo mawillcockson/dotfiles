@@ -1,6 +1,6 @@
 # defined in env.nu
 # const default_package_manager_data_path = $'($nu.default-config-dir)/scripts/generated/package/managers.nu'
-use std [log]
+use std/log
 use utils.nu [powershell-safe]
 use package/package_consts.nu [default_package_manager_data_path]
 

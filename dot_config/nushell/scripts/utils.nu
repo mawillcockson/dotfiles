@@ -343,7 +343,7 @@ export def "banner-message" [
     }
     let banner_width = ([((term size).columns), 80] | math min)
     if $banner_width < 40 {
-        use std [log]
+        use std/log
         log warning 'terminal too narrow to display banner'
         return $msg
     }
@@ -472,7 +472,7 @@ export def "delete-temp-starship-configs" [] {
         try {
             rm $it
         } catch {|err|
-            use std [log]
+            use std/log
             log error $'could not delete previous starship config: ($err.msg)'
         }
     }

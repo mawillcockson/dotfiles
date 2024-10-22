@@ -1,4 +1,4 @@
-use std [log]
+use std/log
 
 export def "find-kanata" [] {
     cd $env.EGET_BIN
