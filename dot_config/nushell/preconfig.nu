@@ -151,8 +151,6 @@ if ($clipboard_nu | path exists) {
 #    }
 #}
 
-$postconfig_content ++= 'export use std'
-
 let start_ssh_nu = ($scripts | path join 'start-ssh.nu')
 if ($start_ssh_nu | path exists) {
     if not (nu-check --as-module $start_ssh_nu) {
