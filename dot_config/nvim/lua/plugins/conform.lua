@@ -34,6 +34,9 @@ return {
 			zig = { "zigfmt" },
 			elm = { "elm_format" },
 			dart = { "dart_format" },
+			html = { "prettier" },
+			css = { "prettier" },
+			javascript = { "prettier" },
 		},
 	},
 	config = function(name, opts)
