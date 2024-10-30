@@ -87,6 +87,17 @@ $env.PATH = (
     | path expand
 )
 
+if (which fnm | is-not-empty) {
+  try {
+    fnm env --json | from json
+  } catch {{}}
+} else {{}} | load-env
+$env.PATH = if ('FNM_MULTISHELL_PATH' in $env) {
+  $env.PATH |
+  prepend $env.FNM_MULTISHELL_PATH
+} else {$env.PATH}
+
+
 use pyenv_setup.nu
 pyenv_setup
 
