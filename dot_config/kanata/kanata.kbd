@@ -143,7 +143,7 @@
 (deflayer mousebtns
   _      _    _    _    _         _    _    _    _    _   _   _    _
   _    _    _    _    _    _    _    _    _    comp _    _    _    _
-  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    _    🖰3   _    _    _    _
   _    _    _    _    _    _    _    _    _    _    _    _    _
   _    _    _    _    _    _    _    _    _    _    _    _
   _    _    _              _              _    _    _   _
@@ -152,6 +152,7 @@
 #|
 (deflayermap (mousebtns)
   9 ContextMenu
+  o mousemid
 )
 |#
 
