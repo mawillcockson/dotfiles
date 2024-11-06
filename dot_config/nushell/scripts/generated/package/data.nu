@@ -252,6 +252,35 @@ export def "package-data-load-data" [] {
             ^tar --extract --overwrite $'--directory=("~/.local/bin" | path expand)' $'--file=($tmparchive)' --gzip --strip-components=1 $'--files-from=($tmpnames)'
         } catch {|e| log error $e.msg}
         rm -r $tmpdir
+    }}, "linux": {"custom": {|install: closure|
+        let arch = (
+            match $nu.os-info.arch {
+                'x86_64' => 'amd64',
+                'x86' => '386',
+                _ => { return (error make {
+                    'msg': $"don't know how to convert architecture name from rust to go -> ($nu.os-info.arch)",
+                })},
+            }
+        )
+        let asset = (
+            http get --max-time 3 'https://api.github.com/repos/zyedidia/eget/releases/latest' |
+            get assets |
+            where name =~ $'linux_($arch)\.tar\.gz' |
+            first
+        )
+        let tmpdir = (mktemp -d)
+        let tmparchive = ($tmpdir | path join $asset.name)
+        let tmpnames = ($tmpdir | path join 'filenames.txt')
+        try {
+            http get --max-time 10 $asset.browser_download_url |
+            save -f $tmparchive
+
+            echo $'($asset.name | str replace --regex '\.tar\.gz$' '')/eget' |
+            save -f $tmpnames
+
+            ^tar --extract --overwrite $'--directory=("~/apps/eget-bin/" | path expand)' $'--file=($tmparchive)' --gzip --strip-components=1 $'--files-from=($tmpnames)'
+        } catch {|e| log error $e.msg}
+        rm -r $tmpdir
     }}} --tags [want, "package manager"] --reasons ["makes installing stuff from GitHub releases much easier"] --links ["https://github.com/zyedidia/eget?tab=readme-ov-file#eget-easy-pre-built-binary-installation"] |
     simple-add "fd" {"windows": {"scoop": "fd"}, "linux": {"eget": "sharkdp/fd", "apt-get": "fd-find"}} --search-help [find, rust] --tags [want, small] |
     simple-add "ffmpeg" {"windows": {"scoop": "ffmpeg"}} --tags [large, yt-dlp] |
