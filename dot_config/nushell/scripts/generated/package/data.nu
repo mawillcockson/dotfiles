@@ -670,7 +670,7 @@ export def "package-data-load-data" [] {
             sudo addgroup --system input
         } else {log info 'group "input" exists'}
         let uinput_exists = (
-            do {getend group uinput} |
+            do {getent group uinput} |
             complete |
             get exit_code |
             ($in == 0)
