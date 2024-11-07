@@ -71,6 +71,7 @@ match $nu.os-info.name {
 } | to toml | prepend ['# this file is auto-generated in env.nu', ''] | str join "\n" | save -f $env.EGET_CONFIG
 
 let zint_dir = ($env.HOME | path join 'apps' 'zint')
+let atuin_dir = ($env.HOME | path join '.atuin' 'bin')
 
 $env.PATH = (
     $env
@@ -83,6 +84,7 @@ $env.PATH = (
     | append ($env.EGET_BIN)
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | if ($zint_dir | path exists) {append $zint_dir} else {$in}
+    | if ($atuin_dir | path exists) {append $atuin_dir} else {$in}
     | uniq
     | path expand
 )
