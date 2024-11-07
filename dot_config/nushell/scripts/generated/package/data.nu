@@ -291,7 +291,7 @@ export def "package-data-load-data" [] {
     simple-add "fvim" {"windows": {"scoop": "fvim"}} --tags [why_even] --reasons ["at one point, before neovide, was really good with the Comic Code font"] |
     simple-add "gifsicle" {"windows": {"scoop": "gifsicle"}} --tags [small, rarely] --reasons ["used by other programs like Screen2Gif to minify gifs"] |
     simple-add "gifski" {"windows": {"scoop": "gifski"}} --tags [small, rarely] --reasons ["used by other programs like Screen2Gif to minify gifs"] |
-    simple-add "gnupg" {"windows": {"scoop": "gnupg"}} --tags [want, small] |
+    simple-add "gnupg" {"windows": {"scoop": "gnupg"}, "linux": {"apt-get": "gnupg2"}} --tags [want, small] |
     simple-add "handbrake" {"windows": {"scoop": "handbrake"}} --tags [rarely, large] |
     simple-add "hashcat" {"windows": {"scoop": "hashcat"}} --tags [why_even] --reasons ["tries to make cracking hashes and guessing passwords easier"] |
     simple-add "imageglass" {"windows": {"scoop": "imageglass"}} --search-help [avif, "av1", iPhone, picture] --tags [rarely] --reasons ["nicer image viewer", "can display and convert iPhone .avif images for free"] |
@@ -386,7 +386,7 @@ export def "package-data-load-data" [] {
     simple-add "Microsoft.Teams.Free" {"windows": {"winget": "Microsoft.Teams.Free"}} --tags [exclude, remove] |
     simple-add "firefox" {"windows": {"winget": "Mozilla.Firefox"}, "linux": {"custom": {|install: closure|
         use std/log
-        do $install 'gnupg2'
+        do $install 'gnupg'
 
         # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
         log info "Create a directory to store APT repository keys if it doesn't exist"
@@ -413,6 +413,24 @@ export def "package-data-load-data" [] {
         log info 'Update your package list and install the Firefox .deb package'
         ^sudo apt-get update --assume-yes
         ^sudo apt-get install --no-install-recommends --quiet --assume-yes --default-release stable firefox
+
+        log info 'Checking for default firefox-esr installation'
+        def "check-installed" [] {
+            return (
+                (^dpkg-query --showformat '${db:Status-Status}' --show firefox-esr)
+                ==
+                'installed'
+            )
+        }
+
+        if (check-installed) {
+            ^sudo apt-get remove --quiet --assume-yes firefox-esr
+        }
+        if ((not (check-installed)) and (which firefox-esr | is-not-empty)) {
+            return (error make {
+                'msg': 'firefox-esr does not appear to be installed in a way dpkg can detect, but does appear to be present on the system'
+            })
+        }
     }}} --tags [want, large] --reasons ["beloved browser"] |
     simple-add "Microsoft.OneDrive" {"windows": {"winget": "Microsoft.OneDrive"}} --tags [want, system] --reasons ["what I use to sync all my files cross-platform"] |
     simple-add "rustup" {"windows": {"winget": "Rustlang.Rustup"}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
