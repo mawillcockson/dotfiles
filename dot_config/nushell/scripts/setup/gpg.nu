@@ -1,6 +1,13 @@
 use std/log
+use consts ["platform"]
 
 export def main [] {
+    match ($platform) {
+        'linux' | 'windows' => log "may need to use `nu -c 'use package; package install gnupg'`",
+        _ => log $'no notes for platform -> ${platform}'
+    }
+    # before anything, this command simply gets gpg to set up a keyring and .gpnug directory
+    gpg -K
     # Found with:
     # https://www.gnupg.org/documentation/manuals/gnupg/Listing-options.html
     # https://www.gnupg.org/documentation/manuals/gnupg/Changing-options.html
@@ -20,5 +27,15 @@ export def main [] {
     gpg --keyserver 'hkps://keyserver.ubuntu.com' --receive-key $git_signing_key
     try { gpg-card fetch }
 
-    log info "set my gpg keys as ultimate trust with: gpg --edit-key matthew"
+    log "restart scdaemon"
+    gpgconf --reload scdaemon
+
+    log info r#'post-installation steps (feel free to automate these!):
+
+- set my gpg keys as ultimate trust with: gpg --edit-key matthew
+
+The following steps may be necessary, but hopefully aren't:
+
+- with the card plugged in, get the card daemon doing stuff: gpg --card-status
+'#
 }
