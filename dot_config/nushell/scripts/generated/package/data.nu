@@ -412,7 +412,7 @@ export def "package-data-load-data" [] {
     simple-add "Microsoft.Teams.Free" {"windows": {"winget": "Microsoft.Teams.Free"}} --tags [exclude, remove] |
     simple-add "firefox" {"windows": {"winget": "Mozilla.Firefox"}, "linux": {"custom": {|install: closure|
         use std/log
-        use utils ["package check-installed dpkg"]
+        use utils.nu ["package check-installed dpkg"]
         do $install 'gnupg'
 
         # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
