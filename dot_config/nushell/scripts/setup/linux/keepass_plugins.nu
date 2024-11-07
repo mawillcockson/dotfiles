@@ -33,4 +33,13 @@ export def main [] {
     ^sudo cp ...($systemd_units) $custom_systemd_units_dir
     ^sudo systemctl daemon-reload
     ^sudo systemctl enable ($custom_systemd_units_dir | path join 'update_keepass_plugins.timer')
+    # run the unit once to make sure the plugins are downloaded to begin with
+    ^sudo sh -c $"
+        systemctl start --wait update_keepass_plugins.service &
+        START_TASK=\"$!\"
+        journalctl -fu update_keepass_plugins.service -b &
+        JOURNAL_TASK=\"$!\"
+        wait \"${START_TASK}\"
+        kill \"${JOURNAL_TASK}\"
+    "
 }
