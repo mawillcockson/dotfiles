@@ -291,7 +291,19 @@ export def "package-data-load-data" [] {
     simple-add "fvim" {"windows": {"scoop": "fvim"}} --tags [why_even] --reasons ["at one point, before neovide, was really good with the Comic Code font"] |
     simple-add "gifsicle" {"windows": {"scoop": "gifsicle"}} --tags [small, rarely] --reasons ["used by other programs like Screen2Gif to minify gifs"] |
     simple-add "gifski" {"windows": {"scoop": "gifski"}} --tags [small, rarely] --reasons ["used by other programs like Screen2Gif to minify gifs"] |
-    simple-add "gnupg" {"windows": {"scoop": "gnupg"}, "linux": {"apt-get": "gnupg2"}} --tags [want, small] |
+    simple-add "gnupg" {"windows": {"scoop": "gnupg"}, "linux": {"custom": {|install: closure|
+        use std/log
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        do $apt_get 'gnupg2'
+        do $apt_get 'scdaemon'
+    }}} --tags [want, small] |
     simple-add "handbrake" {"windows": {"scoop": "handbrake"}} --tags [rarely, large] |
     simple-add "hashcat" {"windows": {"scoop": "hashcat"}} --tags [why_even] --reasons ["tries to make cracking hashes and guessing passwords easier"] |
     simple-add "imageglass" {"windows": {"scoop": "imageglass"}} --search-help [avif, "av1", iPhone, picture] --tags [rarely] --reasons ["nicer image viewer", "can display and convert iPhone .avif images for free"] |
