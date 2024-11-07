@@ -766,5 +766,6 @@ export def "package-data-load-data" [] {
             log info 'may have to log in and out again to get the group membership and such to register'
         }
     }}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
+    simple-add "spotify" {"linux": {"snap": "spotify"}} --tags [large, music, spotify] --reasons ["sometimes it's nice to listen to music"] --links ["https://open.spotify.com/download"] |
     validate-data
 }
