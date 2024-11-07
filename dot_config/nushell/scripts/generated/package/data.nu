@@ -341,10 +341,21 @@ export def "package-data-load-data" [] {
         scoop 'install' 'neovide/neovide'
     }}, "linux": {"eget": "neovide/neovide"}} --tags [want, neovim] |
     simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
         do $install 'asdf'
         run-external $nu.current-exe '-l' '-c' 'asdf plugin add neovim'
         run-external $nu.current-exe '-l' '-c' 'asdf install neovim stable'
         run-external $nu.current-exe '-l' '-c' 'asdf global neovim stable'
+
+        do $apt_get 'wl-clipboard'
+        do $apt_get 'xclip'
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}, "linux": {"eget": "nushell/nushell"}, "android": {"pkg": "nushell"}} --tags [essential, small] |
