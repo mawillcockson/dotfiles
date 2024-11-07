@@ -526,7 +526,10 @@ export def "package-data-load-data" [] {
     simple-add "fzf" {"windows": {"scoop": "fzf"}} --tags [small, rarely] --reasons ["very simple interactive fuzzy finder that can be used from other scripts"] --links ["https://github.com/junegunn/fzf"] |
     simple-add "nvr" {"windows": {"pipx": "neovim-remote"}, "linux": {"pipx": "neovim-remote"}} --tags [want, small, neovim] --reasons ["allows opening a file from within a :terminal session, inside the editor that :terminal is running within, instead of opening a nested editor", "will be essential until --remote-wait is natively supported by neovim: https://neovim.io/doc/user/remote.html#E5600"] --links ["https://github.com/mhinz/neovim-remote"] |
     simple-add "nvm" {"windows": {"scoop": "nvm"}} --tags [javascript, tooling, rarely] --reasons ["helps install various js-based tooling", "nvm4win may be deprecated soon in favor of Runtime"] --links ["https://github.com/coreybutler/nvm-windows/discussions/565#discussioncomment-58112", "https://github.com/nvm-sh/nvm"] |
-    simple-add "fnm" {"windows": {"scoop": "fnm"}} --tags [javascript, tooling, rarely] --reasons ["cross-platform node version manager"] --links ["https://github.com/Schniz/fnm"] |
+    simple-add "fnm" {"windows": {"scoop": "fnm"}, "linux": {"custom": {|install: closure|
+        do $install 'eget'
+        eget Schniz/fnm
+    }}} --tags [javascript, tooling, rarely] --reasons ["cross-platform node version manager"] --links ["https://github.com/Schniz/fnm"] |
     simple-add "node" {"windows": {"custom": {|install: closure|
         do $install 'fnm'
         ^fnm install --lts
@@ -534,6 +537,10 @@ export def "package-data-load-data" [] {
 
         use std/log
         log info "use a command like the folowing to find where node is installed:\nfnm exec --using=default nu -c '$env.PATH | first | path join \"node.exe\"'"
+    }}, "linux": {"custom": {|install: closure|
+        do $install 'fnm'
+        ^fnm install --lts
+        ^fnm default lts-latest
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
     simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 (and maybe up?) on Windows"] |
     simple-add "atuin" {"windows": {"custom": {|install: closure|
