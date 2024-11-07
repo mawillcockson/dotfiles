@@ -412,6 +412,7 @@ export def "package-data-load-data" [] {
     simple-add "Microsoft.Teams.Free" {"windows": {"winget": "Microsoft.Teams.Free"}} --tags [exclude, remove] |
     simple-add "firefox" {"windows": {"winget": "Mozilla.Firefox"}, "linux": {"custom": {|install: closure|
         use std/log
+        use utils ["package check-installed dpkg"]
         do $install 'gnupg'
 
         # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
@@ -441,18 +442,11 @@ export def "package-data-load-data" [] {
         ^sudo apt-get install --no-install-recommends --quiet --assume-yes --default-release stable firefox
 
         log info 'Checking for default firefox-esr installation'
-        def "check-installed" [] {
-            return (
-                (^dpkg-query --showformat '${db:Status-Status}' --show firefox-esr)
-                ==
-                'installed'
-            )
-        }
 
-        if (check-installed) {
+        if (package check-installed dpkg firefox-esr) {
             ^sudo apt-get remove --quiet --assume-yes firefox-esr
         }
-        if ((not (check-installed)) and (which firefox-esr | is-not-empty)) {
+        if ((not (package check-installed dpkg firefox-esr)) and (which firefox-esr | is-not-empty)) {
             return (error make {
                 'msg': 'firefox-esr does not appear to be installed in a way dpkg can detect, but does appear to be present on the system'
             })

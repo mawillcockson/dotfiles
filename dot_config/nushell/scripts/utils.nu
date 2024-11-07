@@ -489,3 +489,11 @@ export def "edit dotfile" [file: path] {
         chezmoi edit --apply $file
     }
 }
+
+export def "package check-installed dpkg" [name: string] {
+    return (
+        (^dpkg-query --showformat '${db:Status-Status}' --show $name)
+        ==
+        'installed'
+    )
+}
