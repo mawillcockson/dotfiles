@@ -376,7 +376,10 @@ export def "package-data-load-data" [] {
     simple-add "stylua" {"windows": {"scoop": "stylua"}} --tags [small, tooling, lua] --reasons ["auto-formatting lua"] |
     simple-add "taplo" {"windows": {"scoop": "taplo"}} --tags [small, tooling, toml] --reasons ["I think it can lint TOML files? I think I installed it for conform.nvim"] |
     simple-add "transmission" {"windows": {"scoop": "transmission"}} --tags [small, rarely] --reasons ["my preferred (bit)torrent client"] |
-    simple-add "tree-sitter" {"windows": {"scoop": "tree-sitter"}} --tags [want] --reasons ["works with neovim to make highlighting and editing much nicer"] |
+    simple-add "tree-sitter" {"windows": {"scoop": "tree-sitter"}, "linux": {"custom": {|install: closure|
+        do $install 'node'
+        fnm exec --using=default nu -c "npm install --global tree-sitter-cli"
+    }}} --tags [want] --reasons ["works with neovim to make highlighting and editing much nicer"] |
     simple-add "upx" {"windows": {"scoop": "upx"}} --tags [small, rarely, tooling] --reasons ["free, open source executable packer, to make executables as small as possible"] |
     simple-add "vlc" {"windows": {"scoop": "vlc"}} --tags [want, small] --reasons ["beloved media player", "can do lots of cool tricks"] |
     simple-add "windirstat" {"windows": {"scoop": "windirstat"}} --tags [want, small] --reasons ["visualizes hard drive allocation by file size", "makes it much, much easier to find large files taking up hard drive space and delete them"] |
