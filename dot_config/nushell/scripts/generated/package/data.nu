@@ -437,7 +437,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
 
         do $install 'apt-get'
         do $install 'gnupg'
-        do $apt_get 'awk'
+        do $apt_get 'mawk'
 
         # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
         log info "Create a directory to store APT repository keys if it doesn't exist"
@@ -823,7 +823,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
 
         do $install 'apt-get'
         do $install 'gnupg'
-        do $apt_get 'awk'
+        do $apt_get 'mawk'
         do $apt_get 'dpkg'
 
         # mix of Firefox's installation steps and:
