@@ -92,8 +92,8 @@ $env.PATH = (
     } else {$in}
     | append ($env.EGET_BIN)
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
-    | if ($zint_dir | path exists) {append $zint_dir} else {$in}
-    | if ($atuin_dir | path exists) {append $atuin_dir} else {$in}
+    | append $zint_dir
+    | append $atuin_dir
     | append $sbins
     | uniq
     | path expand
