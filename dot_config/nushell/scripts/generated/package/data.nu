@@ -794,5 +794,75 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         do $apt_get 'tmux'
         log info "it's recommended to use `nu -c 'use setup; setup linux tmux'`"
     }, "apt-get": "tmux"}} |
+    simple-add "incus" {"linux": {"custom": {|install: closure|
+        use std/log
+        use utils.nu ["package check-installed dpkg"]
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        do $install 'apt-get'
+        do $install 'gnupg'
+        do $apt_get 'awk'
+        do $apt_get 'dpkg'
+
+        # mix of Firefox's installation steps and:
+        # https://github.com/zabbly/incus#installation
+        log info "Create a directory to store APT repository keys if it doesn't exist"
+        ^sudo install -d -m 0755 /etc/apt/keyrings
+
+        log info "Import the Incus APT repository signing key"
+        let tmpfile = (mktemp)
+        http get 'https://pkgs.zabbly.com/key.asc' | save -f $tmpfile
+        let target = '/etc/apt/keyrings/zabbly.asc'
+        ^sudo cp $tmpfile $target
+        rm $tmpfile
+        ^sudo chmod u=rw,g=r,o=r $target
+
+        log info 'check fingerprint'
+        ^gpg -n -q --import --import-options import-show $target |
+        ^awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "4EFC590696CB15B87C73A3AD82CC8797C838DCFD") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
+
+        log info 'adding the zabbly incus stable APT repository to your sources list'
+        let dotfiles = (
+            ^chezmoi dump-config --format=json |
+            from json |
+            get 'workingTree' |
+            path expand --strict
+        )
+
+        let version_codename = (
+            sh -c ". /etc/os-release && printf '%s' \"${VERSION_CODENAME}\"" |
+            decode utf8
+        )
+        let architecture = (
+            dpkg --print-architecture |
+            decode utf8
+        )
+
+        $tmpfile = (mktemp)
+
+        open ($dotfiles | path join debian etc apt sources.list.d zabbly-incus-stable.sources) |
+        lines |
+        append $'Suites: ($version_codename)' |
+        append $'Architectures: ($architecture)' |
+        str join "\n" |
+        save -f $tmpfile
+
+        sudo cp $tmpfile /etc/apt/sources.list.d/zabbly-incus-stable.sources
+
+        log info 'Configure APT to prioritize packages from the zabbly repository'
+        sudo cp $'($dotfiles)/debian/etc/apt/preferences.d/zabbly' /etc/apt/preferences.d/zabbly
+
+        rm $tmpfile
+
+        log info 'Update your package list and install the incus .deb package'
+        ^sudo apt-get update --assume-yes
+        do $apt_get 'incus'
+    }}} --tags [containers, large] --reasons ["forked and maintained version of my absolute favorite container manager on linux!"] --links ["https://linuxcontainers.org/incus/docs/main/", "https://github.com/zabbly/incus"] |
     validate-data
 }
