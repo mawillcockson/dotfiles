@@ -369,7 +369,7 @@ export def "package-data-load-data" [] {
 Less useful, but you can install the fonts by using setup:
 
 nu -c 'use setup; setup fonts; setup linux fonts'
-'#
+'# #'# <-- this is here until the tree-sitter parser implements raw strings
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}, "linux": {"eget": "nushell/nushell"}, "android": {"pkg": "nushell"}} --tags [essential, small] |
