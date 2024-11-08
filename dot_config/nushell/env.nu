@@ -96,7 +96,7 @@ if (which fnm | is-not-empty) {
 } else {{}} | load-env
 $env.PATH = if ('FNM_MULTISHELL_PATH' in $env) {
   $env.PATH |
-  prepend $env.FNM_MULTISHELL_PATH
+  prepend ($env.FNM_MULTISHELL_PATH | path join 'bin')
 } else {$env.PATH}
 
 
