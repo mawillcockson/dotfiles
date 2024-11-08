@@ -836,7 +836,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         http get 'https://pkgs.zabbly.com/key.asc' | save -f $tmpfile
         let target = '/etc/apt/keyrings/zabbly.asc'
         ^sudo cp $tmpfile $target
-        rm $tmpfile
         ^sudo chmod u=rw,g=r,o=r $target
 
         log info 'check fingerprint'
@@ -859,8 +858,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             dpkg --print-architecture |
             decode utf8
         )
-
-        $tmpfile = (mktemp)
 
         open ($dotfiles | path join debian etc apt sources.list.d zabbly-incus-stable.sources) |
         lines |
