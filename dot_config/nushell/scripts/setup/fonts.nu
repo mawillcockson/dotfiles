@@ -3,3 +3,7 @@ export def dejavusansmono [] {
     # don't want to drag in `package` as a dependency
     run-external $nu.current-exe '-c' 'use package; package install dejavusansmono-nf'
 }
+
+export def main [] {
+    dejavusansmono
+}
