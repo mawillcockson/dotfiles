@@ -76,38 +76,43 @@ export def "package-data-load-data" [] {
             return true
         }
 
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
         log info 'installing prerequisites'
         do $install 'apt-get'
         # https://github.com/pyenv/pyenv/wiki#suggested-build-environment
         ^sudo apt-get update --assume-yes
-        (
-            ^sudo apt-get install
-                --no-install-recommends
-                --quiet
-                --assume-yes
-                --default-release stable
-                build-essential
-                libssl-dev
-                zlib1g-dev
-                libbz2-dev
-                libreadline-dev
-                libsqlite3-dev
-                curl
-                git
-                libncursesw5-dev
-                xz-utils
-                tk-dev
-                libxml2-dev
-                libxmlsec1-dev
-                libffi-dev
-                liblzma-dev
-                # To use Clang instead
-                #llvm
-                #llvm-ar
-                #lld
-                #llvm-bolt
-                #merge-fdata
-        )
+        log info 'so the following will try to install the required packages for the pyenv build environment, and sometimes it may fail, but trying to install the package using apt-get manually will frequently succeed; basically, just keep trying until all of them are installed'
+        [
+            'build-essential',
+            'libssl-dev',
+            'zlib1g-dev',
+            'libbz2-dev',
+            'libreadline-dev',
+            'libsqlite3-dev',
+            'curl',
+            'git',
+            'libncursesw5-dev',
+            'xz-utils',
+            'tk-dev',
+            'libxml2-dev',
+            'libxmlsec1-dev',
+            'libffi-dev',
+            'liblzma-dev',
+            # To use Clang instead
+            #'llvm',
+            #'llvm-ar',
+            #'lld',
+            #'llvm-bolt',
+            #'merge-fdata',
+        ] |
+        each {|it| do $apt_get $it}
 
         let $tmpfile = (mktemp)
         http get --max-time 3 'https://pyenv.run' | save -f $tmpfile
@@ -135,7 +140,7 @@ export def "package-data-load-data" [] {
                 }
             }
             with-env $optimizations {
-                ^pyenv install --verbose '3:latest'
+                ^pyenv install --verbose 3
             }
             ^pyenv global 'system' (
                 ^pyenv latest 3 |
