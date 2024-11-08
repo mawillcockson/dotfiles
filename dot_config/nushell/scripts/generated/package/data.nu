@@ -427,7 +427,17 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     simple-add "firefox" {"windows": {"winget": "Mozilla.Firefox"}, "linux": {"custom": {|install: closure|
         use std/log
         use utils.nu ["package check-installed dpkg"]
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        do $install 'apt-get'
         do $install 'gnupg'
+        do $apt_get 'awk'
 
         # https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions
         log info "Create a directory to store APT repository keys if it doesn't exist"
@@ -446,14 +456,20 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
 
         log info 'Next, add the Mozilla APT repository to your sources list'
-        sudo cp ~/projects/dotfiles/debian/etc/apt/sources.list.d/mozilla.sources /etc/apt/sources.list.d/mozilla.sources
+        let dotfiles = (
+            ^chezmoi dump-config --format=json |
+            from json |
+            get 'workingTree' |
+            path expand --strict
+        )
+        sudo cp $'($dotfiles)/debian/etc/apt/sources.list.d/mozilla.sources' /etc/apt/sources.list.d/mozilla.sources
 
         log info 'Configure APT to prioritize packages from the Mozilla repository'
-        sudo cp ~/projects/dotfiles/debian/etc/apt/preferences.d/mozilla /etc/apt/preferences.d/mozilla
+        sudo cp $'($dotfiles)/debian/etc/apt/preferences.d/mozilla' /etc/apt/preferences.d/mozilla
 
         log info 'Update your package list and install the Firefox .deb package'
         ^sudo apt-get update --assume-yes
-        ^sudo apt-get install --no-install-recommends --quiet --assume-yes --default-release stable firefox
+        do $apt_get 'firefox'
 
         log info 'Checking for default firefox-esr installation'
 
