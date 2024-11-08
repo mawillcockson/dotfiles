@@ -3,8 +3,8 @@ use consts ["platform"]
 
 export def main [] {
     match ($platform) {
-        'linux' | 'windows' => log "may need to use `nu -c 'use package; package install gnupg'`",
-        _ => log $'no notes for platform -> ${platform}'
+        'linux' | 'windows' => {log info "may need to use `nu -c 'use package; package install gnupg'`"},
+        _ => {log info $'no notes for platform -> ${platform}'},
     }
     # before anything, this command simply gets gpg to set up a keyring and .gpnug directory
     gpg -K
@@ -27,7 +27,7 @@ export def main [] {
     gpg --keyserver 'hkps://keyserver.ubuntu.com' --receive-key $git_signing_key
     try { gpg-card fetch }
 
-    log "restart scdaemon"
+    log info "restart scdaemon"
     gpgconf --reload scdaemon
 
     log info r#'post-installation steps (feel free to automate these!):
