@@ -4,9 +4,9 @@
 {{- $guardComment := "# chezmoi-managed portion (elkjw8)" -}}
 {{- $managed := includeTemplate ".bashrc" . -}}
 {{- $pattern := list "(?s)" (regexQuoteMeta $guardComment) ".*" (regexQuoteMeta $guardComment) | join "" -}}
-{{- $chunk := list $guardComment $managed $guardComment | join "\n" -}}
+{{- $updatedChunk := list $guardComment $managed $guardComment | join "\n" -}}
 {{- if $current | contains $guardComment -}}
-{{- mustRegexReplaceAllLiteral $pattern $current $chunk -}}
+{{- mustRegexReplaceAllLiteral $pattern $current $updatedChunk -}}
 {{- else -}}
-{{- list $chunk $current | join "\n\n" }}
+{{- list $updatedChunk $current | join "\n\n" }}
 {{- end -}}
