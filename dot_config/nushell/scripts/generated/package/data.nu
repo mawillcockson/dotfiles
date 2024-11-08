@@ -360,6 +360,16 @@ export def "package-data-load-data" [] {
 
         do $apt_get 'wl-clipboard'
         do $apt_get 'xclip'
+
+        log info r#'it's not necessary, but it can be really useful to also install the following:
+- zig
+- tree-sitter
+- neovide
+
+Less useful, but you can install the fonts by using setup:
+
+nu -c 'use setup; setup fonts; setup linux fonts'
+'#
     }}} --tags [essential] |
     simple-add "notepadplusplus" {"windows": {"scoop": "notepadplusplus"}} --tags [small, rarely] |
     simple-add "nu" {"windows": {"scoop": "nu"}, "linux": {"eget": "nushell/nushell"}, "android": {"pkg": "nushell"}} --tags [essential, small] |
