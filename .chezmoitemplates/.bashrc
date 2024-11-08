@@ -43,5 +43,10 @@ if [ -n "${PLEASE_USE_NU+"set"}" ] && command -v nu >/dev/null 2>&1 && nu -e exi
     exec nu --login
 fi
 
-init_starship
-init_atuin
+case "$-" in
+    *i*)
+        # shell is interactive
+        init_starship
+        init_atuin
+        ;;
+esac
