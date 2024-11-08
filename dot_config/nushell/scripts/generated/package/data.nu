@@ -781,5 +781,18 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         }
     }}} --tags [small, keyboard, want] --reasons ["does keyboard mapping like swapping CapsLock and Control in software"] --links ["https://github.com/jtroo/kanata"] |
     simple-add "spotify" {"linux": {"snap": "spotify"}} --tags [large, music, spotify] --reasons ["sometimes it's nice to listen to music"] --links ["https://open.spotify.com/download"] |
+    simple-add "tmux" {"linux": {"custom": {|install: closure|
+        use std/log
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        do $apt_get 'tmux'
+        log info "it's recommended to use `nu -c 'use setup; setup linux tmux'`"
+    }, "apt-get": "tmux"}} |
     validate-data
 }
