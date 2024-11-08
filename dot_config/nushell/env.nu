@@ -73,6 +73,15 @@ match $nu.os-info.name {
 let zint_dir = ($env.HOME | path join 'apps' 'zint')
 let atuin_dir = ($env.HOME | path join '.atuin' 'bin')
 
+let sbins = (
+    [
+        '/sbin',
+        '/usr/sbin',
+        '/usr/local/sbin',
+    ] |
+    filter {path exists}
+)
+
 $env.PATH = (
     $env
     # NOTE::IMPROVEMENT I would like caseinsensitive environment variables
@@ -85,6 +94,7 @@ $env.PATH = (
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | if ($zint_dir | path exists) {append $zint_dir} else {$in}
     | if ($atuin_dir | path exists) {append $atuin_dir} else {$in}
+    | append $sbins
     | uniq
     | path expand
 )
