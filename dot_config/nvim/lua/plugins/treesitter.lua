@@ -18,6 +18,7 @@ vim.notify(
 	vim.log.levels.DEBUG,
 	{}
 )
+vim.notify("$PATH -> " .. os.getenv("PATH"), vim.log.levels.DEBUG)
 
 local enable = has_compiler and has_tree_sitter
 if not enable then
