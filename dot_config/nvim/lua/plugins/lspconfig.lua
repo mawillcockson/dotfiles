@@ -54,6 +54,7 @@ local function load_in_correct_order(_)
 		end,
 	})
 	require("lspconfig")
+	require("nvim-emmet")
 end
 
 vim.api.nvim_create_user_command("DoLspConfig", load_in_correct_order, {
@@ -142,6 +143,10 @@ return {
 				lspconfig.zls.setup({ root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig") })
 			end
 
+			if executable("emmet-language-server") then
+				lspconfig.emmet_language_server.setup({})
+			end
+
 			local version = vim.version()
 			local vim_version =
 				assert(vim.version.parse(table.concat({ version.major, version.minor, version.patch }, ".")))
@@ -211,5 +216,29 @@ return {
 				end,
 			})
 		end,
+	},
+	{
+		"olrtg/nvim-emmet",
+		dependencies = {
+			"williamboman/mason.nvim",
+		},
+		config = function()
+			local els = require("mason-registry").get_package("emmet-language-server")
+			if not els:is_installed() then
+        vim.notify("installing emmet-language-server", vim.log.levels.INFO)
+				els:install()
+			end
+		end,
+		keys = {
+			{
+				"<leader>xe",
+				function()
+					require("nvim-emmet").wrap_with_abbreviation()
+				end,
+				mode = { "n", "v" },
+				ft = { "html", "css", "javascript" },
+				desc = "expand emmet abbreviation",
+			},
+		},
 	},
 }
