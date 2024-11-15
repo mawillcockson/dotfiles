@@ -1,3 +1,5 @@
+local executable = vim.fn.executable
+
 local function load_in_correct_order(_)
 	require("mason")
 	require("mason-lspconfig").setup_handlers({
@@ -54,7 +56,6 @@ local function load_in_correct_order(_)
 		end,
 	})
 	require("lspconfig")
-	require("nvim-emmet")
 end
 
 vim.api.nvim_create_user_command("DoLspConfig", load_in_correct_order, {
@@ -122,8 +123,6 @@ return {
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
 
-			local executable = vim.fn.executable
-
 			if executable("ruff-lsp") then
 				lspconfig.ruff_lsp.setup({
 					init_options = {
@@ -143,7 +142,10 @@ return {
 				lspconfig.zls.setup({ root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig") })
 			end
 
-			if executable("emmet-language-server") then
+			if
+				executable("emmet-language-server") == 1
+				or require("mason-registry").get_package("emmet-language-server"):is_installed()
+			then
 				lspconfig.emmet_language_server.setup({})
 			end
 
@@ -222,18 +224,15 @@ return {
 		dependencies = {
 			"williamboman/mason.nvim",
 		},
-		config = function()
-			local els = require("mason-registry").get_package("emmet-language-server")
-			if not els:is_installed() then
-        vim.notify("installing emmet-language-server", vim.log.levels.INFO)
-				els:install()
-			end
-		end,
 		keys = {
 			{
 				"<leader>xe",
 				function()
-					require("nvim-emmet").wrap_with_abbreviation()
+					if executable("emmet-language-server") == 1 then
+						require("nvim-emmet").wrap_with_abbreviation()
+					else
+						vim.notify("please install emmet-language-server using :Mason", vim.log.levels.WARN)
+					end
 				end,
 				mode = { "n", "v" },
 				ft = { "html", "css", "javascript" },
