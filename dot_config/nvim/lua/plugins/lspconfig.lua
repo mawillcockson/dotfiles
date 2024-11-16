@@ -123,13 +123,10 @@ return {
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
 
-			if executable("ruff-lsp") then
-				lspconfig.ruff_lsp.setup({
+			if executable("ruff") then
+				lspconfig.ruff.setup({
 					init_options = {
-						settings = {
-							-- And extra CLI arguments for ruff
-							args = {},
-						},
+						settings = {},
 					},
 				})
 			end
