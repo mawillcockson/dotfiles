@@ -60,7 +60,8 @@ match $nu.os-info.name {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']} |
         insert 'jtroo/kanata' {'asset_filters': ['kanata', '^.']} |
         insert 'neovide/neovide' {'asset_filters': ['^.zip']} |
-        insert 'sharkdp/fd' {'asset_filters': ['gnu']}
+        insert 'sharkdp/fd' {'asset_filters': ['gnu']} |
+        insert 'JohnnyMorganz/StyLua' {'asset_filters': ['linux', 'musl']}
     },
     'macos' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-macos']}

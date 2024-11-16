@@ -387,7 +387,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     simple-add "sqlite" {"windows": {"scoop": "sqlite"}} --tags [small, want, language] --reasons ["beloved database engine that makes using SQL a breeze", "sqlean is better if I can get it"] |
     simple-add "sqlitebrowser" {"windows": {"scoop": "sqlitebrowser"}} --tags [why_even, exclude] --reasons ["visualizes a sqlite database, but I can do that with the sqlite cli"] |
     simple-add "starship" {"windows": {"scoop": "starship"}} --tags [want, style] --reasons ["makes my shell prompt cross-platform, cross-shell, and nice"] |
-    simple-add "stylua" {"windows": {"scoop": "stylua"}} --tags [small, tooling, lua] --reasons ["auto-formatting lua"] |
+    simple-add "stylua" {"windows": {"scoop": "stylua"}, "linux": {"eget": "JohnnyMorganz/StyLua"}} --tags [small, tooling, lua] --reasons ["auto-formatting lua"] |
     simple-add "taplo" {"windows": {"scoop": "taplo"}} --tags [small, tooling, toml] --reasons ["I think it can lint TOML files? I think I installed it for conform.nvim"] |
     simple-add "transmission" {"windows": {"scoop": "transmission"}} --tags [small, rarely] --reasons ["my preferred (bit)torrent client"] |
     simple-add "tree-sitter" {"windows": {"scoop": "tree-sitter"}, "linux": {"custom": {|install: closure|
