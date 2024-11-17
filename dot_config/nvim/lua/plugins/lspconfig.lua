@@ -21,6 +21,12 @@ local function load_in_correct_order(_)
 						if workspace_folder.name:find("config/nvim", 1, true) then
 							is_nvim = true
 							break
+						elseif
+							vim.uv.fs_stat(workspace_folder.name .. "/.luarc.json")
+							or vim.uv.fs_stat(workspace_folder.name .. "/.luarc.jsonc")
+						then
+							-- if there's a luals definition file, let the server use the settings from that, instead
+							return
 						end
 					end
 					if not is_nvim then
