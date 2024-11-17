@@ -80,7 +80,7 @@ return {
 					desc = "open log file",
 				},
 				{
-					"<C-k>",
+					"<C-j>",
 					function()
 						return vim.snippet.active({ direction = 1 }) and vim.snippet.jump(1)
 					end,
@@ -88,7 +88,7 @@ return {
 					mode = "i",
 				},
 				{
-					"<C-j>",
+					"<C-k>",
 					function()
 						return vim.snippet.active({ direction = -1 }) and vim.snippet.jump(-1)
 					end,
