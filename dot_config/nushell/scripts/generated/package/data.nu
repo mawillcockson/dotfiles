@@ -379,7 +379,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     simple-add "picard" {"windows": {"scoop": "picard"}} --search-help [musicbrainz] --tags [large, rarely, music] --reasons ["makes organizing and tagging songs, and wrangling metadata, much easier"] |
     simple-add "postgresql" {"windows": {"scoop": "postgresql"}} --tags [large, rarely] |
     simple-add "pwsh" {"windows": {"scoop": "pwsh"}} --tags [want, rarely] --reasons ["better powershell"] |
-    simple-add "rclone" {"windows": {"scoop": "rclone"}} --tags [small, rarely, want] --reasons ["makes copying files between the cloud and locally much, much easier"] |
+    simple-add "rclone" {"windows": {"scoop": "rclone"}, "linux": {"eget": "rclone/rclone"}} --tags [small, rarely, want] --reasons ["makes copying files between the cloud and locally much, much easier"] |
     simple-add "ripgrep" {"windows": {"scoop": "ripgrep"}, "linux": {"eget": "BurntSushi/ripgrep"}} --search-help [rg] --tags [small, want] --reasons ["cross-platform, faster grep"] |
     simple-add "rufus" {"windows": {"scoop": "rufus"}} --tags [small, want, gui] --reasons ["makes creating bootable flashdrives much, much easier"] |
     simple-add "screentogif" {"windows": {"scoop": "screentogif"}} --tags [gui, rarely] --reasons ["makes screen recording quite quick and simple"] |
