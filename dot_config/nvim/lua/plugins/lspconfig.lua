@@ -38,29 +38,24 @@ local function load_in_correct_order(_)
 					end
 
 					-- https://github.com/neovim/nvim-lspconfig/blob/6e5c78ebc9936ca74add66bda22c566f951b6ee5/doc/server_configurations.md?plain=1#L6275-L6300
-					client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
-						-- I can disable various features only when editing nvim-related
-						-- files, if I need to
-						runtime = {
-							version = "LuaJIT",
-						},
-						workspace = {
-							checkThirdParty = false,
-							library = {
-								vim.env.VIMRUNTIME,
-							},
-							-- or pull in all of 'runtimepath'. NOTE: this is a lot slower
-							-- library = vim.api.nvim_get_runtime_file("", true),
-						},
-					})
+					local lua_settings = client.config.settings.Lua
+					-- I can disable various features only when editing nvim-related
+					-- files, if I need to
+					lua_settings.runtime.version = "LuaJIT"
+					lua_settings.workspace.checkThirdParty = false
+					vim.notify(
+						"workspace.library -> " .. tostring(vim.inspect(lua_settings.workspace.library)),
+						vim.log.levels.DEBUG
+					)
+					table.insert(lua_settings.workspace.library, vim.env.VIMRUNTIME)
 				end,
 				settings = {
-					Lua = {
-						workspace = {
-							-- I'd love for this to use the `userThirdParty` key, but it doesn't seem to work
-							library = { vim.fn.stdpath("data") .. "/lazy/love2d" },
-						},
-					},
+					Lua = (function()
+						local tbl = vim.defaulttable()
+						-- I'd love for this to use the `userThirdParty` key, but it doesn't seem to work
+						table.insert(tbl.workspace.library, vim.fn.stdpath("data") .. "/lazy/love2d")
+						return tbl
+					end)(),
 				},
 			})
 		end,
