@@ -115,8 +115,8 @@ return {
 			local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 			if ok then
 				local capabilities = cmp_nvim_lsp.default_capabilities()
-				for _, name in ipairs({ "ruff", "nu", "zls", "emmet-language-server", "lua_ls" }) do
-					lspconfig[name].capabilities = capabilities
+				for _, name in ipairs({ "ruff", "nushell", "zls", "emmet_language_server", "lua_ls" }) do
+					lspconfig[name].capabilities = vim.tbl_deep_extend('force', capabilities, lspconfig[name].capabilities or {})
 				end
 			end
 
