@@ -57,6 +57,7 @@ return {
  require("cmp_git").setup() ]]
 			--
 
+			--[==[ can't get any completions in the EX cmdline, for some reason
 			-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
 			cmp.setup.cmdline({ "/", "?" }, {
 				mapping = cmp.mapping.preset.cmdline(),
@@ -75,6 +76,7 @@ return {
 				}),
 				matching = { disallow_symbol_nonprefix_matching = false },
 			})
+      --]==]
 		end,
 	},
 
