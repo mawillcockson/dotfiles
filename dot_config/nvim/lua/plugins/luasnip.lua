@@ -1,9 +1,16 @@
+-- could consider migrating to this simpler plugin that uses the builtin
+-- snippets engine in nvim >= 0.10, since I haven't invested much in the
+-- snippets here: https://github.com/garymjr/nvim-snippets
 return {
 	"L3MON4D3/LuaSnip",
 	branch = "master",
 	version = "2.*",
 	lazy = true,
 	event = "VeryLazy",
+	dependencies = {
+		-- for nvim-cmp in completions.lua
+		"saadparwaiz1/cmp_luasnip",
+	},
 	--enabled = false, -- until configuration is complete
 	opts = {
 		snip_env = {

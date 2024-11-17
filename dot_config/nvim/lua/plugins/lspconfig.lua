@@ -110,6 +110,16 @@ return {
 				lspconfig.emmet_language_server.setup({})
 			end
 
+			-- from:
+			-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L126-L131
+			local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+			if ok then
+				local capabilities = cmp_nvim_lsp.default_capabilities()
+				for _, name in ipairs({ "ruff", "nu", "zls", "emmet-language-server", "lua_ls" }) do
+					lspconfig[name].capabilities = capabilities
+				end
+			end
+
 			local version = vim.version()
 			local vim_version =
 				assert(vim.version.parse(table.concat({ version.major, version.minor, version.patch }, ".")))
@@ -216,16 +226,4 @@ return {
 		},
 	},
 	{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
-	--[==[
-	{ -- optional cmp completion source for require statements and module annotations
-		"hrsh7th/nvim-cmp",
-		opts = function(_, opts)
-			opts.sources = opts.sources or {}
-			table.insert(opts.sources, {
-				name = "lazydev",
-				group_index = 0, -- set group index to 0 to skip loading LuaLS completions
-			})
-		end,
-	},
-  --]==]
 }
