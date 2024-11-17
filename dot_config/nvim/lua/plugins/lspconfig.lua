@@ -17,8 +17,8 @@ local function load_in_correct_order(_)
 			require("lspconfig").lua_ls.setup({
 				on_init = function(client)
 					local is_nvim = false
-					for _, workspace_folder in ipairs(client.workspace_folders) do
-						if workspace_folder.name:find("dotfiles/nvim", 1, true) then
+					for _, workspace_folder in pairs(client.workspace_folders) do
+						if workspace_folder.name:find("config/nvim", 1, true) then
 							is_nvim = true
 							break
 						end
