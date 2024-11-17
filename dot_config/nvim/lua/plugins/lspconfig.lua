@@ -192,9 +192,6 @@ return {
 	},
 	{
 		"olrtg/nvim-emmet",
-		dependencies = {
-			"williamboman/mason.nvim",
-		},
 		keys = {
 			{
 				"<leader>xe",

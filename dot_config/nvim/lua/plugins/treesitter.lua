@@ -34,24 +34,25 @@ end
 -- Also, the lua parser has some errors, so has to be :TSInstall-ed, forcing a re-install. Additionally, this can be used to install parsers at a later time:
 -- :lua for _,k in ipairs{"python", "markdown", "javascript"} do vim.cmd(":TSInstall "..k) end
 return {
-	"nvim-treesitter/nvim-treesitter",
-	enabled = enable,
-	version = "*",
-	-- When a new version of the plugin is released, rebuild the included parsers:
-	-- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
-	build = ":TSUpdateSync",
-	config = function()
-		local configs = require("nvim-treesitter.configs")
+	{
+		"nvim-treesitter/nvim-treesitter",
+		enabled = enable,
+		version = "*",
+		-- When a new version of the plugin is released, rebuild the included parsers:
+		-- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
+		build = ":TSUpdateSync",
+		config = function()
+			local configs = require("nvim-treesitter.configs")
 
-		configs.setup({
-			ensure_installed = {
-				-- NOTE: need better automatic installation
-				-- NOTE: commented out languages have either broken parsers, or don't
-				-- have automatically included parsers:
-				-- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
+			configs.setup({
+				ensure_installed = {
+					-- NOTE: need better automatic installation
+					-- NOTE: commented out languages have either broken parsers, or don't
+					-- have automatically included parsers:
+					-- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
 
-				--"python", --"markdown", "javascript", "clojure", "html", "css", "scss",
-				--[==[
+					--"python", --"markdown", "javascript", "clojure", "html", "css", "scss",
+					--[==[
           -- commonly used
           --[["lua",]] "python", "markdown",
           -- less common
@@ -59,14 +60,14 @@ return {
           -- uncommon/hopeful
           "javascript", "scss", "rust", "clojure", --[["csharp",]] "haskell",
           --]==]
-			},
-			sync_install = true,
-			highlight = { enable = true },
-			indent = { enable = true },
-		})
-	end,
-	dependencies = {
-		-- additional parsers
-		{ "nushell/tree-sitter-nu" },
+				},
+				sync_install = true,
+				highlight = { enable = true },
+				indent = { enable = true },
+			})
+		end,
 	},
+
+	-- additional parsers
+	{ "nushell/tree-sitter-nu" },
 }
