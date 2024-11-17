@@ -14,53 +14,12 @@ local function load_in_correct_order(_)
 		-- configured here. All manually installed ones should be configured below:
 		-- For instance, a handler override for the `lua_ls`:
 		["lua_ls"] = function(_)
-			require("lspconfig").lua_ls.setup({
-				on_init = function(client)
-					local is_nvim = false
-					if client.workspace_folders then
-						for _, workspace_folder in pairs(client.workspace_folders) do
-							if workspace_folder.name:find("config/nvim", 1, true) then
-								is_nvim = true
-								break
-							elseif
-								vim.uv.fs_stat(workspace_folder.name .. "/.luarc.json")
-								or vim.uv.fs_stat(workspace_folder.name .. "/.luarc.jsonc")
-							then
-								-- if there's a luals definition file, let the server use the settings from that, instead
-								-- from:
-								-- https://github.com/neovim/nvim-lspconfig/blob/87c7c83ce62971e0bdb29bb32b8ad2b19c8f95d0/doc/configs.md?plain=1#L5661-L5666
-								return
-							end
-						end
-					end
-					if not is_nvim then
-						return
-					end
-
-					-- https://github.com/neovim/nvim-lspconfig/blob/6e5c78ebc9936ca74add66bda22c566f951b6ee5/doc/server_configurations.md?plain=1#L6275-L6300
-					local lua_settings = client.config.settings.Lua
-					-- I can disable various features only when editing nvim-related
-					-- files, if I need to
-					lua_settings.runtime.version = "LuaJIT"
-					lua_settings.workspace.checkThirdParty = false
-					vim.notify(
-						"workspace.library -> " .. tostring(vim.inspect(lua_settings.workspace.library)),
-						vim.log.levels.DEBUG
-					)
-					table.insert(lua_settings.workspace.library, vim.env.VIMRUNTIME)
-				end,
-				settings = {
-					Lua = (function()
-						local tbl = vim.defaulttable()
-						-- I'd love for this to use the `userThirdParty` key, but it doesn't seem to work
-						table.insert(tbl.workspace.library, vim.fn.stdpath("data") .. "/lazy/love2d")
-						return tbl
-					end)(),
-				},
-			})
+			-- this is being handled by lazydev.nvim
+			require("lspconfig").lua_ls.setup({})
 		end,
 	})
 	require("lspconfig")
+	require("lazydev")
 end
 
 vim.api.nvim_create_user_command("DoLspConfig", load_in_correct_order, {
@@ -242,4 +201,31 @@ return {
 			},
 		},
 	},
+	-- from:
+	-- https://github.com/folke/lazydev.nvim/blob/d5800897d9180cea800023f2429bce0a94ed6064/README.md?plain=1#L39
+	{
+		"folke/lazydev.nvim",
+		dependencies = { "Bilal2453/luvit-meta" },
+		ft = "lua", -- only load on lua files
+		opts = {
+			library = {
+				-- See the configuration section for more details
+				-- Load luvit types when the `vim.uv` word is found
+				{ path = "luvit-meta/library", words = { "vim%.uv" } },
+			},
+		},
+	},
+	{ "Bilal2453/luvit-meta", lazy = true }, -- optional `vim.uv` typings
+	--[==[
+	{ -- optional cmp completion source for require statements and module annotations
+		"hrsh7th/nvim-cmp",
+		opts = function(_, opts)
+			opts.sources = opts.sources or {}
+			table.insert(opts.sources, {
+				name = "lazydev",
+				group_index = 0, -- set group index to 0 to skip loading LuaLS completions
+			})
+		end,
+	},
+  --]==]
 }
