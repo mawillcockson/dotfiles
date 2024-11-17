@@ -82,6 +82,4 @@ return {
 	"hrsh7th/cmp-buffer",
 	"hrsh7th/cmp-path",
 	-- "hrsh7th/cmp-cmdline",
-	"folke/lazydev.nvim",
-	"L3MON4D3/LuaSnip",
 }
