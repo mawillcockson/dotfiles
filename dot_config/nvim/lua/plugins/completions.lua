@@ -7,7 +7,7 @@ return {
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-buffer",
 		"hrsh7th/cmp-path",
-		"hrsh7th/cmp-cmdline",
+		-- "hrsh7th/cmp-cmdline",
 		"folke/lazydev.nvim",
 		"L3MON4D3/LuaSnip",
 	},
@@ -65,6 +65,7 @@ return {
 		--
 
 		-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+		--[==[ something ate my ram, so disabling these in the hopes it goes away
 		cmp.setup.cmdline({ "/", "?" }, {
 			mapping = cmp.mapping.preset.cmdline(),
 			sources = {
@@ -82,5 +83,6 @@ return {
 			}),
 			matching = { disallow_symbol_nonprefix_matching = false },
 		})
+		--]==]
 	end,
 }
