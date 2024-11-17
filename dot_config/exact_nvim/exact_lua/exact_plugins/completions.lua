@@ -22,13 +22,13 @@ return {
 				-- { name = 'snippy' }, -- For snippy users.
 				{ name = "buffer" },
 			})
-			opts.snippet = opts.snippet or vim.defaulttable()
+			opts.snippet = opts.snippet or {}
 			-- from:
 			-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L68
 			opts.snippet.expand = function(args)
 				require("luasnip").lsp_expand(args.body)
 			end
-			opts.window = opts.window or vim.defaulttable()
+			opts.window = opts.window or {}
 			-- opts.window.completion = cmp.config.window.bordered()
 			-- opts.window.documentation = cmp.config.window.bordered()
 			opts.mapping = cmp.mapping.preset.insert({
