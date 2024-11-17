@@ -18,7 +18,7 @@ return {
 	config = function(name, opts)
 		require("conjure.main").main()
 		require("conjure.mapping")["on-filetype"]()
-    require("cmp-conjure").setup()
+		require("cmp-conjure").setup()
 	end,
 	dependencies = {
 		"PaterJason/cmp-conjure",

@@ -22,7 +22,7 @@ vim.notify("$PATH -> " .. os.getenv("PATH"), vim.log.levels.DEBUG)
 
 local enable = has_compiler and has_tree_sitter
 if not enable then
-  vim.notify("disabling tree-sitter since compiler and tree-sitter-cli aren't both present", vim.log.levels.WARN)
+	vim.notify("disabling tree-sitter since compiler and tree-sitter-cli aren't both present", vim.log.levels.WARN)
 end
 
 -- NOTE: so far, the MSVC compiler hasn't been working, while the zig compiler
@@ -37,8 +37,8 @@ return {
 	"nvim-treesitter/nvim-treesitter",
 	enabled = enable,
 	version = "*",
-  -- When a new version of the plugin is released, rebuild the included parsers:
-  -- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
+	-- When a new version of the plugin is released, rebuild the included parsers:
+	-- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
 	build = ":TSUpdateSync",
 	config = function()
 		local configs = require("nvim-treesitter.configs")
