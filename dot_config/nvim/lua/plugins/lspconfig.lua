@@ -17,16 +17,20 @@ local function load_in_correct_order(_)
 			require("lspconfig").lua_ls.setup({
 				on_init = function(client)
 					local is_nvim = false
-					for _, workspace_folder in pairs(client.workspace_folders) do
-						if workspace_folder.name:find("config/nvim", 1, true) then
-							is_nvim = true
-							break
-						elseif
-							vim.uv.fs_stat(workspace_folder.name .. "/.luarc.json")
-							or vim.uv.fs_stat(workspace_folder.name .. "/.luarc.jsonc")
-						then
-							-- if there's a luals definition file, let the server use the settings from that, instead
-							return
+					if client.workspace_folders then
+						for _, workspace_folder in pairs(client.workspace_folders) do
+							if workspace_folder.name:find("config/nvim", 1, true) then
+								is_nvim = true
+								break
+							elseif
+								vim.uv.fs_stat(workspace_folder.name .. "/.luarc.json")
+								or vim.uv.fs_stat(workspace_folder.name .. "/.luarc.jsonc")
+							then
+								-- if there's a luals definition file, let the server use the settings from that, instead
+								-- from:
+								-- https://github.com/neovim/nvim-lspconfig/blob/87c7c83ce62971e0bdb29bb32b8ad2b19c8f95d0/doc/configs.md?plain=1#L5661-L5666
+								return
+							end
 						end
 					end
 					if not is_nvim then
