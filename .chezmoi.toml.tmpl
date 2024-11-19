@@ -56,8 +56,6 @@ rel_bootstrap_eget = {{ joinPath $relBootstrapDir "eget" | toToml }}
 [interpreters]
 {{ if .chezmoi.os | eq "windows" }}
 nu = { command = {{ joinPath $absBootstrapDir "nu.exe" | toToml }} }
-{{ else if .chezmoi.os | eq "android" }}
-nu = { command = {{ joinPath $relBootstrapDir "nu" | toToml }} }
 {{ else }}
 nu = { command = {{ joinPath $absBootstrapDir "nu" | toToml }} }
 {{ end }}
