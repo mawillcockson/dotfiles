@@ -1,4 +1,4 @@
-if ! command -v pyenv > /dev/null 2>&1; then
+if ! command -v pyenv >/dev/null 2>&1; then
     PATH="${PATH}:${PYENV_ROOT:-"${HOME}/.pyenv"}/bin"
 fi
 if command -v pyenv; then
