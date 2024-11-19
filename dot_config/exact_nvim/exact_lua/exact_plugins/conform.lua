@@ -30,6 +30,7 @@ return {
 			end,
 			json = { "jq" },
 			sh = { "shfmt", "shellcheck" },
+			nu = { "nufmt" },
 			sql = { "sqlfluff" },
 			zig = { "zigfmt" },
 			elm = { "elm_format" },
