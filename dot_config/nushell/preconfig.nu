@@ -195,11 +195,18 @@ if ($postconfig_content | nu-check) {
     echo "" | save -f $postconfig
 }
 
+let nu_version = (version | into int --radix 10 major minor patch)
+let timeout = (
+    2 |
+    if ($nu_version.major >= 0) and ($nu_version.minor >= 100) and ($nu_version.patch >= 0) {
+        $in | into duration --unit sec
+    } else {$in}
+)
 [
     ['url', 'path'];
     ['https://github.com/nushell/nu_scripts/raw/main/modules/system/mod.nu', ($scripts | path join 'clipboard.nu')]
     ['https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu', ($scripts | path join 'testing.nu')]
 ] | each {|row|
     if not ($row.path | path exists) {
-    http get --max-time 2 $row.url | save $row.path
+    http get --max-time $timeout $row.url | save $row.path
 }} | null
