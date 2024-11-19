@@ -62,7 +62,8 @@ match $nu.os-info.name {
         insert 'neovide/neovide' {'asset_filters': ['^.zip']} |
         insert 'sharkdp/fd' {'asset_filters': ['gnu']} |
         insert 'JohnnyMorganz/StyLua' {'asset_filters': ['linux', 'musl']} |
-        insert 'rclone/rclone' {'asset_filters': ['.zip']}
+        insert 'rclone/rclone' {'asset_filters': ['.zip']} |
+        insert 'nushell/nushell' {'asset_filters': ['gnu']}
     },
     'macos' => {
         insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-macos']}
