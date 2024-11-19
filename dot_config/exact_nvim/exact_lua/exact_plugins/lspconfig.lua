@@ -107,7 +107,14 @@ return {
 				executable("emmet-language-server") == 1
 				or require("mason-registry").get_package("emmet-language-server"):is_installed()
 			then
-				lspconfig.emmet_language_server.setup({})
+				lspconfig.emmet_language_server.setup({
+					init_options = {
+						extensionsPath = vim.fs.joinpath(
+							vim.env.XDG_CONFIG_HOME or vim.fs.normalize("~/.config", { expand_env = false }),
+							"emmet-extensions"
+						),
+					},
+				})
 			end
 
 			-- from:
