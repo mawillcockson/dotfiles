@@ -1,4 +1,6 @@
-local executable = vim.fn.executable
+local executable = function(name)
+	return vim.fn.executable == 1
+end
 
 local function load_in_correct_order(_)
 	require("mason")
