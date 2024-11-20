@@ -102,6 +102,21 @@ return {
 				})
 			end
 
+			if
+				executable("vscode-css-language-server")
+				or require("mason-registry").get_package("css-lsp"):is_installed()
+			then
+				local capabilities = vim.lsp.protocol.make_client_capabilities()
+				local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+				if ok then
+					capabilities = cmp_nvim_lsp.default_capabilities()
+				end
+				capabilities.textDocument.completion.completionItem.snippetSupport = true
+				lspconfig.cssls.setup({
+					capabilities = capabilities,
+				})
+			end
+
 			-- from:
 			-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L126-L131
 			local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
