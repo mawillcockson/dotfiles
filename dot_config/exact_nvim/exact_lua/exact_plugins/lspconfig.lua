@@ -2,22 +2,7 @@ local executable = vim.fn.executable
 
 local function load_in_correct_order(_)
 	require("mason")
-	require("mason-lspconfig").setup_handlers({
-		-- The first entry (without a key) will be the default handler
-		-- and will be called for each installed server that doesn't have
-		-- a dedicated handler.
-		function(server_name) -- default handler (optional)
-			require("lspconfig")[server_name].setup({})
-		end,
-		-- Next, you can provide a dedicated handler for specific servers.
-		-- Only language servers that have been installed through mason.nvim can be
-		-- configured here. All manually installed ones should be configured below:
-		-- For instance, a handler override for the `lua_ls`:
-		["lua_ls"] = function(_)
-			-- this is being handled by lazydev.nvim
-			require("lspconfig").lua_ls.setup({})
-		end,
-	})
+	require("mason-lspconfig").setup()
 	require("lspconfig")
 	require("lazydev")
 end
