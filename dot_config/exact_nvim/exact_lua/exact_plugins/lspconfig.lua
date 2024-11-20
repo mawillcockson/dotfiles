@@ -74,8 +74,25 @@ return {
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
 
-			if executable("ruff") then
+			local mason_registry = require("mason-registry")
+			local function mason_installed(name)
+				return mason_registry.get_package(name):is_installed()
+			end
+
+			-- from:
+			-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L126-L131
+			local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+			local function get_capabilities()
+				local capabilities = cmp_nvim_lsp_ok and cmp_nvim_lsp.default_capabilities()
+					or vim.lsp.protocol.make_client_capabilities()
+				capabilities.textDocument.completion.completionItem.snippetSupport = true
+				return capabilities
+			end
+			local default_capabilities = get_capabilities()
+
+			if executable("ruff") or mason_installed("ruff") then
 				lspconfig.ruff.setup({
+					capabilities = default_capabilities,
 					init_options = {
 						settings = {},
 					},
@@ -83,18 +100,21 @@ return {
 			end
 
 			if executable("nu") then
-				lspconfig.nushell.setup({})
+				lspconfig.nushell.setup({
+					capabilities = default_capabilities,
+				})
 			end
 
 			if executable("zls") and executable("zig") then
-				lspconfig.zls.setup({ root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig") })
+				lspconfig.zls.setup({
+					capabilities = default_capabilities,
+					root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig"),
+				})
 			end
 
-			if
-				executable("emmet-language-server") == 1
-				or require("mason-registry").get_package("emmet-language-server"):is_installed()
-			then
+			if executable("emmet-language-server") or mason_installed("emmet-language-server") then
 				lspconfig.emmet_language_server.setup({
+					capabilities = default_capabilities,
 					init_options = {
 						extensionsPath = {
 							vim.fs.joinpath(
@@ -106,30 +126,29 @@ return {
 				})
 			end
 
-			if
-				executable("vscode-css-language-server")
-				or require("mason-registry").get_package("css-lsp"):is_installed()
-			then
-				local capabilities = vim.lsp.protocol.make_client_capabilities()
-				local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-				if ok then
-					capabilities = cmp_nvim_lsp.default_capabilities()
-				end
-				capabilities.textDocument.completion.completionItem.snippetSupport = true
+			if executable("vscode-css-language-server") or mason_installed("css-lsp") then
 				lspconfig.cssls.setup({
-					capabilities = capabilities,
+					capabilities = default_capabilities,
 				})
 			end
 
-			-- from:
-			-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L126-L131
-			local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-			if ok then
-				local capabilities = cmp_nvim_lsp.default_capabilities()
-				for _, name in ipairs({ "ruff", "nushell", "zls", "emmet_language_server", "lua_ls" }) do
-					lspconfig[name].capabilities =
-						vim.tbl_deep_extend("keep", lspconfig[name].capabilities or {}, capabilities)
-				end
+			if executable("vscode-html-language-server") or mason_installed("html-lsp") then
+				lspconfig.html.setup({
+					capabilities = default_capabilities,
+				})
+			end
+
+			if executable("lua-language-server") or mason_installed("lua-language-server") then
+				lspconfig.lua_ls.setup({
+					capabilities = default_capabilities,
+				})
+			end
+
+			-- typescript and javascript
+			if executable("vtsls") or mason_installed("vtsls") then
+				lspconfig.vtsls.setup({
+					capabilities = default_capabilities,
+				})
 			end
 
 			local version = vim.version()
