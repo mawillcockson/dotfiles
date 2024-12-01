@@ -1,8 +1,14 @@
 {
+  "variables": {
+    "lang": "en",
+    "locale": "en-US",
+    "charset": "UTF-8",
+    "indentation": "\t",
+    "newline": "\n"
+  },
   "html": {
     "snippets": {
-      "doc": "html:5[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}})+body",
-      "testing": "<works></works>"
+      "doc": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}})+body"
     }
   }
 }
