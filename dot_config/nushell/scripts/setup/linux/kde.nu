@@ -13,7 +13,7 @@ export def "set user avatar" [] {
     do $apt_get 'graphicsmagick'
 
     let tmpfile = (mktemp)
-    http get --max-time 3 'https://willcockson.family/s/flower.jpg' |
+    http get --max-time 3sec 'https://willcockson.family/s/flower.jpg' |
     save -f $tmpfile
 
     cp $tmpfile ~/.face

@@ -13,6 +13,6 @@ def main [] {
     } |
     par-each {|it|
         mkdir ($it.path | path dirname)
-        http get --max-time 3 $it.data.url | save -f $it.path
+        http get --max-time 3sec $it.data.url | save -f $it.path
     }
 }

@@ -115,7 +115,7 @@ export def "package-data-load-data" [] {
         each {|it| do $apt_get $it}
 
         let $tmpfile = (mktemp)
-        http get --max-time 3 'https://pyenv.run' | save -f $tmpfile
+        http get --max-time 3sec 'https://pyenv.run' | save -f $tmpfile
         ^bash $tmpfile
         rm $tmpfile
     }}} --tags ["language manager", python, "version manager"] --reasons ["helps manage python installations"] |
@@ -213,7 +213,7 @@ export def "package-data-load-data" [] {
         log info 'polling GitHub API for most recent NerdFont release and assuming is has DejaVuSansMono'
         # https://gist.github.com/matthewjberger/7dd7e079f282f8138a9dc3b045ebefa0?permalink_comment_id=3847557#gistcomment-3847557
         let asset = (
-            http get --max-time 3 'https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest' |
+            http get --max-time 3sec 'https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest' |
             get assets |
             where name =~ '(?i)DejaVuSansMono\.tar\.xz' |
             first
@@ -232,7 +232,7 @@ export def "package-data-load-data" [] {
     simple-add "duckdb" {"windows": {"scoop": "duckdb"}} --tags [small, undecided] --reasons ["cool database engine in same space as SQLite, but under really cool, active development by academics, with really cool features"] |
     simple-add "eget" {"windows": {"scoop": "eget"}, "android": {"custom": {|install: closure|
         let asset = (
-            http get --max-time 3 'https://api.github.com/repos/zyedidia/eget/releases/latest' |
+            http get --max-time 3sec 'https://api.github.com/repos/zyedidia/eget/releases/latest' |
             get assets |
             where name =~ $'linux_(
                 if $nu.os-info.arch != "aarch64" {
@@ -247,7 +247,7 @@ export def "package-data-load-data" [] {
         let tmparchive = ($tmpdir | path join $asset.name)
         let tmpnames = ($tmpdir | path join 'filenames.txt')
         try {
-            http get --max-time 10 $asset.browser_download_url |
+            http get --max-time 10sec $asset.browser_download_url |
             save -f $tmparchive
 
             echo $'($asset.name | str replace --regex '\.tar\.gz$' '')/eget' |
@@ -267,7 +267,7 @@ export def "package-data-load-data" [] {
             }
         )
         let asset = (
-            http get --max-time 3 'https://api.github.com/repos/zyedidia/eget/releases/latest' |
+            http get --max-time 3sec 'https://api.github.com/repos/zyedidia/eget/releases/latest' |
             get assets |
             where name =~ $'linux_($arch)\.tar\.gz' |
             first
@@ -276,7 +276,7 @@ export def "package-data-load-data" [] {
         let tmparchive = ($tmpdir | path join $asset.name)
         let tmpnames = ($tmpdir | path join 'filenames.txt')
         try {
-            http get --max-time 10 $asset.browser_download_url |
+            http get --max-time 10sec $asset.browser_download_url |
             save -f $tmparchive
 
             echo $'($asset.name | str replace --regex '\.tar\.gz$' '')/eget' |
@@ -579,7 +579,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^cargo install --all-features --bins --keep-going 'atuin'
     }}, "linux": {"custom": {|install: closure|
         let tmpfile = (mktemp)
-        http get --redirect-mode 'follow' --max-time 3 'https://setup.atuin.sh' | save -f $tmpfile
+        http get --redirect-mode 'follow' --max-time 3sec 'https://setup.atuin.sh' | save -f $tmpfile
         ^sh $tmpfile
         rm $tmpfile
     }}} --tags [cli, want, history] --reasons ["syncs my command history across platforms and computers"] |
