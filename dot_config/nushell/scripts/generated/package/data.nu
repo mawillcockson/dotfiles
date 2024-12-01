@@ -311,7 +311,7 @@ export def "package-data-load-data" [] {
     simple-add "handbrake" {"windows": {"scoop": "handbrake"}} --tags [rarely, large] |
     simple-add "hashcat" {"windows": {"scoop": "hashcat"}} --tags [why_even] --reasons ["tries to make cracking hashes and guessing passwords easier"] |
     simple-add "imageglass" {"windows": {"scoop": "imageglass"}} --search-help [avif, "av1", iPhone, picture] --tags [rarely] --reasons ["nicer image viewer", "can display and convert iPhone .avif images for free"] |
-    simple-add "inkscape" {"windows": {"scoop": "inkscape"}} --tags [large] |
+    simple-add "inkscape" {"windows": {"scoop": "inkscape"}, "linux": {"flatpak": "org.inkscape.Inkscape"}} --tags [large] |
     simple-add "innounp" {"windows": {"scoop": "innounp"}} --tags [scoop, exclude, auto] |
     simple-add "jq" {"windows": {"scoop": "jq"}} --tags [small] |
     simple-add "keepass" {"windows": {"scoop": "keepass"}, "linux": {"custom": {|install: closure|
