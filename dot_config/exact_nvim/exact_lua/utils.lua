@@ -98,7 +98,7 @@ end
 
 function M.try_add_nodejs()
 	if vim.fn.executable("node") == 1 then
-		vim.notify("node already available", vim.log.levels.INFO)
+		vim.notify("node already available", vim.log.levels.DEBUG)
 		return true
 	end
 
