@@ -63,12 +63,12 @@ export def "package-data-load-data" [] {
             })
         }
     }}} --tags ["package manager", presumed] |
-    simple-add "flatpak" {"linux": {"apt-get": "flatpak"}} --tags ["flatpak", "package manager"] --reasons ["cross-distribution package manager that is farily well-used"] --links ["https://flatpak.org/setup/Debian"] |
+    simple-add "flatpak" {"linux": {"apt-get": "flatpak"}} --tags [flatpak, "package manager"] --reasons ["cross-distribution package manager that is farily well-used"] --links ["https://flatpak.org/setup/Debian"] |
     simple-add "flathub" {"linux": {"custom": {|install: closure|
         do $install 'flatpak'
         try { flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo }
         flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-    }}} --tags ["flatpak"] |
+    }}} --tags [flatpak] |
     simple-add "pyenv" {"linux": {"custom": {|install: closure|
         use std/log
         if (which 'pyenv' | is-not-empty) {
@@ -684,7 +684,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         do $install 'scoop'
         ^scoop bucket add versions
         ^scoop install lua51
-}}} --tags [small, language, lua, tooling, lazy.nvim] --reasons ["needed by lazy.nvim"] |
+}}} --tags [small, language, lua, tooling, "lazy.nvim"] --reasons ["needed by lazy.nvim"] |
     simple-add "luarocks" {"windows": {"custom": {|install: closure|
         # do $install "Microsoft.VisualStudio.2022.BuildTools"
         do $install 'lua51'
@@ -718,7 +718,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         }
 
 }}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["package manager for Lua and moonscript, and can be used by lazy.nvim"] --links ["https://luarocks.org/"] |
-    simple-add "curl" {"windows": {"scoop": "curl"}, "linux": {"apt-get": "curl"}} --tags ["download", "small", "want"] --reasons ["quite the ubiquitous internet protocol tool"] |
+    simple-add "curl" {"windows": {"scoop": "curl"}, "linux": {"apt-get": "curl"}} --tags [download, small, want] --reasons ["quite the ubiquitous internet protocol tool"] |
     simple-add "asdf" {"linux": {"custom": {|install: closure|
         do $install 'git'
         do $install 'curl'
