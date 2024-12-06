@@ -60,6 +60,16 @@ url = 'https://github.com/mawillcockson/path_additions/raw/main/path_additions.s
 refreshPeriod = {{ $commonRefreshPeriod }}
 {{ end }}
 
+[".config/nushell/scripts/clipboard.nu"]
+type = 'file'
+url = 'https://github.com/nushell/nu_scripts/raw/main/modules/system/mod.nu'
+refreshPeriod = {{ $commonRefreshPeriod }}
+
+[".config/nushell/scripts/testing.nu"]
+type = 'file'
+url = 'https://github.com/nushell/nushell/raw/main/crates/nu-std/testing.nu'
+refreshPeriod = {{ $commonRefreshPeriod }}
+
 ["catppuccin/starship_latte.toml"]
 type = 'file'
 url = 'https://raw.githubusercontent.com/catppuccin/starship/main/palettes/latte.toml'
