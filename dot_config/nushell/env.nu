@@ -1,9 +1,18 @@
 use consts.nu [
+    nu_log_format,
+    nu_log_date_format,
     default_env,
     default_package_manager_data_path,
     default_package_data_path,
     preconfig,
 ]
+
+# NOTE::BUG These three don't seem to be set in the resulting interactive environment
+# There's two `%ANSI_STOP%` in case there's an unterminated ansi sequence in the message
+$env.NU_LOG_FORMAT = $nu_log_format
+$env.NU_LOG_DATE_FORMAT = $nu_log_date_format
+# set to `debug` for extra output
+$env.NU_LOG_LEVEL = 'info'
 
 do { use gen_defaults.nu; gen_defaults }
 
@@ -27,12 +36,6 @@ source $default_env
 if ('NVIM' in $env) and (which nvr | is-not-empty) {
     $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
 }
-
-# NOTE::BUG These two don't seem to be set in the resulting interactive environment
-# There's two `%ANSI_STOP%` in case there's an unterminated ansi sequence in the message
-$env.NU_LOG_FORMAT = '%ANSI_START%%DATE% [%LEVEL%]%ANSI_STOP% - %MSG%%ANSI_STOP%'
-# set to `debug` for extra output
-$env.NU_LOG_LEVEL = 'info'
 
 $env.SHLVL = ($env | get SHLVL? | default 0 | into int | $in + 1)
 

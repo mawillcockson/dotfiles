@@ -15,6 +15,10 @@ export const version_file = $'($generated)/version.nuon'
 export const default_env = $'($generated)/default_env.nu'
 export const default_config = $'($generated)/default_config.nu'
 
+# std/log
+export const nu_log_date_format = '%Y-%m-%dT%H:%M:%S%.3f'
+export const nu_log_format = '%ANSI_START%%DATE% [%LEVEL%]%ANSI_STOP% - %MSG%%ANSI_STOP%'
+
 # package
 export const default_package_path = $'($generated)/package'
 export const default_package_manager_data_path = $'($default_package_path)/managers.nu'
