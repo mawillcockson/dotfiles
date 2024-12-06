@@ -9,10 +9,10 @@ use consts.nu [
 
 # NOTE::BUG These three don't seem to be set in the resulting interactive environment
 # There's two `%ANSI_STOP%` in case there's an unterminated ansi sequence in the message
-$env.NU_LOG_FORMAT = $nu_log_format
-$env.NU_LOG_DATE_FORMAT = $nu_log_date_format
+$env.NU_LOG_FORMAT = ($env | get NU_LOG_FORMAT? | default $nu_log_format)
+$env.NU_LOG_DATE_FORMAT = ($env | get NU_LOG_DATE_FORMAT? | default $nu_log_date_format)
 # set to `debug` for extra output
-$env.NU_LOG_LEVEL = 'info'
+$env.NU_LOG_LEVEL = ($env | get NU_LOG_LEVEL? | default 'info')
 
 do { use gen_defaults.nu; gen_defaults }
 
