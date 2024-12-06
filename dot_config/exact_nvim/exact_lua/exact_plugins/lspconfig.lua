@@ -151,6 +151,12 @@ return {
 				})
 			end
 
+			if executable("taplo") or mason_installed("taplo") then
+				lspconfig.taplo.setup({
+					capabilities = default_capabilities,
+				})
+			end
+
 			local version = vim.version()
 			local vim_version =
 				assert(vim.version.parse(table.concat({ version.major, version.minor, version.patch }, ".")))
