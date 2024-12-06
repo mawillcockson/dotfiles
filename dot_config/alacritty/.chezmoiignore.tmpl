@@ -1,0 +1,5 @@
+{{ if .chezmoi.os | ne "windows" }}
+windows.toml
+{{ else if .chezmoi.os | ne "linux" }}
+linux.toml
+{{ end }}

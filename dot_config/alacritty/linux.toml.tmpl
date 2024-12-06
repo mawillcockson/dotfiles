@@ -1,0 +1,4 @@
+{{ $egetBin := joinPath (.chezmoi.config.destDir) "apps" "eget-bin" }}
+{{ if findExecutable "nu" (list $egetBin (env "PATH")) }}
+terminal.shell.program = "nu"
+{{ end }}

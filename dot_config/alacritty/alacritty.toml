@@ -1,0 +1,87 @@
+#:schema https://raw.githubusercontent.com/distinction-dev/alacritty-schema/main/alacritty/reference.json
+
+# config info:
+# https://alacritty.org/config-alacritty.html
+
+[general]
+working_directory = "None"
+live_config_reload = true
+import = [
+    # uncomment the flavour you want below:
+    # these file names are relative to this alacritty configuration file
+    "catppuccin-latte.toml",
+    # "catppuccin-mocha.toml"
+
+    "windows.toml",
+    "linux.toml",
+]
+
+[window]
+padding = { x = 5, y = 5 }
+resize_increments = true
+option_as_alt = "None"
+
+[scrolling]
+history = 100_000
+# Number of lines scrolled for every input scroll increment
+multiplier = 3
+
+[font]
+normal = { family = "DejaVuSansM Nerd Font", style = "Regular" }
+size = 11.25
+
+[bell]
+duration = 100
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }
+vi_mode_style = { shape = "Underline", blinking = "On" }
+
+[terminal]
+# shell set in separate files and imported
+
+# Controls the ability of programs run in the terminal to copy and read
+# contents from clipboard, using the OSC 52 escape sequence:
+# https://alacritty.org/config-alacritty.html#s69
+osc52 = "OnlyCopy"
+
+[keyboard]
+bindings = [
+    #{ key = "Space", mods = "Control|Shift", mode = "~Search", action = "ToggleViMode" },
+    { key = "Space", mods = "Control|Shift", mode = "~Search", action = "None" },
+    { key = "Insert", mods = "Shift", mode = "~Vi", action = "Paste" },
+    { key = "V", mods = "Control|Shift", mode = "~Vi", action = "Paste" },
+    { key = "V", mods = "Control|Shift", mode = "Vi|Search", action = "Paste" },
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "Insert", mods = "Control", action = "Copy" },
+    { key = "0", mods = "Control", action = "ResetFontSize" },
+    { key = "=", mods = "Control", action = "IncreaseFontSize" },
+    { key = "+", mods = "Control", action = "IncreaseFontSize" },
+    { key = "NumpadAdd", mods = "Control", action = "IncreaseFontSize" },
+    { key = "-", mods = "Control", action = "DecreaseFontSize" },
+    { key = "NumpadSubtract", mods = "Control", action = "DecreaseFontSize" },
+    { key = "Enter", mods = "Alt", action = "ReceiveChar" },
+    { key = "F11", mods = "None", action = "ToggleFullscreen" },
+
+    # macOS compatibility
+    # including this here instead of a separate file because I don't use macOS (yet)
+    { key = "0", mods = "Command", action = "ResetFontSize" },
+    { key = "=", mods = "Command", action = "IncreaseFontSize" },
+    { key = "+", mods = "Command", action = "IncreaseFontSize" },
+    { key = "NumpadAdd", mods = "Command", action = "IncreaseFontSize" },
+    { key = "-", mods = "Command", action = "DecreaseFontSize" },
+    { key = "NumpadSubtract", mods = "Command", action = "DecreaseFontSize" },
+]
+
+[mouse]
+bindings = [
+    { mouse = "Right", mods = "None", action = "ExpandSelection" },
+    { mouse = "Right", mods = "Control", action = "ExpandSelection" },
+    { mouse = "Middle", mode = "~Vi", action = "PasteSelection" },
+]
+hide_when_typing = true
+
+[debug]
+persistent_logging = true
+log_level = "Warn"
+# log_level = "Debug"

@@ -1,0 +1,7 @@
+{{ $egetBin := joinPath (.chezmoi.config.destDir) "apps" "eget-bin" }}
+{{ $scoopShims := joinPath (.chezmoi.homeDir) "scoop" "shims" }}
+{{ if findExecutable "nu" (list $egetBin $scoopShims (env "PATH")) }}
+terminal.shell.program = "nu"
+{{ else }}
+terminal.shell.program = "powershell"
+{{ end }}
