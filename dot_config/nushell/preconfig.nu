@@ -128,7 +128,7 @@ if ($asdf_nu | path exists) {
     if (nu-check $asdf_nu) {
         $postconfig_content ++= $'source ($asdf_nu)'
     } else {
-        print -e $'issue with asdf.nu -> ($asdf_nu)'
+        log error $'issue with asdf.nu -> ($asdf_nu)'
     }
 }
 
@@ -136,7 +136,7 @@ if ($asdf_nu | path exists) {
 let clipboard_nu = ($scripts | path join 'clipboard.nu')
 if ($clipboard_nu | path exists) {
     if not (nu-check --as-module $clipboard_nu) {
-        print -e 'issue with clipboard, not including'
+        log error 'issue with clipboard, not including'
     } else {
         $postconfig_content ++= $'export use ($clipboard_nu | to nuon)'
     }
@@ -145,7 +145,7 @@ if ($clipboard_nu | path exists) {
 #let utils = ($scripts | path join 'utils.nu')
 #if ($utils | path exists) {
 #    if not (nu-check --as-module $utils) {
-#        print -e 'issue with utils, not including'
+#        log error 'issue with utils, not including'
 #    } else {
 #        $postconfig_content ++= $"export use ($utils | to nuon)"
 #    }
@@ -154,7 +154,7 @@ if ($clipboard_nu | path exists) {
 let start_ssh_nu = ($scripts | path join 'start-ssh.nu')
 if ($start_ssh_nu | path exists) {
     if not (nu-check --as-module $start_ssh_nu) {
-        print -e 'issue with start-ssh, not including'
+        log error 'issue with start-ssh, not including'
     } else {
         $postconfig_content ++= $'export use ($start_ssh_nu | to nuon)'
     }
@@ -163,7 +163,7 @@ if ($start_ssh_nu | path exists) {
 let dt_nu = ($scripts | path join 'dt.nu')
 if ($dt_nu | path exists) {
     if not (nu-check --as-module $dt_nu) {
-        print -e 'issue with dt.nu, not including'
+        log error 'issue with dt.nu, not including'
     } else {
         $postconfig_content ++= $'export use ($dt_nu | to nuon)'
     }
@@ -178,7 +178,7 @@ if ($dt_nu | path exists) {
 #let package = ($scripts | path join 'package')
 #if ($package | path exists) {
 #    if not (nu-check $package) {
-#        print -e 'issue with package module, not including'
+#        log error 'issue with package module, not including'
 #    } else {
 #        $postconfig_content ++= $"export use ($package | to nuon)"
 #    }
@@ -190,8 +190,9 @@ if ($postconfig_content | nu-check) {
     $postconfig_content | save -f $postconfig
 } else {
     let postconfig_issue = $postconfig | path dirname | path join 'postconfig-issue.nu'
-    print -e $"problem with postconfig.nu content; saved to -> ($postconfig_issue | to nuon)"
+    log error $'problem with postconfig.nu content; saved to -> ($postconfig_issue | to nuon)'
     $postconfig_content | save -f $postconfig_issue
+    log debug 'overwriting postconfig.nu so nushell can still start'
     echo "" | save -f $postconfig
 }
 
