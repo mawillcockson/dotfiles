@@ -1,5 +1,5 @@
 local executable = function(name)
-	return vim.fn.executable == 1
+	return vim.fn.executable(name) == 1
 end
 
 local function load_in_correct_order(_)
