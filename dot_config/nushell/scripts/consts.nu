@@ -1,3 +1,10 @@
+const version_value = (version)
+export const version_info = {
+    version: ($version_value.version),
+    major: ($version_value.major),
+    minor: ($version_value.minor),
+    patch: ($version_value.patch),
+}
 export const platform = ($nu.os-info.name)
 export const preconfig = $'($nu.default-config-dir)/preconfig.nu'
 export const scripts = $'($nu.default-config-dir)/scripts'
