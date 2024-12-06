@@ -43,13 +43,14 @@ export def "save-data" [
         if ($row.data.links | is-not-empty) {
             $command ++= $' --links ($row.data.links | to nuon)'
         }
+        $command ++= " |"
         $command
     } |
-    append ['    validate-data'] |
-    str join " |\n" |
-    tee {$in | null} | # NOTE::BUG without this line, an extra newline is inserted into the string
     prepend $func_def |
-    append ["}\n"] |
+    append [
+        '    validate-data',
+        "}\n",
+    ] |
     str join "\n" |
     if not ($in | nu-check --as-module) {
         # have this be first, otherwise $in becomes empty
