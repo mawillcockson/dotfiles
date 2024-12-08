@@ -10,8 +10,8 @@ export def "package-manager-load-data" [] {
     simple-add --platform "linux" "pipx" {|id: string| ^python -X utf8 -m pipx install $id} |
     simple-add --platform "windows" "eget" {|id: string| ^eget /quiet $id} |
     simple-add --platform "linux" "eget" {|id: string| ^eget --quiet $id} |
-    simple-add --platform "windows" "cargo" {|id: string| ^cargo --bins --all-features --keep-going $id} |
-    simple-add --platform "linux" "cargo" {|id: string| ^cargo --bins --all-features --keep-going $id} |
+    simple-add --platform "windows" "cargo" {|id: string| ^cargo install --bins --all-features --keep-going $id} |
+    simple-add --platform "linux" "cargo" {|id: string| ^cargo install --bins --all-features --keep-going $id} |
     simple-add --platform "linux" "apt-get" {|id: string| ^sudo apt-get install --no-install-recommends --quiet --assume-yes --default-release stable $id } |
     simple-add --platform "android" "pkg" {|id: string| ^pkg install $id} |
     simple-add --platform "linux" "flatpak" {|id: string| ^flatpak install --or-update --user --assumeyes --noninteractive flathub $id} |
