@@ -4,21 +4,13 @@ export use package/data/validate_data.nu ['validate-data']
 
 # add a package to the package metadata file (use `package path` to list it)
 export def add [
-    # the package manager-independent identifier
-    name: string,
-    # a record of the platforms it can be installed on, and the package
-    # managers and identifiers that can be used to install it
-    install: record,
-    # optionally save this single record to the default data file
-    --save,
-    # these are used in searching, to help find a package
-    --search-help: list<string>,
-    # used in sorting, selecting, and searching
-    --tags: list<string>,
-    # explanations and notes about the packages
-    --reasons: list<string>,
-    # URLs to repositories and documentation
-    --links: list<string>,
+    name: string, # the package manager-independent identifier
+    install: record, # a record of the platforms it can be installed on, and the package managers and identifiers that can be used to install it
+    --save, # save this single record to the default data file
+    --search-help: list<string>, # these are used in searching, to help find a package
+    --tags: list<string>, # used in sorting, selecting, and searching
+    --reasons: list<string>, # explanations and notes about the packages
+    --links: list<string>, # URLs to repositories and documentation
 ] {
     if $save {
         load-data |
