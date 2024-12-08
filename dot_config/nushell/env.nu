@@ -101,6 +101,7 @@ $env.PATH = (
     | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
     | append $zint_dir
     | append $atuin_dir
+    | append $cargo_dir
     | append $sbins
     | uniq
     | path expand
