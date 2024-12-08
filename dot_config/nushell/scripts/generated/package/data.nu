@@ -48,6 +48,12 @@ export def "package-data-load-data" [] {
             ^rustup default stable-msvc
         }
         ^cargo --version
+    }}, "linux": {"custom": {|install: closure|
+        do $install 'rustup'
+        if (which cargo | is-empty) {
+            ^rustup default stable
+        }
+        ^cargo --version
     }}} --tags ["package manager", rust, language, tooling] --links ["https://rustup.rs/"] |
     simple-add "apt-get" {"linux": {"custom": {||
         if (which apt-get | is-empty) {
@@ -483,7 +489,22 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         }
     }}} --tags [want, large] --reasons ["beloved browser"] |
     simple-add "Microsoft.OneDrive" {"windows": {"winget": "Microsoft.OneDrive"}} --tags [want, system] --reasons ["what I use to sync all my files cross-platform"] |
-    simple-add "rustup" {"windows": {"winget": "Rustlang.Rustup"}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
+    simple-add "rustup" {"windows": {"winget": "Rustlang.Rustup"}, "linux": {"custom": {|install: closure|
+        if (which rustup | is-empty) {
+            do $install 'curl'
+
+            # https://rust-lang.github.io/rustup/index.html
+            with-env {RUSTUP_TERM_COLOR: never} {
+                sh -euc (["curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- ",
+                    -y,
+                    "--default-toolchain stable",
+                    "--profile minimal",
+                    --no-modify-path,
+                ] | str join ' ')
+            }
+        }
+        ^rustup self update
+    }}} --tags [tooling, language, rust] --reasons ["rust's main way of managing compiler versions"] |
     simple-add "Valve.Steam" {"windows": {"winget": "Valve.Steam"}} --tags [gui, games, large] |
     simple-add "DigitalExtremes.Warframe" {"windows": {"winget": "DigitalExtremes.Warframe"}} --tags [exclude] |
     simple-add "universalmediaserver" {"windows": {"winget": "UniversalMediaServer.UniversalMediaServer"}} --tags [large] --reasons ["does all the local network hosting and live, on-the-fly transcoding of videos really easy", "upnp media server compatible with my Roku TV's Roku Media Player"] |
@@ -877,6 +898,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^sudo apt-get update --assume-yes
         do $apt_get 'incus'
     }}} --tags [containers, large] --reasons ["forked and maintained version of my absolute favorite container manager on linux!"] --links ["https://linuxcontainers.org/incus/docs/main/", "https://github.com/zabbly/incus"] |
-    simple-add "alacritty" {"windows": {"scoop": "alacritty"}} --tags [terminal, small] --reasons ["quite well-supported and maintained cross-platform terminal emulator with support for configuring all the things I want to be able to control"] --links ["https://alacritty.org/", "https://github.com/alacritty/alacritty"] |
+    simple-add "alacritty" {"windows": {"scoop": "alacritty"}, "linux": {"cargo": "alacritty"}} --tags [terminal, small] --reasons ["quite well-supported and maintained cross-platform terminal emulator with support for configuring all the things I want to be able to control"] --links ["https://alacritty.org/", "https://github.com/alacritty/alacritty"] |
     validate-data
 }
