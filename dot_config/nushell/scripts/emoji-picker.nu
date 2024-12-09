@@ -1,3 +1,5 @@
+use consts.nu [platform]
+
 export const suggested_default_query = [
     '-or',
     'g:smileys',
@@ -18,19 +20,21 @@ export const uni_cmd = [
     '-tone', 'light',
 ]
 
-def main [...query: string] {
+export def main [
+    --start-terminal,
+    ...query: string,
+] {
     let query = (
         if ($query | is-empty) {
             $default_query | str join ' '
+        } else if ($query | describe) == 'list<string>' {
+            $query | str join ' '
         } else {
             $query
         }
     )
-    with-env {
-        'FZF_DEFAULT_COMMAND': ($uni_cmd | append $query | str join ' '),
-    } {
-        (
-            ^fzf
+    let fzf_command = [
+            fzf
                 --disabled
                 --ignore-case
                 --no-sort
@@ -42,7 +46,41 @@ def main [...query: string] {
                 '--with-shell=nu -c'
                 $"--bind=change:reload:$env.FZF_QUERY | split row \(char space\) | prepend ($uni_cmd | to nuon) | run-external \($in | first\) ...\($in | skip 1\)"
                 $"--bind=enter:execute#overlay use --prefix clipboard.nu; ($uni_cmd | to nuon) | append ['-as', 'json'] | append \($env.FZF_QUERY | split row ' '\) | run-external \($in | first\) ...\($in | skip 1\) | from json | get emoji | get \($env.FZF_POS | into int | \($in - 1\) | into cell-path\) | clipboard clip --silent --no-notify --no-strip --codepage 65001#+accept"
-                
-        )
+    ]
+
+    mut cmd = []
+    if $start_terminal {
+        $cmd ++= match ($platform) {
+            'windows' if (which wt | is-not-empty) => {
+                [
+                    wt,
+                        --focus
+                        --window, new,
+                        new-tab,
+                        -p, Neovim,
+                        --suppressApplicationTitle,
+                        --title, emoji-picker,
+                ]
+            },
+            'linux' if (which alacritty | is-not-empty) => {
+                [
+                    alacritty,
+                    --title, emoji-picker,
+                    --command,
+                ]
+            }
+            _ => {
+                log warning $"don't know how to start a terminal for platform ($platform | to nuon)"
+                []
+            },
+        }
+    }
+    $cmd ++= $fzf_command
+    let cmd = $cmd
+
+    with-env {
+        'FZF_DEFAULT_COMMAND': ($uni_cmd | append $query | str join ' '),
+    } {
+        run-external ($cmd | first) ...($cmd | skip 1)
     }
 }
