@@ -899,5 +899,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         do $apt_get 'incus'
     }}} --tags [containers, large] --reasons ["forked and maintained version of my absolute favorite container manager on linux!"] --links ["https://linuxcontainers.org/incus/docs/main/", "https://github.com/zabbly/incus"] |
     simple-add "alacritty" {"windows": {"scoop": "alacritty"}, "linux": {"cargo": "alacritty"}} --tags [terminal, small] --reasons ["quite well-supported and maintained cross-platform terminal emulator with support for configuring all the things I want to be able to control"] --links ["https://alacritty.org/", "https://github.com/alacritty/alacritty"] |
+    simple-add "apprise" {"windows": {"pipx": "apprise"}, "linux": {"pipx": "apprise"}} --tags [small, notifications] --reasons ["sends notifications remotely and locally"] --links ["https://github.com/caronc/apprise/"] |
     validate-data
 }
