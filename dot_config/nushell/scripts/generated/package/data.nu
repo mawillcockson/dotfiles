@@ -914,5 +914,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         # https://github.com/caronc/apprise/wiki/Notify_windows
         python -X -m pipx inject apprise pywin32
     }}, "linux": {"pipx": "apprise"}} --tags [small, notifications] --reasons ["sends notifications remotely and locally"] --links ["https://github.com/caronc/apprise/"] |
+    simple-add "uni" {"windows": {"eget": "arp242/uni"}, "linux": {"eget": "arp242/uni"}} --tags [small, unicode, emoji] --reasons ["searches through the unicode database, using names for the emoji that I like, plus it's cross-platform, so I only have to learn one set of names"] --links ["https://github.com/arp242/uni/"] |
     validate-data
 }
