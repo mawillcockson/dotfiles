@@ -913,7 +913,44 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         do $pipx "apprise"
         # https://github.com/caronc/apprise/wiki/Notify_windows
         python -X -m pipx inject apprise pywin32
-    }}, "linux": {"pipx": "apprise"}} --tags [small, notifications] --reasons ["sends notifications remotely and locally"] --links ["https://github.com/caronc/apprise/"] |
+    }}, "linux": {"custom": {|install: closure|
+        use std/log
+        log warning "I haven't yet figured out how to get desktop notifications working on linux"
+        log info (["things I've tried:",
+                '- injecct pyside2/6',
+                '- inject pyqt5',
+                '- inject ',
+                "- install libdbus-1-3 (it's already installed)",
+            ] | str join "\n")
+        log info (["things I haven't tried (successfully)",
+                '- inject pygobject',
+                '- inject dbus-python',
+            ] | str join "\n")
+
+
+        do $install pipx
+
+        use consts.nu [platform]
+        use package/manager
+        let managers = (
+            manager load-data |
+            get $platform
+        )
+
+        do $managers.pipx apprise
+
+        # # for local notifications with schemes dbus:// qt:// kde:// glib://
+        # log info 'installing dependency for local notifications'
+        # do $managers.apt-get libdbus-1-3
+        # if (which plasmashell | is-not-empty) {
+        #     log info 'installing KDE dependency'
+        #     if (plasmashell --version) starts-with 'plasmashell 5.' {
+        #         python -X -m pipx inject apprise pyside2
+        #     } else {
+        #         python -X -m pipx inject apprise pyside6
+        #     }
+        # }
+    }}} --tags [small, notifications] --reasons ["sends notifications remotely and locally"] --links ["https://github.com/caronc/apprise/"] |
     simple-add "uni" {"windows": {"eget": "arp242/uni"}, "linux": {"eget": "arp242/uni"}} --tags [small, unicode, emoji] --reasons ["searches through the unicode database, using names for the emoji that I like, plus it's cross-platform, so I only have to learn one set of names"] --links ["https://github.com/arp242/uni/"] |
     validate-data
 }
