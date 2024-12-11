@@ -113,8 +113,9 @@ if (which fnm | is-not-empty) {
   } catch {{}}
 } else {{}} | load-env
 $env.PATH = if ('FNM_MULTISHELL_PATH' in $env) {
+  let maybe_bin = ($env.FNM_MULTISHELL_PATH | path join 'bin')
   $env.PATH |
-  prepend ($env.FNM_MULTISHELL_PATH | path join 'bin')
+  prepend (if ($maybe_bin | path exists) {$maybe_bin} else {$env.FNM_MULTISHELL_PATH})
 } else {$env.PATH}
 
 
