@@ -125,8 +125,8 @@ return {
 			{ "<C-PageDown>", "<Cmd>:tabnext<CR>", desc = "switch tab rightwards", mode = { "n", "i", "t" } },
 			{ "<C-h>", "<Cmd>:tabprevious<CR>", desc = "switch tab leftwards", mode = { "n", "i", "t" } },
 			{ "<C-PageUp>", "<Cmd>:tabprevious<CR>", desc = "switch tab leftwards", mode = { "n", "i", "t" } },
-			{ "<C-S-PageUp>", "<Cmd>:tabmove -1<CR>", desc = "move current tab leftwards", mode = { "n", "i", "t" } },
-			{ "<C-S-PageDown>", "<Cmd>:tabmove +1<CR>", desc = "move current tab rightwards", mode = { "n", "i", "t" } },
+			{ "<C-S-PageUp>", "<Cmd>:-tabmove<CR>", desc = "move current tab leftwards", mode = { "n", "i", "t" } },
+			{ "<C-S-PageDown>", "<Cmd>:+tabmove<CR>", desc = "move current tab rightwards", mode = { "n", "i", "t" } },
 			{ "<leader>m", group = "miscellaneous" },
 			{
 				"<leader>mi",
