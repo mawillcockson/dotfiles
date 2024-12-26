@@ -1,8 +1,4 @@
 export def --env main [] {
-    $env.EGET_CONFIG = ($env.XDG_CONFIG_HOME | path join '.eget.toml')
-    $env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
-    mkdir $env.EGET_BIN
-
     {
         'global': {
             'target': ($env.EGET_BIN),
