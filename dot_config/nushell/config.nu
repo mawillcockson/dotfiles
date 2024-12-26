@@ -76,7 +76,7 @@ $env.config.hooks.pre_prompt ++= [
 $env.config.hooks.pre_execution ++= [
     {code: ($remove_tmux_helpers)},
 ]
-$env.config.hooks.env_change = $env.config.hooks.env_change | merge {
+$env.config.hooks.env_change = $env.config.hooks.env_change | merge deep --strategy append {
     PWD: [
         #{code: {|before,after| use std/log; log debug $'cd-ing ($before) -> ($after)' }},
         {
