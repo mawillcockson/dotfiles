@@ -52,125 +52,107 @@ let remove_tmux_helpers = r##'
     )
 '## ##'
 
-$env.config = (
-    $env.config
 # Atuin should be able to handle a lot of history, so don't cull based on
 # number of entries
-    | upsert history.max_size 10_000_000
-    | upsert history.file_format 'sqlite'
-    | upsert buffer_editor (
-        if ('NVIM' in $env) and (which nvr | is-not-empty) {
-            [nvr -cc split --remote-wait]
-        } else {null}
-    )
-    | upsert edit_mode 'vi'
-    | upsert show_banner false
-    | upsert hooks.pre_prompt {|config|
-        $config |
-        get hooks.pre_prompt? |
-        default [] |
-        append [
-            {code: ($banner_once)},
-        ]
-    }
-    | upsert hooks.pre_execution {|config|
-        $config |
-        get hooks.pre_execution? |
-        default [] |
-        append [
-            {code: ($remove_tmux_helpers)},
-        ]
-    }
-    | upsert hooks.env_change {|config|
-        $config |
-        get hooks.env_change? |
-        default {} |
-        upsert PWD {|envs|
-            $envs |
-            get PWD? |
-            default [] |
-            append [
-                #{code: {|before,after| use std/log; log debug $'cd-ing ($before) -> ($after)' }},
-                {
-                    # if I cd into a directory named 'ziglings.org', prepend
-                    # '~/apps/zigmaster' to $PATH
-                    'condition': {|_, after|
-                        (
-                            (($after | path basename) == 'ziglings.org')
-                            and
-                            ('~/apps/zigmaster/' | path expand | path exists)
-                        )
-                    },
-                    'code': {|_, _| load-env {'PATH': ($env.PATH | prepend ('~/apps/zigmaster' | path expand --strict))}},
-                },
-                {
-                    # if I leave a directory that has 'ziglings.org' as it or a
-                    # parent's name, remove '~/apps/zigmaster' from $PATH
-                    'condition': {|before, after|
-                        (
-                            ($before | is-not-empty) # happens on startup
-                            and
-                            ('ziglings.org' in ($before | path split))
-                            and
-                            ('ziglings.org' not-in ($after | path split))
-                        )
-                    },
-                    'code': {|_, _|
-                        load-env {
-                            'PATH': (
-                                $env.PATH |
-                                filter {|it| $it != ('~/apps/zigmaster' | path expand) }
-                            ),
-                        }
-                    },
-                },
-            ]
-        }
-    }
-    | upsert keybindings {|config|
-        $config |
-        get keybindings? |
-        default [] |
-        append [
-            {
-                name: 'tmux_helper',
-                modifier: 'control',
-                keycode: 'char_t',
-                mode: ['vi_normal', 'vi_insert'],
-                event: [
-                    {
-                        edit: 'insertstring',
-                        value: ($tmux_command),
-                    },
-                    {
-                        send: 'Enter',
-                    },
-                ],
-            },
-            {
-# https://www.nushell.sh/book/line_editor.html#removing-a-default-keybinding
-                modifier: 'control',
-                keycode: 'char_n',
-                mode: ['vi_normal', 'vi_insert'],
-                event: null,
-            },
-            {
-                name: 'history_word_or_ide_completion'
-                modifier: 'control',
-                keycode: 'char_n',
-                mode: ['vi_normal', 'vi_insert'],
-                event: {
-                    until: [
-                        { send: 'HistoryHintWordComplete' },
-                        { send: 'menu', name: 'ide_completion_menu' },
-                        { send: 'menunext' },
-                        { edit: 'complete' },
-                    ],
-                },
-            },
-        ]
-    }
+$env.config.history.max_size = 10_000_000
+$env.config.history.file_format = 'sqlite'
+
+# if running in Neovim, use that as our editor
+$env.config.buffer_editor = (
+    if ('NVIM' in $env) and (which nvr | is-not-empty) {
+        [nvr -cc split --remote-wait]
+    } else {null}
 )
+
+# I like vi keybindings
+$env.config.edit_mode = 'vi'
+
+# I have my own banner :)
+$env.config.show_banner = false
+
+$env.config.hooks.pre_prompt ++= [
+    {code: ($banner_once)},
+]
+$env.config.hooks.pre_execution ++= [
+    {code: ($remove_tmux_helpers)},
+]
+$env.config.hooks.env_change = $env.config.hooks.env_change | merge {
+    PWD: [
+        #{code: {|before,after| use std/log; log debug $'cd-ing ($before) -> ($after)' }},
+        {
+            # if I cd into a directory named 'ziglings.org', prepend
+            # '~/apps/zigmaster' to $PATH
+            'condition': {|_, after|
+                (
+                    (($after | path basename) == 'ziglings.org')
+                    and
+                    ('~/apps/zigmaster/' | path expand | path exists)
+                )
+            },
+            'code': {|_, _| load-env {'PATH': ($env.PATH | prepend ('~/apps/zigmaster' | path expand --strict))}},
+        },
+        {
+            # if I leave a directory that has 'ziglings.org' as it or a
+            # parent's name, remove '~/apps/zigmaster' from $PATH
+            'condition': {|before, after|
+                (
+                    ($before | is-not-empty) # happens on startup
+                    and
+                    ('ziglings.org' in ($before | path split))
+                    and
+                    ('ziglings.org' not-in ($after | path split))
+                )
+            },
+            'code': {|_, _|
+                load-env {
+                    'PATH': (
+                        $env.PATH |
+                        filter {|it| $it != ('~/apps/zigmaster' | path expand) }
+                    ),
+                }
+            },
+        },
+    ],
+}
+
+$env.config.keybindings ++= [
+    {
+        name: 'tmux_helper',
+        modifier: 'control',
+        keycode: 'char_t',
+        mode: ['vi_normal', 'vi_insert'],
+        event: [
+            {
+                edit: 'insertstring',
+                value: ($tmux_command),
+            },
+            {
+                send: 'Enter',
+            },
+        ],
+    },
+    {
+# https://www.nushell.sh/book/line_editor.html#removing-a-default-keybinding
+        modifier: 'control',
+        keycode: 'char_n',
+        mode: ['vi_normal', 'vi_insert'],
+        event: null,
+    },
+    {
+        name: 'history_word_or_ide_completion'
+        modifier: 'control',
+        keycode: 'char_n',
+        mode: ['vi_normal', 'vi_insert'],
+        event: {
+            until: [
+                { send: 'HistoryHintWordComplete' },
+                { send: 'menu', name: 'ide_completion_menu' },
+                { send: 'menunext' },
+                { edit: 'complete' },
+            ],
+        },
+    },
+]
 
 overlay use utils.nu
 
