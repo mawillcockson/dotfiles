@@ -24,7 +24,7 @@ if (which atuin | is-not-empty) {
     # https://github.com/atuinsh/atuin/issues/1392
     # this disables atuin filling in for the up arrow
     ^atuin init --disable-up-arrow nu | save -f $atuin_nu
-    $postconfig_content ++= $'source ($atuin_nu | to nuon)'
+    $postconfig_content ++= [$'source ($atuin_nu | to nuon)']
 }
 
 def --env "modify-starship-config" [modify: closure] {
@@ -96,7 +96,7 @@ let starship_nu = ($generated | path join 'starship.nu')
 if (which starship | is-not-empty) {
     ^starship init nu | save -f $starship_nu
     # NOTE::BUG using `overlay use` instead of `source` causes very weird issues
-    $postconfig_content ++= $'source ($starship_nu | to nuon)'
+    $postconfig_content ++= [$'source ($starship_nu | to nuon)']
 
     # $env.NU_LOG_LEVEL = 'debug'
     try {
@@ -126,7 +126,7 @@ $env.ASDF_DIR = ($env.HOME | path join '.asdf')
 let asdf_nu = ($env.ASDF_DIR | path join 'asdf.nu')
 if ($asdf_nu | path exists) {
     if (nu-check $asdf_nu) {
-        $postconfig_content ++= $'source ($asdf_nu)'
+        $postconfig_content ++= [$'source ($asdf_nu)']
     } else {
         log error $'issue with asdf.nu -> ($asdf_nu)'
     }
@@ -138,7 +138,7 @@ if ($clipboard_nu | path exists) {
     if not (nu-check --as-module $clipboard_nu) {
         log error 'issue with clipboard, not including'
     } else {
-        $postconfig_content ++= $'export use ($clipboard_nu | to nuon)'
+        $postconfig_content ++= [$'export use ($clipboard_nu | to nuon)']
     }
 }
 
@@ -147,7 +147,7 @@ if ($clipboard_nu | path exists) {
 #    if not (nu-check --as-module $utils) {
 #        log error 'issue with utils, not including'
 #    } else {
-#        $postconfig_content ++= $"export use ($utils | to nuon)"
+#        $postconfig_content ++= [$"export use ($utils | to nuon)"]
 #    }
 #}
 
@@ -156,7 +156,7 @@ if ($start_ssh_nu | path exists) {
     if not (nu-check --as-module $start_ssh_nu) {
         log error 'issue with start-ssh, not including'
     } else {
-        $postconfig_content ++= $'export use ($start_ssh_nu | to nuon)'
+        $postconfig_content ++= [$'export use ($start_ssh_nu | to nuon)']
     }
 }
 
@@ -165,7 +165,7 @@ if ($dt_nu | path exists) {
     if not (nu-check --as-module $dt_nu) {
         log error 'issue with dt.nu, not including'
     } else {
-        $postconfig_content ++= $'export use ($dt_nu | to nuon)'
+        $postconfig_content ++= [$'export use ($dt_nu | to nuon)']
     }
 }
 
@@ -180,7 +180,7 @@ if ($dt_nu | path exists) {
 #    if not (nu-check $package) {
 #        log error 'issue with package module, not including'
 #    } else {
-#        $postconfig_content ++= $"export use ($package | to nuon)"
+#        $postconfig_content ++= [$"export use ($package | to nuon)"]
 #    }
 #}
 
