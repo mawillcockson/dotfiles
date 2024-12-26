@@ -1,8 +1,6 @@
 use consts.nu [
     nu_log_format,
     nu_log_date_format,
-    default_package_manager_data_path,
-    default_package_data_path,
     preconfig,
 ]
 
@@ -12,21 +10,6 @@ $env.NU_LOG_FORMAT = ($env | get NU_LOG_FORMAT? | default $nu_log_format)
 $env.NU_LOG_DATE_FORMAT = ($env | get NU_LOG_DATE_FORMAT? | default $nu_log_date_format)
 # set to `debug` for extra output
 $env.NU_LOG_LEVEL = ($env | get NU_LOG_LEVEL? | default 'info')
-
-[
-    $default_package_manager_data_path,
-    $default_package_data_path,
-] | each {|it|
-    if not ($it | path exists) {
-        mkdir ($it | path dirname)
-        touch $it
-    } else if (not (nu-check $it)) {
-        use std/log
-        log error $'not a valid nu module! -> ($it)'
-        log warning $'truncating -> ($it)'
-        echo '' | save -f $it
-    }
-} | null
 
 if ('NVIM' in $env) and (which nvr | is-not-empty) {
     $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
