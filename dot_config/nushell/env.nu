@@ -1,7 +1,6 @@
 use consts.nu [
     nu_log_format,
     nu_log_date_format,
-    default_env,
     default_package_manager_data_path,
     default_package_data_path,
     preconfig,
@@ -13,10 +12,6 @@ $env.NU_LOG_FORMAT = ($env | get NU_LOG_FORMAT? | default $nu_log_format)
 $env.NU_LOG_DATE_FORMAT = ($env | get NU_LOG_DATE_FORMAT? | default $nu_log_date_format)
 # set to `debug` for extra output
 $env.NU_LOG_LEVEL = ($env | get NU_LOG_LEVEL? | default 'info')
-
-do { use gen_defaults.nu; gen_defaults }
-
-source $default_env
 
 [
     $default_package_manager_data_path,
