@@ -15,7 +15,7 @@ if ('NVIM' in $env) and (which nvr | is-not-empty) {
     $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
 }
 
-$env.SHLVL = ($env | get SHLVL? | default 0 | into int | $in + 1)
+$env.SHLVL = ($env | get SHLVL? | default '0' | into int) + 1
 
 $env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $nu.home-path)
 
