@@ -2,3 +2,17 @@
 {{ if findExecutable "nu" (list $egetBin (env "PATH")) }}
 terminal.shell.program = "nu"
 {{ end }}
+
+{{ if findExecutable "bash" (list $egetBin (env "PATH")) }}
+[[keyboard.bindings]]
+key = "M"
+mods = "Control|Shift"
+mode = "~Search"
+command = { program = "alacritty", args = ["--command", "bash"]}
+{{ else }}
+[[keyboard.bindings]]
+key = "M"
+mods = "Control|Shift"
+mode = "~Search"
+command = { program = "alacritty", args = ["--command", "sh"]}
+{{ end }}

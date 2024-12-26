@@ -5,3 +5,17 @@ terminal.shell.program = "nu"
 {{ else }}
 terminal.shell.program = "powershell"
 {{ end }}
+
+{{ if findExecutable "pwsh" (list $egetBin $scoopShims (env "PATH")) }}
+[[keyboard.bindings]]
+key = "M"
+mods = "Control|Shift"
+mode = "~Search"
+command = { program = "alacritty", args = ["--command", "pwsh"]}
+{{ else }}
+[[keyboard.bindings]]
+key = "M"
+mods = "Control|Shift"
+mode = "~Search"
+command = { program = "alacritty", args = ["--command", "powershell"]}
+{{ end }}
