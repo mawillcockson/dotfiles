@@ -123,7 +123,7 @@ else:
     mut groups = []
     for $line in $out {
         $group += (if not ($line starts-with '    -') { 1 } else { 0 })
-        $groups ++= $group
+        $groups ++= [$group]
     }
     let groups = ($groups | enumerate)
     (
