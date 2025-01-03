@@ -741,10 +741,24 @@ nu -c 'use setup; setup fonts; setup linux fonts'
 }}} --tags [small, language, lua, moonscript, tooling, luarocks, requires_compiler] --reasons ["package manager for Lua and moonscript, and can be used by lazy.nvim"] --links ["https://luarocks.org/"] |
     simple-add "curl" {"windows": {"scoop": "curl"}, "linux": {"apt-get": "curl"}} --tags [download, small, want] --reasons ["quite the ubiquitous internet protocol tool"] |
     simple-add "asdf" {"linux": {"custom": {|install: closure|
-        do $install 'git'
-        do $install 'curl'
+        if (which git | is-empty) {
+            do $install 'git'
+        }
+        if (which curl | is-empty) {
+            do $install 'curl'
+        }
 
-        git clone --single-branch --branch v0.14.1 'https://github.com/asdf-vm/asdf.git' ~/.asdf
+        if ('~/.asdf' | path expand | path exists) {
+            return (error make {
+                'msg': ("at time of writing (v0.15.0) asdf does not provide a way to upgrade to the next version\n" +
+                        'hopefully this has been added by the time we want to upgrade again'),
+            })
+            asdf update
+        } else {
+            use std/log
+            log warning "v0.15.0 was the last version that could be installed using the method this script currently uses, so if the latest version is more recent, it's fun updating time! :D"
+            git clone --single-branch --branch v0.15.0 'https://github.com/asdf-vm/asdf.git' ~/.asdf
+        }
         run-external $nu.current-exe '-l' '-c' 'asdf update'
     }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |

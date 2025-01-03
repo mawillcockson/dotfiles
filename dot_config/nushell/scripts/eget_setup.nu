@@ -18,7 +18,7 @@ export def --env main [] {
         'linux' => {
             insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']} |
             insert 'jtroo/kanata' {'asset_filters': ['kanata', '^.']} |
-            insert 'neovide/neovide' {'asset_filters': ['^.zip']} |
+            insert 'neovide/neovide' {'asset_filters': ['.AppImage', '^.zsync']} |
             insert 'sharkdp/fd' {'asset_filters': ['gnu']} |
             insert 'JohnnyMorganz/StyLua' {'asset_filters': ['linux', 'musl']} |
             insert 'rclone/rclone' {'asset_filters': ['.zip']} |
