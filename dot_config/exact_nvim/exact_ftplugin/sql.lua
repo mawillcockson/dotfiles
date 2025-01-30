@@ -81,7 +81,7 @@ local function run_sql()
 				function()
 					close_buf(scratch_buf)
 				end,
-				"close run buffer",
+				desc = "close run buffer",
 				buffer = scratch_buf,
 			},
 		})
