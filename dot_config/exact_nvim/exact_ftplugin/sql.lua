@@ -3,6 +3,8 @@ if vim.b.did_my_ftsql then
 end
 vim.b.did_my_ftsql = true
 
+local milliseconds_per_second = 1000
+
 local this_bufnr = vim.api.nvim_get_current_buf()
 
 ---use first line of sql file to determine what executable to pick
@@ -97,10 +99,12 @@ local function run_sql()
 	end
 
 	vim.notify("cmd -> " .. vim.inspect(cmd), vim.log.levels.INFO)
-	local output = vim.fn.systemlist(cmd, input)
-	if vim.v.shell_error ~= 0 then
-		vim.notify("database error: " .. tostring(vim.v.shell_error), vim.log.levels.ERROR, {})
+	local output = vim.system(cmd, { stdin = input, text = true, timeout = 3 * milliseconds_per_second })
+		:wait(3 * milliseconds_per_second)
+	if output.code ~= 0 then
+		vim.notify("database error: " .. tostring(output.stderr), vim.log.levels.ERROR, {})
 	end
+	vim.notify("output -> " .. vim.inspect(output), vim.log.levels.INFO)
 
 	if not scratch_buf then
 		scratch_buf = vim.api.nvim_create_buf(true, true)
@@ -135,10 +139,8 @@ local function run_sql()
 	)
 	vim.api.nvim_buf_set_name(scratch_buf, buf_name)
 
-	output = vim.tbl_map(function(line)
-		return line:gsub("\r$", "")
-	end, output)
-	vim.api.nvim_buf_set_lines(scratch_buf, 0, -1, true, output)
+	local cmd_stdout = vim.split(output.stdout, "\n", { plain = true })
+	vim.api.nvim_buf_set_lines(scratch_buf, 0, -1, true, cmd_stdout)
 end
 
 wk.add({
