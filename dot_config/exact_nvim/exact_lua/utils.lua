@@ -127,4 +127,56 @@ function M.try_add_nodejs()
 	return true
 end
 
+---Return the executable for the program using my preferences
+---@param bufnr integer
+---@return string[]?
+function M.parse_shebang(bufnr)
+	if vim.api.nvim_buf_get_text(bufnr, 0, 0, 0, 2, {}) ~= "#!" then
+		vim.notify("shebang not found in " .. vim.api.nvim_buf_get_name(bufnr), vim.log.levels.WARN)
+		return nil
+	end
+
+	-- NOTE::IMPROVEMENT may get overloaded if the file is one long line without
+	-- linebreaks
+	local first_line = vim.api.nvim_buf_get_lines(bufnr, 0, 0, true)
+	local pattern = M.shebang_pattern()
+  local result = pattern:match(first_line)
+  table.insert(result, 0, result.prog)
+  result.prog = nil
+	return result
+end
+
+function M.shebang_pattern()
+	local locale = vim.lpeg.locale()
+	local C = vim.lpeg.C
+	local Cg = vim.lpeg.Cg
+	local Ct = vim.lpeg.Ct
+	local P = vim.lpeg.P
+	local S = vim.lpeg.S
+
+	local space = locale.space ^ 1
+	local nl = P("\r\n") + P("\n")
+	local word = (locale.alnum + locale.punct + S("_")) ^ 1
+	local prog = Cg(word, "prog")
+	local arg = C(word)
+	local line_end = (space ^ 0) * (nl ^ 0)
+
+	return P("#!")
+		* (P("/usr/bin/env") ^ -1 * (space ^ 0))
+		* Ct(prog * ((space * arg) ^ 0) * ((space * arg * line_end) ^ 0))
+end
+
+---Tests the shebang pattern
+---@param pattern vim.lpeg.Pattern?
+function M.test_shebang_pattern(pattern)
+	local _pattern = pattern or M.shebang_pattern()
+
+	assert(vim.deep_equal(_pattern:match("#!/usr/bin/env mariadb --help"), { prog = "mariadb", "--help" }))
+	assert(vim.deep_equal(_pattern:match("#! mariadb --help"), { prog = "mariadb", "--help" }))
+	assert(vim.deep_equal(_pattern:match("#!/bin/bash -e -u"), { prog = "/bin/bash", "-e", "-u" }))
+	assert(vim.deep_equal(_pattern:match("#!/bin/bash"), { prog = "/bin/bash" }))
+	assert(vim.deep_equal(_pattern:match("#! mariadb"), { prog = "mariadb" }))
+	assert(vim.deep_equal(_pattern:match("#!/usr/bin/env mariadb"), { prog = "mariadb" }))
+end
+
 return M
