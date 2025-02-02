@@ -149,6 +149,8 @@ function M.parse_shebang(bufnr)
 	return result
 end
 
+---Make an LPeg pattern to parse shebang lines using my preferences
+---@return vim.lpeg.Pattern
 function M.shebang_pattern()
 	local locale = vim.lpeg.locale()
 	local C = vim.lpeg.C
@@ -158,15 +160,14 @@ function M.shebang_pattern()
 	local S = vim.lpeg.S
 
 	local space = locale.space ^ 1
+	local sspace = locale.space ^ 0
 	local nl = P("\r\n") + P("\n")
 	local word = (locale.alnum + locale.punct + S("_")) ^ 1
 	local prog = Cg(word, "prog")
 	local arg = C(word)
 	local line_end = (space ^ 0) * (nl ^ 0)
 
-	return P("#!")
-		* (P("/usr/bin/env") ^ -1 * (space ^ 0))
-		* Ct(prog * ((space * arg) ^ 0) * ((space * arg * line_end) ^ 0))
+	return P("#!") * ((P("/usr/bin/env") * space) ^ -1) * sspace * Ct(prog * ((space * arg) ^ 0)) * line_end
 end
 
 ---Tests the shebang pattern
