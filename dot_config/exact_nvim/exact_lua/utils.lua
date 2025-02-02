@@ -140,7 +140,7 @@ function M.parse_shebang(bufnr)
 	-- NOTE::IMPROVEMENT may get overloaded if the file is one long line without
 	-- linebreaks
 	local first_line = vim.api.nvim_buf_get_lines(bufnr, 0, 1, true)[1]
-	vim.notify("first_line -> " .. vim.inspect(first_line), vim.log.levels.INFO)
+	vim.notify("first_line -> " .. vim.inspect(first_line), vim.log.levels.DEBUG)
 	assert(first_line, "buffer missing first line")
 	assert(first_line:sub(1, 2) == "#!", "first two characters of first line ARE NOT #!, somehow??")
 	local pattern = M.shebang_pattern()
@@ -312,22 +312,22 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
 
 	returns.runner = function()
 		local cmd = M.parse_shebang(bufnr)
-		vim.notify("parse_shebang -> " .. vim.inspect(cmd), vim.log.levels.INFO)
+		vim.notify("parse_shebang -> " .. vim.inspect(cmd), vim.log.levels.DEBUG)
 		local is_default_cmd = false
 		if not cmd then
 			cmd = default_cmd()
 			assert(type(cmd) == "table" and (not vim.tbl_isempty(cmd)), "default command must be a list of strings")
 			is_default_cmd = true
 		end
-		vim.notify("cmd -> " .. vim.inspect(cmd), vim.log.levels.INFO)
+		vim.notify("cmd -> " .. vim.inspect(cmd), vim.log.levels.DEBUG)
 
 		-- NOTE::IMPROVEMENT this should stream
 		-- get the whole file as a table of lines
 		local input = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
 
-		vim.notify("input before maybe skip -> " .. vim.inspect(input), vim.log.levels.INFO)
-		vim.notify("skip_first_line -> " .. tostring(skip_first_line), vim.log.levels.INFO)
-		vim.notify("is_default_cmd -> " .. tostring(is_default_cmd), vim.log.levels.INFO)
+		vim.notify("input before maybe skip -> " .. vim.inspect(input), vim.log.levels.DEBUG)
+		vim.notify("skip_first_line -> " .. tostring(skip_first_line), vim.log.levels.DEBUG)
+		vim.notify("is_default_cmd -> " .. tostring(is_default_cmd), vim.log.levels.DEBUG)
 		if
 			skip_first_line == "always"
 			or (skip_first_line == "default_cmd" and is_default_cmd)
@@ -337,7 +337,7 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
 			-- comment character for the executable
 			input = vim.list_slice(input, 2, #input)
 		end
-		vim.notify("input after maybe skip -> " .. vim.inspect(input), vim.log.levels.INFO)
+		vim.notify("input after maybe skip -> " .. vim.inspect(input), vim.log.levels.DEBUG)
 
 		if not returns.scratch_bufnr then
 			returns.scratch_bufnr = vim.api.nvim_create_buf(true, true)
@@ -364,7 +364,7 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
 		if output.code ~= 0 then
 			vim.notify("database error: " .. tostring(output.stderr), vim.log.levels.ERROR, {})
 		end
-		vim.notify("output -> " .. vim.inspect(output), vim.log.levels.INFO)
+		vim.notify("output -> " .. vim.inspect(output), vim.log.levels.DEBUG)
 		local combined = vim.iter({ output.stderr, output.stdout })
 			:filter(function(e)
 				return e ~= ""
