@@ -376,7 +376,11 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
 		while combined:rpeek() == "\n" or combined:rpeek() == "" do
 			combined = combined:rskip(1)
 		end
-		for i, line in ipairs(combined:totable()) do
+		local output_lines = combined:totable()
+		if vim.tbl_isempty(output_lines) then
+			return vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, {})
+		end
+		for i, line in ipairs(output_lines) do
 			if i == 1 then
 				vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, { line })
 			else
