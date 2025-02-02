@@ -131,18 +131,21 @@ end
 ---@param bufnr integer
 ---@return string[]?
 function M.parse_shebang(bufnr)
-	if vim.api.nvim_buf_get_text(bufnr, 0, 0, 0, 2, {}) ~= "#!" then
+	if vim.api.nvim_buf_get_text(bufnr, 0, 0, 0, 2, {})[1] ~= "#!" then
 		vim.notify("shebang not found in " .. vim.api.nvim_buf_get_name(bufnr), vim.log.levels.WARN)
 		return nil
 	end
 
 	-- NOTE::IMPROVEMENT may get overloaded if the file is one long line without
 	-- linebreaks
-	local first_line = vim.api.nvim_buf_get_lines(bufnr, 0, 0, true)
+	local first_line = vim.api.nvim_buf_get_lines(bufnr, 0, 1, true)[1]
+	vim.notify("first_line -> " .. vim.inspect(first_line), vim.log.levels.INFO)
+	assert(first_line, "buffer missing first line")
+	assert(first_line:sub(1, 2) == "#!", "first two characters of first line ARE NOT #!, somehow??")
 	local pattern = M.shebang_pattern()
-  local result = pattern:match(first_line)
-  table.insert(result, 0, result.prog)
-  result.prog = nil
+	local result = pattern:match(first_line)
+	table.insert(result, 1, result.prog)
+	result.prog = nil
 	return result
 end
 
