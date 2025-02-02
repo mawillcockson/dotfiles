@@ -8,12 +8,13 @@
 -- back to a very simple level filter that reduces how much text is printed at
 -- startup, unless -V is used on the command-line
 local original_notify = vim.notify
+
 vim.g.vim_filter_log_level = vim.g.vim_filter_log_level or vim.log.levels.INFO
 vim.notify = function(msg, level, opts)
 	if type(msg) ~= "string" then
 		error("first argument to vim.notify() must be a string, not '" .. type(msg) .. "'", 2)
 	end
-	local level = level ~= nil and level or vim.log.levels.INFO
+	level = level ~= nil and level or vim.log.levels.INFO
 	if type(level) ~= "number" then
 		error("second argument to vim.notify() must be a number, not '" .. type(level) .. "'", 2)
 	end
