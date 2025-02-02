@@ -1,5 +1,6 @@
 -- utility functions that weren't in plenary.nvim (probably for very good reason)
 local M = {}
+M.milliseconds_per_second = 1000
 
 -- Try to figure out if the directory separator should be a forward- or
 -- backslash
@@ -176,11 +177,216 @@ function M.test_shebang_pattern(pattern)
 	local _pattern = pattern or M.shebang_pattern()
 
 	assert(vim.deep_equal(_pattern:match("#!/usr/bin/env mariadb --help"), { prog = "mariadb", "--help" }))
+	assert(vim.deep_equal(_pattern:match("#!/usr/bin/env mariadb"), { prog = "mariadb" }))
+	assert(vim.deep_equal(_pattern:match("#!/usr/bin/envmariadb --help"), { prog = "/usr/bin/envmariadb", "--help" }))
 	assert(vim.deep_equal(_pattern:match("#! mariadb --help"), { prog = "mariadb", "--help" }))
+	assert(vim.deep_equal(_pattern:match("#! mariadb"), { prog = "mariadb" }))
+	assert(vim.deep_equal(_pattern:match("#!mariadb"), { prog = "mariadb" }))
+	assert(vim.deep_equal(_pattern:match("#!mariadb --help"), { prog = "mariadb", "--help" }))
 	assert(vim.deep_equal(_pattern:match("#!/bin/bash -e -u"), { prog = "/bin/bash", "-e", "-u" }))
 	assert(vim.deep_equal(_pattern:match("#!/bin/bash"), { prog = "/bin/bash" }))
-	assert(vim.deep_equal(_pattern:match("#! mariadb"), { prog = "mariadb" }))
-	assert(vim.deep_equal(_pattern:match("#!/usr/bin/env mariadb"), { prog = "mariadb" }))
+end
+
+---creates function for passing to vim.system()
+---@param bufnr integer
+---@return function(error: string, data: string): nil
+function M.make_buffer_writer(bufnr)
+	local bufname = vim.api.nvim_buf_get_name(bufnr)
+	local bufnr_name = "(" .. tostring(bufnr) .. ") " .. tostring(bufname)
+	local notify = vim.schedule_wrap(vim.notify)
+	---write to buffer
+	---@param text string
+	local write_to_buf = function(text)
+		vim.schedule(function()
+			for _, line in ipairs(vim.split(text, "\n", { plain = true })) do
+				local append_result = vim.fn.appendbufline(bufnr, "$", line)
+				assert(append_result == 0, "error writing to buffer " .. bufnr_name)
+			end
+		end)
+	end
+	notify("will be writing to buffer " .. bufnr_name, vim.log.levels.INFO)
+	local leftover = ""
+	---writes input data chunk to buffer
+	---@param error string?
+	---@param data string?
+	return function(error, data)
+		if error then
+			local msg = "error writing to buffer " .. bufnr_name .. ": " .. tostring(error)
+			notify(msg, vim.log.levels.ERROR)
+			error(msg)
+		end
+
+		notify("will be writing data -> " .. tostring(data), vim.log.levels.INFO)
+
+		if data == nil then
+			if #leftover > 0 then
+				write_to_buf(leftover)
+				leftover = ""
+			end
+			return
+		end
+
+		if #leftover + #data <= 0 then
+			notify("no leftover or data for " .. bufnr_name, vim.log.levels.INFO)
+			return
+		end
+		data = table.concat({ leftover, data })
+		notify("all to write -> " .. tostring(data), vim.log.levels.INFO)
+		local has_nl, endi = data:find("\n", 1, true)
+		notify("has_nl -> " .. tostring(has_nl), vim.log.levels.INFO)
+		while has_nl do
+			local up_to_nl = data:sub(1, endi - 1)
+			notify("up_to_nl -> " .. tostring(up_to_nl), vim.log.levels.INFO)
+			assert(endi, "end index was nil")
+			write_to_buf(up_to_nl)
+			data = data:sub(endi)
+			notify("after trimming up to nl -> " .. tostring(data), vim.log.levels.INFO)
+			has_nl, endi = data:find("\n", 1, true)
+			notify("final has_nl -> " .. tostring(has_nl), vim.log.levels.INFO)
+		end
+		leftover = data
+		notify("leftover -> " .. tostring(leftover), vim.log.levels.INFO)
+	end
+end
+
+---closes a buffer in every window in the current tabpage
+---@param bufnr integer
+function M.close_buf_in_tab(bufnr)
+	assert(type(bufnr) == "number", "bufnr must be an integer, as returned from nvim_get_current_buf()")
+
+	local winnrs = vim.tbl_filter(function(winnr)
+		return vim.api.nvim_win_get_buf(winnr) == bufnr
+	end, vim.api.nvim_tabpage_list_wins(0))
+	vim.tbl_map(vim.api.nvim_win_hide, winnrs)
+end
+
+function M.is_buf_visible_in_current_tab(bufnr)
+	return vim.tbl_contains(vim.fn.tabpagebuflist(), bufnr)
+end
+
+---@alias SkipFirstLine
+---| '"always"' # always skip the first line
+---| '"non_default_cmd"' # only skip the first line if starts with a #!
+---| '"default_cmd"' # only skip the first line if it does not start with a #!
+---| '"never"' # never skip the first line
+
+---Returns a function that "executes" the buffer similar to executing a #!
+---script, and writes the output into a scratch buffer as soon as possible
+---@param bufnr integer
+---@param default_cmd function(): string[]
+---@param skip_first_line SkipFirstLine
+---@return {scratch_bufnr: integer?, runner: fun(): nil}
+function M.make_streaming_buf_runner(bufnr, default_cmd, skip_first_line)
+	assert(false, "not implemented")
+	--[=[
+	local writer = M.make_buffer_writer(returns.scratch_bufnr)
+	local systemobj = vim.system(
+		cmd,
+		{ stdin = input, text = true, stdout = writer, stderr = writer, timeout = 3 * M.milliseconds_per_second }
+	)
+	writer(nil, "writing to scratchbuf works")
+	local output = systemobj:wait(3 * M.milliseconds_per_second)
+	if output.code ~= 0 then
+		vim.notify("database error: " .. tostring(output.stderr), vim.log.levels.ERROR, {})
+	end
+	vim.notify("output -> " .. vim.inspect(output), vim.log.levels.INFO)
+  --]=]
+end
+
+---Returns a function that "executes" the buffer similar to executing a #!
+---script, cllects the stderr and stdout, then writes those into a scratch
+---buffer
+---@param bufnr integer
+---@param default_cmd function(): string[]
+---@param skip_first_line SkipFirstLine?
+---@return {scratch_bufnr: integer?, runner: fun(): nil}
+function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
+	if skip_first_line == nil then
+		skip_first_line = "non_default_cmd"
+	end
+
+	local returns = {
+		scratch_bufnr = nil,
+		runner = nil,
+	}
+
+	returns.runner = function()
+		local cmd = M.parse_shebang(bufnr)
+		vim.notify("parse_shebang -> " .. vim.inspect(cmd), vim.log.levels.INFO)
+		local is_default_cmd = false
+		if not cmd then
+			cmd = default_cmd()
+			assert(type(cmd) == "table" and (not vim.tbl_isempty(cmd)), "default command must be a list of strings")
+			is_default_cmd = true
+		end
+		vim.notify("cmd -> " .. vim.inspect(cmd), vim.log.levels.INFO)
+
+		-- NOTE::IMPROVEMENT this should stream
+		-- get the whole file as a table of lines
+		local input = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+
+		vim.notify("input before maybe skip -> " .. vim.inspect(input), vim.log.levels.INFO)
+		vim.notify("skip_first_line -> " .. tostring(skip_first_line), vim.log.levels.INFO)
+		vim.notify("is_default_cmd -> " .. tostring(is_default_cmd), vim.log.levels.INFO)
+		if
+			skip_first_line == "always"
+			or (skip_first_line == "default_cmd" and is_default_cmd)
+			or (skip_first_line == "non_default_cmd" and not is_default_cmd)
+		then
+			-- skip the first line, which that starts with #!, because # may not be a
+			-- comment character for the executable
+			input = vim.list_slice(input, 2, #input)
+		end
+		vim.notify("input after maybe skip -> " .. vim.inspect(input), vim.log.levels.INFO)
+
+		if not returns.scratch_bufnr then
+			returns.scratch_bufnr = vim.api.nvim_create_buf(true, true)
+			assert(returns.scratch_bufnr ~= 0, "error creaing scratch buffer")
+			-- https://vi.stackexchange.com/a/21390
+			vim.api.nvim_set_option_value("buflisted", true, { buf = returns.scratch_bufnr })
+			vim.api.nvim_set_option_value("buftype", "nofile", { buf = returns.scratch_bufnr })
+			vim.api.nvim_set_option_value("bufhidden", "hide", { buf = returns.scratch_bufnr })
+		end
+
+		if not M.is_buf_visible_in_current_tab(returns.scratch_bufnr) then
+			-- :split followed by :buffer
+			vim.cmd.sbuffer(returns.scratch_bufnr)
+		end
+
+		local buf_name = (table.concat(cmd, " ") .. " < " .. vim.fn.fnamemodify(vim.api.nvim_buf_get_name(bufnr), ":."))
+		vim.api.nvim_buf_set_name(returns.scratch_bufnr, buf_name)
+
+		local output = vim.system(cmd, {
+			stdin = input,
+			text = true,
+			timeout = 3 * M.milliseconds_per_second,
+		}):wait(3 * M.milliseconds_per_second)
+		if output.code ~= 0 then
+			vim.notify("database error: " .. tostring(output.stderr), vim.log.levels.ERROR, {})
+		end
+		vim.notify("output -> " .. vim.inspect(output), vim.log.levels.INFO)
+		local combined = vim.iter({ output.stderr, output.stdout })
+			:filter(function(e)
+				return e ~= ""
+			end)
+			:map(function(e)
+				return vim.split(e, "\n", { plain = true })
+			end)
+			:flatten()
+		while combined:rpeek() == "\n" or combined:rpeek() == "" do
+			combined = combined:rskip(1)
+		end
+		for i, line in ipairs(combined:totable()) do
+			if i == 1 then
+				vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, { line })
+			else
+				local append_result = vim.fn.appendbufline(returns.scratch_bufnr, "$", line)
+				assert(append_result == 0, "error writing to buffer " .. buf_name)
+			end
+		end
+	end
+
+	return returns
 end
 
 return M
