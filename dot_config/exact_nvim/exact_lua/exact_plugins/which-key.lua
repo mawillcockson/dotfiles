@@ -72,6 +72,7 @@ return {
 			-- Disable in favor of TJ Devries' use of C-y
 			-- I never remember it anyways
 			-- {"<C-y>", "<Cmd>%y+<CR>", desc = "copy whole file" },
+			{ "<leader>yy", "<Cmd>%y+<CR>", desc = "copy whole buffer into system clipboard" },
 
 			{
 				"<C-^>",
