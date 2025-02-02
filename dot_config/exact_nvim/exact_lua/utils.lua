@@ -376,7 +376,13 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
 		while combined:rpeek() == "\n" or combined:rpeek() == "" do
 			combined = combined:rskip(1)
 		end
+		-- may be nil
 		local first_line = combined:next()
+		-- If first_line is nil, then table is empty, and the whole buffer is
+		-- replaced with nothing; and the following loop doesn't run.
+		-- If first_line is not nil, then the whole buffer is replaced with
+		-- first_line. If there's any more lines, they're appended one after
+		-- another.
 		vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, { first_line })
 		for _, line in ipairs(combined:totable()) do
 			local append_result = vim.fn.appendbufline(returns.scratch_bufnr, "$", line)
