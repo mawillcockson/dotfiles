@@ -901,9 +901,11 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         save -f $tmpfile
 
         sudo cp $tmpfile /etc/apt/sources.list.d/zabbly-incus-stable.sources
+        ^sudo chmod u=rw,g=r,o=r /etc/apt/sources.list.d/zabbly-incus-stable.sources
 
         log info 'Configure APT to prioritize packages from the zabbly repository'
         sudo cp $'($dotfiles)/debian/etc/apt/preferences.d/zabbly' /etc/apt/preferences.d/zabbly
+        ^sudo chmod u=rw,g=r,o=r /etc/apt/preferences.d/zabbly
 
         rm $tmpfile
 
