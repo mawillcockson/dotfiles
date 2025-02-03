@@ -1,0 +1,7 @@
+# https://www.postgresql.org/download/linux/debian/
+# https://wiki.postgresql.org/wiki/Apt
+Types: deb deb-src
+URIs: https://apt.postgresql.org/pub/repos/apt
+Suites: replace-with-something-like-bookworm-pgdg
+Components: main
+signed-by: /etc/apt/keyrings/apt.postgresql.org.asc

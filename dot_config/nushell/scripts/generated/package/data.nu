@@ -383,7 +383,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     simple-add "pandoc" {"windows": {"scoop": "pandoc"}} --tags [small, rarely] --reasons ["really good at converting one document format to another"] |
     simple-add "peazip" {"windows": {"scoop": "peazip"}} --tags [want] --reasons ["much nicer interface than 7zip, can do all the same stuff"] |
     simple-add "picard" {"windows": {"scoop": "picard"}} --search-help [musicbrainz] --tags [large, rarely, music] --reasons ["makes organizing and tagging songs, and wrangling metadata, much easier"] |
-    simple-add "postgresql" {"windows": {"scoop": "postgresql"}} --tags [large, rarely] |
     simple-add "pwsh" {"windows": {"scoop": "pwsh"}} --tags [want, rarely] --reasons ["better powershell"] |
     simple-add "rclone" {"windows": {"scoop": "rclone"}, "linux": {"eget": "rclone/rclone"}} --tags [small, rarely, want] --reasons ["makes copying files between the cloud and locally much, much easier"] |
     simple-add "ripgrep" {"windows": {"scoop": "ripgrep"}, "linux": {"eget": "BurntSushi/ripgrep"}} --search-help [rg] --tags [small, want] --reasons ["cross-platform, faster grep"] |
@@ -968,5 +967,71 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     simple-add "uni" {"windows": {"eget": "arp242/uni"}, "linux": {"eget": "arp242/uni"}} --tags [small, unicode, emoji] --reasons ["searches through the unicode database, using names for the emoji that I like, plus it's cross-platform, so I only have to learn one set of names"] --links ["https://github.com/arp242/uni/"] |
     simple-add "bottom" {"windows": {"scoop": "bottom"}, "linux": {"eget": "ClementTsang/bottom"}} --search-help [htop] --tags [small, top] --reasons ["displays detailed system monitor-style info in the terminal"] --links ["https://github.com/ClementTsang/bottom"] |
     simple-add "cargo-binstall" {"windows": {"eget": "cargo-bins/cargo-binstall"}} --tags [small, cargo, rust, "package manager"] --reasons ["tries to download the artefact from the official github repository for the project, then from this 3rd-party binary building service, and falls back to `cargo install`"] --links ["https://github.com/cargo-bins/cargo-binstall"] |
+    simple-add "postgresql" {"windows": {"scoop": "postgresql"}, "linux": {"custom": {|install: closure|
+        use std/log
+        use utils.nu ["package check-installed dpkg"]
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        do $install 'apt-get'
+        do $install 'gnupg'
+        do $apt_get 'mawk'
+        do $apt_get 'lsb-release'
+
+        # https://www.postgresql.org/download/linux/debian/
+        # https://wiki.postgresql.org/wiki/Apt
+        log info "Create a directory to store APT repository keys if it doesn't exist"
+        ^sudo install -d -m 0755 /etc/apt/keyrings
+
+        log info "Import the PostgreSQL APT repository signing key"
+        let tmpfile = (mktemp)
+        http get 'https://www.postgresql.org/media/keys/ACCC4CF8.asc' | save -f $tmpfile
+
+        log info 'check fingerprint'
+        ^gpg -n -q --import --import-options import-show $tmpfile |
+        ^awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
+        # NOTE::BUG the above doesn't stop the installation on failure
+
+        let target = '/etc/apt/keyrings/apt.postgresql.org.asc'
+        ^sudo cp $tmpfile $target
+        ^sudo chown root:root $target
+        ^sudo chmod u=rw,g=r,o=r $target
+        rm $tmpfile
+
+        log info 'Next, add the PostgreSQL APT repository to your sources list'
+        let dotfiles = (
+            ^chezmoi dump-config --format=json |
+            from json |
+            get 'workingTree' |
+            path expand --strict
+        )
+        let tmpfile = (mktemp)
+        let codename = (^lsb_release -cs | str trim)
+        open $'($dotfiles)/debian/etc/apt/sources.list.d/postgres.sources' |
+        str replace --all 'replace-with-something-like-bookworm-pgdg' $'($codename)-pgdg' |
+        save -f $tmpfile
+        let target = '/etc/apt/sources.list.d/postgres.sources'
+        ^sudo cp $tmpfile $target
+        ^sudo chown root:root $target
+        ^sudo chmod u=rw,g=r,o=r $target
+        rm $tmpfile
+
+        log info 'Configure APT to prioritize packages from the PostgreSQL repository'
+        let source = $'($dotfiles)/debian/etc/apt/preferences.d/postgresql'
+        let target = '/etc/apt/preferences.d/postgresql'
+        sudo cp $source $target
+        ^sudo chown root:root $target
+        ^sudo chmod u=rw,g=r,o=r $target
+
+        log info 'Update your package list and install the PostgreSQL .deb package'
+        ^sudo apt-get update --assume-yes
+        #do $apt_get 'postgresql'
+        log info "in order to install one of these postgres versions, use something like 'apt install -t bookworm-pgdg postgresql'"
+    }}} --tags [rarely, medium] --reasons ["beloved relational database system"] |
     validate-data
 }
