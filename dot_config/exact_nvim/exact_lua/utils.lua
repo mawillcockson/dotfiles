@@ -266,7 +266,14 @@ end
 ---closes a buffer in every window in the current tabpage
 ---@param bufnr integer
 function M.close_buf_in_tab(bufnr)
-	assert(type(bufnr) == "number", "bufnr must be an integer, as returned from nvim_get_current_buf()")
+	assert(
+		type(bufnr) == "number",
+		"bufnr must be an integer, as returned from nvim_get_current_buf(), not "
+			.. type(bufnr)
+			.. " ("
+			.. tostring(bufnr)
+			.. ")"
+	)
 
 	local winnrs = vim.tbl_filter(function(winnr)
 		return vim.api.nvim_win_get_buf(winnr) == bufnr
