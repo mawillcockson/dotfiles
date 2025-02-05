@@ -31,7 +31,7 @@ return {
 			json = { "jq" },
 			sh = { "shfmt", "shellcheck" },
 			nu = { "nufmt" },
-			sql = { "sqlfluff" },
+			sql = { "sql_formatter" },
 			zig = { "zigfmt" },
 			elm = { "elm_format" },
 			dart = { "dart_format" },
@@ -40,8 +40,32 @@ return {
 			javascript = { "prettier" },
 		},
 	},
-	config = function(name, opts)
-		require("conform").setup(opts)
+	config = function(_, opts)
+		local conform = require("conform")
+		conform.setup(opts)
 		vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+
+		local utils = require("utils")
+		local default_options = {
+			keywordCase = "upper",
+			dataTypeCase = "lower",
+		}
+		local executable_to_lang = {
+			psql = "postgresql",
+			mariadb = "mariadb",
+			sqlite = "sqlite",
+		}
+		conform.formatters.sql_formatter = function(bufnr)
+			local shebang = utils.parse_shebang(bufnr, "--#!")
+			local executable = nil
+			if shebang == nil then
+				executable = "sqlite"
+			end
+			local dialect = executable_to_lang[executable]
+			local options = vim.tbl_extend("keep", { dialect = dialect }, default_options)
+			return {
+				args = { "--config", vim.json.encode(options) },
+			}
+		end
 	end,
 }
