@@ -130,10 +130,16 @@ end
 
 ---Return the executable for the program using my preferences
 ---@param bufnr integer
+---@param shebang string?
 ---@return string[]?
-function M.parse_shebang(bufnr)
-	if vim.api.nvim_buf_get_text(bufnr, 0, 0, 0, 2, {})[1] ~= "#!" then
-		vim.notify("shebang not found in " .. vim.api.nvim_buf_get_name(bufnr), vim.log.levels.WARN)
+function M.parse_shebang(bufnr, shebang)
+	if shebang == nil then
+		shebang = "#!"
+	end
+	shebang = tostring(shebang)
+
+	if vim.api.nvim_buf_get_text(bufnr, 0, 0, 0, #shebang, {})[1] ~= shebang then
+		vim.notify("shebang (" .. shebang .. ") not found in " .. vim.api.nvim_buf_get_name(bufnr), vim.log.levels.WARN)
 		return nil
 	end
 
@@ -142,8 +148,11 @@ function M.parse_shebang(bufnr)
 	local first_line = vim.api.nvim_buf_get_lines(bufnr, 0, 1, true)[1]
 	vim.notify("first_line -> " .. vim.inspect(first_line), vim.log.levels.DEBUG)
 	assert(first_line, "buffer missing first line")
-	assert(first_line:sub(1, 2) == "#!", "first two characters of first line ARE NOT #!, somehow??")
-	local pattern = M.shebang_pattern()
+	assert(
+		first_line:sub(1, #shebang) == shebang,
+		"first two characters of first line ARE NOT " .. shebang .. ", somehow??"
+	)
+	local pattern = M.shebang_pattern(shebang)
 	local result = pattern:match(first_line)
 	table.insert(result, 1, result.prog)
 	result.prog = nil
@@ -151,8 +160,13 @@ function M.parse_shebang(bufnr)
 end
 
 ---Make an LPeg pattern to parse shebang lines using my preferences
+---@param shebang string?
 ---@return vim.lpeg.Pattern
-function M.shebang_pattern()
+function M.shebang_pattern(shebang)
+	if shebang == nil then
+		shebang = "#!"
+	end
+
 	local locale = vim.lpeg.locale()
 	local C = vim.lpeg.C
 	local Cg = vim.lpeg.Cg
@@ -168,7 +182,7 @@ function M.shebang_pattern()
 	local arg = C(word)
 	local line_end = (space ^ 0) * (nl ^ 0)
 
-	return P("#!") * ((P("/usr/bin/env") * space) ^ -1) * sspace * Ct(prog * ((space * arg) ^ 0)) * line_end
+	return P(shebang) * ((P("/usr/bin/env") * space) ^ -1) * sspace * Ct(prog * ((space * arg) ^ 0)) * line_end
 end
 
 ---Tests the shebang pattern
@@ -299,10 +313,15 @@ end
 ---@param bufnr integer
 ---@param default_cmd function(): string[]
 ---@param skip_first_line SkipFirstLine?
+---@param shebang string?
 ---@return {scratch_bufnr: integer?, runner: fun(): nil}
-function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
+function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line, shebang)
 	if skip_first_line == nil then
 		skip_first_line = "non_default_cmd"
+	end
+
+	if shebang == nil then
+		shebang = "#!"
 	end
 
 	local returns = {
@@ -311,7 +330,7 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line)
 	}
 
 	returns.runner = function()
-		local cmd = M.parse_shebang(bufnr)
+		local cmd = M.parse_shebang(bufnr, shebang)
 		vim.notify("parse_shebang -> " .. vim.inspect(cmd), vim.log.levels.DEBUG)
 		local is_default_cmd = false
 		if not cmd then
