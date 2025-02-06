@@ -403,18 +403,18 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line, shebang)
 			combined = combined:rskip(1)
 		end
 		local buflines = vim.api.nvim_buf_line_count(returns.scratch_bufnr)
-		vim.notify("buflines -> " .. tostring(buflines), vim.log.levels.INFO)
+		vim.notify("buflines -> " .. tostring(buflines), vim.log.levels.DEBUG)
 		-- may be nil
 		local last_i = 0
 		for i, line in combined:enumerate() do
-			vim.notify("i -> " .. tostring(i), vim.log.levels.INFO)
+			vim.notify("i -> " .. tostring(i), vim.log.levels.DEBUG)
 			last_i = i
-			vim.notify("setting line " .. tostring(i - 1), vim.log.levels.INFO)
+			vim.notify("setting line " .. tostring(i - 1), vim.log.levels.DEBUG)
 			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 1, i, false, { line })
 		end
 		-- if output was shorter than file, truncate rest of file
 		if last_i < buflines then
-			vim.notify("truncating buffer from " .. tostring(last_i) .. " to -1", vim.log.levels.INFO)
+			vim.notify("truncating buffer from " .. tostring(last_i) .. " to -1", vim.log.levels.DEBUG)
 			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, last_i, -1, true, {})
 		end
 	end
