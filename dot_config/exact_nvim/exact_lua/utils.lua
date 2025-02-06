@@ -402,17 +402,37 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line, shebang)
 		while combined:rpeek() == "\n" or combined:rpeek() == "" do
 			combined = combined:rskip(1)
 		end
+		local buflines = vim.api.nvim_buf_line_count(returns.scratch_bufnr)
+		vim.notify("buflines -> " .. tostring(buflines), vim.log.levels.INFO)
 		-- may be nil
 		local first_line = combined:next()
-		-- If first_line is nil, then table is empty, and the whole buffer is
-		-- replaced with nothing; and the following loop doesn't run.
-		-- If first_line is not nil, then the whole buffer is replaced with
-		-- first_line. If there's any more lines, they're appended one after
-		-- another.
-		vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, { first_line })
-		for _, line in ipairs(combined:totable()) do
-			local append_result = vim.fn.appendbufline(returns.scratch_bufnr, "$", line)
-			assert(append_result == 0, "error writing to buffer " .. buf_name)
+		if first_line == nil then
+			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, { first_line })
+			return
+		else
+			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, 1, true, { first_line })
+		end
+		-- vim.iter() keeps track of how many objects have been emitted, and so the
+		-- first `i` out of `:enumerate()` will be 2
+		for i, line in combined:enumerate() do
+			vim.notify("in loop i -> " .. tostring(i), vim.log.levels.INFO)
+			if i - 1 > buflines then
+				vim.notify("setting rest of lines", vim.log.levels.INFO)
+				local rest_of_lines = combined
+					:map(function(_, line_)
+						return line_
+					end)
+					:totable()
+				pcall(combined.last, combined) -- drain iterator
+				vim.notify("rest_of_lines -> " .. vim.inspect(rest_of_lines), vim.log.levels.INFO)
+				if rest_of_lines ~= nil then
+					local append_result =
+						vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 2, -1, false, rest_of_lines)
+					assert(append_result == 0, "error writing to buffer " .. buf_name)
+				end
+			else
+				vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 2, i - 1, true, { line })
+			end
 		end
 	end
 
