@@ -414,25 +414,14 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line, shebang)
 		end
 		-- vim.iter() keeps track of how many objects have been emitted, and so the
 		-- first `i` out of `:enumerate()` will be 2
+		local last_i = 0
 		for i, line in combined:enumerate() do
-			vim.notify("in loop i -> " .. tostring(i), vim.log.levels.INFO)
-			if i - 1 > buflines then
-				vim.notify("setting rest of lines", vim.log.levels.INFO)
-				local rest_of_lines = combined
-					:map(function(_, line_)
-						return line_
-					end)
-					:totable()
-				pcall(combined.last, combined) -- drain iterator
-				vim.notify("rest_of_lines -> " .. vim.inspect(rest_of_lines), vim.log.levels.INFO)
-				if rest_of_lines ~= nil then
-					local append_result =
-						vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 2, -1, false, rest_of_lines)
-					assert(append_result == 0, "error writing to buffer " .. buf_name)
-				end
-			else
-				vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 2, i - 1, true, { line })
-			end
+			last_i = i
+			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 2, i - 1, false, { line })
+		end
+		-- if output was shorter than file, truncate rest of file
+		if last_i - 1 < buflines then
+			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, last_i - 1, -1, true, {})
 		end
 	end
 
