@@ -58,11 +58,20 @@ return {
 		conform.formatters.sql_formatter = function(bufnr)
 			local shebang = utils.parse_shebang(bufnr, "--#!")
 			local executable = nil
-			if shebang == nil then
+			if shebang == nil or #shebang < 1 then
 				executable = "sqlite"
+			else
+				executable = shebang[1]
 			end
 			local dialect = executable_to_lang[executable]
 			local options = vim.tbl_extend("keep", { dialect = dialect }, default_options)
+			vim.notify(
+				"for buffer '"
+					.. tostring(vim.api.nvim_buf_get_name(bufnr))
+					.. "' using options -> "
+					.. vim.inspect(options),
+				vim.log.levels.DEBUG
+			)
 			return {
 				args = { "--config", vim.json.encode(options) },
 			}
