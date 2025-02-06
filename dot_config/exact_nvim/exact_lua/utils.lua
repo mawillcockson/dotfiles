@@ -405,23 +405,17 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line, shebang)
 		local buflines = vim.api.nvim_buf_line_count(returns.scratch_bufnr)
 		vim.notify("buflines -> " .. tostring(buflines), vim.log.levels.INFO)
 		-- may be nil
-		local first_line = combined:next()
-		if first_line == nil then
-			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, -1, true, { first_line })
-			return
-		else
-			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, 0, 1, true, { first_line })
-		end
-		-- vim.iter() keeps track of how many objects have been emitted, and so the
-		-- first `i` out of `:enumerate()` will be 2
 		local last_i = 0
 		for i, line in combined:enumerate() do
+			vim.notify("i -> " .. tostring(i), vim.log.levels.INFO)
 			last_i = i
-			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 2, i - 1, false, { line })
+			vim.notify("setting line " .. tostring(i - 1), vim.log.levels.INFO)
+			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, i - 1, i, false, { line })
 		end
 		-- if output was shorter than file, truncate rest of file
-		if last_i - 1 < buflines then
-			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, last_i - 1, -1, true, {})
+		if last_i < buflines then
+			vim.notify("truncating buffer from " .. tostring(last_i) .. " to -1", vim.log.levels.INFO)
+			vim.api.nvim_buf_set_lines(returns.scratch_bufnr, last_i, -1, true, {})
 		end
 	end
 
