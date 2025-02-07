@@ -21,7 +21,7 @@ local function default_cmd()
 	return cmd
 end
 
-local executor = utils.make_simple_buf_runner(this_bufnr, default_cmd, "always", "#!")
+local executor = utils.make_simple_buf_runner(this_bufnr, default_cmd, "never", "#!")
 
 local keys = {
 	open = "<leader>rr",
