@@ -4,7 +4,7 @@ if (which atuin | is-not-empty) {
     # pressed in other shells, but can't in nu
     # https://github.com/atuinsh/atuin/issues/1392
     # this disables atuin filling in for the up arrow
-    ^atuin init --disable-up-arrow nu | save -f ($autoload | path join '52_generated_atuin_setup.nu')
+    ^atuin init --disable-up-arrow nu | save -f ($autoload | path join '52_atuin_generated_setup.nu')
 } else {
     use std/log
     log warning 'atuin executable not found'
