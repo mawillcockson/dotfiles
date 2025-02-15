@@ -42,23 +42,15 @@ let sbins = (
     filter {path exists}
 )
 
-$env.PATH = (
-    $env
-    # NOTE::IMPROVEMENT I would like caseinsensitive environment variables
-    | get PATH? Path?
-    | first
-    | if ($in | describe | str replace --regex '<.*' '') == 'string' {
-        $in | split row (char env_sep)
-    } else {$in}
-    | append ($env.EGET_BIN)
-    | if ('C:\Exercism' | path exists) {append 'C:\Exercism'} else {$in}
-    | append $zint_dir
-    | append $atuin_dir
-    | append $cargo_dir
-    | append $sbins
-    | uniq
-    | path expand
-)
+use light-utils.nu ["path add"]
+
+path add ...([
+    ($env.EGET_BIN),
+    (if ('C:\Exercism' | path exists) {'C:\Exercism'} else {null}),
+    $zint_dir,
+    $atuin_dir,
+    $cargo_dir,
+] | append $sbins)
 
 if (which fnm | is-not-empty) {
   try {
