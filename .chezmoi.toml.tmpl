@@ -36,7 +36,7 @@ github_username = 'mawillcockson'
 git_name = 'Matthew W'
 git_email = 'matthew@willcockson.family'
 git_signingKey = 'EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115'
-minimum_nu_version = { major = 0, minor = 97, patch = 1 }
+minimum_nu_version = { major = 0, minor = 102, patch = 0 }
 set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide (y/n)" false | toToml }}
 run_setup = {{ promptBoolOnce . "run_setup" "Would you like to run the system-wide setup (y/n)" true | toToml }}
 relBootstrapDir = {{ $relBootstrapDir | toToml }}
