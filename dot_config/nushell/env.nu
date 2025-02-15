@@ -1,7 +1,6 @@
 use consts.nu [
     nu_log_format,
     nu_log_date_format,
-    preconfig,
 ]
 
 # NOTE::BUG These three don't seem to be set in the resulting interactive environment
@@ -66,12 +65,3 @@ do {
     use pyenv_setup.nu
     pyenv_setup
 } | load-env
-
-# generate stuff that can then be sourced in config.nu
-# this is done like this so that the correct directories can be created in
-# preconfig.nu and then sourced in postconfig.nu, and so that variables defined
-# here have already taken effect for nu
-source $preconfig
-#if ($preconfig | path exists) {
-#    nu $preconfig
-#}

@@ -1,10 +1,3 @@
-use consts.nu [postconfig]
-
-# because this is a parser directive, it can't be guarded with `if path
-# exists`: if it exists, it'll be sourced, and if it doesn't, the whole file
-# can't be read
-source $postconfig
-
 let banner_once = r#'
     my-banner
     $env.config.hooks.pre_prompt = (
