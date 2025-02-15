@@ -1,4 +1,4 @@
-export def --env main [] {
+export def main [] {
     {
         'global': {
             'target': ($env.EGET_BIN),
