@@ -26,10 +26,6 @@ $env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
 # make the directory here so that an non-existent directory isn't removed from
 # any $PATHs
 mkdir $env.EGET_BIN
-do {
-    use eget_setup.nu
-    eget_setup
-}
 
 let zint_dir = ($env.HOME | path join 'apps' 'zint')
 let atuin_dir = ($env.HOME | path join '.atuin' 'bin')

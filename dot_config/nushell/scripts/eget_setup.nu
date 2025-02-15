@@ -1,4 +1,4 @@
-export def main [] {
+export def main []: nothing -> nothing {
     {
         'global': {
             'target': ($env.EGET_BIN),
@@ -34,9 +34,10 @@ export def main [] {
     } |
     to toml |
     prepend [
-        '# this file is auto-generated in eget_setup.nu, called from env.nu',
+        $'# this file is auto-generated in ($env | get CURRENT_FILE? | default 'eget_setup.nu')',
         '',
     ] |
     str join "\n" |
-    save -f $env.EGET_CONFIG
+    save -f $env.EGET_CONFIG |
+    null
 }
