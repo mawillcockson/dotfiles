@@ -64,8 +64,10 @@ $env.PATH = if ('FNM_MULTISHELL_PATH' in $env) {
 } else {$env.PATH}
 
 
-use pyenv_setup.nu
-pyenv_setup
+do {
+    use pyenv_setup.nu
+    pyenv_setup
+} | load-env
 
 # generate stuff that can then be sourced in config.nu
 # this is done like this so that the correct directories can be created in
