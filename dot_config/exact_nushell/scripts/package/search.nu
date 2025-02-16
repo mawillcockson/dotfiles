@@ -1,39 +1,48 @@
 use package/data
 
-# helper function to make filtering package data easier
+# helper function for scripts to make filtering package data slightly easier
+export def exact [
+    name: string
+]: [
+    record -> record
+    nothing -> record
+] {
+    (
+        default (data load-data)
+        | get $name
+        | insert name $name
+        | move --before install name
+    )
+}
+
+# helper function for human to make searching package data easier
 export def main [
     # the search term
     name: string,
-    # name is treated as text and must match exactly
-    --exact,
+]: [
+    record -> list<record>
+    nothing -> list<record>
 ] {
-    let package_data = default (data load-data)
-    if $exact {
-        $package_data |
-        get ([($name)] | into cell-path) |
+    default (data load-data) |
+    transpose name data | filter {|it|
+    (
+        ($name in $it.name)
+        or
+        ($it.data.search_help | any {|e| $name in $e})
+        or
+        ($it.data.tags | any {|e| $name in $e})
+        or
+        ($it.data.links | any {|e| $name in $e})
+        or
+        ($it.data.reasons | any {|e| $name in $e})
+    )} | (
+        # NOTE::IMPROVEMENT
+        # may be able to replace this with `into record`
+        transpose --header-row --as-record
+    ) |
+    items {|name,rec|
+        $rec |
         insert name $name |
         move --before install name
-    } else {
-        $package_data | transpose name data | filter {|it|
-        (
-            ($name in $it.name)
-            or
-            ($it.data.search_help | any {|e| $name in $e})
-            or
-            ($it.data.tags | any {|e| $name in $e})
-            or
-            ($it.data.links | any {|e| $name in $e})
-            or
-            ($it.data.reasons | any {|e| $name in $e})
-        )} | (
-            # NOTE::IMPROVEMENT
-            # may be able to replace this with `into record`
-            transpose --header-row --as-record
-        ) |
-        items {|name,rec|
-            $rec |
-            insert name $name |
-            move --before install name
-        }
     }
 }
