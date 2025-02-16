@@ -6,8 +6,10 @@ export const version_info = {
     patch: ($version_value.patch),
 }
 export const platform = ($nu.os-info.name)
-export const preconfig = $'($nu.default-config-dir)/preconfig.nu'
-export const scripts = $'($nu.default-config-dir)/scripts'
+export const scripts = ($nu.default-config-dir | path join scripts)
+export const autoload = ($nu.default-config-dir | path join autoload)
+
+export const preconfig = '($nu.default-config-dir)/preconfig.nu'
 export const generated = $'($scripts)/generated'
 export const postconfig = $'($generated)/postconfig.nu'
 export const version_file = $'($generated)/version.nuon'
