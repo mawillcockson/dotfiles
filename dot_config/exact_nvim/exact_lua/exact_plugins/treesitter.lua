@@ -43,6 +43,10 @@ return {
 		-- When a new version of the plugin is released, rebuild the included parsers:
 		-- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
 		build = ":TSUpdateSync",
+    dependencies = {
+      -- additional parsers
+      { "nushell/tree-sitter-nu" },
+    },
 		config = function()
 			local configs = require("nvim-treesitter.configs")
 
@@ -69,7 +73,4 @@ return {
 			})
 		end,
 	},
-
-	-- additional parsers
-	{ "nushell/tree-sitter-nu" },
 }
