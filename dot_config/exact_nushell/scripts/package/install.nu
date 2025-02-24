@@ -63,7 +63,7 @@ export def main [
 
     log debug $"before rejecting customs:\n($methods | table -e)"
     let method = (
-        if ($methods.manager has 'custom') {
+        if ($methods.manager has 'custom' and ($methods | where manager != custom | is-not-empty)) {
             $methods | where manager != custom
         } else {
             $methods
