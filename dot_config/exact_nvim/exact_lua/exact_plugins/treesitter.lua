@@ -4,25 +4,25 @@
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/install.lua#L19
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/shell_command_selectors.lua#L74-L80
 
-local default_compilers = { vim.fn.getenv("CC"), "cc", "gcc", "clang", "cl", "zig" }
+local default_compilers = { vim.fn.getenv "CC", "cc", "gcc", "clang", "cl", "zig" }
 
 ---@return bool|nil
 local has_compiler = vim.tbl_filter(function(c) ---@param c string
-	return c ~= vim.NIL and vim.fn.executable(c) == 1
+  return c ~= vim.NIL and vim.fn.executable(c) == 1
 end, default_compilers)[1]
 
-local has_tree_sitter = vim.fn.executable("tree-sitter") == 1
+local has_tree_sitter = vim.fn.executable "tree-sitter" == 1
 
 vim.notify(
-	"has_compiler -> " .. tostring(has_compiler) .. "\n" .. "has tree-sitter -> " .. tostring(has_tree_sitter),
-	vim.log.levels.DEBUG,
-	{}
+  "has_compiler -> " .. tostring(has_compiler) .. "\n" .. "has tree-sitter -> " .. tostring(has_tree_sitter),
+  vim.log.levels.DEBUG,
+  {}
 )
-vim.notify("$PATH -> " .. os.getenv("PATH"), vim.log.levels.DEBUG)
+vim.notify("$PATH -> " .. os.getenv "PATH", vim.log.levels.DEBUG)
 
 local enable = has_compiler and has_tree_sitter
 if not enable then
-	vim.notify("disabling tree-sitter since compiler and tree-sitter-cli aren't both present", vim.log.levels.WARN)
+  vim.notify("disabling tree-sitter since compiler and tree-sitter-cli aren't both present", vim.log.levels.WARN)
 end
 
 -- NOTE: so far, the MSVC compiler hasn't been working, while the zig compiler
@@ -34,31 +34,31 @@ end
 -- Also, the lua parser has some errors, so has to be :TSInstall-ed, forcing a re-install. Additionally, this can be used to install parsers at a later time:
 -- :lua for _,k in ipairs{"python", "markdown", "javascript"} do vim.cmd(":TSInstall "..k) end
 return {
-	{
-		"nvim-treesitter/nvim-treesitter",
-		enabled = enable,
+  {
+    "nvim-treesitter/nvim-treesitter",
+    enabled = enable,
     -- NOTE::FUTURE temporarily use the latest version until a new release is
     -- cut that contains the tracking for nushell
     --version = "*",
-		-- When a new version of the plugin is released, rebuild the included parsers:
-		-- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
-		build = ":TSUpdateSync",
+    -- When a new version of the plugin is released, rebuild the included parsers:
+    -- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
+    build = ":TSUpdateSync",
     dependencies = {
       -- additional parsers
       { "nushell/tree-sitter-nu" },
     },
-		config = function()
-			local configs = require("nvim-treesitter.configs")
+    config = function()
+      local configs = require "nvim-treesitter.configs"
 
-			configs.setup({
-				ensure_installed = {
-					-- NOTE: need better automatic installation
-					-- NOTE: commented out languages have either broken parsers, or don't
-					-- have automatically included parsers:
-					-- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
+      configs.setup {
+        ensure_installed = {
+          -- NOTE: need better automatic installation
+          -- NOTE: commented out languages have either broken parsers, or don't
+          -- have automatically included parsers:
+          -- https://github.com/nvim-treesitter/nvim-treesitter/tree/v0.9.2#adding-parsers
 
-					--"python", --"markdown", "javascript", "clojure", "html", "css", "scss",
-					--[==[
+          --"python", --"markdown", "javascript", "clojure", "html", "css", "scss",
+          --[==[
           -- commonly used
           --[["lua",]] "python", "markdown",
           -- less common
@@ -66,11 +66,11 @@ return {
           -- uncommon/hopeful
           "javascript", "scss", "rust", "clojure", --[["csharp",]] "haskell",
           --]==]
-				},
-				sync_install = true,
-				highlight = { enable = true },
-				indent = { enable = true },
-			})
-		end,
-	},
+        },
+        sync_install = true,
+        highlight = { enable = true },
+        indent = { enable = true },
+      }
+    end,
+  },
 }
