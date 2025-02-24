@@ -37,7 +37,9 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		enabled = enable,
-		version = "*",
+    -- NOTE::FUTURE temporarily use the latest version until a new release is
+    -- cut that contains the tracking for nushell
+    --version = "*",
 		-- When a new version of the plugin is released, rebuild the included parsers:
 		-- https://github.com/nvim-treesitter/nvim-treesitter/wiki/Installation#lazynvim
 		build = ":TSUpdateSync",
