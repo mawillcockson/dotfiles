@@ -1,12 +1,5 @@
-let banner_once = r#'
-    my-banner
-    $env.config.hooks.pre_prompt = (
-        $env.config.hooks.pre_prompt |
-        filter {|it| $it != {code: $banner_once} }
-    )
-'# #'
-
 # $env.NU_LOG_LEVEL = 'debug'
+
 let tmux_command = if (which 'tmux' | is-not-empty) and ('TMUX' not-in $env) {
     let has_session = ((^tmux has-session | complete | get exit_code) == 0)
 
@@ -60,12 +53,9 @@ $env.config.buffer_editor = (
 # I like vi keybindings
 $env.config.edit_mode = 'vi'
 
-# I have my own banner :)
-$env.config.show_banner = false
+# I have my own banner in an autoload :)
+$env.config.show_banner = "short"
 
-$env.config.hooks.pre_prompt ++= [
-    {code: ($banner_once)},
-]
 $env.config.hooks.pre_execution ++= [
     {code: ($remove_tmux_helpers)},
 ]
