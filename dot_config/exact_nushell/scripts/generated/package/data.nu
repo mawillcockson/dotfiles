@@ -235,7 +235,60 @@ export def "package-data-load-data" [] {
         log info 'refreshing fontconfig cache'
         fc-cache -fv
     }}} --tags [want, fonts] |
-    simple-add "duckdb" {"windows": {"scoop": "duckdb"}} --tags [small, undecided] --reasons ["cool database engine in same space as SQLite, but under really cool, active development by academics, with really cool features"] |
+    simple-add "duckdb" {"windows": {"scoop": "duckdb"}, "linux": {"custom": {|install: closure|
+        use std/log
+
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get apt-get
+        )
+
+        log info 'installing gzip'
+        do $apt_get 'gzip'
+
+        let installation_path = ($env.EGET_BIN | path join 'duckdb')
+        log info $'installing duckdb to ($installation_path)'
+
+        let releases = (
+            http get --max-time 3sec https://duckdb.org/data/duckdb-releases.csv
+            | into datetime release_date
+        )
+        let latest = ($releases | sort-by --reverse release_date | first | into record)
+        let dist = (
+            match (uname | get machine) {
+                'x86_64' | 'amd64' => 'linux-amd64',
+                'aarch64' | 'arm64' => 'linux-aarch64',
+                _ => {
+                    return (error make {
+                        msg: $'unsupported machine architecture -> (uname | get machine)',
+                    })
+                },
+            }
+        )
+        log info $'grabbing duckdb v($latest.version_number) for ($dist)'
+
+        let url = $'https://github.com/duckdb/duckdb/releases/download/v($latest.version_number)/duckdb_cli-($dist).gz'
+        let tmpfile = (mktemp)
+        log info $'using ($tmpfile | to nuon) as tmpfile'
+        log info 'downloading duckdb executable archive'
+        http get --max-time 10sec $url | save -f $tmpfile
+        log info 'unpacking archive'
+        ^gunzip --stdout --no-name | save -f $installation_path
+        log info 'setting executable bit'
+        ^chmod +x $installation_path
+
+        # test command from duckdb installation script
+        if (run-external $installation_path ...[-noheader -init /dev/null -csv -batch -s "SELECT 2*3*7"]) != '42' {
+            log error 'error when testing installed duckdb executable'
+            return false
+        }
+
+        log info 'removing temporary file'
+        rm $tmpfile
+    }, "eget": "duckdb/duckdb"}} --tags [small, undecided] --reasons ["cool database engine in same space as SQLite, but under active development with really cool features"] |
     simple-add "eget" {"windows": {"scoop": "eget"}, "android": {"custom": {|install: closure|
         let asset = (
             http get --max-time 3sec 'https://api.github.com/repos/zyedidia/eget/releases/latest' |

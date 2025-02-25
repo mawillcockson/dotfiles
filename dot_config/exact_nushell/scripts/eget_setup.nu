@@ -23,7 +23,8 @@ export def main []: nothing -> nothing {
             insert 'JohnnyMorganz/StyLua' {'asset_filters': ['linux', 'musl']} |
             insert 'rclone/rclone' {'asset_filters': ['.zip']} |
             insert 'nushell/nushell' {'asset_filters': ['gnu'], 'file': 'nu'} |
-            insert 'ClementTsang/bottom' {'asset_filters': ['gnu', '^gnu-2-17']}
+            insert 'ClementTsang/bottom' {'asset_filters': ['gnu', '^gnu-2-17']} |
+            insert 'duckdb/duckdb' {'asset_filters': ['duckdb_cli', '.gz']}
         },
         'macos' => {
             insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-macos']}
