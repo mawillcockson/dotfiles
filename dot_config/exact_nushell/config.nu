@@ -43,6 +43,8 @@ let remove_tmux_helpers = r##'
 $env.config.history.max_size = 10_000_000
 $env.config.history.file_format = 'sqlite'
 
+$env.config.filesize = {unit: binary, precision: 2}
+
 # if running in Neovim, use that as our editor
 $env.config.buffer_editor = (
     if ('NVIM' in $env) and (which nvr | is-not-empty) {
