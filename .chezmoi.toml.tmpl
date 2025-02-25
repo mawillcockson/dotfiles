@@ -37,8 +37,8 @@ git_name = 'Matthew W'
 git_email = 'matthew@willcockson.family'
 git_signingKey = 'EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115'
 minimum_nu_version = { major = 0, minor = 102, patch = 0 }
-set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide (y/n)\n" false | toToml }}
-run_setup = {{ promptBoolOnce . "run_setup" "Would you like to run the system-wide setup (y/n)\n" true | toToml }}
+set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide\n(y/n)" false | toToml }}
+copy_bootstrap_nu = {{ promptBoolOnce . "copy_bootstrap_nu" "copy bootstrap nu to ~/apps/eget-bin?\n(y/n)" true | toToml }}
 relBootstrapDir = {{ $relBootstrapDir | toToml }}
 absBootstrapDir = {{ $absBootstrapDir | toToml }}
 {{ if .chezmoi.os | eq "windows" }}
