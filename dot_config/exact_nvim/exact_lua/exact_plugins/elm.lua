@@ -1,3 +1,3 @@
 return {
-	{ "ElmCast/elm-vim" },
+	{ "ElmCast/elm-vim", lazy = true, ft = "elm" },
 }
