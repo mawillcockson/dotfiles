@@ -1088,5 +1088,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         #do $apt_get 'postgresql'
         log info "in order to install one of these postgres versions, use something like 'apt install -t bookworm-pgdg postgresql'"
     }}} --tags [rarely, medium] --reasons ["beloved relational database system"] |
+    simple-add "cmake" {"windows": {"scoop": "cmake"}, "linux": {"apt-get": "cmake"}} --tags [want, tooling] --reasons ["cross-platform C/C++ build tool used by telescope-fzf-native.nvim"] --links ["https://cmake.org/download/"] |
     validate-data
 }
