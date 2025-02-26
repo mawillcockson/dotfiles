@@ -645,11 +645,10 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^fnm install --lts
         ^fnm default lts-latest
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
-    simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 (and maybe up?) on Windows"] |
+    simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 on Windows"] |
     simple-add "atuin" {"windows": {"custom": {|install: closure|
-        do $install 'protoc'
-        do $install 'cargo'
-        ^cargo install --all-features --bins --keep-going 'atuin'
+        do $install 'cargo-binstall'
+        ^cargo binstall atuin
     }}, "linux": {"custom": {|install: closure|
         let tmpfile = (mktemp)
         http get --redirect-mode 'follow' --max-time 3sec 'https://setup.atuin.sh' | save -f $tmpfile
@@ -1021,7 +1020,31 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     }}} --tags [small, notifications] --reasons ["sends notifications remotely and locally"] --links ["https://github.com/caronc/apprise/"] |
     simple-add "uni" {"windows": {"eget": "arp242/uni"}, "linux": {"eget": "arp242/uni"}} --tags [small, unicode, emoji] --reasons ["searches through the unicode database, using names for the emoji that I like, plus it's cross-platform, so I only have to learn one set of names"] --links ["https://github.com/arp242/uni/"] |
     simple-add "bottom" {"windows": {"scoop": "bottom"}, "linux": {"eget": "ClementTsang/bottom"}} --search-help [htop] --tags [small, top] --reasons ["displays detailed system monitor-style info in the terminal"] --links ["https://github.com/ClementTsang/bottom"] |
-    simple-add "cargo-binstall" {"windows": {"eget": "cargo-bins/cargo-binstall"}} --tags [small, cargo, rust, "package manager"] --reasons ["tries to download the artefact from the official github repository for the project, then from this 3rd-party binary building service, and falls back to `cargo install`"] --links ["https://github.com/cargo-bins/cargo-binstall"] |
+    simple-add "cargo-binstall" {"windows": {"custom": {|install: closure|
+        use consts.nu [platform]
+        use package/manager
+        let eget = (
+            manager load-data |
+            get $platform |
+            get eget
+        )
+
+        do $install 'cargo'
+        do $eget "cargo-bins/cargo-binstall"
+        ^cargo-binstall --self-install
+    }}, "linux": {"custom": {|install: closure|
+        use consts.nu [platform]
+        use package/manager
+        let eget = (
+            manager load-data |
+            get $platform |
+            get eget
+        )
+
+        do $install 'cargo'
+        do $eget "cargo-bins/cargo-binstall"
+        ^cargo-binstall --self-install
+    }}} --tags [small, cargo, rust, "package manager"] --reasons ["tries to download the artefact from the official github repository for the project, then from this 3rd-party binary building service, and falls back to `cargo install`"] --links ["https://github.com/cargo-bins/cargo-binstall"] |
     simple-add "postgresql" {"windows": {"scoop": "postgresql"}, "linux": {"custom": {|install: closure|
         use std/log
         use utils.nu ["package check-installed dpkg"]
