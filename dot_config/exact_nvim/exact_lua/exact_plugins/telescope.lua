@@ -15,9 +15,15 @@ return {
 		dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope-fzf-native.nvim" },
 		keys = {
 			{ "<leader>ff", "<Cmd>Telescope find_files<CR>", desc = "Telescope find files" },
+			{
+				"<leader>fa",
+				[=[<Cmd>Telescope hidden=true no_ignore=true no_ignore_parent=true<CR>]=],
+				desc = "Telescope find files (incl. hidden)",
+			},
 			{ "<leader>fg", "<Cmd>Telescope live_grep<CR>", desc = "Telescope live grep" },
 			{ "<leader>fb", "<Cmd>Telescope buffers<CR>", desc = "Telescope buffers" },
 			{ "<leader>fh", "<Cmd>Telescope help_tags<CR>", desc = "Telescope help tags" },
+			{ "<leader>fr", "<Cmd>Telescope resume<CR>", desc = "Telescope resume previous search" },
 		},
 		config = function(_, opts)
 			local telescope = require("telescope")
@@ -31,9 +37,17 @@ return {
 			local wk = require("which-key")
 			wk.add({
 				{ "<leader>ff", builtin.find_files, desc = "Telescope find files" },
+				{
+					"<leader>fa",
+					function()
+						builtin.find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })
+					end,
+					desc = "Telescope find files (incl. hidden)",
+				},
 				{ "<leader>fg", builtin.live_grep, desc = "Telescope live grep" },
 				{ "<leader>fb", builtin.buffers, desc = "Telescope buffers" },
 				{ "<leader>fh", builtin.help_tags, desc = "Telescope help tags" },
+				{ "<leader>fr", builtin.resume, desc = "Telescope resume previous search" },
 			})
 		end,
 	},
