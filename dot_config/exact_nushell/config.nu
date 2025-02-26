@@ -56,7 +56,7 @@ $env.config.buffer_editor = (
 $env.config.edit_mode = 'vi'
 
 # I have my own banner in an autoload :)
-$env.config.show_banner = "short"
+$env.config.show_banner = false
 
 $env.config.hooks.pre_execution ++= [
     {code: ($remove_tmux_helpers)},
