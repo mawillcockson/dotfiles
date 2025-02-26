@@ -56,13 +56,22 @@ return {
 		"nvim-telescope/telescope-fzf-native.nvim",
 		lazy = true,
 		build = function(plugin_spec)
-			local result = vim.system(
-				{ "nu", "-c", [[cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release; cmake --build build --config Release]] },
-				{
-					cwd = plugin_spec.dir,
-					text = true,
-				}
-			):wait()
+			local result = vim.system({
+				"nu",
+				"-c",
+				[[
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+
+let dll_path = './build/Release/libfzf.dll'
+if ($dll_path | path exists) {
+    cp --verbose $dll_path ./build/libfzf.dll
+}
+]],
+			}, {
+				cwd = plugin_spec.dir,
+				text = true,
+			}):wait()
 			if result.code ~= 0 then
 				coroutine.yield(result.stderr, vim.log.levels.TRACE)
 				return error("failed to build telescope-fzf-native")
