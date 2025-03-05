@@ -8,7 +8,7 @@ return {
 			"<leader>cf",
 			function()
 				require("conform").format({
-					timeout_ms = 1000,
+					timeout_ms = 2000,
 					lsp_format = "fallback",
 				})
 			end,
