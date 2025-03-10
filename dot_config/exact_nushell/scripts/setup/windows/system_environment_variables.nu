@@ -39,7 +39,7 @@ export def default_variables [] {
 }
 
 export def main [
-    variables?: list<string>
+    variables?: record
 ] {
     let variables = (
         $variables |
