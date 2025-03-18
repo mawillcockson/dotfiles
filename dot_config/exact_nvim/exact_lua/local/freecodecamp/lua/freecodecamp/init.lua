@@ -65,7 +65,14 @@ https://github.com/nvim-lua/plenary.nvim/blob/4b7e52044bbb84242158d977a50c4cbcd8
 plenary.path.Path:copy{}
 --]]
 
+---@type number|nil
+M.current_challenge_number = nil
+---@type string|nil
+M.current_challenge_dir = nil
+
+---@type string
 M.challenge_dir_pattern = "^%." .. dir_sep .. "(%d+)$"
+---@type number
 M.challenge_dir_min_digits = 3
 
 ---assumes that Neovim's current directory is a freeCodeCamp.org project, and
@@ -77,17 +84,20 @@ function M.freeCodeCampNext()
 	-- Assumes that projects are completed in ascending order of numerical prefix.
 	if M.current_challenge_number == nil then
 		local max_num = 1
+		local current_challenge_dir = ""
 
 		for _, dir in ipairs(scan_dir(".", { only_dirs = true, depth = 1, search_pattern = M.challenge_dir_pattern })) do
 			local num = dir:match(M.challenge_dir_pattern)
 			assert(num, "expected directory to be a decimal number, but it was not: " .. dir)
-			num = tonumber(num, 10)
-			if num > max_num then
-				max_num = num
+			local as_number = tonumber(num, 10)
+			if as_number > max_num then
+				max_num = as_number
+				current_challenge_dir = num
 			end
 		end
 
 		M.current_challenge_number = max_num
+		M.current_challenge_dir = current_challenge_dir
 	end
 
 	local function make_challenge_dir_name(num)
@@ -96,7 +106,7 @@ function M.freeCodeCampNext()
 
 	-- find the files in the current_challenge_number
 	vim.notify("current_challenge_number -> " .. tostring(M.current_challenge_number), vim.log.levels.DEBUG)
-	local old_challenge_dir = Path:new(make_challenge_dir_name(M.current_challenge_number)):absolute()
+	local old_challenge_dir = Path:new(M.current_challenge_dir):absolute()
 	vim.notify("old_challenge_dir -> " .. tostring(old_challenge_dir), vim.log.levels.DEBUG)
 
 	local current_files = vim.tbl_map(function(path)
@@ -185,12 +195,8 @@ function M.freeCodeCampNext()
 		vim.cmd.bd(unpack(difference))
 	end
 	M.current_challenge_number = M.current_challenge_number + 1
+	M.current_challenge_dir = tostring(next_challenge_dir)
 end
-
----@type string|nil
-M.current_project_dir = nil
----@type number|nil
-M.current_challenge_number = nil
 
 function M.setup(opts)
 	opts = vim.tbl_deep_extend("keep", opts, { keys = { next = nil } })
