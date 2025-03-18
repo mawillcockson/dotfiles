@@ -104,7 +104,7 @@ return {
 	{
 		dir = join_path(local_dir, "freecodecamp"),
 		lazy = true,
-		event = "BufReadPost learning-webdev/freeCodeCamp.org/**",
+		event = "BufReadPost */learning-webdev/freeCodeCamp.org/*",
 		cmd = "FreeCodeCampNext",
 		opts = { next_key = "<C-Enter>" },
 	},
