@@ -81,6 +81,7 @@ function M.freeCodeCampNext()
 		for _, dir in ipairs(scan_dir(".", { only_dirs = true, depth = 1, search_pattern = M.challenge_dir_pattern })) do
 			local num = dir:match(M.challenge_dir_pattern)
 			assert(num, "expected directory to be a decimal number, but it was not: " .. dir)
+			num = tonumber(num, 10)
 			if num > max_num then
 				max_num = num
 			end
