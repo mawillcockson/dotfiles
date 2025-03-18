@@ -208,7 +208,7 @@ function M.setup(opts)
 	local wk = require("which-key")
 	if opts.keys.next ~= nil then
 		wk.add({
-			{ opts.keys.next, "<Cmd>FreeCodeCampNext<CR>", desc = "freeCodeCamp: make the next challenge step files" },
+			{ opts.keys.next, M.freeCodeCampNext, desc = "freeCodeCamp: make the next challenge step files" },
 		})
 	end
 end
