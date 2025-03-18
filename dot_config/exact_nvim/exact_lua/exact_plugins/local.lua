@@ -106,6 +106,6 @@ return {
 		lazy = true,
 		event = "BufReadPost */learning-webdev/freeCodeCamp.org/*",
 		cmd = "FreeCodeCampNext",
-		opts = { next_key = "<C-Enter>" },
+		opts = { keys = { next = "<C-Enter>" } },
 	},
 }

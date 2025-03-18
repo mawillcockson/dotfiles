@@ -198,10 +198,12 @@ function M.freeCodeCampNext()
 	M.current_challenge_dir = tostring(next_challenge_dir)
 end
 
+---setup freeCodeCamp-specific functionality
+---@param opts {keys: {next: string|nil}}|nil
 function M.setup(opts)
-	opts = vim.tbl_deep_extend("keep", opts, { keys = { next = nil } })
-
 	vim.notify("ran freeCodeCamp setup", vim.log.levels.DEBUG, {})
+
+	opts = vim.tbl_deep_extend("keep", opts or {}, { keys = { next = nil } })
 
 	vim.api.nvim_create_user_command("FreeCodeCampNext", M.freeCodeCampNext, {})
 
