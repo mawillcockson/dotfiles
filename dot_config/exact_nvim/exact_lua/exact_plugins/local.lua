@@ -101,4 +101,11 @@ return {
 		priority = load_order_add("uis"),
 		config = true,
 	},
+	{
+		dir = join_path(local_dir, "freecodecamp"),
+		lazy = true,
+		--event = "BufReadPost learning-webdev/freeCodeCamp.org/**",
+		cmd = "FreeCodeCampNext",
+		opts = { next_key = "<C-Enter>" },
+	},
 }
