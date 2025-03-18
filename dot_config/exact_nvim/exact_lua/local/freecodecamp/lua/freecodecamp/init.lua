@@ -83,14 +83,14 @@ function M.freeCodeCampNext()
 	-- Figure out what the current project and challenge is.
 	-- Assumes that projects are completed in ascending order of numerical prefix.
 	if M.current_challenge_number == nil then
-		local max_num = 1
+		local max_num = 0
 		local current_challenge_dir = ""
 
 		for _, dir in ipairs(scan_dir(".", { only_dirs = true, depth = 1, search_pattern = M.challenge_dir_pattern })) do
 			local num = dir:match(M.challenge_dir_pattern)
 			assert(num, "expected directory to be a decimal number, but it was not: " .. dir)
 			local as_number = tonumber(num, 10)
-			if as_number > max_num then
+			if as_number >= max_num then
 				max_num = as_number
 				current_challenge_dir = num
 			end
