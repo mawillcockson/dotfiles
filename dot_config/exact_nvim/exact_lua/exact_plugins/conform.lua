@@ -38,6 +38,7 @@ return {
 			html = { "prettier" },
 			css = { "prettier" },
 			javascript = { "prettier" },
+			scala = { "scalafmt" },
 		},
 	},
 	config = function(_, opts)

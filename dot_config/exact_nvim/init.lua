@@ -113,7 +113,10 @@ vim.g.maplocalleader = " "
 --pcall(unmap, {"n", "v", "i"}, " ")
 
 -- PATH handling
-local path_additions = { "~/apps/eget-bin" }
+local path_additions = {
+	"~/apps/eget-bin",
+	"~/AppData/Local/Coursier/data/bin", -- scala
+}
 local utils = require("utils")
 utils.add_to_path(path_additions)
 utils.try_add_nodejs()
