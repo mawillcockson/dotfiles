@@ -65,11 +65,6 @@ https://github.com/nvim-lua/plenary.nvim/blob/4b7e52044bbb84242158d977a50c4cbcd8
 plenary.path.Path:copy{}
 --]]
 
----@type number|nil
-M.current_challenge_number = nil
----@type string|nil
-M.current_challenge_dir = nil
-
 ---@type string
 M.challenge_dir_pattern = "^%." .. dir_sep .. "(%d+)$"
 ---@type number
@@ -82,31 +77,28 @@ M.challenge_dir_min_digits = 3
 function M.freeCodeCampNext()
 	-- Figure out what the current project and challenge is.
 	-- Assumes that projects are completed in ascending order of numerical prefix.
-	if M.current_challenge_number == nil then
-		local max_num = 0
-		local current_challenge_dir = ""
+	local max_num = 0
+	local current_challenge_dir = ""
 
-		for _, dir in ipairs(scan_dir(".", { only_dirs = true, depth = 1, search_pattern = M.challenge_dir_pattern })) do
-			local num = dir:match(M.challenge_dir_pattern)
-			assert(num, "expected directory to be a decimal number, but it was not: " .. dir)
-			local as_number = tonumber(num, 10)
-			if as_number >= max_num then
-				max_num = as_number
-				current_challenge_dir = num
-			end
+	for _, dir in ipairs(scan_dir(".", { only_dirs = true, depth = 1, search_pattern = M.challenge_dir_pattern })) do
+		local num = dir:match(M.challenge_dir_pattern)
+		assert(num, "expected directory to be a decimal number, but it was not: " .. dir)
+		local as_number = tonumber(num, 10)
+		if as_number >= max_num then
+			max_num = as_number
+			current_challenge_dir = num
 		end
-
-		M.current_challenge_number = max_num
-		M.current_challenge_dir = current_challenge_dir
 	end
+
+	local current_challenge_number = max_num
 
 	local function make_challenge_dir_name(num)
 		return Path:new(".", pad_number(num, M.challenge_dir_min_digits))
 	end
 
 	-- find the files in the current_challenge_number
-	vim.notify("current_challenge_number -> " .. tostring(M.current_challenge_number), vim.log.levels.DEBUG)
-	local old_challenge_dir = Path:new(M.current_challenge_dir):absolute()
+	vim.notify("current_challenge_number -> " .. tostring(current_challenge_number), vim.log.levels.DEBUG)
+	local old_challenge_dir = Path:new(current_challenge_dir):absolute()
 	vim.notify("old_challenge_dir -> " .. tostring(old_challenge_dir), vim.log.levels.DEBUG)
 
 	local current_files = vim.tbl_map(function(path)
@@ -130,7 +122,7 @@ function M.freeCodeCampNext()
 	end
 
 	-- make the next challenge directory
-	local next_challenge_dir = Path:new(make_challenge_dir_name(M.current_challenge_number + 1))
+	local next_challenge_dir = Path:new(make_challenge_dir_name(current_challenge_number + 1))
 	vim.notify("making new directory -> " .. tostring(next_challenge_dir), vim.log.levels.DEBUG)
 	-- we're creating it for the first time now, so it'd be weird if it suddenly
 	-- appeared in between now and since we last checked just a few mmilliseconds
@@ -194,8 +186,6 @@ function M.freeCodeCampNext()
 	if not vim.tbl_isempty(difference) then
 		vim.cmd.bd(unpack(difference))
 	end
-	M.current_challenge_number = M.current_challenge_number + 1
-	M.current_challenge_dir = tostring(next_challenge_dir)
 end
 
 ---setup freeCodeCamp-specific functionality
