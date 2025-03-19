@@ -243,6 +243,9 @@
   save-dash (unicode 〜)
   almost-equal (unicode ≈)
   approximately-equal (unicode ≅)
+  degree (unicode °)
+  celsius (unicode ℃)
+  fahrenheit (unicode ℉)
 
   smile (unicode 😄)
   smile2 (macro (unicode ☺) @vs16)
@@ -412,7 +415,7 @@
   7 nop0
   8 nop0
   9 nop0
-  0 nop0
+  0 (tap-dance $tt (@degree @celsius @fahrenheit))
   Minus (tap-dance $tt (@en-dash @em-dash @2-em-dash @3-em-dash))
   Equal nop0
   Backspace Backspace
