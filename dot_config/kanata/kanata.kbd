@@ -211,6 +211,7 @@
 (defalias
   variation-selector-16 (unicode ️)
   zero-width-joiner (unicode ‍)
+  mongolian-vowel-separator (unicode ᠎)
 )
 
 (defalias
@@ -223,6 +224,7 @@
   waving-white-flag (unicode 🏳)
   rainbow (unicode 🌈)
   zwj @zero-width-joiner
+  mvs @mongolian-vowel-separator
 )
 
 (defalias
@@ -518,7 +520,7 @@
   Comma nop0
   Period @middot
   Slash nop0
-  Space @zwj
+  Space (tap-dance $tt (@mvs @zwj))
 )
 
 (deflayermap (shift-emoji)
