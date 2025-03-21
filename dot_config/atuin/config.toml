@@ -12,6 +12,7 @@ prefers_reduced_motion = true
 show_preview = true
 # pressing <Enter> leaves the search view and runs the command
 enter_accept = true
+exit_mode = "return-query"
 
 search_mode = 'fuzzy'
 # can press ctrl-r again when in the search view to cycle through filter modes
