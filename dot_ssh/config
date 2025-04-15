@@ -1,0 +1,6 @@
+Host *
+    ControlMaster auto
+    ControlPath ~/.ssh/%C.ssh
+    ControlPersist 5m
+    VerifyHostKeyDNS ask
+    StrictHostKeyChecking accept-new
