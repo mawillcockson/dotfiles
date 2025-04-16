@@ -1,6 +1,8 @@
 Host *
+{{ if .chezmoi.os | ne "windows" }}
     ControlMaster auto
     ControlPath ~/.ssh/%C.ssh
     ControlPersist 5m
+{{ end }}
     VerifyHostKeyDNS ask
     StrictHostKeyChecking accept-new
