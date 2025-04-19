@@ -62,7 +62,7 @@ return {
 				[[
 # adding policy version minimum until #150 is merged
 # https://github.com/nvim-telescope/telescope-fzf-native.nvim/pull/150
-cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.2
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 cmake --build build --config Release
 
 let dll_path = './build/Release/libfzf.dll'
