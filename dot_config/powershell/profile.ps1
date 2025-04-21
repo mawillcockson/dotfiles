@@ -54,6 +54,14 @@ function Setup-GitLocal {
     git config --local user.signingKey "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115"
 }
 
+<#
+    .DESCRIPTION
+    Use scoop to update tools most necessary for updating other tools, and proceeding to perform tasks
+#>
+function Update-NecessaryScoop {
+    scoop update alacritty nu neovim keepass keepass-plugin-keetraytotp keepass-plugin-readable-passphrase neovide git gnupg pwsh
+}
+
 # Import the Chocolatey Profile that contains the necessary code to enable
 # tab-completions to function for `choco`.
 # Be aware that if you are missing these lines from your profile, tab completion
