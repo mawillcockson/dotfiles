@@ -1,3 +1,13 @@
+<#
+Should create an install script in the nu `setup` package that chezmoi runs once to add this to powershell's default $PROFILE ->
+
+if (-not (Test-Path Env:XDG_CONFIG_HOME)) {
+	write-host "Need XDG_CONFIG_HOME set to find PowerShell profile.ps1"
+} else {
+    . "$Env:XDG_CONFIG_HOME\powershell\profile.ps1"
+}
+#>
+
 if (-not (Test-Path Env:XDG_CONFIG_HOME)) {
 	write-host "Need XDG_CONFIG_HOME set to setup starship"
 } else {
