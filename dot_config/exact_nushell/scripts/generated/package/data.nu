@@ -413,9 +413,10 @@ export def "package-data-load-data" [] {
         )
 
         do $install 'asdf'
-        run-external $nu.current-exe '-l' '-c' 'asdf plugin add neovim'
-        run-external $nu.current-exe '-l' '-c' 'asdf install neovim stable'
-        run-external $nu.current-exe '-l' '-c' 'asdf global neovim stable'
+        asdf plugin add neovim
+        asdf install neovim stable
+        asdf set --home neovim stable
+        asdf reshim neovim stable
 
         do $apt_get 'wl-clipboard'
         do $apt_get 'xclip'
@@ -799,18 +800,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             do $install 'curl'
         }
 
-        if ('~/.asdf' | path expand | path exists) {
-            return (error make {
-                'msg': ("at time of writing (v0.15.0) asdf does not provide a way to upgrade to the next version\n" +
-                        'hopefully this has been added by the time we want to upgrade again'),
-            })
-            asdf update
-        } else {
-            use std/log
-            log warning "v0.15.0 was the last version that could be installed using the method this script currently uses, so if the latest version is more recent, it's fun updating time! :D"
-            git clone --single-branch --branch v0.15.0 'https://github.com/asdf-vm/asdf.git' ~/.asdf
-        }
-        run-external $nu.current-exe '-l' '-c' 'asdf update'
+        eget asdf-vm/asdf
     }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|

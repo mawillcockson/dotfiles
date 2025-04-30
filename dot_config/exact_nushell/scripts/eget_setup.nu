@@ -6,6 +6,7 @@ export def main []: nothing -> nothing {
         },
     } |
     insert 'FiloSottile/age' {'asset_filters': ['^.proof']} |
+    insert 'asdf-vm/asdf' {'asset_filters': ['^.md5']} |
     match $nu.os-info.name {
         'windows' => {
             insert 'nalgeon/sqlite' {'asset_filters': ['sqlean.exe']} |
