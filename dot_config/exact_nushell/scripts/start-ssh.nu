@@ -63,7 +63,7 @@ export def --env main [] {
         )
         if ($wsl_ssh_pageant_pids | is-not-empty) {
             log debug $'killing wsl-ssh-pageant -> ($wsl_ssh_pageant_pids | to nuon)'
-            kill ($wsl_ssh_pageant_pids | first) ...($wsl_ssh_pageant_pids | skip 1)
+            kill ...($wsl_ssh_pageant_pids)
         }
     }
 

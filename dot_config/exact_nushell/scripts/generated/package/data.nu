@@ -682,6 +682,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         # do $install "Microsoft.VisualStudio.2022.BuildTools"
 
         use std/log
+        use std/config
         use utils.nu [powershell-safe]
 
         let janet_json = (http get 'https://api.github.com/repos/janet-lang/janet/releases/latest')
@@ -737,7 +738,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
                 append $janet_bin_dir |
                 append ('~/scoop' | path expand | path join 'apps' 'git' 'current' 'mingw64' 'libexec' 'git-core') | # https://stackoverflow.com/a/50833818
                 uniq |
-                do $env.ENV_CONVERSIONS.PATH.to_string $in |
+                do (config env-conversions).path.to_string $in |
                 powershell-safe -c '$in = $Input; [Environment]::SetEnvironmentVariable("Path", $in, "User")'
             }
             $env.PATH = ($env.PATH | append $janet_bin_dir)
@@ -763,6 +764,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         do $install 'lua51'
         do $install 'hererocks'
         use std/log
+        use std/config
         use utils.nu [powershell-safe]
 
         # put it in the place lazy.nvim expects it, because why not
@@ -780,11 +782,11 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             if ($bin_dir not-in $env.PATH) {
                 powershell-safe -c '[Environment]::GetEnvironmentVariable("Path", "User")' |
                 get stdout |
-                do $env.ENV_CONVERSIONS.PATH.from_string $in |
+                do (config env-conversions).path.from_string $in |
                 append $env.PATH |
                 prepend $bin_dir |
                 uniq |
-                do $env.ENV_CONVERSIONS.PATH.to_string $in |
+                do (config env-conversions).path.to_string $in |
                 powershell-safe -c '$in = $Input; [Environment]::SetEnvironmentVariable("Path", $in, "User")'
             }
             $env.PATH = ($env.PATH | prepend $bin_dir)

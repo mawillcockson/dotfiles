@@ -58,6 +58,9 @@ $env.config.edit_mode = 'vi'
 # I have my own banner in an autoload :)
 $env.config.show_banner = false
 
+# Use a non-emoji absent value indicator
+$env.config.table.missing_value_symbol = "∅"
+
 $env.config.hooks.pre_execution ++= [
     {code: ($remove_tmux_helpers)},
 ]
