@@ -45,7 +45,7 @@ export def --env "path add" [
         }
     )
 
-    let path_env_name = ([Path, PATH] | filter {$in in $env} | first)
+    let path_env_name = ([Path, PATH] | where {$in in $env} | first)
     (
             $env
             | get $path_env_name

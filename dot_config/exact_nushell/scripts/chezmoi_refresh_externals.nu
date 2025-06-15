@@ -5,7 +5,7 @@ def main [] {
     open --raw .chezmoiexternal.toml.tmpl |
     from toml |
     transpose path data |
-    filter {|it|
+    where {|it|
         if $it.data.type != 'file' {
             log warning $"don't know how to refresh: ($it)"
             return false

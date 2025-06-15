@@ -10,7 +10,7 @@ export def default_variables [] {
             ($nu.home-path),
         ] |
         compact --empty |
-        filter {|it| $it | path exists} |
+        where {|it| $it | path exists} |
         first
     )
 
@@ -27,7 +27,7 @@ export def default_variables [] {
             (if ($chezmoi_config.destDir? | is-not-empty) {$chezmoi_config.destDir | path join '.config'} else {null}),
             ($home | path join '.config'),
         ] |
-        filter {|it| $it | path exists} |
+        where {|it| $it | path exists} |
         compact --empty |
         first
     }

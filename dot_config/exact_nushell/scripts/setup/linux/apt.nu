@@ -31,7 +31,7 @@ export def main [] {
             'to': ($to | path join $it),
         }
     } |
-    filter {|it|
+    where {|it|
         if ($it.to | path exists) {
             log info $'path exists already, not overwriting -> ($it.to)'
             false

@@ -14,7 +14,7 @@ export def "collect-all" [
         generate-collectors
         | get ([{'value': ($platform), 'optional': true}] | into cell-path)
         | default {}
-        | filter {|it|
+        | where {|it|
             if ($rest | is-empty) {true} else {
                 let collector_name = ($it | columns | first)
                 if ($collector_name in $rest) {true} else {
@@ -36,7 +36,7 @@ export def "collect-all" [
     (
     $package_managers
     | transpose name closure
-    | filter {|it|
+    | where {|it|
         if $it.name not-in $collectors {
             log warning $'package manager ($it.name | to nuon) has no associated collector'
             false
@@ -61,7 +61,7 @@ export def "windows scoop" [] {
         (powershell-safe -c 'scoop export').stdout
         | from json
         | tee {||
-            $in.buckets.0 | filter {|it|
+            $in.buckets.0 | where {|it|
                 $it.Name not-in $default_scoop_buckets
             } | each ({|it|
                 log warning $'bucket ($it.Name | to nuon) not in default list: ($default_scoop_buckets | str join ", ")'

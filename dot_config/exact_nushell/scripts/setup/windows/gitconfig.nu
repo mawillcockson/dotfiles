@@ -61,7 +61,7 @@ def find_current [p: path] {
 
         let current = (
             ls --all --full-paths $dir |
-            filter {|it|
+            where {|it|
                 $it.type == 'symlink' and ($it.name | path basename) == 'current'
             }
         )

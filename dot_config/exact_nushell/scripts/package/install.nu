@@ -30,7 +30,7 @@ export def main [
         $package
         | get c-p ['install', $platform]
         | transpose name id
-        | filter {|e|
+        | where {|e|
             log debug $'$package_managers -> ($package_managers)'
             if $e.name in ($package_managers | columns | append ['custom']) {
                 true

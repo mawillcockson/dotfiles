@@ -90,7 +90,7 @@ export def "data-diff" [right] {
 
     let left_only_managers = (
         $left_table |
-        filter {|left_row|
+        where {|left_row|
             $left_row.manager not-in (
                 $right_table |
                 where platform == $left_row.platform |
@@ -100,7 +100,7 @@ export def "data-diff" [right] {
     )
     let left_table = (
         $left_table |
-        filter {|left_row|
+        where {|left_row|
             $left_row.manager in (
                 $right_table |
                 where platform == $left_row.platform |
@@ -111,7 +111,7 @@ export def "data-diff" [right] {
 
     let right_only_managers = (
         $right_table |
-        filter {|right_row|
+        where {|right_row|
             $right_row.manager not-in (
                 $left_table |
                 where platform == $right_row.platform |
@@ -121,7 +121,7 @@ export def "data-diff" [right] {
     )
     let right_table = (
         $right_table |
-        filter {|right_row|
+        where {|right_row|
             $right_row.manager in (
                 $left_table |
                 where platform == $right_row.platform |
@@ -132,7 +132,7 @@ export def "data-diff" [right] {
 
     let left_closures = (
         $left_table |
-        filter {|left_row|
+        where {|left_row|
             (view source $left_row.closure) not-in (
                 $right_table |
                 where platform == $left_row.platform and manager == $left_row.manager |
@@ -143,7 +143,7 @@ export def "data-diff" [right] {
     )
     let identicals = (
         $left_table |
-        filter {|left_row|
+        where {|left_row|
             (view source $left_row.closure) in (
                 $right_table |
                 where platform == $left_row.platform and manager == $left_row.manager |
@@ -155,7 +155,7 @@ export def "data-diff" [right] {
 
     let right_closures = (
         $right_table |
-        filter {|right_row|
+        where {|right_row|
             (view source $right_row.closure) not-in (
                 $left_table |
                 where platform == $right_row.platform and manager == $right_row.manager |

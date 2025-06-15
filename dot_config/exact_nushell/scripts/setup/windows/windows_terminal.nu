@@ -136,7 +136,7 @@ export def "configure whole-file" [--start-on-login] {
     let pwsh_profile = (
         $original_contents
         | get profiles.list
-        | filter {|it| $pwsh_guid == ($it | get guid?)}
+        | where {|it| $pwsh_guid == ($it | get guid?)}
         | if ($in | is-empty) { {} } else { $in | first }
         | upsert name 'Windows PowerShell'
         | upsert commandline 'powershell.exe'
@@ -145,7 +145,7 @@ export def "configure whole-file" [--start-on-login] {
     let cmd_profile = (
         $original_contents
         | get profiles.list
-        | filter {|it| $cmd_guid == ($it | get guid?)}
+        | where {|it| $cmd_guid == ($it | get guid?)}
         | if ($in | is-empty) { {} } else { $in | first }
         | upsert name 'Command Prompt'
         | upsert commandline 'cmd.exe'
@@ -154,7 +154,7 @@ export def "configure whole-file" [--start-on-login] {
     let profiles_list = (
         $original_contents
         | get profiles.list
-        | filter {|it| $it | get guid? | ($in not-in [($pwsh_guid), ($cmd_guid)])}
+        | where {|it| $it | get guid? | ($in not-in [($pwsh_guid), ($cmd_guid)])}
         | prepend [($pwsh_profile), ($cmd_profile)]
     )
 

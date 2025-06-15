@@ -34,7 +34,7 @@ let remove_tmux_helpers = r##'
 
     $env.config.hooks.pre_execution = (
         $env.config.hooks.pre_execution |
-        filter {|it| ($it != {code: ($remove_tmux_helpers)}) }
+        where {|it| ($it != {code: ($remove_tmux_helpers)}) }
     )
 '## ##'
 
@@ -95,7 +95,7 @@ $env.config.hooks.env_change = $env.config.hooks.env_change | merge deep --strat
                 load-env {
                     'PATH': (
                         $env.PATH |
-                        filter {|it| $it != ('~/apps/zigmaster' | path expand) }
+                        where {|it| $it != ('~/apps/zigmaster' | path expand) }
                     ),
                 }
             },

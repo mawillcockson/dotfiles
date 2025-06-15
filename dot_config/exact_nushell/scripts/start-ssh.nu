@@ -41,7 +41,7 @@ export def --env main [] {
                 ^okc-ssh-agent |
                 split row ';' |
                 str trim |
-                filter {|it| $it =~ $pattern } |
+                where {|it| $it =~ $pattern } |
                 parse --regex $pattern |
                 (
                     # NOTE::IMPROVEMENT may be able to replace with `into record`

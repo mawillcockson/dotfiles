@@ -24,7 +24,7 @@ export def main [
     nothing -> list<record>
 ] {
     default (data load-data) |
-    transpose name data | filter {|it|
+    transpose name data | where {|it|
     (
         ($name in $it.name)
         or

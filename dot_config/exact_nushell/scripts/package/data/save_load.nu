@@ -111,27 +111,27 @@ export def "data-diff" [right] {
 
     let left_only_packages = (
         $left_packages |
-        filter {|p|
+        where {|p|
             $p not-in $right_packages
         }
     )
     let left_packages = (
         $left_packages |
-        filter {|p|
+        where {|p|
             $p not-in $left_only_packages
         }
     )
 
     let right_only_packages = (
         $right_packages |
-        filter {|p|
+        where {|p|
             $p not-in $left_packages
         }
     )
 
     let diff_datas = (
         $left_packages |
-        filter {|p|
+        where {|p|
             (
                 $left |
                 get $p |
@@ -146,7 +146,7 @@ export def "data-diff" [right] {
 
     let identicals = (
         $left_packages |
-        filter {|p| $p not-in $diff_datas}
+        where {|p| $p not-in $diff_datas}
     )
 
     {

@@ -49,7 +49,7 @@ export def main [
     }
 
     let content_mismatch = ($vars | where source_found and destination_exists and source_content != destination_content)
-    let vars = ($vars | filter {|it| (not $it.destination_exists) or ($it.destination_exists and $it.source_content == $it.destination_content)})
+    let vars = ($vars | where {|it| (not $it.destination_exists) or ($it.destination_exists and $it.source_content == $it.destination_content)})
     $content_mismatch |
     each {|it|
         log error $"source content differs from already existing destination content!\n($it | reject source_found destination_exists | table)"

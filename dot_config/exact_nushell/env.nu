@@ -36,7 +36,7 @@ let sbins = (
         '/usr/sbin',
         '/usr/local/sbin',
     ] |
-    filter {path exists}
+    where {path exists}
 )
 
 use light-utils.nu ["path add"]

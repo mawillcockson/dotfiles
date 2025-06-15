@@ -2,7 +2,7 @@ export const banner_once = r#'
     my-banner
     $env.config.hooks.pre_prompt = (
         $env.config.hooks.pre_prompt |
-        filter {|it| $it != {code: $banner_once} }
+        where {|it| $it != {code: $banner_once} }
     )
 '#
 
