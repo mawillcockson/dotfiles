@@ -414,6 +414,7 @@ export def "package-data-load-data" [] {
 
         do $install 'asdf'
         asdf plugin add neovim
+        asdf plugin update neovim
         asdf install neovim stable
         asdf set --home neovim stable
         asdf reshim neovim stable
