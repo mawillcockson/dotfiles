@@ -2,14 +2,12 @@ local executable = function(name)
 	return vim.fn.executable(name) == 1
 end
 
-local function load_in_correct_order(_)
+vim.api.nvim_create_user_command("DoLspConfig", function()
 	require("mason")
-	require("mason-lspconfig").setup()
+	require("mason-lspconfig").setup({ automatic_enable = false })
 	require("lspconfig")
 	require("lazydev")
-end
-
-vim.api.nvim_create_user_command("DoLspConfig", load_in_correct_order, {
+end, {
 	desc = "run the appropriate setups in the appropriate order",
 	force = true,
 })
@@ -34,6 +32,8 @@ return {
 		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
 		config = true,
 		dependencies = {
+			---- hopefully, putting this here will make it load before mason-lspconfig.nvim
+			--"williamboman/mason.nvim",
 			-- Put any dependencies that a language server might have here
 			-- lua_ls:
 			"LuaCATS/love2d",
@@ -44,32 +44,8 @@ return {
 		"neovim/nvim-lspconfig",
 		lazy = true,
 		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
+		--dependencies = { "williamboman/mason-lspconfig.nvim" },
 		config = function(_, _)
-			-- This section should only be used for configuring language servers that
-			-- haven't been downloaded using mason. This should be configured above.
-
-			-- NOTE::DIRECTION
-			-- I would like for this to autoconfigure available clients on an as-needed basis.
-			-- I would also like for no LSPs to be configured or started unless a
-			-- command or key-combination (if the latter, preferably with a prompt)
-			-- is entered.
-			-- I think it's also a good idea to do the same when configuring the
-			-- completion plugin: by default, it's inactive, and only when a
-			-- key-combination is pressed, or a command is run, is it activated.
-			-- I don't think each command would have to print out where it's located.
-			-- Regipgrep helps with that.
-			-- I do think the commands should detect if something's missing and point
-			-- to where to enable or install it.
-			-- Going through all the plugins that are loaded by default (`start` plugins, `lazy = false`) and finding out ways to make them only load when desired, would be nice.
-			-- - Conjure (in clojure.lua) should only be loaded for fennel and clojure filetypes
-			-- There should be a way to detect if the lsps are available, and then
-			-- each one can be configured. I think breaking each out into its own
-			-- file would be good.
-			-- If they can be set to run their configuration right before they're
-			-- needed, that would be perfect.
-			-- Also, the ftplugins should each have a buffer-local variable to
-			-- prevent editing the same file from overwriting any changes made to
-			-- variables for that specific file
 			local lspconfig = require("lspconfig")
 			-- not needed, as there's nothing in the base project to configure
 			-- lspconfig.config(name, opts)
@@ -79,82 +55,42 @@ return {
 				return mason_registry.get_package(name):is_installed()
 			end
 
-			-- from:
-			-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L126-L131
-			local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-			local function get_capabilities()
-				local capabilities = cmp_nvim_lsp_ok and cmp_nvim_lsp.default_capabilities()
-					or vim.lsp.protocol.make_client_capabilities()
-				capabilities.textDocument.completion.completionItem.snippetSupport = true
-				return capabilities
-			end
-			local default_capabilities = get_capabilities()
-
 			if executable("ruff") or mason_installed("ruff") then
-				lspconfig.ruff.setup({
-					capabilities = default_capabilities,
-					init_options = {
-						settings = {},
-					},
-				})
+				vim.lsp.enable("ruff")
 			end
 
 			if executable("nu") then
-				lspconfig.nushell.setup({
-					capabilities = default_capabilities,
-				})
+				vim.lsp.enable("nu")
 			end
 
 			if executable("zls") and executable("zig") then
-				lspconfig.zls.setup({
-					capabilities = default_capabilities,
-					root_dir = require("lspconfig.util").root_pattern("zls.json", "build.zig"),
-				})
+				vim.lsp.enable("zls")
 			end
 
 			if executable("emmet-language-server") or mason_installed("emmet-language-server") then
-				lspconfig.emmet_language_server.setup({
-					capabilities = default_capabilities,
-					init_options = {
-						extensionsPath = {
-							vim.fs.joinpath(
-								vim.env.XDG_CONFIG_HOME or vim.fs.normalize("~/.config", { expand_env = false }),
-								"emmet-extensions"
-							),
-						},
-					},
-				})
+				vim.lsp.enable("emmet_language_server")
 			end
 
 			if executable("vscode-css-language-server") or mason_installed("css-lsp") then
-				lspconfig.cssls.setup({
-					capabilities = default_capabilities,
-				})
+				vim.lsp.enable("cssls")
 			end
 
 			if executable("vscode-html-language-server") or mason_installed("html-lsp") then
-				lspconfig.html.setup({
-					capabilities = default_capabilities,
-				})
+				vim.lsp.enable("html")
 			end
 
 			if executable("lua-language-server") or mason_installed("lua-language-server") then
-				lspconfig.lua_ls.setup({
-					capabilities = default_capabilities,
-				})
+				vim.lsp.enable("lua_ls")
 			end
 
 			-- typescript and javascript
 			if executable("vtsls") or mason_installed("vtsls") then
-				lspconfig.vtsls.setup({
-					capabilities = default_capabilities,
-				})
+				vim.lsp.enable("vtsls")
 			end
 
+			-- toml
 			if executable("taplo") or mason_installed("taplo") then
-				lspconfig.taplo.setup({
-					capabilities = default_capabilities,
-				})
+				vim.lsp.enable("taplo")
 			end
 
 			local version = vim.version()
@@ -191,7 +127,7 @@ return {
 					wk.add(vim.iter({
 						{ "gD", vim.lsp.buf.declaration, desc = "goto declaration" },
 						{ "gd", vim.lsp.buf.definition, desc = "goto definition" },
-						-- {"gi", vim.lsp.buf.implementation,desc= "goto implementation" },
+						{ "<leader>gi", vim.lsp.buf.implementation, desc = "goto implementation" },
 						{ "<C-k>", vim.lsp.buf.signature_help, desc = "signature_help()" },
 						{ "<leader>w", group = "workspace" },
 						-- conform.nvim will handle formatting, falling back to the lsp
@@ -249,7 +185,7 @@ return {
 	-- https://github.com/folke/lazydev.nvim/blob/d5800897d9180cea800023f2429bce0a94ed6064/README.md?plain=1#L39
 	{
 		"folke/lazydev.nvim",
-		dependencies = { "Bilal2453/luvit-meta" },
+		dependencies = { "Bilal2453/luvit-meta", --[["neovim/nvim-lspconfig"]] },
 		ft = "lua", -- only load on lua files
 		opts = {
 			library = {

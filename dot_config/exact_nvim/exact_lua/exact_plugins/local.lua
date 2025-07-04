@@ -108,4 +108,14 @@ return {
 		cmd = "FreeCodeCampNext",
 		opts = { keys = { next = "<C-Enter>" } },
 	},
+	{
+		name = "mw_package_test",
+		dir = join_path(local_empty, "mw_package_test"),
+		enabled = false,
+		lazy = true,
+		priority = load_order_add("mw_package_test"),
+		config = function(_, _)
+			vim.notify("mw_package_test loaded", vim.log.levels.INFO)
+		end,
+	},
 }

@@ -422,4 +422,14 @@ function M.make_simple_buf_runner(bufnr, default_cmd, skip_first_line, shebang)
 	return returns
 end
 
+-- from:
+-- https://github.com/hrsh7th/nvim-cmp/blob/f17d9b4394027ff4442b298398dfcaab97e40c4f/README.md?plain=1#L126-L131
+function M.get_capabilities()
+	local cmp_nvim_lsp_ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+	local capabilities = cmp_nvim_lsp_ok and cmp_nvim_lsp.default_capabilities()
+		or vim.lsp.protocol.make_client_capabilities()
+	capabilities.textDocument.completion.completionItem.snippetSupport = true
+	return capabilities
+end
+
 return M

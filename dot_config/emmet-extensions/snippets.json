@@ -8,7 +8,8 @@
   },
   "html": {
     "snippets": {
-      "doc": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}})+body"
+      "script:id": "script{\"use-strict\";\n((func) => \\{\n  if (document.readyState === \"loading\") \\{\n    document.addEventListener(\"DOMContentLoaded\", () => func(), \\{once: true\\});\n  \\} else \\{\n    func();\n  \\}\n\\})(() => \\{\n  ${1:// script}\n\\});}",
+      "doc": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}}+script:id)+body"
     }
   }
 }
