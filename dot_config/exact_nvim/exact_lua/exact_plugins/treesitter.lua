@@ -71,7 +71,7 @@ return {
 					"git_config",
 					"git_rebase",
 					"gitattributes",
-					"gitcommit",
+					--"gitcommit", -- NOTE::FUTURE takes a long time
 					"gitignore",
 					"lua",
 					"luadoc",
