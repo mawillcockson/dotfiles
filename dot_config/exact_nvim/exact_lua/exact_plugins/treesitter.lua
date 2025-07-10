@@ -6,7 +6,7 @@
 
 local filename = select(1, ...)
 if filename == nil or filename == "" then
-  filename = "plugins/treesitter.lua"
+	filename = "plugins/treesitter.lua"
 end
 
 local default_compilers = { vim.fn.getenv("CC"), "cc", "gcc", "clang", "cl", "zig" }
