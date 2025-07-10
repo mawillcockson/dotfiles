@@ -4,6 +4,11 @@
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/install.lua#L19
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/shell_command_selectors.lua#L74-L80
 
+local filename = select(1, ...)
+if filename == nil or filename == "" then
+  filename = "plugins/treesitter.lua"
+end
+
 local default_compilers = { vim.fn.getenv("CC"), "cc", "gcc", "clang", "cl", "zig" }
 
 ---@return bool|nil
@@ -53,6 +58,7 @@ return {
 			ts.setup(opts)
 			vim.api.nvim_create_user_command("TSInstallMine", function()
 				vim.notify("attempting to install the treesitter parsers I use", vim.log.levels.INFO)
+				vim.notify("if one fails, comment it out in: " .. filename, vim.log.levels.INFO)
 				ts.install({
 					-- essentials
 					"bash",
