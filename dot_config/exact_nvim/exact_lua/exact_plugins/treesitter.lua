@@ -37,6 +37,7 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		enabled = enable,
+		lazy = false,
 		branch = "main",
 		-- This probably needs to track main, as releases are rarely cut
 		version = false,
@@ -46,6 +47,72 @@ return {
 		dependencies = {
 			-- additional parsers
 		},
-		config = true,
+		cmd = { "TSInstallMine" },
+		config = function(_, opts)
+			local ts = require("nvim-treesitter")
+			ts.setup(opts)
+			vim.api.nvim_create_user_command("TSInstallMine", function()
+				vim.notify("attempting to install the treesitter parsers I use", vim.log.levels.INFO)
+				ts.install({
+					-- essentials
+					"bash",
+					"diff",
+					"git_config",
+					"git_rebase",
+					"gitattributes",
+					"gitcommit",
+					"gitignore",
+					"lua",
+					"luadoc",
+					"markdown",
+					"markdown_inline",
+					"nu",
+					"powershell",
+					"vim",
+					"vimdoc",
+					-- frequently used
+					"css",
+					"html",
+					"javascript",
+					"jsdoc",
+					-- infrequent
+					"caddy",
+					"fennel",
+					"janet_simple",
+					"jq",
+					"make",
+					"mermaid",
+					"python",
+					"sql",
+					-- data / config
+					"csv",
+					"ini",
+					"json",
+					"json5",
+					"jsonc",
+					"nginx",
+					"ssh_config",
+					"tmux",
+					"toml",
+					"tsv",
+					"xml",
+					"yaml",
+					-- good to know about
+					--[[
+					"awk",
+					"comment",
+					"cpp",
+					"dockerfile",
+					"http",
+					"rust",
+					"scala",
+					"scss",
+					"tsx",
+					"typescript",
+					"zig",
+          --]]
+				}, { max_jobs = 1 }):wait(300000)
+			end, {})
+		end,
 	},
 }
