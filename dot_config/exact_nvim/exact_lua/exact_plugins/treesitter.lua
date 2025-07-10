@@ -52,10 +52,15 @@ return {
 		dependencies = {
 			-- additional parsers
 		},
-		cmd = { "TSInstallMine" },
+		cmd = { "TSInstallMine", "TSUpdateSync" },
 		config = function(_, opts)
 			local ts = require("nvim-treesitter")
 			ts.setup(opts)
+
+			vim.api.nvim_create_user_command("TSUpdateSync", function()
+				ts.update("all", { max_jobs = 1 }):wait(300000)
+			end, {})
+
 			vim.api.nvim_create_user_command("TSInstallMine", function()
 				vim.notify("attempting to install the treesitter parsers I use", vim.log.levels.INFO)
 				vim.notify("if one fails, comment it out in: " .. filename, vim.log.levels.INFO)
