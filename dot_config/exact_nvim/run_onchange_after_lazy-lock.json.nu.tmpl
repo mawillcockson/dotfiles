@@ -3,5 +3,5 @@
 {{- else -}}
 #!/usr/bin/env nu
 {{ end }}
-nvim --clean --headless '+lua vim.g.lazy_install_plugins = true' -l ~/.config/nvim/lua/bootstrap-plugins.lua
-nvim --headless '+DoLspConfig' '+TSUpdateSync' '+MasonUpdate' '+q'
+nvim --clean --headless '+lua vim.g.lazy_install_plugins = true' -l {{ env "XDG_CONFIG_HOME" }}/nvim/lua/bootstrap-plugins.lua
+nvim --headless '+DoLspConfig' '+TSInstallMine' '+TSUpdateSync' '+MasonUpdate' '+q'
