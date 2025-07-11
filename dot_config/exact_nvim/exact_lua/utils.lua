@@ -114,7 +114,7 @@ function M.try_add_nodejs()
 		"--using=default",
 		"nu",
 		"-c",
-		"$env | get Path? PATH? | first | first",
+		"$env | get Path? PATH? | compact --empty | first",
 	})
 	if not ok then
 		vim.notify(
