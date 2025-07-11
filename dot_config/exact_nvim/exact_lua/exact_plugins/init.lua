@@ -39,6 +39,5 @@ return {
 		end,
 	},
 	{ "nvim-lua/plenary.nvim", lazy = true },
-	{ "tpope/vim-surround", lazy = true, event = "VeryLazy" },
 	{ "tpope/vim-repeat", lazy = true, event = "VeryLazy" },
 }
