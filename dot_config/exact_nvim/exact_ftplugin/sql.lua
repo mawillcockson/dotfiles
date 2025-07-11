@@ -1,8 +1,10 @@
-if vim.b.did_my_ftsql then
+if vim.b.did_my_ft_sql then
 	return
 end
+vim.b.did_my_ft_sql = true
+vim.treesitter.start()
+
 local utils = require("utils")
-vim.b.did_my_ftsql = true
 
 local this_bufnr = vim.api.nvim_get_current_buf()
 

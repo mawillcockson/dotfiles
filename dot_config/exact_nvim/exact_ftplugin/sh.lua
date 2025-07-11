@@ -1,14 +1,16 @@
-if vim.b.did_my_ftsh then
+if vim.b.did_my_ft_sh then
 	return
 end
+vim.b.did_my_ft_sh = true
+vim.treesitter.start()
 local utils = require("utils")
-vim.b.did_my_ftsh = true
 
 local this_bufnr = vim.api.nvim_get_current_buf()
 
 ---if file doesn't start with #! then default to sqlite3
 ---@return string[]?
 local function default_cmd()
+	local cmd = {}
 	if vim.fn.executable("sh") == 1 then
 		cmd = { "sh" }
 	else

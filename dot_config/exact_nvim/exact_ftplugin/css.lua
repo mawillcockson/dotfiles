@@ -1,4 +1,11 @@
-vim.opt_local.shiftwidth = 2
-vim.opt_local.tabstop = 2
-vim.opt_local.softtabstop = 2
-vim.opt_local.expandtab = true
+if vim.b.did_my_ft_css then
+	return
+end
+vim.b.did_my_ft_css = true
+vim.treesitter.start()
+
+local set = vim.opt_local
+set.shiftwidth = 2
+set.tabstop = 2
+set.softtabstop = 2
+set.expandtab = true
