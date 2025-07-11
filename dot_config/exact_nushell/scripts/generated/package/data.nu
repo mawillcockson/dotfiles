@@ -402,7 +402,7 @@ export def "package-data-load-data" [] {
             log warning 'neovide does not work well on windows 10, as of 2024-09-25'
         }
         scoop 'install' 'neovide/neovide'
-    }}, "linux": {"eget": "neovide/neovide"}} --tags [want, neovim] |
+    }}, "linux": {"eget": "neovide/neovide"}} --tags [gui, neovim] --reasons ["used to be the main neovim gui, but kept crashing"] |
     simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
         use std/log
         use utils.nu ["package check-installed dpkg"]
