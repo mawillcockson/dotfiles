@@ -404,6 +404,8 @@ export def "package-data-load-data" [] {
         scoop 'install' 'neovide/neovide'
     }}, "linux": {"eget": "neovide/neovide"}} --tags [want, neovim] |
     simple-add "neovim" {"windows": {"scoop": "neovim"}, "linux": {"custom": {|install: closure|
+        use std/log
+        use utils.nu ["package check-installed dpkg"]
         use consts.nu [platform]
         use package/manager
         let apt_get = (
@@ -412,22 +414,49 @@ export def "package-data-load-data" [] {
             get apt-get
         )
 
-        do $install 'asdf'
-        asdf plugin add neovim
-        asdf plugin update neovim
-        asdf install neovim stable
-        asdf set --home neovim stable
-        asdf reshim neovim stable
+        do $install 'apt-get'
 
+        log info "Create a directory to store APT repository keys if it doesn't exist"
+        ^sudo install -d -m 0755 /etc/apt/keyrings
+
+        log info "Import the WakeMeOps APT repository signing key"
+        let tmpfile = (mktemp)
+        http get 'https://github.com/upciti/wakemeops/raw/refs/heads/main/assets/install_repository' | save -f $tmpfile
+        let pgp_key_asc = (
+            open $tmpfile
+            | str replace --regex --multiline '^(?s).*(?P<key>-----BEGIN PGP PUBLIC KEY BLOCK-----.*?-----END PGP PUBLIC KEY BLOCK-----).*$' '$key'
+        )
+        let target = '/etc/apt/keyrings/wakemeops-keyring.asc'
+        ^sudo cp $tmpfile $target
+        rm $tmpfile
+        ^sudo chmod u=rw,g=r,o=r $target
+
+        log info 'Next, add the Mozilla APT repository to your sources list'
+        let dotfiles = (
+            ^chezmoi dump-config --format=json |
+            from json |
+            get 'workingTree' |
+            path expand --strict
+        )
+        sudo cp --verbose $'($dotfiles)/debian/etc/apt/sources.list.d/wakemeops.sources' /etc/apt/sources.list.d/wakemeops.sources
+
+        log info 'Configure APT to prioritize certain packages from the WakeMeOps repository'
+        sudo cp --verbose $'($dotfiles)/debian/etc/apt/preferences.d/wakemeops' /etc/apt/preferences.d/wakemeops
+
+        log info 'Update package list and install the Neovim .deb package'
+        ^sudo apt-get update --assume-yes
+        do $apt_get 'neovim'
+
+        log info 'Also install packages Neovim needs for clipboard support'
         do $apt_get 'wl-clipboard'
         do $apt_get 'xclip'
 
-        log info r#'it's not necessary, but it can be really useful to also install the following:
+        log info r#'it's not necessary strictly necessary, but it can be really useful to also install the following:
 - zig
 - tree-sitter
 - neovide
 
-Less useful, but you can install the fonts by using setup:
+Less useful, but fonts used by neovim can be installed by using setup:
 
 nu -c 'use setup; setup fonts; setup linux fonts'
 '# #'# <-- this is here until the tree-sitter parser implements raw strings
@@ -804,7 +833,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         }
 
         eget asdf-vm/asdf
-    }}} --tags ["version manager", "language manager"] --reasons ["currently used for managing neovim installations"] |
+    }}} --tags ["version manager", "language manager"] --reasons ["used to be used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
     simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|
         use std/log

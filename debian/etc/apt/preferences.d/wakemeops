@@ -1,0 +1,9 @@
+Explanation: use WakeMeOps for neovim
+Package: neovim
+Pin: origin deb.wakemeops.com
+Pin-Priority: 550
+
+Explanation: WakeMeOps can be used, but has lower priority than distribution packages
+Package: *
+Pin: origin deb.wakemeops.com
+Pin-Priority: 490

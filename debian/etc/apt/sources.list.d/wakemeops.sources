@@ -1,0 +1,6 @@
+# https://github.com/upciti/wakemeops/blob/6f5b6a3330fbfe10f38bae2b2bee556028eb5801/assets/install_repository#L123
+Types: deb
+URIs: http://deb.wakemeops.com/wakemeops/
+Suites: stable
+Components: dev devops secops terminal desktop
+Signed-By: /etc/apt/keyrings/wakemeops-keyring.asc
