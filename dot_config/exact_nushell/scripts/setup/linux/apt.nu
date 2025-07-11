@@ -20,24 +20,26 @@ export def main [] {
     }
     let from = ('~/projects/dotfiles/debian' | path expand)
     let to = '/etc/apt'
-    [
-        'apt/preferences.d/01_general',
-        'apt/sources.list.d/01_general.sources',
-        'apt/sources.list.d/02_backports.sources',
-    ] |
-    each {|it|
-        {
-            'from': ($from | path join $it),
-            'to': ($to | path join $it),
+    let paths = (
+        [
+            'apt/preferences.d/01_general',
+            'apt/sources.list.d/01_general.sources',
+            'apt/sources.list.d/02_backports.sources',
+        ] |
+        each {|it|
+            {
+                'from': ($from | path join $it),
+                'to': ($to | path join $it),
+            }
+        } |
+        where {|it|
+            if ($it.to | path exists) {
+                log info $'path exists already, not overwriting -> ($it.to)'
+                false
+            } else {true}
         }
-    } |
-    where {|it|
-        if ($it.to | path exists) {
-            log info $'path exists already, not overwriting -> ($it.to)'
-            false
-        } else {true}
-    } |
-    each {|it|
-        sudo cp $it.from $it.to
+    )
+    for p in $paths {
+        sudo cp --verbose $p.from $p.to
     }
 }
