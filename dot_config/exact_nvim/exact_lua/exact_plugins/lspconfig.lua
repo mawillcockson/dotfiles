@@ -169,7 +169,7 @@ return {
 			{
 				"<leader>xe",
 				function()
-					if executable("emmet-language-server") == 1 then
+					if executable("emmet-language-server") then
 						require("nvim-emmet").wrap_with_abbreviation()
 					else
 						vim.notify("please install emmet-language-server using :Mason", vim.log.levels.WARN)
