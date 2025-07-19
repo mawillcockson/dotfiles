@@ -53,9 +53,20 @@ return {
 			-- additional parsers
 		},
 		cmd = { "TSInstallMine", "TSUpdateSync" },
+		opts = {
+			textobjects = {
+				select = {
+					enable = true,
+					lookahead = true,
+					keymaps = {},
+				},
+				move = { enable = true, set_jumps = true },
+			},
+		},
 		config = function(_, opts)
 			local ts = require("nvim-treesitter")
 			ts.setup(opts)
+			local _ = require("nvim-treesitter-textobjects")
 
 			vim.api.nvim_create_user_command("TSUpdateSync", function()
 				ts.update("all", { max_jobs = require("utils").calculate_nproc() }):wait(300000)
@@ -125,5 +136,10 @@ return {
 				}, { max_jobs = require("utils").calculate_nproc() }):wait(300000)
 			end, {})
 		end,
+	},
+	{
+		"nvim-treesitter/nvim-treesitter-textobjects",
+		lazy = true,
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
 	},
 }
