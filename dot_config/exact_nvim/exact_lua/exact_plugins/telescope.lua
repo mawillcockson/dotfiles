@@ -9,7 +9,9 @@ return {
 		version = "*",
 		opts = {
 			extensions = {
+				-- defined in their own config entries
 				fzf = {},
+				undo = {},
 			},
 		},
 		dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope-fzf-native.nvim" },
@@ -24,37 +26,19 @@ return {
 			{ "<leader>fb", "<Cmd>Telescope buffers<CR>", desc = "Telescope buffers" },
 			{ "<leader>fh", "<Cmd>Telescope help_tags<CR>", desc = "Telescope help tags" },
 			{ "<leader>fr", "<Cmd>Telescope resume<CR>", desc = "Telescope resume previous search" },
+			{
+				"<leader>fs",
+				"<Cmd>Telescope spell_suggest<CR>",
+				desc = "suggest words based on the one under the cursor",
+			},
+			{ "<leader>fo", "<Cmd>Telescope oldfiles<CR>", desc = "Telescope find recent files" },
 		},
-		config = function(_, opts)
-			local telescope = require("telescope")
-			telescope.setup(vim.tbl_deep_extend("force", opts, {}))
-
-			-- To get fzf loaded and working with telescope, you need to call
-			-- load_extension, somewhere after setup function:
-			telescope.load_extension("fzf")
-
-			local builtin = require("telescope.builtin")
-			local wk = require("which-key")
-			wk.add({
-				{ "<leader>ff", builtin.find_files, desc = "Telescope find files" },
-				{
-					"<leader>fa",
-					function()
-						builtin.find_files({ hidden = true, no_ignore = true, no_ignore_parent = true })
-					end,
-					desc = "Telescope find files (incl. hidden)",
-				},
-				{ "<leader>fg", builtin.live_grep, desc = "Telescope live grep" },
-				{ "<leader>fb", builtin.buffers, desc = "Telescope buffers" },
-				{ "<leader>fh", builtin.help_tags, desc = "Telescope help tags" },
-				{ "<leader>fr", builtin.resume, desc = "Telescope resume previous search" },
-			})
-		end,
 	},
 
 	{
 		"nvim-telescope/telescope-fzf-native.nvim",
 		lazy = true,
+		dependencies = { "nvim-telescope/telescope.nvim" },
 		build = function(plugin_spec)
 			local result = vim.system({
 				"nu",
@@ -79,6 +63,44 @@ if ($dll_path | path exists) {
 				return error("failed to build telescope-fzf-native")
 			end
 			coroutine.yield(result.stdout, vim.log.levels.TRACE)
+		end,
+		config = function(_, _)
+			local telescope = require("telescope")
+			telescope.setup({ extensions = { fzf = {} } })
+			telescope.load_extension("fzf")
+		end,
+	},
+	{
+		"debugloop/telescope-undo.nvim",
+		enabled = true,
+		lazy = true,
+		keys = {
+			{ -- lazy style key map
+				"<leader>fu",
+				"<cmd>Telescope undo<cr>",
+				desc = "undo history",
+			},
+		},
+		dependencies = { -- note how they're inverted to above example
+			{
+				"nvim-telescope/telescope.nvim",
+			},
+		},
+		opts = {
+			-- don't use `defaults = { }` here, do this in the main telescope spec
+			extensions = {
+				undo = {
+					-- telescope-undo.nvim config, see below
+				},
+				-- no other extensions here, they can have their own spec too
+			},
+		},
+		config = function(_, opts)
+			-- Calling telescope's setup from multiple specs does not hurt, it will happily merge the
+			-- configs for us. We won't use data, as everything is in it's own namespace (telescope
+			-- defaults, as well as each extension).
+			require("telescope").setup(opts)
+			require("telescope").load_extension("undo")
 		end,
 	},
 }
