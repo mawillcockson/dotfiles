@@ -66,7 +66,11 @@ return {
 		config = function(_, opts)
 			local ts = require("nvim-treesitter")
 			ts.setup(opts)
-			local _ = require("nvim-treesitter-textobjects")
+			-- also load extension modules, and trigger any custom config functions,
+			-- using pcall() so that the following user commands are created and
+			-- tree-sitter can be updated, even if the plugins fail to load because
+			-- tree-sitter is out of date
+			pcall(require, "nvim-treesitter-textobjects")
 
 			vim.api.nvim_create_user_command("TSUpdateSync", function()
 				ts.update("all", { max_jobs = require("utils").calculate_nproc() }):wait(300000)
@@ -140,6 +144,8 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
 		lazy = true,
+		branch = "main",
+		version = false,
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 	},
 }
