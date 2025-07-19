@@ -26,6 +26,10 @@ $env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
 # any $PATHs
 mkdir $env.EGET_BIN
 
+if (which nvim | is-not-empty) {
+    $env.EDITOR = "nvim"
+}
+
 let zint_dir = ($env.HOME | path join 'apps' 'zint')
 let atuin_dir = ($env.HOME | path join '.atuin' 'bin')
 let cargo_dir = ($env | get CARGO_HOME? | default ($env.HOME | path join '.cargo') | path join 'bin')
