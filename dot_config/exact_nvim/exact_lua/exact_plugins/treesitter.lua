@@ -1,6 +1,6 @@
 -- DONE: make the condition based off how nvim-treesitter itself searches to
 -- see if a C compiler is installed, and only enable it when one is.
--- Based off of nvim-tresitter instal process:
+-- Based off of nvim-treesitter install process:
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/install.lua#L19
 -- https://github.com/nvim-treesitter/nvim-treesitter/blob/v0.9.2/lua/nvim-treesitter/shell_command_selectors.lua#L74-L80
 
