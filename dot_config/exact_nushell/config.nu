@@ -45,10 +45,15 @@ $env.config.history.file_format = 'sqlite'
 
 $env.config.filesize = {unit: binary, precision: 2}
 
-# if running in Neovim, use that as our editor
 $env.config.buffer_editor = (
     if ('NVIM' in $env) and (which nvr | is-not-empty) {
+# if running in Neovim, use that as our editor
         [nvr -cc split --remote-wait]
+    } else if (which nvim | is-not-empty) {
+# otherwise use Neovim itself
+        [nvim]
+    } else if ('EDITOR' in $env) and ($env.EDITOR | is-not-empty) {
+        [$env.EDITOR]
     } else {null}
 )
 
