@@ -86,7 +86,7 @@ function M.calculate_nproc()
 		end
 	else
 		vim.notify(
-			"non-windows platforms haven't been addressed yet " .. "so using a default of: " .. vim.g.max_nproc_default,
+			"other platforms haven't been addressed yet " .. "so using a default of: " .. vim.g.max_nproc_default,
 			vim.log.levels.WARN,
 			{}
 		)
