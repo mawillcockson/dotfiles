@@ -30,10 +30,10 @@ return {
 		version = "*",
 		lazy = true,
 		priority = 99, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		config = true,
+		opts = { automatic_enable = false },
 		dependencies = {
 			---- hopefully, putting this here will make it load before mason-lspconfig.nvim
-			--"williamboman/mason.nvim",
+			"williamboman/mason.nvim",
 			-- Put any dependencies that a language server might have here
 			-- lua_ls:
 			"LuaCATS/love2d",
@@ -44,7 +44,7 @@ return {
 		"neovim/nvim-lspconfig",
 		lazy = true,
 		priority = 98, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		--dependencies = { "williamboman/mason-lspconfig.nvim" },
+		dependencies = { "williamboman/mason-lspconfig.nvim", "hrsh7th/nvim-cmp", "nvim-telescope/telescope.nvim" },
 		config = function(_, _)
 			local lspconfig = require("lspconfig")
 			-- not needed, as there's nothing in the base project to configure
@@ -185,7 +185,11 @@ return {
 	-- https://github.com/folke/lazydev.nvim/blob/d5800897d9180cea800023f2429bce0a94ed6064/README.md?plain=1#L39
 	{
 		"folke/lazydev.nvim",
-		dependencies = { "Bilal2453/luvit-meta", --[["neovim/nvim-lspconfig"]] },
+		lazy = true,
+		dependencies = {
+			"Bilal2453/luvit-meta",
+			"neovim/nvim-lspconfig",
+		},
 		ft = "lua", -- only load on lua files
 		opts = {
 			library = {
