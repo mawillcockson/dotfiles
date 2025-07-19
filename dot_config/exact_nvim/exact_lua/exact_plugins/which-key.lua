@@ -12,6 +12,8 @@ return {
 	end,
 	opts = {
 		spec = {
+			{ "<leader>f", group = "Telescope files" },
+			{ "<leader>l", group = "Telescope LSP" },
 			-- NOTE::BUG mapping just the leader to something, and then mapping something
 			-- to e.g. <Leader>a makes the original just-<Leader> mapping delay as it waits
 			-- to see if just <Leader> was intended, or if another key is about to be
