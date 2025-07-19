@@ -6,7 +6,7 @@ return {
 		{
 			"<leader>rw",
 			function()
-				require("whitespace").trim()
+				require("whitespace-nvim").trim()
 			end,
 			desc = "trim whitespace in the file",
 		},
