@@ -58,7 +58,7 @@ return {
 			ts.setup(opts)
 
 			vim.api.nvim_create_user_command("TSUpdateSync", function()
-				ts.update("all", { max_jobs = 1 }):wait(300000)
+				ts.update("all", { max_jobs = require("utils").calculate_nproc() }):wait(300000)
 			end, {})
 
 			vim.api.nvim_create_user_command("TSInstallMine", function()
@@ -122,7 +122,7 @@ return {
 					"typescript",
 					"zig",
           --]]
-				}, { max_jobs = 1 }):wait(300000)
+				}, { max_jobs = require("utils").calculate_nproc() }):wait(300000)
 			end, {})
 		end,
 	},

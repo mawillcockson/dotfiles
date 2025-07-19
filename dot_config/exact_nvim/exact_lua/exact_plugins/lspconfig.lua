@@ -19,7 +19,7 @@ return {
 		-- lazy overrules the priority, so the priority has no meaning to lazy
 		lazy = true,
 		priority = 100, -- https://github.com/williamboman/mason-lspconfig.nvim/tree/v1.27.0#setup
-		opts = { max_concurrent_installers = require("utils").calculate_nproc() or vim.g.max_nproc_default or 1 },
+		opts = { max_concurrent_installers = require("utils").calculate_nproc() },
 		config = function(_, opts)
 			require("mason").setup(opts)
 			require("utils").try_add_nodejs()
