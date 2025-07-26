@@ -17,7 +17,7 @@ export def --env "path add" [
         | each {|p|
             match ($p | describe | str replace --regex '<.*' '') {
                 "string" | "nothing" => $p,
-                "record" => { $p | get --ignore-errors $nu.os-info.name },
+                "record" => { $p | get --optional $nu.os-info.name },
                 _ => {
                     return (error make {
                         msg: $'unsupported path type: ($p | describe)',
