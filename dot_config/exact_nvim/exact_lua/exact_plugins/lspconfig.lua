@@ -93,6 +93,10 @@ return {
 				vim.lsp.enable("taplo")
 			end
 
+			if executable("ansible-language-server") or mason_installed("ansible-language-server") then
+				vim.lsp.enable("ansiblels")
+			end
+
 			local version = vim.version()
 			local vim_version =
 				assert(vim.version.parse(table.concat({ version.major, version.minor, version.patch }, ".")))
