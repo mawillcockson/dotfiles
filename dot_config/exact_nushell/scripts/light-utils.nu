@@ -17,7 +17,7 @@ export def --env "path add" [
         | each {|p|
             match ($p | describe | str replace --regex '<.*' '') {
                 "string" | "nothing" => $p,
-                "record" => { $p | get --optional $nu.os-info.name },
+                "record" => { $p | get ([{value: $nu.os-info.name, optional: true, insensitive: false}] | into cell-path) },
                 _ => {
                     return (error make {
                         msg: $'unsupported path type: ($p | describe)',
