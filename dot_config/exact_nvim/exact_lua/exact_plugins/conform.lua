@@ -39,6 +39,7 @@ return {
 			css = { "prettier" },
 			javascript = { "prettier" },
 			scala = { "scalafmt" },
+			yaml = { "prettier" },
 		},
 	},
 	config = function(_, opts)
