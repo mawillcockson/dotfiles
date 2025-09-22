@@ -676,7 +676,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^fnm install --lts
         ^fnm default lts-latest
     }}} --tags [javascript, tooling, large, rarely] --reasons ["helps install various js-based tooling"] |
-    simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["dependency for compiling atuin v18.3 on Windows"] |
+    simple-add "protoc" {"windows": {"scoop": "protobuf"}} --reasons ["used to be dependency for compiling atuin v18.3 on Windows"] |
     simple-add "atuin" {"windows": {"custom": {|install: closure|
         do $install 'cargo-binstall'
         ^cargo binstall atuin
