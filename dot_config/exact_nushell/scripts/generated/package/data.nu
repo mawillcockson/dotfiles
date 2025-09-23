@@ -683,7 +683,9 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     }}, "linux": {"custom": {|install: closure|
         let tmpfile = (mktemp)
         http get --redirect-mode 'follow' --max-time 3sec 'https://setup.atuin.sh' | save -f $tmpfile
-        ^sh $tmpfile
+        with-env {ATUIN_NO_MODIFY_PATH: 1} {
+            ^sh $tmpfile
+        }
         rm $tmpfile
     }}} --tags [cli, want, history] --reasons ["syncs my command history across platforms and computers"] |
     simple-add "fennel" {"windows": {"custom": {|install: closure|
