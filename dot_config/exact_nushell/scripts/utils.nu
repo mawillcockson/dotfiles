@@ -497,3 +497,38 @@ export def "package check-installed dpkg" [name: string] {
         'installed'
     )
 }
+
+# attempt to parse known os-release values
+export def "os_release" [] {
+    let os_release = open /etc/os-release
+    return (
+        [
+            PRETTY_NAME,
+            NAME,
+            VERSION_ID,
+            VERSION,
+            VERSION_CODENAME,
+            ID,
+            HOME_URL,
+            SUPPORT_URL,
+            BUG_REPORT_URL,
+        ]
+        | par-each {|name|
+            echo $'printf "%s" "${($name)}"' |
+            prepend $os_release |
+            str join "\n" |
+            {($name): ($in | ^sh -s)}
+        }
+        | into record
+    )
+}
+
+# attempt to find the current major release of Debian
+export def "current_debian_major_release" [] {
+    if (^lsb_release --id --short | str downcase) == debian {
+        return (^lsb_release --release --short | into int)
+    }
+    else {
+        return null
+    }
+}
