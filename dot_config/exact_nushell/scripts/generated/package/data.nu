@@ -1198,8 +1198,18 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             ^ghcup run -m -- pacman --noconfirm -S ca-certificates
         }
         ^ghcup run -m -- sed -i -e 's/db_home:.*$/db_home: windows/' /etc/nsswitch.conf
-        ^ghcup run -m -- sed -i -e 's/#MSYS2_PATH_TYPE=.*/MSYS2_PATH_TYPE=inherit/' /c/msys64/msys2.ini
-        ^ghcup run -m -- sed -i -e 's/rem set MSYS2_PATH_TYPE=inherit/set MSYS2_PATH_TYPE=inherit/' /c/msys64/msys2_shell.cmd
+        let msys2_ini = ('~/scoop/apps/msys2/current/msys2.ini' | path expand)
+        let tmpfile = (mktemp --tmpdir)
+        open $msys2_ini |
+        str replace --regex '^#MSYS2_PATH_TYPE=.*' 'MSYS2_PATH_TYPE=inherit' |
+        save -f $tmpfile
+        mv --verbose --force $tmpfile $msys2_ini
+        let msys2_shell_cmd = ('~/scoop/apps/msys2/current/msys2_shell.cmd' | path expand)
+        let tmpfile = (mktemp --tmpdir)
+        open $msys2_shell_cmd |
+        str replace --regex 'rem set MSYS2_PATH_TYPE=inherit' 'set MSYS2_PATH_TYPE=inherit' |
+        save -f $tmpfile
+        mv --verbose --force $tmpfile $msys2_shell_cmd
     }}} --tags [tooling, haskell] --reasons ["haskell version management tool"] --links ["https://www.haskell.org/ghcup/install/#manual-installation"] |
     simple-add "msys2" {"windows": {"custom": {|install: closure|
         do $install 'scoop'
