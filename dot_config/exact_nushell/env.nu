@@ -1,4 +1,5 @@
 use consts.nu [
+    platform,
     nu_log_format,
     nu_log_date_format,
 ]
@@ -47,6 +48,23 @@ let sbins = (
     where {path exists}
 )
 
+let dot_local = ($nu.home-path | path join '.local')
+# from: https://www.haskell.org/ghcup/install/#manual-installation
+let ghcup_base = $dot_local
+let ghcup_bin = ($ghcup_base | path join 'ghcup' 'bin')
+match $platform {
+    'windows' => {
+        {
+            GHCUP_MSYS2: ('~/scoop/apps/msys2/current/' | path expand),
+            GHCUP_INSTALL_BASE_PREFIX: $ghcup_base,
+            CABAL_DIR: ($ghcup_base | path join 'cabal'),
+        }
+    },
+    _ => {
+        {}
+    },
+} | load-env
+
 use light-utils.nu ["path add"]
 
 path add ...([
@@ -55,6 +73,7 @@ path add ...([
     $zint_dir,
     $atuin_dir,
     $cargo_dir,
+    $ghcup_bin,
 ] | append $sbins)
 
 if (which fnm | is-not-empty) {
