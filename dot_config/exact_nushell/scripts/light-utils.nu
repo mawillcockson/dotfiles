@@ -46,15 +46,16 @@ export def --env "path add" [
     )
 
     let path_env_name = ([Path, PATH] | where {$in in $env} | first)
-    (
+    let modified_env = {
+        ($path_env_name): (
             $env
             | get $path_env_name
             | if ($in | describe | str replace --regex '<.*' '') == 'string' {
                 $in | split row (char env_sep)
             } else {$in}
             | if $prepend { prepend $paths } else { append $paths }
-    ) |
-    tee {
-        { ($path_env_name): ($in) } | load-env
+        ),
     }
+    load-env $modified_env
+    return ($modified_env | get $path_env_name)
 }
