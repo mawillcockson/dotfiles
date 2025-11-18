@@ -1136,7 +1136,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         log info "in order to install one of these postgres versions, use something like 'apt install -t bookworm-pgdg postgresql'"
     }}} --tags [rarely, medium] --reasons ["beloved relational database system"] |
     simple-add "cmake" {"windows": {"scoop": "cmake"}, "linux": {"apt-get": "cmake"}} --tags [want, tooling] --reasons ["cross-platform C/C++ build tool used by telescope-fzf-native.nvim"] --links ["https://cmake.org/download/"] |
-    simple-add "haskell" {"windows": {|install: closure|
+    simple-add "haskell" {"windows": {"custom": {|install: closure|
         do $install 'ghcup'
         do $install 'ghc'
         do $install 'cabal'
@@ -1147,12 +1147,12 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^ghcup run -m -- pacman --noconfirm -Syuu
         ^ghcup run -m -- pacman --noconfirm -S --needed curl autoconf mingw-w64-x86_64-pkgconf
         ^ghcup run -m -- pacman --noconfirm -S ca-certificates
-    }} --tags [language, haskell] --links ["https://haskell.org"] |
-    simple-add "ghc" {"windows": {|install: closure|
+    }}} --tags [language, haskell] --links ["https://haskell.org"] |
+    simple-add "ghc" {"windows": {"custom": {|install: closure|
         do $install 'ghcup'
         ^ghcup install ghc --set recommended
-    }} --tags [tooling, haskell, compiler] --reasons ["haskell compiler"] --links ["https://www.haskell.org/ghc/"] |
-    simple-add "cabal" {"windows": {|install: closure|
+    }}} --tags [tooling, haskell, compiler] --reasons ["haskell compiler"] --links ["https://www.haskell.org/ghc/"] |
+    simple-add "cabal" {"windows": {"custom": {|install: closure|
         do $install 'ghcup'
         ^ghcup install cabal latest
         try { ^cabal update }
@@ -1164,24 +1164,24 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         }
         let modified_config = (mktemp --tmpdir)
         open $cabal_config |
-        split lines |
+        split row "\n" |
         str replace --regex '^-- extra-include-dirs.*' $'extra-include-dirs: ('~/scoop/apps/msys2/current/mingw64/include' | path expand)' |
         str replace --regex '^-- extra-lib-dirs.*' $'extra-lib-dirs: ('~/scoop/apps/msys2/current/mingw64/lib' | path expand)' |
-        str replace --regex '^-- extra-prog-path.*' $'extra-prog-path: ($env | values | filter {$in like '/ghcup/'}), ($env.CABAL_DIR | path join 'bin'), ('~/scoop/apps/msys2/current/mingw64/bin' | path expand), ('~/scoop/apps/msys2/current/usr/bin' | path expand)' |
+        str replace --regex '^-- extra-prog-path.*' $'extra-prog-path: ($env | values | where {$in has '/ghcup/'}), ($env.CABAL_DIR | path join 'bin'), ('~/scoop/apps/msys2/current/mingw64/bin' | path expand), ('~/scoop/apps/msys2/current/usr/bin' | path expand)' |
         str join "\n" |
         save -f $modified_config
         mv --verbose --update $modified_config $cabal_config
         try { ^cabal update }
-    }} --tags [tooling, haskell] --reasons ["haskell build tool"] --links ["https://www.haskell.org/cabal/"] |
-    simple-add "stack" {"windows": {|install: closure|
+    }}} --tags [tooling, haskell] --reasons ["haskell build tool"] --links ["https://www.haskell.org/cabal/"] |
+    simple-add "stack" {"windows": {"custom": {|install: closure|
         do $install 'ghcup'
         ^ghcup install stack latest
-    }} --tags [tooling, haskell] --reasons ["haskell build tool"] --links ["https://haskellstack.org/"] |
-    simple-add "hls" {"windows": {|install: closure|
+    }}} --tags [tooling, haskell] --reasons ["haskell build tool"] --links ["https://haskellstack.org/"] |
+    simple-add "hls" {"windows": {"custom": {|install: closure|
         do $install 'ghcup'
         ^ghcup install hls latest
-    }} --tags [tooling, haskell] --reasons ["haskell language server"] --links ["https://haskell-language-server.readthedocs.io/en/latest/installation.html"] |
-    simple-add "ghcup" {"windows": {|install: closure|
+    }}} --tags [tooling, haskell] --reasons ["haskell language server"] --links ["https://haskell-language-server.readthedocs.io/en/latest/installation.html"] |
+    simple-add "ghcup" {"windows": {"custom": {|install: closure|
         let basedir = $env.GHCUP_INSTALL_BASE_PREFIX
         let ghcup_bin = ($basedir | path join 'ghcup' 'bin')
         mkdir $ghcup_bin
@@ -1199,8 +1199,8 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         ^ghcup run -m -- sed -i -e 's/db_home:.*$/db_home: windows/' /etc/nsswitch.conf
         ^ghcup run -m -- sed -i -e 's/#MSYS2_PATH_TYPE=.*/MSYS2_PATH_TYPE=inherit/' /c/msys64/msys2.ini
         ^ghcup run -m -- sed -i -e 's/rem set MSYS2_PATH_TYPE=inherit/set MSYS2_PATH_TYPE=inherit/' /c/msys64/msys2_shell.cmd
-    }} --tags [tooling, haskell] --reasons ["haskell version management tool"] --links ["https://www.haskell.org/ghcup/install/#manual-installation"] |
-    simple-add "msys2" {"msys2": {|install: closure|
+    }}} --tags [tooling, haskell] --reasons ["haskell version management tool"] --links ["https://www.haskell.org/ghcup/install/#manual-installation"] |
+    simple-add "msys2" {"windows": {"custom": {|install: closure|
         do $install 'scoop'
         ^scoop install msys2
         if not ('~/scoop/apps/msys2/current/usr/bin/bash.exe' | path expand | path exists) {
@@ -1213,6 +1213,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
                 'msg': 'msys2 not properly installed: bash returned incorrect error code',
             })
         }
-    }} --tags [environment, linux-on-windows, haskell, pacman] --reasons ["haskell requires this"] --links ["https://www.msys2.org/"] |
+    }}} --tags [environment, linux-on-windows, haskell, pacman] --reasons ["haskell requires this"] --links ["https://www.msys2.org/"] |
     validate-data
 }
