@@ -1167,7 +1167,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         split row "\n" |
         str replace --regex '^-- extra-include-dirs.*' $'extra-include-dirs: ('~/scoop/apps/msys2/current/mingw64/include' | path expand)' |
         str replace --regex '^-- extra-lib-dirs.*' $'extra-lib-dirs: ('~/scoop/apps/msys2/current/mingw64/lib' | path expand)' |
-        str replace --regex '^-- extra-prog-path.*' $'extra-prog-path: ($env | values | where {$in has '/ghcup/'}), ($env.CABAL_DIR | path join 'bin'), ('~/scoop/apps/msys2/current/mingw64/bin' | path expand), ('~/scoop/apps/msys2/current/usr/bin' | path expand)' |
+        str replace --regex '^-- extra-prog-path.*' $'extra-prog-path: ($env.PATH | where {$in like '\bghcup\b'} | first), ($env.CABAL_DIR | path join 'bin'), ('~/scoop/apps/msys2/current/mingw64/bin' | path expand), ('~/scoop/apps/msys2/current/usr/bin' | path expand)' |
         str join "\n" |
         save -f $modified_config
         mv --verbose --update $modified_config $cabal_config
