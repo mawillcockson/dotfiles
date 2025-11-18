@@ -1190,6 +1190,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             http get $link | save ($ghcup_bin | path join 'ghcup.exe')
         }
         do $install 'msys2'
+        ^~/scoop/apps/msys2/current/msys2.exe -c 'exit'
         try {
             ^ghcup run -m -- pacman --noconfirm -Syuu
             ^ghcup run -m -- pacman --noconfirm -Syuu
