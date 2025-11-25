@@ -532,3 +532,13 @@ export def "current_debian_major_release" [] {
         return null
     }
 }
+
+# wait for all jobs to finish
+export def wait_for_jobs [] {
+    print -en 'waiting for jobs'
+    while (job list | is-not-empty) {
+        print -en '.'
+        sleep 0.5sec
+    }
+    print -e "\ndone"
+}
