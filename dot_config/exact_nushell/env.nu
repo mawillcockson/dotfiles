@@ -51,7 +51,13 @@ let sbins = (
 let dot_local = ($nu.home-path | path join '.local')
 # from: https://www.haskell.org/ghcup/install/#manual-installation
 let ghcup_base = $dot_local
-let ghcup_bin = ($ghcup_base | path join 'ghcup' 'bin')
+let ghcup_bin = ($ghcup_base | path join (
+    match $platform {
+        'windows' => 'ghcup',
+        'linux' => '.ghcup',
+        _ => '.ghcup',
+    }
+) 'bin')
 match $platform {
     'windows' => {
         {
