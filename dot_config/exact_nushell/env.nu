@@ -60,6 +60,12 @@ match $platform {
             CABAL_DIR: ($ghcup_base | path join 'cabal'),
         }
     },
+    'linux' => {
+        {
+            GHCUP_INSTALL_BASE_PREFIX: $ghcup_base,
+            CABAL_DIR: ($ghcup_base | path join 'cabal'),
+        }
+    },
     _ => {
         {}
     },
