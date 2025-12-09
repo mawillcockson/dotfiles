@@ -40,6 +40,7 @@ return {
 			javascript = { "prettier" },
 			scala = { "scalafmt" },
 			yaml = { "prettier" },
+			haskell = { "fourmolu" },
 		},
 	},
 	config = function(_, opts)
