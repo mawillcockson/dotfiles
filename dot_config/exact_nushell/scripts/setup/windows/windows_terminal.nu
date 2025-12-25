@@ -161,7 +161,8 @@ export def "configure whole-file" [--start-on-login] {
     let terminal_screenshots_dir = (
         $env
         | get OneDrive? ONEDRIVE? OneDriveConsumer? ONEDRIVECONSUMER?
-        | first
+        | compact
+        | get 0?
         | default ('~/OneDrive' | path expand)
         | path join 'Pictures' 'Screenshots' 'Windows Terminal'
     )

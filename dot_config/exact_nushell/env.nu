@@ -27,7 +27,7 @@ let default_home_dir = (
     | first
 )
 
-$env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $default_home_dir)
+$env.HOME = ($env | get HOME? USERPROFILE? | compact | get 0? | default $default_home_dir)
 
 $env.EGET_CONFIG = ($env.XDG_CONFIG_HOME | path join '.eget.toml')
 $env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
