@@ -74,7 +74,7 @@ function Setup-GitLocalFallback {
     Use scoop to update tools most necessary for updating other tools, and proceeding to perform tasks
 #>
 function Update-NecessaryScoop {
-    scoop update alacritty nu neovim keepass keepass-plugin-keetraytotp keepass-plugin-readable-passphrase neovide git gnupg pwsh
+    scoop update alacritty nu neovim keepass keepass-plugin-keetraytotp keepass-plugin-readable-passphrase git gnupg pwsh
 }
 
 # Import the Chocolatey Profile that contains the necessary code to enable
