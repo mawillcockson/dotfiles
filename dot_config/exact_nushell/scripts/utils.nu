@@ -13,7 +13,7 @@ export def "path resolve" [
     }
 
     let value = (if ($path == null) { $piped } else {$path })
-    
+
     # https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_automatic_variables?view=powershell-7.4#input
     # https://stackoverflow.com/a/39350507
     return (
@@ -170,7 +170,7 @@ export def "ln -s" [
 
 # uses powershell to quote a string for use in powershell
 # export def "powershell quote" [str: string] {
-# 
+#
 # }
 # I don't know of a way to do this, but `ConvertFrom-Json -InputObject $Input`
 # can be used, and then any complex object data can be piped to powershell.
