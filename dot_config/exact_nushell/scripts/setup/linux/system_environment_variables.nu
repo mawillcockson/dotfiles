@@ -66,7 +66,7 @@ export def main [
                 $it.source
             }
         } |
-        sudo cp ...($in) /etc/profile.d/
+        sudo cp --verbose ...($in) /etc/profile.d/
     }
 
     if $any_errors {
