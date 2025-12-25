@@ -459,9 +459,23 @@ export def "my-banner" [] {
 }
 
 export def "setup-gitlocal" [] {
-    git config --local user.name "Matthew W"
-    git config --local user.email "matthew@willcockson.family"
-    git config --local user.signingKey "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115"
+    use std/log
+
+    let chezmoi_config = if (which chezmoi | is-not-empty) {
+        ^chezmoi dump-config --format=json |
+        from json
+    } else {
+        log warning "could not get chezmoi config!\nusing defaults"
+        {}
+    }
+
+    git config --local user.name ($chezmoi_config.data?.git_name? | default "Matthew W")
+    git config --local user.email ($chezmoi_config.data?.git_email? | default "matthew@willcockson.family")
+    git config --local user.signingKey ($chezmoi_config.data?.git_signingKey? | default "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115")
+
+    for key in ["user.name", "user.email", "user.signingKey"] {
+        git config get --local --show-names $key
+    }
 }
 
 export def "delete-temp-starship-configs" [] {
