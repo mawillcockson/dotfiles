@@ -1,4 +1,5 @@
 <#
+NOTE::CHECK_DONE
 Should create an install script in the nu `setup` package that chezmoi runs once to add this to powershell's default $PROFILE ->
 
 if (-not (Test-Path Env:XDG_CONFIG_HOME)) {
