@@ -60,6 +60,10 @@ function dt {
 }
 
 function Setup-GitLocal {
+    nu -c "use utils.nu; setup-gitlocal"
+}
+
+function Setup-GitLocalFallback {
     git config --local user.name "Matthew W"
     git config --local user.email "matthew@willcockson.family"
     git config --local user.signingKey "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115"
