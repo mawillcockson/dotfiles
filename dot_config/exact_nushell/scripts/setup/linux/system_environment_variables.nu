@@ -3,6 +3,7 @@ use std/log
 export const variable_names = [
     'ALREADY_SOURCED_SYSTEM_PROFILE_D',
     'XDG_CONFIG_HOME',
+    'XDG_DATA_HOME',
 ]
 
 export def main [

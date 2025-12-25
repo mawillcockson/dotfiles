@@ -20,6 +20,12 @@ XDG_CONFIG_HOME = {{ env "XDG_CONFIG_HOME" | toToml }}
 {{ else }}
 XDG_CONFIG_HOME = {{ promptStringOnce . "XDG_CONFIG_HOME" (printf "$XDG_CONFIG_HOME (must be in %s)\n" $destDir) $defaultConfigHome | toToml }}
 {{ end }}
+{{ $defaultDataHome := joinPath $destDir ".local" "share" }}
+{{ if env "XDG_DATA_HOME" }}
+XDG_DATA_HOME = {{ env "XDG_DATA_HOME" | toToml }}
+{{ else }}
+XDG_DATA_HOME = {{ promptStringOnce . "XDG_DATA_HOME" (printf "$XDG_DATA_HOME (must be in %s)\n" $destDir) $defaultDataHome | toToml }}
+{{ end }}
 {{ $relBootstrapDir := ".chezmoi-bootstrap" }}
 {{ $absBootstrapDir := joinPath $destDir $relBootstrapDir }}
 {{ if .chezmoi.os | eq "windows" }}
@@ -38,6 +44,7 @@ git_email = 'matthew@willcockson.family'
 git_signingKey = 'EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115'
 minimum_nu_version = { major = 0, minor = 102, patch = 0 }
 set_XDG_CONFIG_HOME = {{ promptBoolOnce . "set_XDG_CONFIG_HOME" "Would you like to set $XDG_CONFIG_HOME system-wide\n(y/n)" false | toToml }}
+set_XDG_DATA_HOME = {{ promptBoolOnce . "set_XDG_DATA_HOME" "Would you like to set $XDG_DATA_HOME system-wide\n(y/n)" false | toToml }}
 copy_bootstrap_nu = {{ promptBoolOnce . "copy_bootstrap_nu" "copy bootstrap nu to ~/apps/eget-bin?\n(y/n)" true | toToml }}
 relBootstrapDir = {{ $relBootstrapDir | toToml }}
 absBootstrapDir = {{ $absBootstrapDir | toToml }}

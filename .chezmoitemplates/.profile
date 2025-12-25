@@ -10,6 +10,7 @@ export HOME="${HOME:-"${SUB_PREFIX-}/home"}"
 export HOME="${HOME:-"/home/${USER:-"$(id -un)"}"}"
 # {{ end }}
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-"${HOME}/.config"}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-"${HOME}/.local/share"}"
 
 # from:
 # https://github.com/mawillcockson/dotfiles/blob/d9cd2ef8ca9293c8f7b86de8c5b23246135b6f5c/dotfiles/.profile
