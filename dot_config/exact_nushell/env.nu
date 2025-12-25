@@ -27,6 +27,11 @@ $env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
 # any $PATHs
 mkdir $env.EGET_BIN
 
+# Haskell Stack
+$env.STACK_LOCAL_BIN_PATH = ($env.HOME | path join 'apps' 'stack-bin')
+mkdir $env.STACK_LOCAL_BIN_PATH
+$env.STACK_XDG = 'true'
+
 if ('NVIM' in $env) and (which nvr | is-not-empty) {
 # if running in Neovim, use that as our editor
     $env.EDITOR = "nvr -cc split --remote-wait"
@@ -86,6 +91,7 @@ path add ...([
     $atuin_dir,
     $cargo_dir,
     $ghcup_bin,
+    $env.STACK_LOCAL_BIN_PATH,
 ] | append $sbins)
 
 if (which fnm | is-not-empty) {
