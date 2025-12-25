@@ -89,8 +89,8 @@ return {
 			end
 
 			-- toml
-			if executable("taplo") or mason_installed("taplo") then
-				vim.lsp.enable("taplo")
+			if executable("tombi") or mason_installed("tombi") then
+				vim.lsp.enable("tombi")
 			end
 
 			if executable("ansible-language-server") or mason_installed("ansible-language-server") then

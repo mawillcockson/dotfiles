@@ -41,6 +41,7 @@ return {
 			scala = { "scalafmt" },
 			yaml = { "prettier" },
 			haskell = { "fourmolu" },
+			toml = { "tombi" },
 		},
 	},
 	config = function(_, opts)
