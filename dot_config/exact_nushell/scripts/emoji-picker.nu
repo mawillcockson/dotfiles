@@ -33,13 +33,20 @@ export def main [
             $query
         }
     )
+    let temp_dir = (
+        $nu
+        | get temp-path? temp-dir?
+        | where {path exists}
+        | compact --empty
+        | first
+    )
     let fzf_command = [
             fzf
                 --disabled
                 --ignore-case
                 --no-sort
                 --cycle
-                $'--history=($nu.temp-path | path join "emoji-picker-history.txt")'
+                $'--history=(temp_dir | path join "emoji-picker-history.txt")'
                 --history-size=1000
                 $'--query=($query)'
                 --select-1

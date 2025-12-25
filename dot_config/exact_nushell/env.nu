@@ -19,7 +19,15 @@ if ('NVIM' in $env) and (which nvr | is-not-empty) {
 # https://www.nushell.sh/blog/2024-12-24-nushell_0_101_0.html#shlvl-toc
 # $env.SHLVL = ($env | get SHLVL? | default '0' | into int) + 1
 
-$env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $nu.home-path)
+let default_home_dir = (
+    $nu
+    | get home-path? home-dir?
+    | where {path exists}
+    | compact --empty
+    | first
+)
+
+$env.HOME = ($env | get HOME? USERPROFILE? | compact | first | default $default_home_dir)
 
 $env.EGET_CONFIG = ($env.XDG_CONFIG_HOME | path join '.eget.toml')
 $env.EGET_BIN = ($env.HOME | path join 'apps' 'eget-bin')
@@ -53,7 +61,7 @@ let sbins = (
     where {path exists}
 )
 
-let dot_local = ($nu.home-path | path join '.local')
+let dot_local = ($default_home_dir | path join '.local')
 # from: https://www.haskell.org/ghcup/install/#manual-installation
 let ghcup_base = $dot_local
 let ghcup_bin = ($ghcup_base | path join (

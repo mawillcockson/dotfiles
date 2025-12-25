@@ -7,7 +7,7 @@ export def default_variables [] {
         get HOME? USERPROFILE? |
         append [
             ('~' | path expand),
-            ($nu.home-path),
+            ($nu.home-path? | default $nu.home-dir?),
         ] |
         compact --empty |
         where {|it| $it | path exists} |
