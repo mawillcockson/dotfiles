@@ -62,6 +62,8 @@ bindings = [
     { key = "NumpadSubtract", mods = "Control", action = "DecreaseFontSize" },
     { key = "Enter", mods = "Alt", action = "ReceiveChar" },
     { key = "F11", mods = "None", action = "ToggleFullscreen" },
+    { key = "PageUp", mods = "Control | Alt", action = "ScrollHalfPageUp" },
+    { key = "PageDown", mods = "Control | Alt", action = "ScrollHalfPageDown" },
 
     # macOS compatibility
     # including this here instead of a separate file because I don't use macOS (yet)
