@@ -42,6 +42,11 @@ return {
 			yaml = { "prettier" },
 			haskell = { "fourmolu" },
 			toml = { "tombi" },
+			nix = {
+				"nixfmt",
+				-- for windows support
+				"alejandra",
+			},
 		},
 	},
 	config = function(_, opts)

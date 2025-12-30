@@ -97,6 +97,10 @@ return {
 				vim.lsp.enable("ansiblels")
 			end
 
+			if executable("nil") or mason_installed("nil") then
+				vim.lsp.enable("nil_ls")
+			end
+
 			local version = vim.version()
 			local vim_version =
 				assert(vim.version.parse(table.concat({ version.major, version.minor, version.patch }, ".")))
