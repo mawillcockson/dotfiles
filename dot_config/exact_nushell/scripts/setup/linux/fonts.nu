@@ -20,7 +20,7 @@ export def comiccode [] {
     mkdir $to
 
     log info $'downloading encrypted fonts stash to ($encrypted)'
-    http get --max-time 30 'https://mw.je/fonts.tar.zst.age' |
+    http get --max-time 30sec 'https://mw.je/fonts.tar.zst.age' |
     save -f $encrypted
     let age_key = ('~/.age/chezmoi_age_identity.txt.age' | path expand)
     log info $'using age to decrypt font stash, with the key assumed to be at ($age_key)'
