@@ -2,5 +2,5 @@
 kanata.lnk
 {{ end }}
 {{ if not (.chezmoi.os | eq "windows" | and (lookPath "autohotkey.exe")) }}
-autohotkey.ahk
+*.ahk
 {{ end }}
