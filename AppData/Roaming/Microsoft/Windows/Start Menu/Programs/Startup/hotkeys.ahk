@@ -4,4 +4,4 @@
     WinWait("emoji-picker", unset, 2)
     WinActivate
 }
-#`::Run("alacritty")
+#`::Run(Format("alacritty --working-directory `"{1}`"", EnvGet("HOME") || EnvGet("USERPROFILE")))
