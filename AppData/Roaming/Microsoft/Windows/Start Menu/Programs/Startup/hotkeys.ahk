@@ -4,3 +4,4 @@
     WinWait("emoji-picker", unset, 2)
     WinActivate
 }
+#`::Run("alacritty")
