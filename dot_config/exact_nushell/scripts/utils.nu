@@ -466,15 +466,32 @@ export def "setup-gitlocal" [] {
         from json
     } else {
         log warning "could not get chezmoi config!\nusing defaults"
-        {}
+        {
+            data: {
+                git_name: "Matthew W",
+                git_email: "matthew@willcockson.family",
+                git_signingKey: "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115",
+            },
+        }
     }
 
-    git config --local user.name ($chezmoi_config.data?.git_name? | default "Matthew W")
-    git config --local user.email ($chezmoi_config.data?.git_email? | default "matthew@willcockson.family")
-    git config --local user.signingKey ($chezmoi_config.data?.git_signingKey? | default "EDCA9AF7D273FA643F1CE76EA5A7E106D69D1115")
+    git config --local user.name $chezmoi_config.data.git_name
+    git config --local user.email $chezmoi_config.data.git_email
+    git config --local user.signingKey $chezmoi_config.data.git_signingKey
 
-    for key in ["user.name", "user.email", "user.signingKey"] {
-        git config get --local --show-names $key
+    let git_version = (
+        git --version
+        | parse "git version {major}.{minor}.{patch}"
+        | first
+    )
+    if ($git_version.major == 2 and $git_version.minor >= 50) {
+        for key in ["user.name", "user.email", "user.signingKey"] {
+            git config get --local --show-names $key
+        }
+    } else {
+        for key in ["user.name", "user.email", "user.signingKey"] {
+            git config --get --local $key
+        }
     }
 }
 
