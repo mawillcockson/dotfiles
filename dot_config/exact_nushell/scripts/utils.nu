@@ -573,3 +573,27 @@ export def wait_for_jobs [] {
     }
     print -e "\ndone"
 }
+
+export def "crlf-to-lf" [
+    ...files: path, # files to convert
+]: nothing -> nothing {
+    for file in $files {
+        if ($file | path type) != 'file' {
+            return (error make {
+                msg: $'expected files, not ($file | path type)',
+                labels: {
+                    text: 'not a file',
+                    span: (metadata $file).span,
+                },
+                help: 'to work on each file in a directory, apply glob first',
+            })
+        }
+
+        let tmpfile = (mktemp)
+        open --raw $file |
+        decode utf8 |
+        str replace "\r\n" "\n" |
+        save -f $tmpfile
+        mv $tmpfile $file
+    }
+}
