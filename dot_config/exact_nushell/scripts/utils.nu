@@ -592,7 +592,7 @@ export def "crlf-to-lf" [
         let tmpfile = (mktemp)
         open --raw $file |
         decode utf8 |
-        str replace "\r\n" "\n" |
+        str replace --all "\r\n" "\n" |
         save -f $tmpfile
         mv $tmpfile $file
     }
