@@ -115,6 +115,7 @@ return {
 				end,
 				desc = "toggles highlighting of search results in Normal mode",
 			},
+			{ "<leader>k", "<Cmd>w<CR>", desc = "write file to disk (:w)" },
 			{ "<leader>s", "<Cmd>set spell!<CR>", desc = "toggle spellchecking underlines" },
 
 			{
