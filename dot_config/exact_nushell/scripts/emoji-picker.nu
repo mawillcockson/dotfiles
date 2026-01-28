@@ -46,7 +46,7 @@ export def main [
                 --ignore-case
                 --no-sort
                 --cycle
-                $'--history=(temp_dir | path join "emoji-picker-history.txt")'
+                $'--history=($temp_dir | path join "emoji-picker-history.txt")'
                 --history-size=1000
                 $'--query=($query)'
                 --select-1
