@@ -58,16 +58,20 @@ export def main [
 
     let any_errors = ($no_source | append $content_mismatch | is-not-empty)
     if (not $any_errors) or $continue {
-        $vars |
-        each {|it|
-            if ($it.source_content == $it.destination_content) {
-                log info $'($it.name | to nuon) -> same content, skipping'
-                null
-            } else {
-                $it.source
+        let paths_to_copy = (
+            $vars |
+            each {|it|
+                if ($it.source_content == $it.destination_content) {
+                    log info $'($it.name | to nuon) -> same content, skipping'
+                    null
+                } else {
+                    $it.source
+                }
             }
-        } |
-        sudo cp --verbose ...($in) /etc/profile.d/
+        )
+        if ($paths_to_copy | is-not-empty) {
+            sudo cp --verbose ...($paths_to_copy) /etc/profile.d/
+        }
     }
 
     if $any_errors {
