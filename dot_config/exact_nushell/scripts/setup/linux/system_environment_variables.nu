@@ -49,7 +49,7 @@ export def main [
         log error $'expected to find corresponding file at ($it.source | to nuon), but found nothing'
     }
 
-    let content_mismatch = ($vars | where source_found and destination_exists and source_content != destination_content)
+    let content_mismatch = ($vars | where {|it| $it.source_found and $it.destination_exists and $it.source_content != $it.destination_content})
     let vars = ($vars | where {|it| (not $it.destination_exists) or ($it.destination_exists and $it.source_content == $it.destination_content)})
     $content_mismatch |
     each {|it|
