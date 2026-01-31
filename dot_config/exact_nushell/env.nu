@@ -22,8 +22,8 @@ if ('NVIM' in $env) and (which nvr | is-not-empty) {
 let default_home_dir = (
     $nu
     | get home-path? home-dir?
-    | where {path exists}
     | compact --empty
+    | where {path exists}
     | first
 )
 
