@@ -1,0 +1,11 @@
+- disable fzf-native build without cmake
+- add ability to test `use setup; setup` in qemu, like how nix does some tests
+  - testing on windows would be super cool
+    - maybe GitHub Actions?
+    - command I can run on a machine with 4GB would be the coolest
+  - would probably need a `--skip-fonts` option, since that would require a password, but maybe just the fonts could be dual encrypted with a GitHub or other token / secret
+- fix font in alacritty
+- allow alacritty to run via nixpkgs
+- git should be configured to require signing, but it's not
+- gpg has more commands that let trust and such be configured
+  - the entire `gpg_setup.sh` might be able to be automated now?
