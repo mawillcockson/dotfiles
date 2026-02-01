@@ -38,6 +38,7 @@ return {
 	{
 		"nvim-telescope/telescope-fzf-native.nvim",
 		lazy = true,
+		enabled = vim.fn.executable("cmake") == 1,
 		dependencies = { "nvim-telescope/telescope.nvim" },
 		build = function(plugin_spec)
 			local result = vim.system({
