@@ -27,7 +27,7 @@ history = 100_000
 multiplier = 3
 
 [font]
-#normal = { family = "DejaVuSansM Nerd Font", style = "Regular" }
+normal = { family = "DejaVuSansM Nerd Font", style = "Regular" }
 size = 11.25
 
 [bell]
