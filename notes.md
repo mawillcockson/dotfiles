@@ -10,3 +10,6 @@
 - gpg has more commands that let trust and such be configured
   - the entire `gpg_setup.sh` might be able to be automated now?
 - configure kde settings, like Win+` keyboard shortcut
+- gpg -> ssh doesn't seem to be set up correctly?
+- make sure ble.sh or bash-preexec are installed, so atuin works in those environments
+  - maybe disable up-arrow in bash, but still have Ctrl-R work?
