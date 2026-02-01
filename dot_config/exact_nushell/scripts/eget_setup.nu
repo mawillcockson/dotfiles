@@ -12,13 +12,13 @@ export def main []: nothing -> nothing {
             insert 'nalgeon/sqlite' {'asset_filters': ['sqlean.exe']} |
             insert 'getsops/sops' {'asset_filters': ['.exe', '^.json']} |
             insert 'twpayne/chezmoi' {'asset_filters': ['.zip']} |
-            insert 'jtroo/kanata' {'asset_filters': ['winIOv2.exe']} |
+            insert 'jtroo/kanata' {'asset_filters': ['windows', 'x64'], 'file': '*tty_winIOv2_x64.exe'} |
             insert 'elm/compiler' {'asset_filters': ['.gz', 'windows']} |
             insert 'cargo-bins/cargo-binstall' {'asset_filters': ['msvc.zip', '^.sig']}
         },
         'linux' => {
             insert 'nalgeon/sqlite' {'asset_filters': ['sqlean-ubuntu']} |
-            insert 'jtroo/kanata' {'asset_filters': ['kanata', '^.']} |
+            insert 'jtroo/kanata' {'asset_filters': ['kanata-linux'], 'file': '*linux_x64'} |
             insert 'neovide/neovide' {'asset_filters': ['.AppImage', '^.zsync']} |
             insert 'sharkdp/fd' {'asset_filters': ['gnu']} |
             insert 'JohnnyMorganz/StyLua' {'asset_filters': ['linux', 'musl']} |
