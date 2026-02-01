@@ -3,8 +3,10 @@ Description=Start tmux in detached session
 
 [Service]
 Type=forking
-User=%I
-WorkingDirectory=/home/%u
+#User=%i
+#Group=%i
+#WorkingDirectory=/home/%i
+WorkingDirectory=%h
 ExecStart=/usr/bin/tmux new-session -s %u -d
 ExecStop=/usr/bin/tmux kill-session -t %u
 
