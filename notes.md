@@ -9,3 +9,4 @@
 - git should be configured to require signing, but it's not
 - gpg has more commands that let trust and such be configured
   - the entire `gpg_setup.sh` might be able to be automated now?
+- configure kde settings, like Win+` keyboard shortcut
