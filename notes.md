@@ -12,3 +12,5 @@
 - gpg -> ssh doesn't seem to be set up correctly?
 - make sure ble.sh or bash-preexec are installed, so atuin works in those environments
   - maybe disable up-arrow in bash, but still have Ctrl-R work?
+- I have chezmoi configured to _ask_ where `$XDG_CONFIG_HOME` and `$XDG_DATA_HOME` should point to, but I don't think the response is recorded anywhere other than in the chezmoi prompts database, and certainly isn't used anywhere that I can tell
+  - None of the chezmoi externals settings respect this, currently
