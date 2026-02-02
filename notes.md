@@ -1,4 +1,3 @@
-- disable fzf-native build without cmake
 - add ability to test `use setup; setup` in qemu, like how nix does some tests
   - testing on windows would be super cool
     - maybe GitHub Actions?
