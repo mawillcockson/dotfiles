@@ -1,0 +1,1 @@
+the dot files (.profile, .bash_profile, .bashrc) in this directory are not used, and instead the modify_dot_profile files in the root of the respository are used
