@@ -50,6 +50,7 @@ case "$-" in
 
     init_starship
     init_atuin
+    echo 'finished custom starship and atuin initialization functions' >> ./message.txt
 
     BASH_PREEXEC_FILE="${XDG_DATA_HOME:-"${HOME?"\$HOME not defined"}"/.local/share}/bash-preexec/.bash-preexec.sh"
     # only use .bash-preexec.sh when ble.sh isn't present; otherwise use
