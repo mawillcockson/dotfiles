@@ -20,7 +20,7 @@ init_starship() {
             eval "${STARSHIP_INIT}"
         fi
     else
-        echo 'starship already running, so not configuring'
+        : echo 'starship already running, so not configuring'
     fi
 }
 
@@ -33,11 +33,10 @@ init_atuin() {
         if ! ATUIN_INIT="$(atuin init bash)"; then
             echo 'problem starting atuin'
         else
-            echo '### initializing atuin ###' >> ./message.txt
             eval "${ATUIN_INIT}"
         fi
     else
-        echo 'atuin already running, so not configuring'
+        : echo 'atuin already running, so not configuring'
     fi
 }
 
@@ -46,7 +45,6 @@ alias init_ssh_agent='init_ssh'
 
 case "$-" in
 *i*)
-    echo 'hello made it this far' >> ./message.txt
     # shell is interactive
     if [ -n "${PLEASE_USE_NU+"set"}" ] && command -v nu >/dev/null 2>&1 && nu -e exit 2>&1; then
         exec nu --login
@@ -54,7 +52,6 @@ case "$-" in
 
     init_starship
     init_atuin
-    echo 'finished custom starship and atuin initialization functions' >> ./message.txt
 
     BASH_PREEXEC_FILE="${XDG_DATA_HOME:-"${HOME?"\$HOME not defined"}"/.local/share}/bash-preexec/.bash-preexec.sh"
     # only use .bash-preexec.sh when ble.sh isn't present; otherwise use
