@@ -13,12 +13,13 @@
 {{- $updatedPreChunk := list $preGuardComment $preManaged $preGuardComment | join "\n" -}}
 {{- $updatedMainChunk := list $mainGuardComment $mainManaged $mainGuardComment | join "\n" -}}
 {{- $updatedPostChunk := list $postGuardComment $postManaged $postGuardComment | join "\n" -}}
+{{- $result := list -}}
 {{- if $current | contains $preGuardComment | and (not ($current | mustRegexMatch $prePattern)) -}}
 {{- /* this error is likely from a single guard comment line being deleted */ -}}
 {{- call (regexMatch $prePattern $current) -}}
 {{- /* the above line is intentionally incorrect */ -}}
 {{- else -}}
-{{- $updatedPreChunk -}}
+{{- $result = append $result $updatedPreChunk -}}
 {{- end -}}
 {{- if $current | contains $mainGuardComment | and (not ($current | mustRegexMatch $mainPattern)) -}}
 {{- /* this error is likely from a single guard comment line being deleted */ -}}
@@ -27,15 +28,16 @@
 {{- else if $current | mustRegexMatch $mainPattern -}}
 {{- $mainOnly := mustRegexReplaceAllLiteral $prePattern $current "" -}}
 {{- $mainOnly = mustRegexReplaceAllLiteral $postPattern $mainOnly "" -}}
-{{- mustRegexReplaceAllLiteral $mainPattern $mainOnly $updatedMainChunk | trim }}
-{{ else -}}
+{{- $result = mustRegexReplaceAllLiteral $mainPattern $mainOnly $updatedMainChunk | trim | append $result -}}
+{{- else -}}
 {{- $noPre := mustRegexReplaceAllLiteral $prePattern $current "" -}}
-{{- list $noPre $updatedMainChunk | join "\n\n" | trim }}
-{{ end -}}
+{{- $result = list $noPre $updatedMainChunk | join "\n" | trim | append $result -}}
+{{- end -}}
 {{- if $current | contains $postGuardComment | and (not ($current | mustRegexMatch $postPattern)) -}}
 {{- /* this error is likely from a single guard comment line being deleted */ -}}
 {{- call (regexMatch $postPattern $current) -}}
 {{- /* the above line is intentionally incorrect */ -}}
 {{- else -}}
-{{ $updatedPostChunk }}
-{{ end -}}
+{{- $result = append $result $updatedPostChunk -}}
+{{- end -}}
+{{- $result | join "\n" -}}
