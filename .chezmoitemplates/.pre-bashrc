@@ -1,2 +1,2 @@
 # https://github.com/akinomyoga/ble.sh/releases/tag/nightly
-[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --attach=none
+[[ $- == *i* ]] && test -f ~/.local/share/blesh/ble.sh && source ~/.local/share/blesh/ble.sh --attach=none
