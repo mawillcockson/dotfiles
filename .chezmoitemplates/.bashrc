@@ -39,13 +39,13 @@ init_atuin() {
 alias init_ssh='eval "$(okc-ssh-agent)"'
 alias init_ssh_agent='init_ssh'
 
-if [ -n "${PLEASE_USE_NU+"set"}" ] && command -v nu >/dev/null 2>&1 && nu -e exit 2>&1; then
-    exec nu --login
-fi
-
 case "$-" in
 *i*)
     # shell is interactive
+    if [ -n "${PLEASE_USE_NU+"set"}" ] && command -v nu >/dev/null 2>&1 && nu -e exit 2>&1; then
+        exec nu --login
+    fi
+
     init_starship
     init_atuin
 
