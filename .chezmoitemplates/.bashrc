@@ -19,6 +19,8 @@ init_starship() {
         else
             eval "${STARSHIP_INIT}"
         fi
+    else
+        echo 'starship already running, so not configuring'
     fi
 }
 
@@ -34,6 +36,8 @@ init_atuin() {
             echo '### initializing atuin ###' >> ./message.txt
             eval "${ATUIN_INIT}"
         fi
+    else
+        echo 'atuin already running, so not configuring'
     fi
 }
 
