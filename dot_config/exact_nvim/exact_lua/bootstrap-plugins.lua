@@ -31,12 +31,20 @@ local function do_bootstrap()
 
 	if headless then
 		vim.notify(
-			[[If this gets stuck, the plugins.lua probably didn't appropriately call :quitall
+			[[
+If this gets stuck, the plugins.lua probably didn't appropriately call :quitall
 Thankfully, Neovim starts a remote server session every time it starts.
 On Windows, as of 2022-October, these are named pipes like
 \\.\pipe\nvim.xxxx.x
 The following powershell command will connect neovim-qt to the first one:
-nvim-qt --server "\\.\pipe\$((gci \\.\pipe\ | Where-Object -Property Name -Like "nvim*" | Select-Object -First 1).Name)"]],
+
+nvim-qt --server "\\.\pipe\$((gci \\.\pipe\ | Where-Object -Property Name -Like "nvim*" | Select-Object -First 1).Name)"
+
+On Linux, they're likely in /run/user/<uid>/nvim.xxxx.x
+The following nushell command will connect to the first one:
+
+glob /run/user/(id -u)/nvim.* | where {($in | path type) == 'socket'} | first | nvim --server $in --remote-ui
+]],
 			INFO
 		)
 	end
