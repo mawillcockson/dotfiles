@@ -1,12 +1,41 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- /* https://www.chezmoi.io/user-guide/manage-different-types-of-file/#manage-part-but-not-all-of-a-file */ -}}
 {{- $current := .chezmoi.stdin -}}
-{{- $guardComment := "# chezmoi-managed portion (elkjw8)" -}}
-{{- $managed := includeTemplate ".bashrc" . -}}
-{{- $pattern := list "(?s)" (regexQuoteMeta $guardComment) ".*" (regexQuoteMeta $guardComment) | join "" -}}
-{{- $updatedChunk := list $guardComment $managed $guardComment | join "\n" -}}
-{{- if $current | contains $guardComment -}}
-{{- mustRegexReplaceAllLiteral $pattern $current $updatedChunk -}}
+{{- $preGuardComment := "# chezmoi-managed portion (.pre-bashrc)" -}}
+{{- $mainGuardComment := "# chezmoi-managed portion (.bashrc)" -}}
+{{- $postGuardComment := "# chezmoi-managed portion (.post-bashrc)" -}}
+{{- $preManaged := includeTemplate ".pre-bashrc" . | trim -}}
+{{- $mainManaged := includeTemplate ".bashrc" . | trim -}}
+{{- $postManaged := includeTemplate ".post-bashrc" . | trim -}}
+{{- $prePattern := list "(?s)" (regexQuoteMeta $preGuardComment) ".*" (regexQuoteMeta $preGuardComment) | join "" -}}
+{{- $mainPattern := list "(?s)" (regexQuoteMeta $mainGuardComment) ".*" (regexQuoteMeta $mainGuardComment) | join "" -}}
+{{- $postPattern := list "(?s)" (regexQuoteMeta $postGuardComment) ".*" (regexQuoteMeta $postGuardComment) | join "" -}}
+{{- $updatedPreChunk := list $preGuardComment $preManaged $preGuardComment | join "\n" -}}
+{{- $updatedMainChunk := list $mainGuardComment $mainManaged $mainGuardComment | join "\n" -}}
+{{- $updatedPostChunk := list $postGuardComment $postManaged $postGuardComment | join "\n" -}}
+{{- if $current | contains $preGuardComment | and (not ($current | mustRegexMatch $prePattern)) -}}
+{{- /* this error is likely from a single guard comment line being deleted */ -}}
+{{- call (regexMatch $prePattern $current) -}}
+{{- /* the above line is intentionally incorrect */ -}}
 {{- else -}}
-{{- list $updatedChunk $current | join "\n\n" }}
+{{- $updatedPreChunk -}}
 {{- end -}}
+{{- if $current | contains $mainGuardComment | and (not ($current | mustRegexMatch $mainPattern)) -}}
+{{- /* this error is likely from a single guard comment line being deleted */ -}}
+{{- call (regexMatch $mainPattern $current) -}}
+{{- /* the above line is intentionally incorrect */ -}}
+{{- else if $current | mustRegexMatch $mainPattern -}}
+{{- $mainOnly := mustRegexReplaceAllLiteral $prePattern $current "" -}}
+{{- $mainOnly = mustRegexReplaceAllLiteral $postPattern $mainOnly "" -}}
+{{- mustRegexReplaceAllLiteral $mainPattern $mainOnly $updatedMainChunk | trim }}
+{{ else -}}
+{{- $noPre := mustRegexReplaceAllLiteral $prePattern $current "" -}}
+{{- list $noPre $updatedMainChunk | join "\n\n" | trim }}
+{{ end -}}
+{{- if $current | contains $postGuardComment | and (not ($current | mustRegexMatch $postPattern)) -}}
+{{- /* this error is likely from a single guard comment line being deleted */ -}}
+{{- call (regexMatch $postPattern $current) -}}
+{{- /* the above line is intentionally incorrect */ -}}
+{{- else -}}
+{{ $updatedPostChunk }}
+{{ end -}}

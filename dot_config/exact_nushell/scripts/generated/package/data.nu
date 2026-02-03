@@ -1225,5 +1225,27 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             })
         }
     }}} --tags [environment, linux-on-windows, haskell, pacman] --reasons ["haskell requires this"] --links ["https://www.msys2.org/"] |
+    simple-add "tar" {"linux": {"apt-get": "tar"}} --tags [tooling, small] --reasons ["archive utility"] |
+    simple-add "bash" {"linux": {"apt-get": "bash"}} --tags [tooling, small] --reasons ["very popular shell"] |
+    simple-add "ble.sh" {"linux": {"custom": {|install: closure|
+        use std/log
+
+        do $install 'bash'
+        do $install 'tar'
+        # ble.sh needs curl, I believe
+        do $install 'curl'
+
+        let tmpdir = (mktemp -d)
+        let archive_file = ($tmpdir | path join 'ble-nightly.tar.xz')
+        log info $'downloading nightly ble.sh release to: ($tmpdir)'
+        curl -L 'https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz' --output $archive_file
+        log info $'extracting ble.sh, hopefully to: ($tmpdir)'
+        tar -xJf $archive_file -C $tmpdir
+        log info $'running ($tmpdir | path join ble-nightly/ble.sh) to install itself to ($env.XDG_DATA_HOME)'
+        do {cd $tmpdir; bash ble-nightly/ble.sh --install $env.XDG_DATA_HOME }
+        log debug $'removing temporary directory: ($tmpdir)'
+        rm -r $tmpdir
+        # NOTE::UPGRADE should have systemd units that update ble.sh, that we can start here if systemd is detected
+    }}} --tags [niceties, "command-line"] --reasons ["helps atuin works slightly better in bash than .bash-preexec.sh does"] --links ["https://github.com/akinomyoga/ble.sh"] |
     validate-data
 }

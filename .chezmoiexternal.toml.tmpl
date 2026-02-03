@@ -114,3 +114,9 @@ refreshPeriod = {{ $commonRefreshPeriod }}
 type = 'file'
 url = 'https://github.com/drduh/config/raw/master/gpg.conf'
 refreshPeriod = {{ $commonRefreshPeriod }}
+
+[".local/share/bash-preexec/.bash-preexec.sh"]
+type = 'file'
+executable = true
+url = 'https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh'
+refreshPeriod = {{ $commonRefreshPeriod }}

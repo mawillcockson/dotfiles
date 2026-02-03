@@ -48,5 +48,20 @@ case "$-" in
     # shell is interactive
     init_starship
     init_atuin
+
+    BASH_PREEXEC_FILE="${XDG_DATA_HOME:-"${HOME?"\$HOME not defined"}"/.local/share}/bash-preexec/.bash-preexec.sh"
+    # only use .bash-preexec.sh when ble.sh isn't present; otherwise use
+    # ble.sh's implementation:
+    # https://github.com/akinomyoga/ble.sh/wiki/Performance#18-debug-trap
+    if test -n "${BLE_VERSION-}"; then
+        # .bash-preexec is not really needed by anything I use, that doesn't
+        # already use ble.sh, so if it's loaded, we're good
+        : ble-import integration/bash-preexec
+    elif test -f "${BASH_PREEXEC_FILE}"; then
+        if ! . "${BASH_PREEXEC_FILE}"; then
+            printf 'problem loading .bash-preexec.sh!\n'
+        fi
+    fi
+    unset -v BASH_PREEXEC_FILE || true
     ;;
 esac
