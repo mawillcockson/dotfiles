@@ -5,11 +5,14 @@ export use setup/linux/tmux.nu
 export use setup/linux/clean_downloads.nu
 
 export def main [
+	--skip-fonts, # whether to run the fonts module or not
 	--setup-downloads-cleaning, # whether to unconditionally setup downloads cleaning
 ]: [nothing -> nothing] {
     use std/log
 
-    fonts
+	if not $skip_fonts {
+		fonts
+	}
     system_environment_variables
     kanata
     keepass_plugins
