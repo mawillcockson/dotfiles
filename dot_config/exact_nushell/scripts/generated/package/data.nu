@@ -1245,7 +1245,13 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         do {cd $tmpdir; bash ble-nightly/ble.sh --install $env.XDG_DATA_HOME }
         log debug $'removing temporary directory: ($tmpdir)'
         rm -r $tmpdir
-        # NOTE::UPGRADE should have systemd units that update ble.sh, that we can start here if systemd is detected
+        # NOTE::DONE should have systemd units that update ble.sh, that we can start here if systemd is detected
+		systemctl --user enable update-blesh.timer
+		try {
+			systemctl --user start update-blesh.timer
+		} catch {
+			log error 'problem starting ble.sh update timer; use systemctl --user status update-blesh.{timer,service} to diagnose'
+		}
     }}} --tags [niceties, "command-line"] --reasons ["helps atuin works slightly better in bash than .bash-preexec.sh does"] --links ["https://github.com/akinomyoga/ble.sh"] |
     validate-data
 }

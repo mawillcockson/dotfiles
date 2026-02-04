@@ -1,0 +1,14 @@
+[Unit]
+Description=have ble.sh update itself
+Documentation=https://github.com/akinomyoga/ble.sh?tab=readme-ov-file#15-update
+After=network-online.target
+
+[Timer]
+OnUnitInactiveSec=1day
+AccuracySec=1hour
+# wait OnUnitInactiveSec starting AFTER service becomes inactive (exits)
+DeferReactivation=true
+Persistent=true
+
+[Install]
+WantedBy=timers.target

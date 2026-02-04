@@ -1,0 +1,15 @@
+[Unit]
+Description=have ble.sh update itself
+Documentation=https://github.com/akinomyoga/ble.sh?tab=readme-ov-file#15-update
+After=network-online.target
+JobRunningTimeoutSec=2min
+StartLimitBurst=1
+StartLimitIntervalSec=1hour
+ConditionPathExists=%D/blesh/ble.sh
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash %D/blesh/ble.sh --update
+#RestartSec=10min
+# on-failure
+Restart=no
