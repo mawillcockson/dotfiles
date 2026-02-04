@@ -30,5 +30,5 @@ nu -c "use setup; setup linux clean_downloads"'
 }
 
 export def kanata [] {
-    nu -c 'use package; package install kanata'
+    run-external $nu.current-exe '-c' 'use package; package install kanata'
 }
