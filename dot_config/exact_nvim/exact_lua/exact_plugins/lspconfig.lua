@@ -97,7 +97,10 @@ return {
 				vim.lsp.enable("ansiblels")
 			end
 
-			if executable("nil") or mason_installed("nil") then
+			-- nix: prefer nixd, currently
+			if executable("nixd") then
+				vim.lsp.enable("nixd")
+			elseif executable("nil") or mason_installed("nil") then
 				vim.lsp.enable("nil_ls")
 			end
 
