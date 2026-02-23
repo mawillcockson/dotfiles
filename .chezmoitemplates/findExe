@@ -1,0 +1,9 @@
+{{- concat
+    (joinPath .chezmoi.destDir "apps" "eget-bin" | list)
+    (env "PATH" | splitList .chezmoi.pathListSeparator)
+    (list
+        (joinPath .chezmoi.destDir ".local" "bin")
+        .chezmoi.config.data.absBootstrapDir
+    ) |
+    findOneExecutable .exes
+-}}
