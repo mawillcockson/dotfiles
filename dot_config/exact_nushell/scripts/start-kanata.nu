@@ -14,7 +14,7 @@ export def main [--cfg: path = ""] {
 
     let cfg = if ($cfg | is-not-empty) {$cfg} else {
         $env.XDG_CONFIG_HOME |
-        path join 'kanata' 'config.kbd'
+        path join 'kanata' 'kanata.kbd'
     }
     run-external (find-kanata) '--cfg' $cfg
 }
