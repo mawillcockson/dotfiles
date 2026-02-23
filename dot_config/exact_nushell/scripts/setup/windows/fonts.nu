@@ -30,6 +30,7 @@ export def comiccode [] {
 export def comiccode_dir [] {
     $env |
     get ONEDRIVE? OneDrive? ONEDRIVECONSUMER? OneDriveConsumer? |
+    compact --empty |
     first |
     path join 'Documents' 'Fonts' 'Comic Code' 'careful'
 }
