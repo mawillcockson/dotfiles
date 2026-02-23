@@ -1,4 +1,4 @@
-{{ if not ((lookPath "kanata.exe") | or (lookPath "kanata_winIOv2.exe")) }}
+{{ if not ((lookPath "kanata.exe") | or (lookPath "kanata_winIOv2.exe") | or (lookPath "kanata_windows_tty_winIOv2_x64.exe")) }}
 kanata.lnk
 {{ end }}
 {{ if not (.chezmoi.os | eq "windows" | and (lookPath "autohotkey.exe")) }}
