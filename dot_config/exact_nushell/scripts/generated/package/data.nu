@@ -198,7 +198,7 @@ export def "package-data-load-data" [] {
 
         do $install 'scoop'
         run-external $nu.current-exe '-c' 'scoop install tar'
-    }}, "linux": {"apt-get": "tar"}} --tags [small, want] |
+    }}, "linux": {"apt-get": "tar"}} --tags [tooling, small, want] --reasons ["archive utility"] |
     simple-add "dejavusansmono-nf" {"windows": {"scoop": "dejavusansmono-nf"}, "linux": {"custom": {|install: closure|
         use std/log
         use consts.nu [platform]
@@ -1225,7 +1225,6 @@ nu -c 'use setup; setup fonts; setup linux fonts'
             })
         }
     }}} --tags [environment, linux-on-windows, haskell, pacman] --reasons ["haskell requires this"] --links ["https://www.msys2.org/"] |
-    simple-add "tar" {"linux": {"apt-get": "tar"}} --tags [tooling, small] --reasons ["archive utility"] |
     simple-add "bash" {"linux": {"apt-get": "bash"}} --tags [tooling, small] --reasons ["very popular shell"] |
     simple-add "ble.sh" {"linux": {"custom": {|install: closure|
         use std/log
