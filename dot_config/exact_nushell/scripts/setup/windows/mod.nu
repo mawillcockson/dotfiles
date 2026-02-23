@@ -5,10 +5,15 @@ export use setup/windows/fonts.nu
 export use setup/windows/clink.nu
 export use setup/windows/gpg.nu
 
-export def main [] {
+export def main [
+	--skip-fonts, # whether to run the fonts module or not
+]: [nothing -> nothing] {
+    if not $skip_fonts {
+        fonts
+    }
+
     gitconfig
     windows_terminal
-    fonts
     clink
     gpg
     kanata
