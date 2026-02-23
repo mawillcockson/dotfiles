@@ -28,11 +28,7 @@ XDG_DATA_HOME = {{ promptStringOnce . "XDG_DATA_HOME" (printf "$XDG_DATA_HOME (m
 {{ end }}
 {{ $relBootstrapDir := ".chezmoi-bootstrap" }}
 {{ $absBootstrapDir := joinPath $destDir $relBootstrapDir }}
-{{ if .chezmoi.os | eq "windows" }}
-PATH = {{ list (env "PATH") $absBootstrapDir | join ";" | toToml }}
-{{ else }}
-PATH = {{ list (env "PATH") $absBootstrapDir | join ":" | toToml }}
-{{ end }}
+PATH = {{ list (env "PATH") $absBootstrapDir | join .chezmoi.pathListSeparator | toToml }}
 
 [gitHub]
 refreshPeriod = '1h'
