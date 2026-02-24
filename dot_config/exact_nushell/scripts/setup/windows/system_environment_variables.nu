@@ -5,12 +5,10 @@ export def default_variables [] {
     let home = (
         $env |
         get HOME? USERPROFILE? |
-        append [
-            ('~' | path expand),
-            ($nu.home-path? | default $nu.home-dir?),
-        ] |
+        append ('~' | path expand) |
+        append ($nu | get home-path? home-dir?) |
         compact --empty |
-        where {|it| $it | path exists} |
+        where {path exists} |
         first
     )
 
