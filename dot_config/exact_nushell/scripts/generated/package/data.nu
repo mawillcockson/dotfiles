@@ -183,7 +183,7 @@ export def "package-data-load-data" [] {
     simple-add "aria2" {"windows": {"scoop": "aria2"}} --tags [scoop] --reasons ["helps scoop download stuff better"] |
     simple-add "clink" {"windows": {"scoop": "clink"}} --tags [want] --reasons ["makes Windows' CMD easier to use", "enables starship in CMD"] |
     simple-add "git" {"windows": {"scoop": "git"}, "linux": {"apt-get": "git"}} --tags [want] --reasons ["revision control and source management", "downloading programs"] --links ["https://git-scm.com/docs"] |
-    simple-add "7zip" {"windows": {"scoop": "7zip"}} --tags [scoop, exclude, auto] |
+    simple-add "7zip" {"windows": {"scoop": "7zip"}, "linux": {"apt-get": "7zip"}} --tags [scoop, exclude, auto] |
     simple-add "7zip19.00-helper" {"windows": {"scoop": "7zip19.00-helper"}} --tags [scoop, exclude, auto] |
     simple-add "audacity" {"windows": {"scoop": "audacity"}} --tags [rarely, large] |
     simple-add "caddy" {"windows": {"scoop": "caddy", "winget": "CaddyServer.Caddy"}, "linux": {"apt-get": "caddy"}} --tags [small, rarely] |
