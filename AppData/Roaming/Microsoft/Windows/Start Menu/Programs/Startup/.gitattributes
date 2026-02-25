@@ -1,1 +1,2 @@
-executable_kanata.bat eol=crlf
+*kanata.bat eol=crlf
+*kanata.bat.tmpl eol=crlf

@@ -1,0 +1,19 @@
+cmd /q /u /d /e:off /f:off /v:off /c start "" /min /d "{{ joinPath .chezmoi.destDir ".config" "kanata" }}" "{{-
+range (
+    env "PATH" |
+    splitList .chezmoi.pathListSeparator |
+    concat (
+        list (joinPath .chezmoi.destDir ".local" "bin")
+             (joinPath .chezmoi.destDir "apps" "eget-bin")
+    ) |
+    uniq
+) -}}
+    {{- $matches := glob (joinPath . "kanata*") -}}
+    {{- if $matches -}}
+        {{- range $matches -}}
+            {{- . | replace "/" "\\" -}}
+            {{- break -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}"
+exit

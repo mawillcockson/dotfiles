@@ -7,11 +7,22 @@
     ) |
     includeTemplate "findExe" |
 ) -}}
-{{ if not ($kanata_exe | hasSuffix "kanata_winIOv2.exe") }}
-kanata_old.lnk
-{{ end }}
-{{ if not ($kanata_exe | hasSuffix "kanata_windows_tty_winIOv2_x64.exe") }}
-kanata.lnk
+{{- if not (
+    $kanata_exe |
+    and (not (stat (joinPath
+        .chezmoi.destDir
+        "AppData"
+        "Roaming"
+        "Microsoft"
+        "Windows"
+        "Start Menu"
+        "Programs"
+        "Startup"
+        "kanata.lnk"
+    ))) |
+    and (.chezmoi.os | eq "windows")
+) -}}
+kanata.bat
 {{ end }}
 {{ if not (.chezmoi.os | eq "windows" | and (lookPath "autohotkey.exe")) }}
 *.ahk
