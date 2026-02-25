@@ -7,8 +7,11 @@
     ) |
     includeTemplate "findExe" |
 ) -}}
+{{- $default_config_exists := stat (joinPath .chezmoi.config.env.XDG_CONFIG_HOME "kanata" "kanata.kbd") -}}
+{{- $extra_config_exists := stat (joinPath (env "APPDATA" | default (joinPath .chezmoi.destDir "AppData" "Roaming")) "kanata" "kanata.kbd") -}}
 {{- if not (
-    $kanata_exe |
+    (.chezmoi.os | eq "windows") |
+    and $kanata_exe |
     and (not (stat (joinPath
         .chezmoi.destDir
         "AppData"
@@ -20,7 +23,7 @@
         "Startup"
         "kanata.lnk"
     ))) |
-    and (.chezmoi.os | eq "windows")
+    and ($default_config_exists | or $extra_config_exists)
 ) -}}
 kanata.bat
 {{ end }}
