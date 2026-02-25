@@ -837,7 +837,66 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         eget asdf-vm/asdf
     }}} --tags ["version manager", "language manager"] --reasons ["used to be used for managing neovim installations"] |
     simple-add "chezmoi" {"windows": {"eget": "twpayne/chezmoi"}} --tags [dotfiles, essential] --reasons ["dotfile manager that's been around for a while"] --links ["https://chezmoi.io"] |
-    simple-add "kanata" {"windows": {"eget": "jtroo/kanata"}, "linux": {"custom": {|install: closure|
+    simple-add "kanata" {"windows": {"custom": {|install: closure|
+        use std/log
+        use consts.nu [platform]
+        use package/manager
+        let apt_get = (
+            manager load-data |
+            get $platform |
+            get eget
+        )
+        log info 'installing eget, to install kanata'
+        do $install 'eget'
+
+        log info 'installing kanata with eget'
+        do $eget 'jtroo/kanata'
+
+        use start-kanata.nu
+        let initial_config = start-kanata expected config location --initial
+        if ($initial_config | path exists) {
+            log info 'removing initial batch script version for starting kanata'
+            try {rm -r $initial_config} catch {|err|
+                log err $"error removing initial kanata config at ($initial_config | to nuon)\n($err)"
+            }
+        }
+
+        let $config = (start-kanata expected config location)
+        if not ($config | path exists) {
+            msg = $'did not find config in expected location: ($config | to nuon)
+was chezmoi run?'
+            log error $msg
+            return (error make {msg: $msg})
+        }
+
+        log info 'making or adjusting shortcut to autostart kanata on login'
+        use utils.nu ["powershell-safe"]
+        # from: https://stackoverflow.com/a/9701907
+        {
+            exe: (start-kanata find-exe),
+            dir: ($config | path dirname)
+        } | to json --raw |
+        powershell-safe -c '
+$piped = ConvertFrom-Json -InputObject $Input
+# from:
+# https://stackoverflow.com/a/56454730
+# https://learn.microsoft.com/en-us/powershell/scripting/samples/working-with-registry-entries
+# finds shell:startup
+$startup = (Get-Item -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders").GetValue("Startup")
+$Shortcut = (New-Object -COMObject WScript.Shell).CreateShortcut("$startup\kanata.lnk")
+$Shortcut.TargetPath = $piped.exe
+# starts the window minimized
+$Shortcut.WindowStyle = 7
+$Shortcut.WorkingDirectory = $piped.dir
+$Shortcut.Description = "Runs kanata, with access to its config"
+'
+        if (start-kanata is-running) {
+            log info 'not starting kanata as it is already running'
+        } else {
+            log info 'starting kanata using the recently created or adjusted shortcut'
+            start $lnk
+        }
+    }}, "linux": {"custom": {|install: closure|
         use std/log
 
         log info "following the instructions from:\nhttps://github.com/jtroo/kanata/blob/main/docs/setup-linux.md"
