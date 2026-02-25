@@ -900,6 +900,21 @@ $Shortcut.FullName | ConvertTo-Json -Compress
             get stdout |
             from json
         )
+
+        let bat_file = (
+            $lnk |
+            path dirname |
+            path join 'kanata.bat'
+        )
+        if ($bat_file | path exists) {
+            log info 'removing inital kanata.bat so it does not conflict with kanata.lnk'
+            try {
+                rm $bat_file
+            } catch {|err|
+                log error $"issue removing bat file at: ($bat_file | to nuon)\n($err)"
+            }
+        }
+
         if (start-kanata is-running) {
             log info 'not starting kanata as it is already running'
         } else {
