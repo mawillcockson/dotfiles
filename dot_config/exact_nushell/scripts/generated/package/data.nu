@@ -872,24 +872,34 @@ was chezmoi run?'
         log info 'making or adjusting shortcut to autostart kanata on login'
         use utils.nu ["powershell-safe"]
         # from: https://stackoverflow.com/a/9701907
-        {
-            exe: (start-kanata find-exe),
-            dir: ($config | path dirname)
-        } | to json --raw |
-        powershell-safe -c '
+        let lnk = (
+            {
+                exe: (start-kanata find-exe),
+                dir: ($config | path dirname)
+            } | to json --raw |
+            powershell-safe -c '
 $piped = ConvertFrom-Json -InputObject $Input
 # from:
 # https://stackoverflow.com/a/56454730
 # https://learn.microsoft.com/en-us/powershell/scripting/samples/working-with-registry-entries
 # finds shell:startup
-$startup = (Get-Item -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders").GetValue("Startup")
+#$startup = (Get-Item -Path "Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders").GetValue("Startup")
+# shorter:
+# https://gist.github.com/josy1024/5cca8a66bfdefb12abff1721ff44f35f?permalink_comment_id=3035066#gistcomment-3035066
+# https://stackoverflow.com/a/16658189
+$startup = [Environment]::GetFolderPath("Startup")
 $Shortcut = (New-Object -COMObject WScript.Shell).CreateShortcut("$startup\kanata.lnk")
 $Shortcut.TargetPath = $piped.exe
 # starts the window minimized
 $Shortcut.WindowStyle = 7
 $Shortcut.WorkingDirectory = $piped.dir
 $Shortcut.Description = "Runs kanata, with access to its config"
-$Shortcut.Save()'
+$Shortcut.Save()
+$Shortcut.FullName | ConvertTo-Json -Compress
+' |
+            get stdout |
+            from json
+        )
         if (start-kanata is-running) {
             log info 'not starting kanata as it is already running'
         } else {
