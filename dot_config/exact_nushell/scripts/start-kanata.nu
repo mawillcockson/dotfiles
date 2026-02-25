@@ -43,6 +43,7 @@ export def "expected config location" [
                         let XDG_CONFIG_HOME = (echo '~/.config' | path expand)
                         log debug $'using XDG base directory default: ($XDG_CONFIG_HOME)'
                     } | path join 'kanata' 'kanata.kbd'
+                )
             },
             _ => {
                 return (error make {msg: $"I don't use this platform: ($platform)"})
@@ -92,7 +93,7 @@ export def "find-exe" [] {
         first
     )
     $env.EGET_BIN = $env.EGET_BIN? | default (
-        $env.HOME | join path 'apps' 'eget-bin'
+        $env.HOME | path join 'apps' 'eget-bin'
     )
     let kanatas = (
         with-env {PATH: (

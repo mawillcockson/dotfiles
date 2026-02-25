@@ -841,7 +841,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         use std/log
         use consts.nu [platform]
         use package/manager
-        let apt_get = (
+        let eget = (
             manager load-data |
             get $platform |
             get eget
@@ -857,13 +857,13 @@ nu -c 'use setup; setup fonts; setup linux fonts'
         if ($initial_config | path exists) {
             log info 'removing initial batch script version for starting kanata'
             try {rm -r $initial_config} catch {|err|
-                log err $"error removing initial kanata config at ($initial_config | to nuon)\n($err)"
+                log error $"error removing initial kanata config at ($initial_config | to nuon)\n($err)"
             }
         }
 
         let $config = (start-kanata expected config location)
         if not ($config | path exists) {
-            msg = $'did not find config in expected location: ($config | to nuon)
+            let msg = $'did not find config in expected location: ($config | to nuon)
 was chezmoi run?'
             log error $msg
             return (error make {msg: $msg})
@@ -889,7 +889,7 @@ $Shortcut.TargetPath = $piped.exe
 $Shortcut.WindowStyle = 7
 $Shortcut.WorkingDirectory = $piped.dir
 $Shortcut.Description = "Runs kanata, with access to its config"
-'
+$Shortcut.Save()'
         if (start-kanata is-running) {
             log info 'not starting kanata as it is already running'
         } else {
