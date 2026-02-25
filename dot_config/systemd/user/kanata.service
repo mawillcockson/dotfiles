@@ -8,6 +8,7 @@ ExecSearchPath=%h/apps/eget-bin/
 WorkingDirectory=%E/kanata/
 Environment=DISPLAY=:0
 Type=simple
+# NOTE::IMPROVEMENT could add --no-wait and use the restart mechanism
 ExecStart=kanata_linux_x64
 Restart=no
 
