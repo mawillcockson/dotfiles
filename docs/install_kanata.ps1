@@ -3,11 +3,11 @@ param(
     [PSDefaultValue(Help = "whether to redownload the executable and config file")]
     [Alias("force")]
     [Parameter(ParameterSetName="download")]
-    [bool]$redownload = $false
+    [switch]$redownload,
     [PSDefaultValue(Help = "whether to run the uninstallation instead")]
     [Alias("remove")]
     [Parameter(ParameterSetName="remove")]
-    [bool]$uninstall = $false
+    [switch]$uninstall
 )
 
 Set-StrictMode -Version Latest
