@@ -205,4 +205,11 @@ if ($uninstall) {
     Check-Config
 }
 
-Start-Process -FilePath $exe -ArgumentList "--cfg", $config -WorkingDirectory $config_dir -WindowStyle Minimized
+if ($uninstall) {
+    echo "finished uninstalling kanata"
+} elseif (Check-IsRunning) {
+    echo "kanata already running, but I don't know how"
+} else {
+    Start-Process -FilePath $exe -ArgumentList "--cfg", $config -WorkingDirectory $config_dir -WindowStyle Minimized
+    echo "kanata should have been started"
+}
