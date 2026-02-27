@@ -23,6 +23,19 @@ $exe_dir = [System.IO.Path]::Combine([Environment]::GetFolderPath("UserProfile")
 $exe = Join-Path $exe_dir "kanata.exe"
 $config = Join-Path $config_dir "kanata.kbd"
 
+function Check-IsRunning {
+    param ([string]$executable = "")
+    if ($executable -eq "") {
+        return [bool](Get-Process -Name "*kanata*")
+    }
+    return [bool](Get-Process | Where-Object -FilterScript {$_.Path -eq $executable})
+}
+
+If (((Check-IsRunning) -and (-not $redownload)) -and (-not $uninstall)) {
+    echo "kanata is already running"
+    Exit 0
+}
+
 $existing_exe = $exe
 if (-not (Test-Path -LiteralPath $existing_exe)) {
     $existing_exe = (
