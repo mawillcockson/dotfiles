@@ -200,7 +200,8 @@ if ($uninstall) {
 } elseif ($redownload_config -or (-not (Test-Path -LiteralPath $config))) {
     New-Item -Verbose -Path (Split-Path -Parent -Path $config) -ItemType Directory -Force
     echo "downloading config to: $config"
-    irm -useb -uri "https://github.com/mawillcockson/dotfiles/raw/main/dot_config/kanata/kanata.kbd" -outfile $config
+    irm -useb -uri $kanata_config_url -outfile $config
+    echo "checking config with kanata"
     Check-Config
 }
 
