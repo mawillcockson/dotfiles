@@ -20,7 +20,7 @@ $kanata_config_url = "https://github.com/mawillcockson/dotfiles/raw/refs/heads/m
 $config_dir = Join-Path ([Environment]::GetFolderPath("ApplicationData")) "kanata"
 $json = Join-Path $config_dir "kanata_latest.json"
 $exe_dir = [System.IO.Path]::Combine([Environment]::GetFolderPath("UserProfile"), ".local", "bin")
-$exe = = Join-Path $exe_dir "kanata.exe"
+$exe = Join-Path $exe_dir "kanata.exe"
 $config = Join-Path $config_dir "kanata.kbd"
 
 $existing_exe = $exe
