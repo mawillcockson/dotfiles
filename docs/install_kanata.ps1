@@ -1,3 +1,4 @@
+[CmdletBinding(DefaultParameterSetName="download")]
 param(
     [PSDefaultValue(Help = "whether to redownload the executable and config file")]
     [Alias("force")]
