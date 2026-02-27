@@ -46,10 +46,10 @@ if (-not (Test-Path -LiteralPath $existing_exe)) {
 }
 if ($existing_exe -and (-not $uninstall)) {
     echo "testing existing command to see if it works: $existing_exe"
-    try {
-        & $existing_exe --version
+    & $existing_exe --version
+    if ($?) {
         echo "current exe worked, $(if ($redownload) {'but redownloading anyways'} else {'not redownloading'})"
-    } catch {
+    } else {
         Write-Warning "problem with current exe, redownloading"
         Set-Variable -Name "redownload" -Value $true -Scope Script -Description "whether to redownload the kanata executable and config, or not"
     }
@@ -110,8 +110,11 @@ if (-not ((Test-Path -LiteralPath $existing_exe) -or $redownload)) {
 }
 
 function Check-Config {
-    echo "checking config with kanata"
-    & $exe --cfg $exe --check
+    echo "using kanata to check config: $config"
+    & $exe --cfg $config --check
+    if (-not $?) {
+        throw "problem with configuration $config"
+    }
 }
 
 $downloaded = $false
