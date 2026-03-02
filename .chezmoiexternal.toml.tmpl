@@ -120,3 +120,10 @@ type = 'file'
 executable = true
 url = 'https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh'
 refreshPeriod = {{ $commonRefreshPeriod }}
+
+{{ if .chezmoi.os | eq "linux" }}
+[".config/systemd/user/spotifyd.service"]
+type = 'file'
+url = 'https://github.com/Spotifyd/spotifyd/raw/refs/heads/master/contrib/spotifyd.service'
+refreshPeriod = {{ $commonRefreshPeriod }}
+{{ end }}
