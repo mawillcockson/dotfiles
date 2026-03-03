@@ -5,7 +5,7 @@
             "kanata_winIOv2.exe"
         )
     ) |
-    includeTemplate "findExe" |
+    includeTemplate "findExe"
 ) -}}
 {{- $default_config_exists := stat (joinPath .chezmoi.config.env.XDG_CONFIG_HOME "kanata" "kanata.kbd") -}}
 {{- $extra_config_exists := stat (joinPath (env "APPDATA" | default (joinPath .chezmoi.destDir "AppData" "Roaming")) "kanata" "kanata.kbd") -}}

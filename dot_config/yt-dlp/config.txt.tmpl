@@ -20,8 +20,23 @@
 # -O "%(series)S/S%(season_number)02d/E%(episode_number)02d - %(episode)S.%(ext)s"
 
 # General
+--remote-components ejs:github
+--hls-use-mpegts
 --audio-multistreams
 --video-multistreams
 --yes-playlist
 --windows-filenames
---trim-filenames 20
+--trim-filenames 30
+{{ $deno := (
+    deepCopy . |
+    merge (dict "exes" (list
+        "deno"
+        "deno.exe"
+    )) |
+    includeTemplate "findExe"
+) }}
+{{ if $deno }}
+# this is the default, but this way, deno can be found in case it's in a non-standard location
+# currently it's not
+--js-runtime deno
+{{ end }}
