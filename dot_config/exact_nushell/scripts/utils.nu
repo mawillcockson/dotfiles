@@ -597,3 +597,73 @@ export def "crlf-to-lf" [
         mv $tmpfile $file
     }
 }
+
+export def "get-onedrive-dir" []: [nothing -> path?] {
+    let platform_specific = match $platform {
+        'windows' => {
+            powershell-safe -c '
+# from:
+# https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid#FOLDERID_SkyDrive
+$OneDrive_GUID = "{A52BBA46-E9E1-435f-B3D9-28DAA648C0F6}"
+# from:
+# https://ss64.com/ps/syntax-knownfolders.html
+# https://web.archive.org/web/20240106062418/https://renenyffenegger.ch/notes/Windows/dirs/_known-folders
+Add-Type @"
+    using System;
+    using System.Runtime.InteropServices;
+
+    public class shell32  {
+        [DllImport("shell32.dll")]
+        private static extern int SHGetKnownFolderPath(
+             [MarshalAs(UnmanagedType.LPStruct)]
+             Guid       rfid,
+             uint       dwFlags,
+             IntPtr     hToken,
+             out IntPtr pszPath
+         );
+
+         public static string GetKnownFolderPath(Guid rfid)  {
+            IntPtr pszPath;
+            if (SHGetKnownFolderPath(rfid, 0, IntPtr.Zero, out pszPath) != 0) {
+                return string.Empty;
+            }
+            string path = Marshal.PtrToStringUni(pszPath);
+            Marshal.FreeCoTaskMem(pszPath);
+            return path;
+         }
+    }
+"@
+[shell32]::GetKnownFolderPath($OneDrive_GUID) | ConvertTo-Json
+' |
+            from json
+        },
+        _ => {null},
+    }
+    if ($platform_specific | is-not-empty) {
+        return $platform_specific
+    }
+    $env |
+    get OneDrive? ONEDRIVE? OneDriveConsumer? ONEDRIVECONSUMER? |
+    compact --empty |
+    get 0?
+}
+
+export def yx [...urls: string]: [nothing -> nothing] {
+    let music_dir = match $platform {
+        'android' => '/sdcard/Music',
+        'windows' => {
+            # I could use
+            # powershell-safe -c '[Environment]::GetFolderPath([Environment+SpecialFolder]::MyMusic)'
+            # but I don't always sync my music folder like that, and I always want this in OneDrive
+            get-onedrive-dir | path join 'Music'
+        },
+        'linux' => {
+            ['Music' 'Audio'] |
+            each {|it| $env.HOME | path join $it} |
+            where {path exists} |
+            compact --empty |
+            first
+        },
+    }
+    yt-dlp --path $"home:($music_dir)" -x ...($urls)
+}
