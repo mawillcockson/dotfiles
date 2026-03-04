@@ -669,3 +669,56 @@ export def yx [...urls: string]: [nothing -> nothing] {
     }
     yt-dlp --path $"home:($music_dir)" -x ...($urls)
 }
+
+# attempt to shrink a video so it fits in Discord's 10MiB file size limit
+export def "shrink-for-discord" [
+    # path to video we should shrink
+    input: path,
+    # path the where final, shrunken video should go
+    out?: path,
+    # how much extra space to account for in the final file (likely overhead I'm not accounting for, like the data from the container format)
+    --slop: filesize,
+    # file size of $out to aim for
+    --total-max-size (-m): filesize,
+    # vertical height of output video (e.g. ___x720) (aspect ratio of $input will attempt to be preserved)
+    --vertical-height (-h): int,
+]: [
+    nothing -> record<name: string, size: filesize>
+] {
+    let output = $out | default (match $platform {
+        'windows' => ($env.HOME | path join 'Downloads' 'output.mp4'),
+        'android' => '/sdcard/Download/output.mp4',
+    })
+    let slop_ = $slop | default 0.1MiB
+    let total_max_size_ = $total_max_size | default 10MiB
+    let vertical_height_ = $vertical_height | default 720
+
+    let ffprobe_info = (
+        ffprobe -v error -output_format json -show_streams $input
+        | from json
+    )
+    let duration = (
+        $ffprobe_info
+        | get streams
+        | each {$in.duration}
+        | into duration --unit sec
+        | math max
+    )
+    let audio_size = (
+        ffprobe -v error -output_format json -select_streams a -show_entries packet=size $input
+        | from json
+        | get packets.size
+        | into filesize
+        | math sum
+    )
+    let bitrate_kbps = (
+        (($total_max_size_ - $audio_size - $slop_) / (1KB / 8)) / ($duration / 1sec)
+        | math floor
+    )
+    ffmpeg -y -i $input -r 24 -vf $'scale=-2:($vertical_height_)' -c:v libx265 -b:v $'($bitrate_kbps)k' -x265-params pass=1 -an -f null (match ($platform) {
+        'windows' => {'NUL'},
+        'android'|'linux' => {'/dev/null'},
+    })
+    ffmpeg -y -i $input -r 24 -vf $'scale=-2:($vertical_height_)' -c:v libx265 -b:v $'($bitrate_kbps)k' -x265-params pass=2 -c:a copy $output
+    ls $output | select name size | into record
+}
