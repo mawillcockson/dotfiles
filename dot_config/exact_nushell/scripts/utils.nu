@@ -598,7 +598,9 @@ export def "crlf-to-lf" [
     }
 }
 
-export def "get-onedrive-dir" []: [nothing -> path?] {
+export def "get-onedrive-dir" []: [
+    nothing -> path
+] {
     let platform_specific = match $platform {
         'windows' => {
             powershell-safe -c '
@@ -645,7 +647,7 @@ Add-Type @"
     $env |
     get OneDrive? ONEDRIVE? OneDriveConsumer? ONEDRIVECONSUMER? |
     compact --empty |
-    get 0?
+    first
 }
 
 export def yx [...urls: string]: [nothing -> nothing] {
