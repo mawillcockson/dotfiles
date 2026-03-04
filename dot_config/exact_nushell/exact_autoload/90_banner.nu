@@ -1,5 +1,8 @@
+# don't import utils.nu inside the hook, as it causes an infinite recursion due
+# to a circular dependency, if there's a problem with utils.nu (or if there's
+# not? not sure)
 export const banner_once = r#'
-    my-banner
+    try { my-banner }
     $env.config.hooks.pre_prompt = (
         $env.config.hooks.pre_prompt |
         where {|it| $it != {code: $banner_once} }
