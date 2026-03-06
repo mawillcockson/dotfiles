@@ -66,5 +66,5 @@ export def "get-chezmoi-config" []: nothing -> record {
 }
 
 export def "chezmoi-destDir" []: nothing -> path {
-    get-chezmoi-config | get destDir | path resolve
+    get-chezmoi-config | get destDir | path expand
 }
