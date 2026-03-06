@@ -16,4 +16,4 @@ if $platform in [linux, android, macos] and (which chmod | is-not-empty) {
 
 log info $'you can try running something like the following, and hope it works:
 
-($env.EGET_BIN | to nuon) -e "do {use setup; setup ($platform)}"'
+($destination | to nuon) -e "do {use setup; setup ($platform)}"'
