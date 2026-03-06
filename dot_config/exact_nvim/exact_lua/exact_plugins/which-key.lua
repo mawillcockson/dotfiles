@@ -136,13 +136,14 @@ return {
 			{ "<C-S-PageUp>", "<Cmd>:-tabmove<CR>", desc = "move current tab leftwards", mode = { "n", "i", "t" } },
 			{ "<C-S-PageDown>", "<Cmd>:+tabmove<CR>", desc = "move current tab rightwards", mode = { "n", "i", "t" } },
 			-- replications of tmux's Ctrl-B {-,|,c} commands
-			-- NOTE::BUG need to be able to do <C-b><C-b> to send <C-b> to terminal process
+			-- NOTE::DONE need to be able to do <C-b><C-b> to send <C-b> to terminal process
+			-- the support for these to work in terminal mode is in the terminal ftplugin
 			{ "<C-b>", group = "tmux-style commands" },
 			{
 				"<C-b>c",
 				require("terminal-handling").new_terminal,
 				desc = "open a terminal in a new tab",
-				mode = { "n", "i", "t" },
+				mode = { "n", "i" },
 			},
 			{
 				"<C-b>-",
@@ -150,7 +151,7 @@ return {
 					require("terminal-handling").new_terminal("horizontal")
 				end,
 				desc = "open a terminal in this tab",
-				mode = { "n", "i", "t" },
+				mode = { "n", "i" },
 			},
 			{
 				"<C-b>|",
@@ -158,7 +159,7 @@ return {
 					require("terminal-handling").new_terminal("vertical")
 				end,
 				desc = "open a terminal in this tab (vertical)",
-				mode = { "n", "i", "t" },
+				mode = { "n", "i" },
 			},
 
 			{ "<leader>m", group = "miscellaneous" },
