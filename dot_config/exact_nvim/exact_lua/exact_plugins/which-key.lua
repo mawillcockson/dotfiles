@@ -119,6 +119,7 @@ return {
 			{ "<leader>q", "<Cmd>q<CR>", desc = "quit (:q)" },
 			{ "<leader>i", "<Cmd>wq<CR>", desc = "write file to disk and quit (:wq)" },
 			{ "<leader>s", "<Cmd>set spell!<CR>", desc = "toggle spellchecking underlines" },
+			{ "<leader>-", "<Cmd>split<CR>", desc = ":split" },
 
 			{
 				"<C-e>",
@@ -133,6 +134,31 @@ return {
 			{ "<C-PageUp>", "<Cmd>:tabprevious<CR>", desc = "switch tab leftwards", mode = { "n", "i", "t" } },
 			{ "<C-S-PageUp>", "<Cmd>:-tabmove<CR>", desc = "move current tab leftwards", mode = { "n", "i", "t" } },
 			{ "<C-S-PageDown>", "<Cmd>:+tabmove<CR>", desc = "move current tab rightwards", mode = { "n", "i", "t" } },
+			-- replications of tmux's Ctrl-B {-,|,c} commands
+			{ "<C-b>", group = "tmux-style commands" },
+			{
+				"<C-b>c",
+				require("terminal-handling").new_terminal,
+				desc = "open a terminal in a new tab",
+				mode = { "n", "i", "t" },
+			},
+			{
+				"<C-b>-",
+				function()
+					require("terminal-handling").new_terminal("horizontal")
+				end,
+				desc = "open a terminal in this tab",
+				mode = { "n", "i", "t" },
+			},
+			{
+				"<C-b>|",
+				function()
+					require("terminal-handling").new_terminal("vertical")
+				end,
+				desc = "open a terminal in this tab (vertical)",
+				mode = { "n", "i", "t" },
+			},
+
 			{ "<leader>m", group = "miscellaneous" },
 			{
 				"<leader>mi",
