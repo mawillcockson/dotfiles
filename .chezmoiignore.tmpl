@@ -31,4 +31,4 @@ AppData/
 # don't use the user-level tmux config if the system one exists
 {{ if stat "/etc/tmux.conf" }}
 {{ joinPath (.chezmoi.config.env.XDG_CONFIG_HOME) "tmux" "tmux.conf" }}
-{{ endif }}
+{{ end }}
