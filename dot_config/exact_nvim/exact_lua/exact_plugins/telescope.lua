@@ -19,7 +19,7 @@ return {
 			{ "<leader>ff", "<Cmd>Telescope find_files<CR>", desc = "Telescope find files" },
 			{
 				"<leader>fa",
-				[=[<Cmd>Telescope hidden=true no_ignore=true no_ignore_parent=true<CR>]=],
+				[=[<Cmd>Telescope find_files hidden=true no_ignore=true no_ignore_parent=true<CR>]=],
 				desc = "Telescope find files (incl. hidden)",
 			},
 			{ "<leader>fg", "<Cmd>Telescope live_grep<CR>", desc = "Telescope live grep" },
