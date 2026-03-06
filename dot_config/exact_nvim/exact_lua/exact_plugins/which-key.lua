@@ -120,6 +120,7 @@ return {
 			{ "<leader>i", "<Cmd>wq<CR>", desc = "write file to disk and quit (:wq)" },
 			{ "<leader>s", "<Cmd>set spell!<CR>", desc = "toggle spellchecking underlines" },
 			{ "<leader>-", "<Cmd>split<CR>", desc = ":split" },
+			{ "<C-n>", "<Cmd>tabnew<CR>", desc = ":tabnew" },
 
 			{
 				"<C-e>",
