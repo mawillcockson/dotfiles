@@ -1,5 +1,7 @@
 [Unit]
 Description=Start tmux in detached session
+StartLimitIntervalSec=1sec
+StartLimitBurst=3
 
 [Service]
 Type=forking
@@ -9,7 +11,21 @@ Type=forking
 WorkingDirectory=%h
 ExecStart=/usr/bin/tmux new-session -s %u -d
 ExecStop=/usr/bin/tmux kill-session -t %u
+# NOTE::IMPROVEMENT
+# from: https://wiki.archlinux.org/title/Tmux#Autostart_with_systemd
+# If you want to import environment variables related to graphical session,
+# such as DISPLAY, WAYLAND_DISPLAY, or SESSION_MANAGER, change `WantedBy`
+# option to `graphical-session.target`, and add
+# `After=graphical-session.target` under `[Unit]` section.
+# Alternatively, you can create a script that runs automatically after the
+# desktop environment, window manager, or Wayland compositor loads and imports
+# related variables using `tmux setenv -g name [value]`.
+# I think the latter would be an easy addition
 
+Restart=always
+RestartSec=100ms
+RestartSteps=3
+RestartMaxDelaySec=5sec
 
 [Install]
 WantedBy=multi-user.target
