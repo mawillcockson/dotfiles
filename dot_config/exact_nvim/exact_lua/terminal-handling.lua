@@ -91,11 +91,11 @@ end
 
 ---finds the first loaded terminal buffer
 ---@param terminals Terminals
----@return Terminal | boolean
+---@return integer | boolean
 local function first_loaded_buf(terminals)
 	for _, term in ipairs(terminals) do
 		if vim.api.nvim_buf_is_loaded(term.buf) then
-			return term
+			return term.buf
 		end
 	end
 	return false
@@ -103,11 +103,11 @@ end
 
 ---find first terminal with a valid window
 ---@param terminals Terminals
----@return Terminal | boolean
+---@return integer | boolean
 local function first_valid_win(terminals)
 	for _, term in ipairs(terminals) do
 		if vim.api.nvim_win_is_valid(term.win) then
-			return term
+			return term.win
 		end
 	end
 	return false
