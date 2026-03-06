@@ -28,4 +28,4 @@ RestartSteps=3
 RestartMaxDelaySec=5sec
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
