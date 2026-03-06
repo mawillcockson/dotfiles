@@ -1,10 +1,14 @@
 use std/log
+use light-utils.nu ["chezmoi-destDir"]
 
 export const variable_names = [
     'ALREADY_SOURCED_SYSTEM_PROFILE_D',
     'XDG_CONFIG_HOME',
     'XDG_DATA_HOME',
+    'NU_PATH',
 ]
+
+export const systemd_profile_d = '/etc/profile.d'
 
 export def main [
     # copy ones that can be copied
@@ -15,12 +19,12 @@ export def main [
         $variable_names_ |
         wrap name |
         insert source {|rec|
-            $env.HOME |
+            chezmoi-destDir |
             path join '.profile.d' $'($rec.name).sh' |
             path expand
         } |
         insert destination {|rec|
-            '/etc/profile.d' |
+            $systemd_profile_d |
             path join $'($rec.name).sh'
         } |
         insert source_found {|rec|
@@ -70,7 +74,7 @@ export def main [
             }
         )
         if ($paths_to_copy | is-not-empty) {
-            sudo cp --verbose ...($paths_to_copy) /etc/profile.d/
+            sudo cp --verbose --no-clobber ...($paths_to_copy) $systemd_profile_d
         }
     }
 

@@ -11,6 +11,9 @@ $env.NU_LOG_DATE_FORMAT = ($env | get NU_LOG_DATE_FORMAT? | default $nu_log_date
 # set to `debug` for extra output
 $env.NU_LOG_LEVEL = ($env | get NU_LOG_LEVEL? | default 'info')
 
+# for tmux config
+$env.NU_PATH = $env.NU_PATH? | default $nu.current-exe
+
 if ('NVIM' in $env) and (which nvr | is-not-empty) {
     $env.GIT_EDITOR = 'nvr -cc split --remote-wait'
 }

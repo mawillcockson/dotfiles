@@ -59,3 +59,12 @@ export def --env "path add" [
     load-env $modified_env
     return ($modified_env | get $path_env_name)
 }
+
+export def "get-chezmoi-config" []: nothing -> record {
+    chezmoi dump-config --format=json |
+    from json
+}
+
+export def "chezmoi-destDir" []: nothing -> path {
+    get-chezmoi-config | get destDir | path resolve
+}
