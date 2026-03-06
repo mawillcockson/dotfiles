@@ -11,7 +11,7 @@ export def "get dotfiles-dir" [] {
 export def "get-config-locations" [] {
     return {
         system: '/etc/tmux.conf',
-        user: ('~/.tmux.conf' | path expand),
+        user: ($env.XDG_CONFIG_HOME | path join 'tmux' 'tmux.conf'),
     }
 }
 
@@ -19,7 +19,7 @@ export def main [
     # whether to overwrite the configuration or not
     --overwrite,
 ]: nothing -> nothing {
-    let conf = (get dotfiles-dir | path join 'dot_config' 'tmux' '.tmux.conf')
+    let conf = (get dotfiles-dir | path join 'dot_config' 'tmux' 'tmux.conf')
     let config_path = (get-config-locations)
     let user_config_exists = ($config_path.user | path exists)
     let system_config_exists = ($config_path.system | path exists)
