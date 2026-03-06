@@ -48,7 +48,7 @@ local function remove_term_after_close(term)
 		callback = function(ctx)
 			vim.notify(
 				string.format("removing terminal buffer %d due to autocmd %s", ctx.buf, ctx.event),
-				vim.log.levels.INFO
+				vim.log.levels.DEBUG
 			)
 			remove_by_buf(ctx.buf)
 			vim.api.nvim_del_autocmd(ctx.id)
