@@ -11,6 +11,10 @@ return {
 		vim.o.timeoutlen = 300
 	end,
 	opts = {
+		triggers = {
+			{ "<auto>", mode = "nixsotc" },
+			{ "<C-b>", mode = { "t" } },
+		},
 		spec = {
 			{ "<leader>f", group = "Telescope files" },
 			{ "<leader>l", group = "Telescope LSP" },
@@ -139,11 +143,13 @@ return {
 			-- NOTE::DONE need to be able to do <C-b><C-b> to send <C-b> to terminal process
 			-- the support for these to work in terminal mode is in the terminal ftplugin
 			{ "<C-b>", group = "tmux-style commands" },
+			{ "<C-b><C-b>", "", desc = "send <C-b> to terminal process", mode = { "t" } },
+			{ "<C-b><C-b>", "<Cmd>normal! i<CR><C-b>", desc = "send <C-b> to terminal process", mode = { "n" } },
 			{
 				"<C-b>c",
 				require("terminal-handling").new_terminal,
 				desc = "open a terminal in a new tab",
-				mode = { "n", "i" },
+				mode = { "n", "i", "t" },
 			},
 			{
 				"<C-b>-",
@@ -151,7 +157,7 @@ return {
 					require("terminal-handling").new_terminal("horizontal")
 				end,
 				desc = "open a terminal in this tab",
-				mode = { "n", "i" },
+				mode = { "n", "i", "t" },
 			},
 			{
 				"<C-b>|",
@@ -159,7 +165,7 @@ return {
 					require("terminal-handling").new_terminal("vertical")
 				end,
 				desc = "open a terminal in this tab (vertical)",
-				mode = { "n", "i" },
+				mode = { "n", "i", "t" },
 			},
 
 			{ "<leader>m", group = "miscellaneous" },
