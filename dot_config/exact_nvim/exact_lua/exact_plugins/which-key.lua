@@ -136,6 +136,7 @@ return {
 			{ "<C-S-PageUp>", "<Cmd>:-tabmove<CR>", desc = "move current tab leftwards", mode = { "n", "i", "t" } },
 			{ "<C-S-PageDown>", "<Cmd>:+tabmove<CR>", desc = "move current tab rightwards", mode = { "n", "i", "t" } },
 			-- replications of tmux's Ctrl-B {-,|,c} commands
+			-- NOTE::BUG need to be able to do <C-b><C-b> to send <C-b> to terminal process
 			{ "<C-b>", group = "tmux-style commands" },
 			{
 				"<C-b>c",
