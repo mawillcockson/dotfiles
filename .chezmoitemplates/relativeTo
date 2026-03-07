@@ -1,0 +1,18 @@
+{{- /* osClean complains about .chezmoi.destDir being a chezmoi.AbsPath, and joinPath doesn't and also cleans */ -}}
+{{- $pathSeparator := .chezmoi.pathSeparator -}}
+{{- $makeRelative := joinPath .makeRelative -}}
+{{- $relativeTo := joinPath .relativeTo -}}
+{{- $relativeComponents := $makeRelative | splitList .chezmoi.pathSeparator -}}
+{{- $toComponents := $relativeTo | splitList .chezmoi.pathSeparator -}}
+{{- $relativeReverse := reverse $relativeComponents -}}
+{{- $relativePath := "" -}}
+{{- $prefixPath := $makeRelative -}}
+{{- range reverse $relativeComponents -}}
+    {{- $prefixPath = osDir $prefixPath -}}
+    {{- $relativePath = joinPath . $relativePath -}}
+    {{- if $prefixPath | eq $relativeTo -}}
+        {{- /* prefix is {{ $prefixPath }}
+        {{- /* postfix is */ -}}{{- $relativePath -}}
+        {{- break -}}
+    {{- end -}}
+{{- end -}}
