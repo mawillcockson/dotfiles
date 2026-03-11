@@ -14,6 +14,7 @@ in {
   users.groups.git = {};
   users.users.git = {
     isSystemUser = true;
+    home = "/home/git";
     createHome = true;
     description = "where git@example.com logs into";
     group = "git";
