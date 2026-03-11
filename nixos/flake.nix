@@ -51,10 +51,6 @@
             }-vm";
           };
         };
-        packages = {
-          default = pkgs.blesh;
-        };
-
         devShells = let
           options = {
             packages = [
