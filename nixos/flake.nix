@@ -72,11 +72,13 @@
         };
         devShells = let
           options = {
-            packages = [
-              pkgs.atuin
-              pkgs.starship
-              pkgs.blesh
-            ];
+            packages =
+              [
+                pkgs.atuin
+                pkgs.starship
+                pkgs.blesh
+              ]
+              ++ (nixosConfigurations system)."queerpri.de".config.environment.systemPackages;
             shellHook = ''
               [[ $- == *i* ]] && source ${pkgs.blesh}/share/blesh/ble.sh --attach=none
               eval "$("${pkgs.atuin}/bin/atuin" init bash)"

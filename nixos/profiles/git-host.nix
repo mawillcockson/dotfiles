@@ -6,6 +6,10 @@
 }: let
   git-shell = "${pkgs.gitMinimal}/bin/git-shell";
 in {
+  imports = [
+    ./server.nix
+  ];
+
   environment = {
     systemPackages = [pkgs.gitMinimal];
     shells = [git-shell];
