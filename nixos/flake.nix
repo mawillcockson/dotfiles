@@ -9,7 +9,18 @@
     nixpkgs,
     flake-parts,
     ...
-  }:
+  }: let
+    nixosConfigurations = (
+      system: {
+        "queerpri.de" = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            ./systems/queerpri.de/configuration.nix
+          ];
+        };
+      }
+    );
+  in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         # To import an internal flake module: ./other.nix
@@ -43,12 +54,20 @@
         # from:
         # https://gist.github.com/FlakM/0535b8aa7efec56906c5ab5e32580adf?permalink_comment_id=5167381#gistcomment-5167381
         apps = {
-          default = self'.apps.test;
-          test = {
+          default = self'.apps."queerpri.de-vm";
+          "queerpri.de-vm" = {
             type = "app";
-            program = "${config.nixosConfigurations."queerpri.de".config.system.build.vm}/bin/run-${
-              config.nixosConfigurations."queerpri.de".config.networking.hostName
+            program = "${(nixosConfigurations system)."queerpri.de".config.system.build.vm}/bin/run-${
+              (nixosConfigurations system)."queerpri.de".config.networking.hostName
             }-vm";
+          };
+          "queerpri.de-vmWithBootLoader" = {
+            type = "app";
+            program = "${
+              (nixosConfigurations system)."queerpri.de".config.system.build.vmWithBootLoader
+            }/bin/run-${
+              (nixosConfigurations system)."queerpri.de".config.networking.hostName
+            }-vmWithBootLoader";
           };
         };
         devShells = let
@@ -74,14 +93,7 @@
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
-        nixosConfigurations = {
-          "queerpri.de" = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              ./systems/queerpri.de/configuration.nix
-            ];
-          };
-        };
+        nixosConfigurations = nixosConfigurations "x86_64-linux";
       };
     };
 }
