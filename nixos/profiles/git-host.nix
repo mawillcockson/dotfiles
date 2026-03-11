@@ -17,9 +17,10 @@ in {
     createHome = true;
     description = "where git@example.com logs into";
     group = "git";
-    # NOTE: add the shell to /etc/shells and add a symlink at /usr/bin/git-shell
+    # NOTE:DONE add the shell to /etc/shells
+    # NOTE: and add a symlink at /usr/bin/git-shell
     shell = git-shell;
     initialHashedPassword = null;
   };
-  # create custom authorized_keys file and authorized_principals files, specifically for this configuration module, and add those files to the general sshd config
+  # NOTE: create custom authorized_keys file and authorized_principals files, specifically for this configuration module, and add those files to the general sshd config
 }
