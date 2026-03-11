@@ -40,35 +40,52 @@
         # Equivalent to  inputs'.nixpkgs.legacyPackages.hello;
         #packages.default = pkgs.hello;
 
-        nixosConfigurations."queerpri.de" = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            ./systems/queerpri.de/configuration.nix
-          ];
-        };
         # from:
         # https://gist.github.com/FlakM/0535b8aa7efec56906c5ab5e32580adf?permalink_comment_id=5167381#gistcomment-5167381
-        apps."${system}" = {
+        apps = {
           default = self'.apps.test;
           test = {
             type = "app";
-            program = "${self'.nixosConfigurations."queerpri.de".config.system.build.vm}/bin/run-${
-              self'.nixosConfigurations."queerpri.de".config.networking.hostName
+            program = "${config.nixosConfigurations."queerpri.de".config.system.build.vm}/bin/run-${
+              config.nixosConfigurations."queerpri.de".config.networking.hostName
             }-vm";
           };
         };
+        packages = {
+          default = pkgs.blesh;
+        };
 
-        devShells."${system}" = let
-          packages = [];
+        devShells = let
+          options = {
+            packages = [
+              pkgs.atuin
+              pkgs.starship
+              pkgs.blesh
+            ];
+            shellHook = ''
+              [[ $- == *i* ]] && source ${pkgs.blesh}/share/blesh/ble.sh --attach=none
+              eval "$("${pkgs.atuin}/bin/atuin" init bash)"
+              eval "$("${pkgs.starship}/bin/starship" init bash)"
+              [[ ! ''${BLE_VERSION-} ]] || ble-attach
+            '';
+          };
         in {
-          default = pkgs.mkShellNoCC {inherit packages;};
-          cc = pkgs.mkShell {inherit packages;};
+          default = pkgs.mkShellNoCC options;
+          cc = pkgs.mkShell options;
         };
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
+        nixosConfigurations = {
+          "queerpri.de" = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              ./systems/queerpri.de/configuration.nix
+            ];
+          };
+        };
       };
     };
 }
