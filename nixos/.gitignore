@@ -1,0 +1,5 @@
+# nix default output symlink name
+result
+
+# NixOS VM tests produce a QEMU disk image
+*.qcow2
