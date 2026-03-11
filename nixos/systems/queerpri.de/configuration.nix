@@ -31,6 +31,7 @@ in {
   imports = [
     ../common
     ../../profiles/git-host.nix
+    ../../profiles/ssh-ca.nix
   ];
 
   # Only allow members of the wheel group to execute sudo by setting the

@@ -48,8 +48,10 @@
         # module parameters provide easy access to attributes of the same
         # system.
 
-        # Equivalent to  inputs'.nixpkgs.legacyPackages.hello;
-        #packages.default = pkgs.hello;
+        packages = {
+          default = pkgs.hello;
+          test-step-ca-init = pkgs.callPackage ./packages/test-step-ca-init.nix {};
+        };
 
         # from:
         # https://gist.github.com/FlakM/0535b8aa7efec56906c5ab5e32580adf?permalink_comment_id=5167381#gistcomment-5167381
@@ -72,13 +74,11 @@
         };
         devShells = let
           options = {
-            packages =
-              [
-                pkgs.atuin
-                pkgs.starship
-                pkgs.blesh
-              ]
-              ++ (nixosConfigurations system)."queerpri.de".config.environment.systemPackages;
+            packages = [
+              pkgs.atuin
+              pkgs.starship
+              pkgs.blesh
+            ];
             shellHook = ''
               [[ $- == *i* ]] && source ${pkgs.blesh}/share/blesh/ble.sh --attach=none
               eval "$("${pkgs.atuin}/bin/atuin" init bash)"
@@ -89,6 +89,14 @@
         in {
           default = pkgs.mkShellNoCC options;
           cc = pkgs.mkShell options;
+          "queerpri.de" = self'.devShells.default.overrideAttrs (
+            finalAttrs: previousAttrs: {
+              nativeBuildInputs =
+                previousAttrs.nativeBuildInputs
+                ++ (nixosConfigurations system)."queerpri.de".config.environment.systemPackages
+                ++ [pkgs.step-cli];
+            }
+          );
         };
       };
       flake = {
