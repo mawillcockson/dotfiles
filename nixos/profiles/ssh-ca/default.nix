@@ -3,8 +3,18 @@
   lib,
   pkgs,
   ...
-}: {
-  imports = [./server.nix];
+}: let
+  vmVariant = {
+    services.step-ca = "/var/lib/step-ca/config/ca.json";
+    #NOTE: jq -> db.dataSource = "/var/lib/step-ca/db";
+    # this isn't allowed to be a path in the nix store, probably to prevent a
+    # secret being accidentally imported into the nix store where it would
+    # likely be world-readable (thanks maintainers, for looking out for me!).
+    # But I don't mind that, for the purposes of testing.
+    #intermediatePasswordFile = "${init}/secrets/password.txt";
+  };
+in {
+  imports = [../server.nix];
 
   services.step-ca = {
     enable = true;
@@ -15,14 +25,8 @@
 
   environment.systemPackages = [pkgs.step-ca];
 
-  virtualisation.vmVariant = {
-    services.step-ca = let
-      init = pkgs.callPackage ../../packages/test-step-ca-init.nix {};
-    in {
-      settings = builtins.fromJSON "${init}/config/ca.json";
-      intermediatePasswordFile = "${init}/secrets/password.txt";
-    };
-  };
+  #virtualisation.vmVariant = vmVariant;
+  #virtualisation.vmVariantWithBootLoader = vmVariant;
 
   # I think services.step-ca.enable pulls in the necessary packages already
   #environment = {
