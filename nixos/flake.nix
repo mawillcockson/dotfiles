@@ -50,7 +50,14 @@
 
         packages = {
           default = pkgs.hello;
-          test-step-ca-init = pkgs.callPackage ./packages/test-step-ca-init.nix {};
+          step-ca-init =
+            builtins.readFile ./profiles/ssh-ca/step-ca-init.sh
+            |> pkgs.runCommand "step-ca-init.sh" {
+              nativeBuildInputs = [
+                pkgs.step-ca
+                pkgs.step-cli
+              ];
+            };
         };
 
         # from:
