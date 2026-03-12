@@ -13,6 +13,8 @@ Environment=NU_PATH={{-
     merge (dict "exes" (list "nu")) |
     includeTemplate "findExe"
 }}
+Environment=XDG_CONFIG_HOME={{- .chezmoi.config.env.XDG_CONFIG_HOME }}
+Environment=XDG_DATA_HOME={{- .chezmoi.config.env.XDG_DATA_HOME }}
 WorkingDirectory=%h
 ExecStart=/usr/bin/tmux new-session -s %u -d
 ExecStop=/usr/bin/tmux kill-session -t %u
