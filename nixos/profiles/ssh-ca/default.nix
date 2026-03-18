@@ -38,6 +38,40 @@ in {
   imports = [../server.nix];
 
   services.step-ca = {
+    settings = {
+      db = {
+        badgerFileLoadingMode = "";
+        dataSource = "${dbDir}/db";
+        type = "badgerv2";
+      };
+      # these are created by step-ca-init.service, prior to step-ca.service running:
+      # - root
+      # - crt
+      # - key
+      # - ssh
+      root = "${configDir}/certs/root_ca.crt";
+      crt = "${configDir}/certs/intermediate_ca.crt";
+      key = "${configDir}/secrets/intermediate_ca_key";
+      ssh = {
+        hostKey = "${configDir}/secrets/ssh_host_ca_key";
+        userKey = "${configDir}/secrets/ssh_user_ca_key";
+      };
+      dnsNames = ["localhost"];
+      federatedRoots = null;
+      insecureAddress = "";
+      logger = {
+        format = "text";
+      };
+      tls = {
+        cipherSuites = [
+          "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
+          "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+        ];
+        maxVersion = 1.3;
+        minVersion = 1.2;
+        renegotiation = false;
+      };
+    };
     enable = true;
     openFirewall = true;
     address = "127.0.0.1";
