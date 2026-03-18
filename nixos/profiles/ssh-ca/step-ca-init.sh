@@ -3,7 +3,6 @@ set -eu
 
 # shellcheck disable=SC1090
 . "${LOG_SH:?"\$LOG_SH not set"}"
-# shellcheck enable=SC1090
 
 STATE_DIRECTORY="${STATE_DIRECTORY:?"\$STATE_DIRECTORY not set"}"
 DEBUG="${DEBUG:-"no"}"
@@ -52,15 +51,15 @@ if ! INTERMEDIATE_KEY="$(jq --raw-output --exit-status '.key' "${CA_JSON}")"; th
     error "jq could not find intermediate key path in ca.json -> ${CA_JSON}"
 fi
 
-mkdir -vp "${STATE_DIRECTORY}/db"
-chmod --changes u=rw,go= "${STATE_DIRECTORY}"
+mkdir -v "${STATE_DIRECTORY}/db"
+chmod --changes u=rwX,go= "${STATE_DIRECTORY}"
 
 STEPPATH="${STEPPATH:-"$STATE_DIRECTORY"}"
 export STEPPATH
 info "\$STEPPATH -> ${STEPPATH}"
 
-SECRETS="${STEPPATH}/secrets"
-mkdir -vp "${SECRETS}"
+SECRETS="${STATE_DIRECTORY}/secrets"
+mkdir -v "${SECRETS}"
 
 PASSWORD_FILE="${CREDENTIALS_DIRECTORY:?"\$CREDENTIALS_DIRECTORY not set"}/step-ca_password"
 info "\$PASSWORD_FILE -> ${PASSWORD_FILE}"
@@ -70,19 +69,20 @@ info "\$DATETIME -> ${DATETIME}"
 
 CERTS_DIR="${STEPPATH}/certs"
 info "placing certificates and public keys in \$CERTS_DIR -> ${CERTS_DIR}"
+mkdir -v "${CERTS_DIR}"
 
 ssh-keygen \
     -t ed25519 \
     -C "intermediate CA host key @ ${DATETIME}" \
     -f "${SSH_HOST_KEY}" \
-    -N "$(cat "${PASSWORD_FILE})"
+    -N "$(cat "${PASSWORD_FILE}")"
 info 'removing .pub file for host key'
 mv -v "${SSH_HOST_KEY}.pub" "${CERTS_DIR}/"
 ssh-keygen \
     -t ed25519 \
     -C "intermediate CA user key ${DATETIME}" \
     -f "${SSH_USER_KEY}" \
-    -N "$(cat "${PASSWORD_FILE})"
+    -N "$(cat "${PASSWORD_FILE}")"
 info 'moving .pub file for user key to expected place'
 mv -v "${SSH_USER_KEY}.pub" "${CERTS_DIR}/"
 
@@ -99,8 +99,8 @@ step certificate create \
     --not-before=-10m \
     --not-after="$((24 * 365))h"
 
-info "creating a root ca certificate at -> ${INTERMEDIATE_CERT}"
-info "will be storing root key at -> ${INTERMEDIATE_KEY}"
+info "creating an intermediate ca certificate at -> ${INTERMEDIATE_CERT}"
+info "will be storing intermediate key at -> ${INTERMEDIATE_KEY}"
 step certificate create \
     'test pki Intermediate CA' \
     "${INTERMEDIATE_CERT}" \

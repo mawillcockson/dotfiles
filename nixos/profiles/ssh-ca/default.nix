@@ -5,7 +5,7 @@
   beInsecureRootCA ? true,
   ...
 }: let
-  dbDir = "/var/lib/${config.systemd.services.step-ca.serviceConfig.StateDirectory}";
+  stateDirectory = "/var/lib/${config.systemd.services.step-ca.serviceConfig.StateDirectory}";
   # NOTE::BUG causes an infinite recursion
   #configDir = config.systemd.services.step-ca.restartTriggers |> builtins.head |> builtins.dirOf;
   configDir = "/etc/smallstep";
@@ -30,7 +30,6 @@
     name = "step-ca-init-make-creds.sh";
     runtimeInputs = [
       pkgs.systemd
-      log-sh
     ];
     runtimeEnv = {
       CONFIG_DIR = configDir;
@@ -59,20 +58,23 @@ in {
     settings = {
       db = {
         badgerFileLoadingMode = "";
-        dataSource = "${dbDir}/db";
+        dataSource = "${stateDirectory}/db";
         type = "badgerv2";
       };
-      # these are created by step-ca-init.service, prior to step-ca.service running:
+      # I don't think I like setting these here, though I think having this could help
+      # with monitoring drift between the default settings at the time I was
+      # writing this file, and the current default ca.json settings.
+      # The following are created by step-ca-init.service, prior to step-ca.service running:
       # - root
       # - crt
       # - key
       # - ssh
-      root = "${configDir}/certs/root_ca.crt";
-      crt = "${configDir}/certs/intermediate_ca.crt";
-      key = "${configDir}/secrets/intermediate_ca_key";
+      root = "${stateDirectory}/certs/root_ca.crt";
+      crt = "${stateDirectory}/certs/intermediate_ca.crt";
+      key = "${stateDirectory}/secrets/intermediate_ca_key";
       ssh = {
-        hostKey = "${configDir}/secrets/ssh_host_ca_key";
-        userKey = "${configDir}/secrets/ssh_user_ca_key";
+        hostKey = "${stateDirectory}/secrets/ssh_host_ca_key";
+        userKey = "${stateDirectory}/secrets/ssh_user_ca_key";
       };
       dnsNames = ["localhost"];
       federatedRoots = null;
@@ -102,7 +104,7 @@ in {
       # ReadWriteDirectories, which I don't know about
       ReadWritePaths = [
         ""
-        dbDir
+        stateDirectory
       ];
       ReadOnlyPaths = [
         configDir
@@ -182,7 +184,6 @@ in {
     systemPackages = [
       pkgs.step-ca
       pkgs.step-cli
-      log-sh
     ];
   };
 }
