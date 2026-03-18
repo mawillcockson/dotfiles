@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  environment.etc."tmux.conf".source = ../../../dot_config/tmux/tmux.conf;
+  environment.etc."tmux.conf".source = ../../dot_config/tmux/tmux.conf;
 
   environment.systemPackages = [
     pkgs.neovim
