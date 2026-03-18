@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  beInsecureRootCA ? true,
   ...
 }: let
   dbDir = "/var/lib/${config.systemd.services.step-ca.serviceConfig.StateDirectory}";
