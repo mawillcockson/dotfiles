@@ -4,10 +4,13 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs @ {
     nixpkgs,
     flake-parts,
+    sops-nix,
     ...
   }: let
     nixosConfigurations = (
@@ -50,7 +53,10 @@
         ...
       }: let
         queerpri.de =
-          nixosConfigurations { inherit system; }
+          nixosConfigurations {
+            inherit system;
+            extraModules = [sops-nix.nixosModules.sops];
+          }
           |> builtins.getAttr "queerpri.de";
       in {
         # Per-system attributes can be defined here. The self' and inputs'
@@ -164,7 +170,10 @@
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
-        nixosConfigurations = nixosConfigurations { system = "x86_64-linux"; };
+        nixosConfigurations = nixosConfigurations {
+          system = "x86_64-linux";
+          extraModules = [sops-nix.nixosModules.sops];
+        };
       };
     };
 }
