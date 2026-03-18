@@ -643,7 +643,7 @@ nu -c 'use setup; setup fonts; setup linux fonts'
     simple-add "usort" {"windows": {"pipx": "usort"}} --tags [python, tooling] --reasons ["large-corporation-made replacement for isort"] |
     simple-add "xonsh" {"windows": {"pipx": "xonsh[full]"}} --tags [python, shell, environment, rarely] --reasons ["beloved cross-platform shell; extremely friendly to python"] |
     simple-add "youtube-dl" {"windows": {"pipx": "youtube-dl"}} --tags [old, small] --reasons ["used to be my favorite (youtube) video downloader before yt-dlp"] |
-    simple-add "yt-dlp" {"windows": {"pipx": "yt-dlp"}} --tags [small, want, yt-dlp] --reasons ["really, really good (youtube) video downloader based on youtube-dl"] |
+    simple-add "yt-dlp" {"windows": {"pipx": "yt-dlp"}, "linux": {"pipx": "yt-dlp"}} --tags [small, want, yt-dlp] --reasons ["really, really good (youtube) video downloader based on youtube-dl"] |
     simple-add "exiv2" {"linux": {"apt-get": "exiv2"}} --search-help [picture] --tags [small] --reasons ["my favorite tool for reading and manipulating EXIF data in images"] |
     simple-add "exiftool" {"windows": {"scoop": "exiftool", "winget": "exiftool"}, "linux": {"apt-get": "exiftool"}} --search-help [picture] --tags [small] --reasons ["popular EXIF image metadata manipulation program"] |
     simple-add "sqlean" {"windows": {"eget": "nalgeon/sqlite"}} --tags [small, want] --reasons ["fantastic recompile of SQLite to include really useful extensions"] --links ["https://github.com/nalgeon/sqlite"] |

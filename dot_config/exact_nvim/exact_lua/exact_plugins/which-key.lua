@@ -171,8 +171,9 @@ return {
 			--NOTE::IMPROVEMENT maybe an autocommand on BufLeave for terminals that
 			--sets up an autocommand for BufEnter * once, and if it's a terminal,
 			--:startinsert
-      --This kind of works pretty great as-is, though
-			{ "<C-w>", group = "conveniences for moving between :term windows" },
+			--This kind of works pretty great as-is, though
+			-- Don't create a group entry, as it messes with default keybinds
+			--{ "<C-w>", group = "conveniences for moving between :term windows" },
 			{ "<C-w><C-w>", "", desc = "send <C-w> to terminal process", mode = { "t" } },
 			{ "<C-w>w", [[<C-\><C-n><C-w>w <Cmd>startinsert<CR>]], mode = "t", desc = "<C-w>w for :term" },
 			{ "<C-w>h", [[<C-\><C-n><C-w>h <Cmd>startinsert<CR>]], mode = "t", desc = "<C-w>h for :term" },

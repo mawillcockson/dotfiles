@@ -1,4 +1,4 @@
-use consts.nu [scripts]
+use consts.nu [scripts, platform]
 
 # uses powershell to get the target of a symlink
 # probably best used only on Windows, in powershell not pwsh
