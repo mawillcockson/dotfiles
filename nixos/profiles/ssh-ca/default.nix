@@ -15,9 +15,12 @@
       pkgs.sops
       pkgs.step-ca
       pkgs.step-cli
+      pkgs.jq
+      pkgs.openssh
     ];
     runtimeEnv = {
       CONFIG_DIR = configDir;
+      LOG_SH = log-sh;
     };
     text = builtins.readFile ./step-ca-init.sh;
   };
@@ -26,6 +29,7 @@
     name = "step-ca-init-make-creds.sh";
     runtimeInputs = [
       pkgs.systemd
+      log-sh
     ];
     runtimeEnv = {
       CONFIG_DIR = configDir;
@@ -34,6 +38,19 @@
   };
   step-ca-init-make-creds-script = "${step-ca-init-make-creds}/bin/${step-ca-init-make-creds.name}";
   step-ca.service = config.systemd.services.step-ca.name + ".service";
+  log-sh = pkgs.writeTextFile {
+    name = "log.sh";
+    executable = true;
+    preferLocalBuild = false;
+    allowSubstitutes = true;
+    text = builtins.readFile ../../../debian/usr/local/share/sh/log.sh;
+    checkPhase = ''
+      runHook preCheck
+      ${pkgs.stdenv.shellDryRun} "$target"
+      ${lib.getExe pkgs.shellcheck-minimal} --shell=sh "$target"
+      runHook postCheck
+    '';
+  };
 in {
   imports = [../server.nix];
 
@@ -123,17 +140,16 @@ in {
       ExecStartPre = ["systemd-creds list"];
       LoadCredentialEncrypted = "step-ca_password";
       StateDirectory = config.systemd.services.step-ca.serviceConfig.StateDirectory;
-      ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
+      # Is this necessary?
+      #ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
     };
     script = step-ca-init-script;
     enableStrictShellChecks = true;
-    environment = {
-      out = dbDir;
-    };
-    path = [
-      pkgs.step-ca
-      pkgs.step-cli
-    ];
+    # I don't think this is necessary, since the script includes `runtimeInputs`
+    #path = [
+    #  pkgs.step-ca
+    #  pkgs.step-cli
+    #];
   };
 
   systemd.services.step-ca-init-make-creds = {
@@ -165,6 +181,7 @@ in {
     systemPackages = [
       pkgs.step-ca
       pkgs.step-cli
+      log-sh
     ];
   };
 }
