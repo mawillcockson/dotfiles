@@ -138,6 +138,10 @@
             type = "app";
             program = "${pkgs.step-ca}/bin/step-ca";
           };
+          nixos-generate-config = {
+            type = "app";
+            program = "${pkgs.nixos-install-tools.outPath}/bin/nixos-generate-config";
+          };
         };
         devShells = let
           options = {
