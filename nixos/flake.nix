@@ -169,6 +169,7 @@
             }
           );
         };
+        checks."queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests {self = self';};
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
