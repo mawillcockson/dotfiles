@@ -22,7 +22,7 @@
           inherit system;
           modules =
             [
-              ./systems/queerpri.de/configuration.nix
+              ./hosts/queerpri.de/configuration.nix
             ]
             ++ extraModules;
         };
