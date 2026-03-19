@@ -29,6 +29,7 @@
   };
 in {
   imports = [
+    ./hardware-configuration.nix
     ../common
     ../../profiles/git-host.nix
     ../../profiles/ssh-ca
