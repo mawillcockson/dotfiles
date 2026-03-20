@@ -122,14 +122,14 @@
             in "${scriptsDir}/bin/run-${hostName}-vm";
             meta.description = "run the queerpri.de config's vm script (config.system.build.vm)";
           };
-          "queerpri.de-vmWithBootLoader" = {
-            type = "app";
-            program = let
-              scriptsDir = queerpri.de.config.system.build.vmWithBootLoader;
-              inherit (queerpri.de.config.networking) hostName;
-            in "${scriptsDir}/bin/run-${hostName}-vmWithBootLoader";
-            meta.description = "run the queerpri.de config's vm \"with a boot loader\" script (config.system.built.vmWithBootLoader)";
-          };
+          #"queerpri.de-vmWithBootLoader" = {
+          #  type = "app";
+          #  program = let
+          #    scriptsDir = queerpri.de.config.system.build.vmWithBootLoader;
+          #    inherit (queerpri.de.config.networking) hostName;
+          #  in "${scriptsDir}/bin/run-${hostName}-vmWithBootLoader";
+          #  meta.description = "run the queerpri.de config's vm \"with a boot loader\" script (config.system.built.vmWithBootLoader)";
+          #};
           step = {
             type = "app";
             program = "${pkgs.step-cli}/bin/step";
