@@ -1,12 +1,31 @@
 {
   description = "personal nix stuff";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    sops-nix.url = "github:Mic92/sops-nix";
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-  };
+  inputs =
+    {
+      nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+      flake-parts.url = "github:hercules-ci/flake-parts";
+      sops-nix.url = "github:Mic92/sops-nix";
+      sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    }
+    #// (
+    #  if (builtins.pathExists ../../secrets)
+    #  then {
+    #    secrets = {
+    #      # very fake flakeref
+    #      url = "file://${builtins.toString ../../secrets}";
+    #      inputs.nixpkgs.follows = "nixpkgs";
+    #    };
+    #  }
+    #  else {
+    #    secrets = {
+    #      # very fake flakeref
+    #      url = "forgejo:git@queerpri.de/secrets";
+    #      inputs.nixpkgs.follows = "nixpkgs";
+    #    };
+    #  }
+    #)
+    ;
   outputs = inputs @ {
     self,
     nixpkgs,
