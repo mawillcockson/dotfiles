@@ -8,27 +8,12 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = inputs @ {
+    self,
     nixpkgs,
     flake-parts,
     sops-nix,
     ...
-  }: let
-    nixosConfigurations = (
-      {
-        system,
-        extraModules ? [],
-      }: {
-        "queerpri.de" = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules =
-            [
-              ./hosts/queerpri.de/configuration.nix
-            ]
-            ++ extraModules;
-        };
-      }
-    );
-  in
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         # To import an internal flake module: ./other.nix
@@ -51,14 +36,7 @@
         pkgs,
         system,
         ...
-      }: let
-        queerpri.de =
-          nixosConfigurations {
-            inherit system;
-            extraModules = [sops-nix.nixosModules.sops];
-          }
-          |> builtins.getAttr "queerpri.de";
-      in {
+      }: {
         # Per-system attributes can be defined here. The self' and inputs'
         # module parameters provide easy access to attributes of the same
         # system.
@@ -117,8 +95,8 @@
           "queerpri.de-vm" = {
             type = "app";
             program = let
-              scriptsDir = queerpri.de.config.system.build.vm;
-              inherit (queerpri.de.config.networking) hostName;
+              scriptsDir = self.nixosConfigurations."queerpri.de".config.system.build.vm;
+              inherit (self.nixosConfigurations."queerpri.de".config.networking) hostName;
             in "${scriptsDir}/bin/run-${hostName}-vm";
             meta.description = "run the queerpri.de config's vm script (config.system.build.vm)";
           };
@@ -164,20 +142,38 @@
             finalAttrs: previousAttrs: {
               nativeBuildInputs =
                 previousAttrs.nativeBuildInputs
-                ++ queerpri.de.config.environment.systemPackages
+                ++ self.nixosConfigurations."queerpri.de".config.environment.systemPackages
                 ++ [pkgs.step-cli];
             }
           );
         };
-        checks."queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests {self = self';};
+        checks =
+          {
+            # prefix test names with package they're from
+            default = self'.checks.loginAsTest;
+          }
+          // import ./hosts/queerpri.de/tests {
+            self = self';
+            inherit pkgs;
+            lib = pkgs.lib;
+          };
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
-        nixosConfigurations = nixosConfigurations {
-          system = "x86_64-linux";
-          extraModules = [sops-nix.nixosModules.sops];
+        nixosConfigurations = {
+          default = self.nixosConfigurations."queerpri.de";
+          "queerpri.de" = nixpkgs.lib.nixosSystem {
+            modules = [
+              sops-nix.nixosModules.sops
+              self.nixosModules."queerpri.de"
+            ];
+            system = "x86_64-linux";
+          };
+        };
+        nixosModules = {
+          "queerpri.de" = ./hosts/queerpri.de/configuration.nix;
         };
       };
     };
