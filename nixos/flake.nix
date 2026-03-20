@@ -13,7 +13,9 @@
     flake-parts,
     sops-nix,
     ...
-  }:
+  }: let
+    helpers = import ./helpers.nix;
+  in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         # To import an internal flake module: ./other.nix
@@ -150,9 +152,20 @@
         checks =
           {
             # prefix test names with package they're from
-            default = self'.checks.loginAsTest;
+            default = self'.checks."queerpri.de-loginAsTest";
           }
-          // pkgs.callPackage ./hosts/queerpri.de/tests {};
+          // (
+            pkgs.callPackage ./hosts/queerpri.de/tests {}
+            |> (
+              # necessary, because `pkgs.callPackage` adds these functions, and I don't need them
+              s:
+                removeAttrs s [
+                  "override"
+                  "overrideDerivation"
+                ]
+            )
+            |> helpers.renameAttrs (name: value: {"queerpri.de-${name}" = value;})
+          );
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
