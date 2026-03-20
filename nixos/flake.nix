@@ -37,10 +37,6 @@
         system,
         ...
       }: {
-        # Per-system attributes can be defined here. The self' and inputs'
-        # module parameters provide easy access to attributes of the same
-        # system.
-
         packages = {
           default = self'.packages.step-ca-init;
           inherit (pkgs) step-ca step-cli;
@@ -110,15 +106,18 @@
           #};
           step = {
             type = "app";
-            program = "${pkgs.step-cli}/bin/step";
+            program = pkgs.lib.getExe pkgs.step-cli;
+            meta.description = pkgs.step-cli.meta.description;
           };
           step-ca = {
             type = "app";
-            program = "${pkgs.step-ca}/bin/step-ca";
+            program = pkgs.lib.getExe pkgs.step-ca;
+            meta.description = pkgs.step-ca.meta.description;
           };
           nixos-generate-config = {
             type = "app";
             program = "${pkgs.nixos-install-tools.outPath}/bin/nixos-generate-config";
+            meta.description = pkgs.nixos-install-tools.meta.description;
           };
         };
         devShells = let
