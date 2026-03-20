@@ -135,9 +135,10 @@
             '';
           };
         in {
-          default = pkgs.mkShellNoCC options;
+          default = self'.devShells.noCC;
+          noCC = pkgs.mkShellNoCC options;
           cc = pkgs.mkShell options;
-          "queerpri.de" = self'.devShells.default.overrideAttrs (
+          "queerpri.de" = self'.devShells.noCC.overrideAttrs (
             finalAttrs: previousAttrs: {
               nativeBuildInputs =
                 previousAttrs.nativeBuildInputs
