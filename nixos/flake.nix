@@ -152,11 +152,7 @@
             # prefix test names with package they're from
             default = self'.checks.loginAsTest;
           }
-          // import ./hosts/queerpri.de/tests {
-            self = self';
-            inherit pkgs;
-            lib = pkgs.lib;
-          };
+          // pkgs.callPackage ./hosts/queerpri.de/tests {};
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
