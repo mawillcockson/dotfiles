@@ -2,17 +2,12 @@
   pkgs,
   lib,
   ...
-}: {
-  loginAsTest =
-    pkgs.callPackage ./loginAsTest.nix {}
-    |> (
-      # necessary, because `pkgs.callPackage` adds these functions, and `runTest` via `runNixosTest` complains about them
-      s:
-        removeAttrs s [
-          "override"
-          "overrideDerivation"
-        ]
-    )
-    |> (v: v // {defaults.documentation.enable = lib.mkDefault false;})
-    |> pkgs.testers.runNixOSTest;
+}:
+pkgs.testers.runNixOSTest {
+  imports = [./loginAsTest.nix];
+
+  defaults = {
+    services.testUser = lib.mkDefault true;
+    documentation.enable = lib.mkDefault false;
+  };
 }

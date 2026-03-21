@@ -1,4 +1,4 @@
-{...}: {
+{
   name = "autologin as test";
   nodes.machine = {...}: {
     imports = [../configuration.nix];
