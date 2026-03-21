@@ -112,8 +112,13 @@
           "queerpri.de-vm" = {
             type = "app";
             program = let
-              scriptsDir = self.nixosConfigurations."queerpri.de".config.system.build.vm;
-              inherit (self.nixosConfigurations."queerpri.de".config.networking) hostName;
+              configuration = self.nixosConfigurations."queerpri.de".extendModules {
+                modules = [
+                  self.nixosModules.testUser
+                ];
+              };
+              scriptsDir = configuration.config.system.build.vm;
+              inherit (configuration.config.networking) hostName;
             in "${scriptsDir}/bin/run-${hostName}-vm";
             meta.description = "run the queerpri.de config's vm script (config.system.build.vm)";
           };
@@ -202,6 +207,7 @@
         };
         nixosModules = {
           "queerpri.de" = ./hosts/queerpri.de/configuration.nix;
+          testUser = ./profiles/test-user.nix;
         };
       };
     };
