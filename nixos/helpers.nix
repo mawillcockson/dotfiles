@@ -33,4 +33,11 @@
       )
       |> builtins.listToAttrs
   );
+  # the nixos modules system doesn't like these attributes, or they're seen as
+  # flakes options, and I like using callPackage
+  removeCallPackageAttrs = attrs:
+    removeAttrs attrs [
+      "override"
+      "overrideDerivation"
+    ];
 }
