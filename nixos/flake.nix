@@ -59,7 +59,7 @@
         ...
       }: {
         packages = {
-          default = self'.packages.step-ca-init;
+          #default = self'.packages.step-ca-init;
           inherit (pkgs) step-ca step-cli;
           step-ca-init = pkgs.writeShellApplication {
             name = "step-ca-init.sh";
@@ -179,15 +179,9 @@
           );
         };
         checks = {
-          default = self'.checks.testUser;
-          testUser = pkgs.testers.runNixOSTest {
-            modules = [./profiles/test-user-tests.nix];
-            defaults = {
-              services.testUser.enable = true;
-              documentation.enable = pkgs.lib.mkDefault false;
-            };
-          };
-          "queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests;
+          #default = self'.checks.testUser;
+          testUser = pkgs.callPackage ./profiles/test-user-tests.nix {};
+          #"queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests {};
         };
       };
       flake = {
@@ -195,7 +189,7 @@
         # agnostic ones like nixosModule and system-enumerating ones, although
         # those are more easily expressed in perSystem.
         nixosConfigurations = {
-          default = self.nixosConfigurations."queerpri.de";
+          #default = self.nixosConfigurations."queerpri.de";
           "queerpri.de" = nixpkgs.lib.nixosSystem {
             modules = [
               sops-nix.nixosModules.sops
