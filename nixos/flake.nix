@@ -115,8 +115,12 @@
               configuration = self.nixosConfigurations."queerpri.de".extendModules {
                 modules = [
                   self.nixosModules.testUser
+                  (
+                    {...}: {
+                      services.testUser.enable = true;
+                    }
+                  )
                 ];
-                services.testUser.enable = true;
               };
               scriptsDir = configuration.config.system.build.vm;
               inherit (configuration.config.networking) hostName;
