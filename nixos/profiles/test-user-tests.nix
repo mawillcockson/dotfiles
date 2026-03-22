@@ -1,7 +1,9 @@
 {
-  name = "autologin as test";
+  name = ''autologin as user "test"'';
   nodes.machine = {...}: {
     imports = [../configuration.nix];
+    documentation.enable = false;
+    virtualisation.graphics = false;
   };
   testScript = ''
     machine.start(allow_reboot=True)

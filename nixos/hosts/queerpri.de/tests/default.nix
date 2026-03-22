@@ -4,10 +4,9 @@
   ...
 }:
 pkgs.testers.runNixOSTest {
-  imports = [./loginAsTest.nix];
+  imports = [];
 
   defaults = {
-    services.testUser = lib.mkDefault true;
     documentation.enable = lib.mkDefault false;
   };
 }

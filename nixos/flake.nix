@@ -178,23 +178,17 @@
             }
           );
         };
-        checks =
-          {
-            # prefix test names with package they're from
-            default = self'.checks."queerpri.de-loginAsTest";
-          }
-          // (
-            pkgs.callPackage ./hosts/queerpri.de/tests {}
-            |> (
-              # necessary, because `pkgs.callPackage` adds these functions, and I don't need them
-              s:
-                removeAttrs s [
-                  "override"
-                  "overrideDerivation"
-                ]
-            )
-            |> helpers.renameAttrs (name: value: {"queerpri.de-${name}" = value;})
-          );
+        checks = {
+          default = self'.checks.testUser;
+          testUser = pkgs.testers.runNixOSTest {
+            modules = [./profiles/test-user-tests.nix];
+            defaults = {
+              services.testUser.enable = true;
+              documentation.enable = pkgs.lib.mkDefault false;
+            };
+          };
+          "queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests;
+        };
       };
       flake = {
         # The usual flake attributes can be defined here, including system-
