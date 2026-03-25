@@ -5,8 +5,6 @@ pkgs.testers.runNixOSTest {
       name = ''autologin as user "test"'';
       nodes.machine = {...}: {
         imports = [./test-user.nix];
-        documentation.enable = false;
-        virtualisation.graphics = false;
       };
       testScript = ''
         machine.start(allow_reboot=True)
@@ -21,6 +19,13 @@ pkgs.testers.runNixOSTest {
   ];
   defaults = {
     services.testUser.enable = true;
-    documentation.enable = pkgs.lib.mkDefault false;
+    documentation.enable = false;
+    virtualisation = {
+      useBootLoader = false;
+      memorySize = 512; # MiB
+      cores = 1;
+      graphics = false;
+      restrictNetwork = true;
+    };
   };
 }
