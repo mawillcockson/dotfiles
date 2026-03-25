@@ -1,7 +1,18 @@
-export def "date my-format" [] {
-    use clipboard.nu
-    let my_date = date now | format date "%Y-%m-%dT%H%M%z"
-    $my_date | clipboard clip
+export def "date my-format" []: nothing -> string {
+    date now |
+    format date '%Y-%m-%dT%H%M%z'
 }
 
-export def main [] { date my-format }
+export def main [
+    # whether to attempt to copy the output to the clipboard
+    --no-clipboard,
+]: nothing -> string {
+    let result = (date my-format)
+    if (not $no_clipboard) {
+        try {
+            use clipboard.nu
+            $result | clipboard clip
+        }
+    }
+    return $result
+}
