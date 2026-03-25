@@ -67,6 +67,8 @@
             ];
             text = builtins.readFile ./profiles/ssh-ca/step-ca-init.sh;
           };
+          setup-ssh-ca = pkgs.callPackage self.nixosModules.setup-ssh-ca {};
+          # I would like to write actual tests for writeNuApplication, to check all the options
           testNuApp = (pkgs.callPackage ./lib/needs-pkgs.nix {}).writeNuApplication {
             name = "test.nu";
             text = "use std/log; log info 'works!'";
@@ -203,6 +205,7 @@
         nixosModules = {
           "queerpri.de" = ./hosts/queerpri.de/configuration.nix;
           testUser = ./profiles/test-user.nix;
+          setup-ssh-ca = ./packages/setup-ssh-ca.nix;
           helpers = ./lib;
         };
       };
