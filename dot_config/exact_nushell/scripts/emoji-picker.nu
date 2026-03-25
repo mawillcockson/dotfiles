@@ -36,8 +36,8 @@ export def main [
     let temp_dir = (
         $nu
         | get temp-path? temp-dir?
-        | where {path exists}
         | compact --empty
+        | where {path exists}
         | first
     )
     let fzf_command = [
