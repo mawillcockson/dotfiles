@@ -55,8 +55,15 @@ return {
 				return mason_registry.get_package(name):is_installed()
 			end
 
+			-- pyhon
 			if executable("ruff") or mason_installed("ruff") then
 				vim.lsp.enable("ruff")
+			end
+			-- order of preference for language server
+			if executable("pyrefly") or mason_installed("pyrefly") then
+				vim.lsp.enable("pyrefly")
+			elseif executable("basedpyright") or mason_installed("basedpyright") then
+				vim.lsp.enable("basedpyright")
 			end
 
 			if executable("nu") then
