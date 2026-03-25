@@ -32,9 +32,7 @@
     flake-parts,
     sops-nix,
     ...
-  }: let
-    helpers = import ./helpers.nix;
-  in
+  }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         # To import an internal flake module: ./other.nix
@@ -68,6 +66,10 @@
               pkgs.step-cli
             ];
             text = builtins.readFile ./profiles/ssh-ca/step-ca-init.sh;
+          };
+          testNuApp = (pkgs.callPackage ./lib/needs-pkgs.nix {}).writeNuApplication {
+            name = "test.nu";
+            text = "use std/log; log info 'works!'";
           };
 
           # NOTE::QUESTION I was silly, and this isn't necessary in this case,
@@ -201,6 +203,7 @@
         nixosModules = {
           "queerpri.de" = ./hosts/queerpri.de/configuration.nix;
           testUser = ./profiles/test-user.nix;
+          helpers = ./lib;
         };
       };
     };

@@ -5,3 +5,6 @@ outputs/
 
 # NixOS VM tests produce a QEMU disk image
 *.qcow2
+
+# override parent directory's .gitignore
+!lib/

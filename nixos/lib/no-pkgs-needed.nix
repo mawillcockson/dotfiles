@@ -1,4 +1,36 @@
-{
+let
+  max = a: b:
+    if a > b
+    then a
+    else b;
+  quoteBefore = "^.*('#+).*$";
+  quoteAfter = "^.*(#+').*$";
+  countHash = regex: string:
+    builtins.match regex string
+    # the regex will include an extra character (the single quote), and all the
+    # rest will be what we want, so it doesn't really matter which character we
+    # remove, as long as we remove one of them
+    |> builtins.substring 1 (-1)
+    |> builtins.stringLength
+    |> (i: i / 2);
+  countHashBeforeQuote = countHash quoteBefore;
+  countHashAfterQuote = countHash quoteAfter;
+  repeat = elem: builtins.genList (_: elem);
+  stringRepeat = string: length': repeat string length' |> builtins.concatStringsSep "";
+  quoteNu = s:
+    if (builtins.match ".*#.*" s |> builtins.isNull)
+    then "r#'${s}'#"
+    else let
+      hashCount = max (countHashBeforeQuote s) (countHashAfterQuote s);
+      guardHashes = stringRepeat "#" (hashCount + 1);
+    in "r${guardHashes}'${s}'${guardHashes}";
+in {
+  inherit
+    max
+    repeat
+    stringRepeat
+    quoteNu
+    ;
   renameAttrs = (
     # renameFunction :: name: value: { newAttrName = newValue; }
     renameFunction: attrs:
