@@ -184,7 +184,11 @@
         };
         checks = {
           #default = self'.checks.testUser;
-          testUser = pkgs.callPackage ./profiles/test-user-tests.nix {};
+          # to run individual tests, do e.g.
+          # nix run .#checks.c86_64-linux.<check-name>.driver
+          # and for interactive python console, do e.g.
+          # nix run .#checks.c86_64-linux.<check-name>.driverInteractive
+          testUser = pkgs.callPackage ./profiles/test-user/tests {inherit self;};
           #"queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests {};
         };
       };
@@ -204,7 +208,7 @@
         };
         nixosModules = {
           "queerpri.de" = ./hosts/queerpri.de/configuration.nix;
-          testUser = ./profiles/test-user.nix;
+          testUser = ./profiles/test-user;
           setup-ssh-ca = ./packages/setup-ssh-ca.nix;
           helpers = ./lib;
         };
