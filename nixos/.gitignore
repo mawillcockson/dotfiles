@@ -5,6 +5,9 @@ outputs/
 
 # NixOS VM tests produce a QEMU disk image
 *.qcow2
+# runNixOSTest can leave behind a file of all commands, so pressing <Up> works
+# in the interactive console
+.nixos-test-history
 
 # override parent directory's .gitignore
 !lib/
