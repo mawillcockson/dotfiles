@@ -1,5 +1,6 @@
 return {
 	"nvim-tree/nvim-tree.lua",
+	enable = false,
 	branch = "master",
 	version = "*",
 	lazy = true,
