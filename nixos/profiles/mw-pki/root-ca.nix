@@ -58,6 +58,39 @@ in {
     # configuration file indirection is needed to support reloading
     environment.etc."smallstep/ca.json".source = configFile;
 
+    # NOTE::IMPROVEMENT I'm overriding instead of `pkgs.writeTextFile`, because
+    # I feel the latter would be an import-from-derivation? Regardless, I think
+    # this build may be able to be sped up by overriding the build phase to be
+    # nothing, as the file we want just needs to be unpacked, and then
+    # installed. Also, the check phase would have to be overridden
+    #
+    # grab the same upstream package used by services.step-ca, and override the
+    # build step that places the systemd service file in place, so I can rename
+    # it, and override the service that has the name of my choosing
+    systemd.packages = [
+      (config.services.step-ca.package.overrideAttrs (
+        finalAttrs: previousAttrs: {
+          postInstall =
+            lib.throwIf
+            (
+              (lib.strings.trim previousAttrs.postInstall)
+              != "install -Dm444 -t $out/lib/systemd/system systemd/step-ca.service"
+            )
+            (
+              "the `postInstall` commands for service.step-ca.package "
+              + "(likely pkgs.step-ca) have changed from when they were first overridden; "
+              + "need to verify nothing else has moved or changed"
+            )
+            /*
+            sh
+            */
+            ''
+              install -Dm444 systemd/step-ca.service $out/lib/systemd/system/${lib.escapeShellArg config.systemd.services.mw-pki-rootCA.name}
+            '';
+        }
+      ))
+    ];
+
     services.step-ca = {
       enable = true;
       openFirewall = true;
@@ -409,6 +442,23 @@ in {
                 info "placing certificates and public keys in \$CERTS_DIR -> ''${CERTS_DIR}"
                 mkdir -v "''${CERTS_DIR}"
 
+                # This machine will be used to provide an intermediate CA key
+                # to a connecting client. Because of that, if it were to
+                # generate its own intermediate CA cert+key and sign the
+                # client's CSR with that, there would be a chain of 2 CAs, and
+                # smallstep's docs indicate that that isn't exactly the use
+                # case this was designed for. Instead, the root CA cert+key can
+                # be used as the intermediate one as well. That way, it's the
+                # root that's signing the CA, not an ephemeral intermediate CA.
+                #
+                # Alternatively, the ephemeral intermediate CA could be
+                # generated, and then one of the following could be done:
+                # a) the actual intermediate CA could request an SSH key and
+                #    log into to the root CA and copy the generated intermediate
+                #    CA cert+key
+                # b) the actual intermediate CA could use its cert to
+                #    download the cert+key from the root CA, over a temporary
+                #    HTTPS connection, using client authentication
                 ssh-keygen \
                     -t ed25519 \
                     -C "intermediate CA host key @ ''${DATETIME}" \
