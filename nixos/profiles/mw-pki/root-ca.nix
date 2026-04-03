@@ -239,6 +239,9 @@ in {
             '';
         };
       in
+        # NOTE::SUSPICION I'm not 100% sure this does what I think it does. I
+        # *think* it runs the script, but I think it may be putting the path to
+        # the script into a file, and running that
         lib.getExe script;
       enableStrictShellChecks = true;
     };
