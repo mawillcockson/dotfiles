@@ -24,6 +24,14 @@
   # suffixed with "_$FILENAME" (e.g., "Key_file1"). When loading from a
   # directory, symlinks will be ignored.
   LoadCredentialEncrypted = "${rootCAKeyPasswordCredentialName}:${cfg.rootCAKeyPasswordPath}";
+
+  settingsFormat = pkgs.formats.json {};
+  configFile = settingsFormat.generate "ca.json" (
+    cfg.settings
+    // {
+      address = cfg.address + ":" + toString cfg.port;
+    }
+  );
 in {
   options.services.mw-pki.rootCA = {
     enable = lib.mkEnableOption "rootCA";
@@ -41,6 +49,9 @@ in {
     };
   };
   config = lib.mkIf (cfg.enable) {
+    # configuration file indirection is needed to support reloading
+    environment.etc."smallstep/ca.json".source = configFile;
+
     services.step-ca = {
       enable = true;
       openFirewall = true;
@@ -446,31 +457,47 @@ in {
     };
 
     systemd.services.step-ca.enable = false;
-    systemd.services.mw-pki-rootCA =
-      config.systemd.services.step-ca
-      // {
-        name = "mw-pki-rootCA.service";
-        enable = true;
-        serviceConfig = {
-          # services.step-ca overrides the upstread one, which itself uses
-          # ReadWriteDirectories, which I don't know about
-          ReadWritePaths = [
-            ""
-            STATE_DIRECTORY
-          ];
-          ReadOnlyPaths = [
-            configDir
-            #"%d"
-          ];
-          inherit LoadCredentialEncrypted;
-          ExecStartPre = ["systemd-creds list"];
-          ExecStart = [
-            ""
-            "${lib.getExe config.services.step-ca.package} ${
-              config.systemd.services.step-ca.restartTriggers |> builtins.head
-            } --password-file=\${CREDENTIALS_DIRECTORY}/step-ca_password"
-          ];
-        };
+    # I tried `config.systemd.services.step-ca // {my config;}` but got
+    # infinite recursion errors, so copied from:
+    # <https://github.com/NixOS/nixpkgs/blob/03d0d7bf47983664b75060c0edeb80fc04eebbdf/nixos/modules/services/security/step-ca.nix>
+    systemd.services.mw-pki-rootCA = {
+      name = "mw-pki-rootCA.service";
+      wantedBy = ["multi-user.target"];
+      restartTriggers = [configFile];
+      unitConfig = {
+        ConditionFileNotEmpty = ""; # override upstream
       };
+      serviceConfig = {
+        Type = "notify";
+        User = "step-ca";
+        Group = "step-ca";
+        UMask = "0077";
+        Environment = "HOME=%S/step-ca";
+        WorkingDirectory = ""; # override upstream
+        ReadWritePaths = [STATE_DIRECTORY]; # override upstream
+        ReadOnlyPaths = [
+          configDir
+          #"%d"
+        ];
+
+        # LocalCredential handles file permission problems arising from the use of DynamicUser.
+        inherit LoadCredentialEncrypted;
+
+        ExecStartPre = ["systemd-creds list"];
+        ExecStart = [
+          "" # override upstream
+          "${lib.getExe config.services.step-ca.package} ${
+            config.systemd.services.step-ca.restartTriggers |> builtins.head
+          } --password-file=\${CREDENTIALS_DIRECTORY}/step-ca_password"
+        ];
+
+        # ProtectProc = "invisible"; # not supported by upstream yet
+        # ProcSubset = "pid"; # not supported by upstream yet
+        # PrivateUsers = true; # doesn't work with privileged ports therefore not supported by upstream
+
+        DynamicUser = true;
+        StateDirectory = "step-ca";
+      };
+    };
   };
 }
