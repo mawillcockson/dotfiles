@@ -557,7 +557,7 @@ in {
           "" # override upstream
           "${lib.getExe config.services.step-ca.package} ${
             config.systemd.services.step-ca.restartTriggers |> builtins.head
-          } --password-file=\${CREDENTIALS_DIRECTORY}/step-ca_password"
+          } --password-file=${lib.escapeShellArg cfg.rootCAKeyPasswordPath}"
         ];
 
         # ProtectProc = "invisible"; # not supported by upstream yet
