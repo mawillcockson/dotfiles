@@ -229,7 +229,7 @@ in {
                   a) the value used in this script should be updated
                   b) the value used in this script shouldn't follow the systemd standard"
                     else
-                        debug "\$EXPECTED_CREDENTIALS_DIRECTORY matches \$CREDENTIALS_DIRECTORY"
+                        info "\$EXPECTED_CREDENTIALS_DIRECTORY matches \$CREDENTIALS_DIRECTORY"
                         set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY='
                         set | grep -E '^CREDENTIALS_DIRECTORY='
                     fi
@@ -369,7 +369,7 @@ in {
                   a) the value used in this script should be updated
                   b) the value used in this script shouldn't follow the systemd standard"
                     else
-                        debug "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
+                        info "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
                         set | grep -E '^EXPECTED_STATE_DIRECOTRY='
                         set | grep -E '^STATE_DIRECTORY='
                     fi
@@ -382,8 +382,8 @@ in {
                     exit 0
                 fi
 
-                debug "current user is: $(id)"
-                debug "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
+                info "current user is: $(id)"
+                info "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
                 set -x
                 ls -alhR "''${STATE_DIRECTORY}/"
                 ls -anhR "''${STATE_DIRECTORY}/"
