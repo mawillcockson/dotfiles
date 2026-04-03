@@ -262,6 +262,7 @@ in {
                     # the maximum age of this credential is supposed to be long
                     # enough that it'll eventually fail if accidentally used in
                     # production, but also long enough to use in a test
+                    # NOTE::CONTINUE add logging saying where the key is being saved to
                     printf '%s' 'insecure' \
                         | systemd-creds encrypt \
                             --with-key=auto \
@@ -301,6 +302,8 @@ in {
       ];
       unitConfig = {
         # NOTE::TESTING the vm isn't recreated each time right now
+        # NOTE::CONTINUE maybe this can be overridden at the site using the
+        # module, and not here?
         #ConditionFirstBoot = true;
         JoinsNamespaceOf = [
           config.systemd.services.mw-pki-rootCA.name
@@ -549,7 +552,6 @@ in {
           #"%d"
         ];
 
-        # LocalCredential handles file permission problems arising from the use of DynamicUser.
         inherit LoadCredentialEncrypted;
 
         ExecStartPre = ["systemd-creds list"];
