@@ -112,7 +112,7 @@ in {
 
     systemd.services.mw-pki-rootCA-make-password = {
       name = "mw-pki-rootCA-make-password.service";
-      description = "create credentials for ${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.script.name}";
+      description = "create credentials for ${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name}";
       wantedBy = ["multi-user.target"];
       wants = ["first-boot-complete.target"];
       before = [
