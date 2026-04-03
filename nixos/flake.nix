@@ -73,6 +73,8 @@
             name = "test.nu";
             text = "use std/log; log info 'works!'";
           };
+          log-sh = pkgs.callPackage ./packages/shell-support/log.sh.nix {};
+          utils-sh = pkgs.callPackage ./packages/shell-support/utils.sh.nix {};
 
           # NOTE::QUESTION I was silly, and this isn't necessary in this case,
           # but I'm still curious why it didn't work, as I may want to make a
