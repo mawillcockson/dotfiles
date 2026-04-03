@@ -125,125 +125,122 @@ in {
         # used only for marking if the script has run already, so it doesn't
         # overwrite the password file
         StateDirectory = config.systemd.services.mw-pki-rootCA-make-password.name;
+        ExecStart = let
+          script_name = config.systemd.services.mw-pki-rootCA-make-password.name + ".sh";
+          script = pkgs.writeShellApplication {
+            name = script_name;
+            runtimeInputs = [
+              # for systemd-creds
+              pkgs.systemd
+            ];
+            runtimeEnv =
+              {
+                CONFIG_DIR = configDir;
+                inherit CREDENTIALS_DIRECTORY rootCAKeyPasswordCredentialName;
+                inherit (cfg) rootCAKeyPasswordPath;
+              }
+              // (
+                if cfg.insecure
+                then {INSECURE = "true";}
+                else {}
+              );
+            text =
+              /*
+              sh
+              */
+              ''
+                set -eu
+
+                MARKER="''${STATE_DIRECTORY:?"\$STATE_DIRECTORY not set"}/~${script_name}_was_run"
+                if test -f "$MARKER"; then
+                    info "marker file already exists: $MARKER"
+                    info "exiting early"
+                    exit 0
+                fi
+
+                . ${lib.escapeShellArg self.packages.${system}.log-sh}
+
+                if test "$(id -u)" -ne 0; then
+                    error "expected script to be run as root (uid 0), but got: $(id -un) (uid $(id -u))"
+                fi
+
+                # `umask` sets the file permissions we don't want on any newly created files and directories.
+                # 377 disables write(2) and execute(1) for the user, and
+                # read(4), write(2), and execute(1) for group and other.
+                # This ensures that any newly created files can't be read by
+                # anyone but root, since that's what this script will be running
+                # as
+                info 'setting umask to 377'
+                umask 377
+
+                if test -z "''${CREDENTIALS_DIRECTORY:-}"; then
+                    error 'expected $CREDENTIALS_DIRECTORY to be set in the environment that this script is run in'
+                fi
+                if EXPECTED_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store-encrypted)"; then
+                    if test "$CREDENTIALS_DIRECTORY" != "$EXPECTED_CREDENTIALS_DIRECTORY"; then
+                        error "The directory that systemd uses for encrypted credentials ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
+
+                While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
+
+                  a) the value used in this script should be updated
+                  b) the value used in this script shouldn't follow the systemd standard"
+                    else
+                        debug "\$EXPECTED_CREDENTIALS_DIRECTORY matches \$CREDENTIALS_DIRECTORY"
+                        set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY='
+                        set | grep -E '^CREDENTIALS_DIRECTORY='
+                    fi
+                fi
+
+                # read as: if removing the $CREDENTIALS_DIRECTORY from the
+                # beginning of the $rootCAKeyPasswordPath results in the same
+                # $rootCAKeyPasswordPath, then nothing was removed, meaning
+                # $CREDENTIALS_DIRECTORY wasn't a prefix of
+                # $rootCAKeyPasswordPath
+                #
+                # the comparison order is reversed from how it's stated above, so
+                # that `shellcheck` sees that the existence of
+                # $rootCAKeyPasswordPath is assured, before using it in parameter
+                # expansion
+                if test \
+                    "''${rootCAKeyPasswordPath:?"\$rootCAKeyPasswordPath is not set"}" \
+                    = \
+                    "''${rootCAKeyPasswordPath#"$CREDENTIALS_DIRECTORY"}"
+                then
+                    error "the \$rootCAKeyPasswordPath ($rootCAKeyPasswordPath) is not in the \$CREDENTIALS_DIRECTORY ($CREDENTIALS_DIRECTORY)"
+                fi
+
+                info 'making $CREDENTIALS_DIRECTORY'
+                mkdir -vp "''${CREDENTIALS_DIRECTORY}"
+
+                if test -n "''${INSECURE:+"set"}"; then
+                    PASSWORD='insecure'
+                    info "using \"$PASSWORD\" as the root ca key password"
+                    # the maximum age of this credential is supposed to be long
+                    # enough that it'll eventually fail if accidentally used in
+                    # production, but also long enough to use in a test
+                    printf '%s' 'insecure' \
+                        | systemd-creds encrypt \
+                            --with-key=auto \
+                            --not-after=+6h \
+                            --name=''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"} \
+                            - \
+                            "''${rootCAKeyPasswordPath}"
+                else
+                    error "secure storage of the password file for the root CA key has not been implemented yet; I intend to use sops-nix for that"
+                fi
+                chown --changes root:root -R "''${CREDENTIALS_DIRECTORY}"
+                chmod --changes u=r,go= -R "''${CREDENTIALS_DIRECTORY}"
+
+                info "creating a marker file so that this script isn't run a second time: $MARKER"
+                touch "''${MARKER}"
+                chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
+                chmod --changes a=r "''${MARKER}"
+              '';
+          };
+        in
+          lib.getExe script;
+        enableStrictShellChecks = true;
       };
-      script = let
-        script_name = config.systemd.services.mw-pki-rootCA-make-password.name + ".sh";
-        script = pkgs.writeShellApplication {
-          name = script_name;
-          runtimeInputs = [
-            # for systemd-creds
-            pkgs.systemd
-          ];
-          runtimeEnv =
-            {
-              CONFIG_DIR = configDir;
-              inherit CREDENTIALS_DIRECTORY rootCAKeyPasswordCredentialName;
-              inherit (cfg) rootCAKeyPasswordPath;
-            }
-            // (
-              if cfg.insecure
-              then {INSECURE = "true";}
-              else {}
-            );
-          text =
-            /*
-            sh
-            */
-            ''
-              set -eu
-
-              MARKER="''${STATE_DIRECTORY:?"\$STATE_DIRECTORY not set"}/~${script_name}_was_run"
-              if test -f "$MARKER"; then
-                  info "marker file already exists: $MARKER"
-                  info "exiting early"
-                  exit 0
-              fi
-
-              . ${lib.escapeShellArg self.packages.${system}.log-sh}
-
-              if test "$(id -u)" -ne 0; then
-                  error "expected script to be run as root (uid 0), but got: $(id -un) (uid $(id -u))"
-              fi
-
-              # `umask` sets the file permissions we don't want on any newly created files and directories.
-              # 377 disables write(2) and execute(1) for the user, and
-              # read(4), write(2), and execute(1) for group and other.
-              # This ensures that any newly created files can't be read by
-              # anyone but root, since that's what this script will be running
-              # as
-              info 'setting umask to 377'
-              umask 377
-
-              if test -z "''${CREDENTIALS_DIRECTORY:-}"; then
-                  error 'expected $CREDENTIALS_DIRECTORY to be set in the environment that this script is run in'
-              fi
-              if EXPECTED_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store-encrypted)"; then
-                  if test "$CREDENTIALS_DIRECTORY" != "$EXPECTED_CREDENTIALS_DIRECTORY"; then
-                      error "The directory that systemd uses for encrypted credentials ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
-
-              While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
-
-                a) the value used in this script should be updated
-                b) the value used in this script shouldn't follow the systemd standard"
-                  else
-                      debug "\$EXPECTED_CREDENTIALS_DIRECTORY matches \$CREDENTIALS_DIRECTORY"
-                      set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY='
-                      set | grep -E '^CREDENTIALS_DIRECTORY='
-                  fi
-              fi
-
-              # read as: if removing the $CREDENTIALS_DIRECTORY from the
-              # beginning of the $rootCAKeyPasswordPath results in the same
-              # $rootCAKeyPasswordPath, then nothing was removed, meaning
-              # $CREDENTIALS_DIRECTORY wasn't a prefix of
-              # $rootCAKeyPasswordPath
-              #
-              # the comparison order is reversed from how it's stated above, so
-              # that `shellcheck` sees that the existence of
-              # $rootCAKeyPasswordPath is assured, before using it in parameter
-              # expansion
-              if test \
-                  "''${rootCAKeyPasswordPath:?"\$rootCAKeyPasswordPath is not set"}" \
-                  = \
-                  "''${rootCAKeyPasswordPath#"$CREDENTIALS_DIRECTORY"}"
-              then
-                  error "the \$rootCAKeyPasswordPath ($rootCAKeyPasswordPath) is not in the \$CREDENTIALS_DIRECTORY ($CREDENTIALS_DIRECTORY)"
-              fi
-
-              info 'making $CREDENTIALS_DIRECTORY'
-              mkdir -vp "''${CREDENTIALS_DIRECTORY}"
-
-              if test -n "''${INSECURE:+"set"}"; then
-                  PASSWORD='insecure'
-                  info "using \"$PASSWORD\" as the root ca key password"
-                  # the maximum age of this credential is supposed to be long
-                  # enough that it'll eventually fail if accidentally used in
-                  # production, but also long enough to use in a test
-                  printf '%s' 'insecure' \
-                      | systemd-creds encrypt \
-                          --with-key=auto \
-                          --not-after=+6h \
-                          --name=''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"} \
-                          - \
-                          "''${rootCAKeyPasswordPath}"
-              else
-                  error "secure storage of the password file for the root CA key has not been implemented yet; I intend to use sops-nix for that"
-              fi
-              chown --changes root:root -R "''${CREDENTIALS_DIRECTORY}"
-              chmod --changes u=r,go= -R "''${CREDENTIALS_DIRECTORY}"
-
-              info "creating a marker file so that this script isn't run a second time: $MARKER"
-              touch "''${MARKER}"
-              chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
-              chmod --changes a=r "''${MARKER}"
-            '';
-        };
-      in
-        # NOTE::SUSPICION I'm not 100% sure this does what I think it does. I
-        # *think* it runs the script, but I think it may be putting the path to
-        # the script into a file, and running that
-        lib.getExe script;
-      enableStrictShellChecks = true;
     };
 
     systemd.services.mw-pki-rootCA-make-certs-and-secrets = {
@@ -275,6 +272,184 @@ in {
         StateDirectory = config.systemd.services.mw-pki-rootCA.serviceConfig.StateDirectory;
         # Is this necessary?
         #ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
+        ExecStart =
+          lib.getExe
+          <| pkgs.writeShellApplication {
+            name = "${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name}.sh";
+            runtimeInputs = [
+              pkgs.coreutils
+              pkgs.sops
+              pkgs.step-ca
+              pkgs.step-cli
+              pkgs.jq
+              pkgs.openssh
+            ];
+            runtimeEnv =
+              {
+                CONFIG_DIR = configDir;
+                EXPECTED_CREDENTIALS_DIRECTORY = CREDENTIALS_DIRECTORY;
+                inherit (cfg) rootCAKeyPasswordPath;
+                inherit rootCAKeyPasswordCredentialName;
+              }
+              // (
+                if cfg.insecure
+                then {INSECURE = "true";}
+                else {}
+              );
+            text = let
+              script_name = config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name;
+            in
+              /*
+              sh
+              */
+              ''
+                set -eu
+
+                # instead of passing as a shell argument, pass as a path so that
+                # shellcheck can follow it
+                . ${lib.escapeShellArg self.packages.${system}.log-sh}
+
+                STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
+
+                if EXPECTED_STATE_DIRECOTRY="$(systemd-path systemd-state-private)"; then
+                    if test "$STATE_DIRECTORY" != "$EXPECTED_STATE_DIRECOTRY"; then
+                        error "The directory that systemd uses for a units private state ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
+
+                While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
+
+                  a) the value used in this script should be updated
+                  b) the value used in this script shouldn't follow the systemd standard"
+                    else
+                        debug "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
+                        set | grep -E '^EXPECTED_STATE_DIRECOTRY='
+                        set | grep -E '^STATE_DIRECTORY='
+                    fi
+                fi
+
+                MARKER="''${STATE_DIRECTORY}/~${script_name}_was_run"
+                if test -f "''${MARKER}"; then
+                    info "marker file already exists: ''${MARKER}"
+                    info "exiting early"
+                    exit 0
+                fi
+
+                debug "current user is: $(id)"
+                debug "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
+                set -x
+                ls -alhR "''${STATE_DIRECTORY}/"
+                ls -anhR "''${STATE_DIRECTORY}/"
+                set +x
+
+                info 'clearing previous setup'
+                find -H "''${STATE_DIRECTORY}" \
+                    -mindepth 1 \
+                    -print \
+                    '(' \
+                        -delete \
+                        -o \
+                        -printf 'could not delete: %P\n' \
+                    ')'
+
+                CA_JSON="''${CONFIG_DIR:?"\$CONFIG_DIR not set"}/ca.json"
+                info "collecting info from ca.json at: $CA_JSON"
+                if ! test -f "''${CA_JSON}"; then
+                    error "\$CA_JSON expected and not found at -> ''${CA_JSON}"
+                fi
+                if ! SSH_HOST_KEY="$(jq --raw-output --exit-status '.ssh.hostKey' "''${CA_JSON}")"; then
+                    error "jq could not find host key path in ca.json -> ''${CA_JSON}"
+                fi
+                if ! SSH_USER_KEY="$(jq --raw-output --exit-status '.ssh.userKey' "''${CA_JSON}")"; then
+                    error "jq could not find user key path in ca.json -> ''${CA_JSON}"
+                fi
+                if ! ROOT_CERT="$(jq --raw-output --exit-status '.root' "''${CA_JSON}")"; then
+                    error "jq could not find root cert path in ca.json -> ''${CA_JSON}"
+                fi
+                if ! INTERMEDIATE_CERT="$(jq --raw-output --exit-status '.crt' "''${CA_JSON}")"; then
+                    error "jq could not find intermediate cert path in ca.json -> ''${CA_JSON}"
+                fi
+                if ! INTERMEDIATE_KEY="$(jq --raw-output --exit-status '.key' "''${CA_JSON}")"; then
+                    error "jq could not find intermediate key path in ca.json -> ''${CA_JSON}"
+                fi
+
+                # no -p because it should be an error if it already exists
+                mkdir -v "''${STATE_DIRECTORY}/db"
+                chmod --changes u=rwX,go= "''${STATE_DIRECTORY}"
+
+                STEPPATH="''${STEPPATH:-"$STATE_DIRECTORY"}"
+                export STEPPATH
+                info "\$STEPPATH -> ''${STEPPATH}"
+
+                SECRETS="''${STATE_DIRECTORY}/secrets"
+                mkdir -v "''${SECRETS}"
+
+                PASSWORD_FILE="''${CREDENTIALS_DIRECTORY:?"\$CREDENTIALS_DIRECTORY not set"}/''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}"
+                if ! test -r "$PASSWORD_FILE"; then
+                    error "cannot read \$PASSWORD_FILE at: $PASSWORD_FILE"
+                fi
+                info "\$PASSWORD_FILE -> ''${PASSWORD_FILE}"
+
+                DATETIME="$(date --iso-8601=seconds)"
+                info "\$DATETIME -> ''${DATETIME}"
+
+                CERTS_DIR="''${STEPPATH}/certs"
+                info "placing certificates and public keys in \$CERTS_DIR -> ''${CERTS_DIR}"
+                mkdir -v "''${CERTS_DIR}"
+
+                ssh-keygen \
+                    -t ed25519 \
+                    -C "intermediate CA host key @ ''${DATETIME}" \
+                    -f "''${SSH_HOST_KEY}" \
+                    -N "$(cat "''${PASSWORD_FILE}")"
+                info 'moving .pub file for host key out of /secrets to /certs'
+                mv -v "''${SSH_HOST_KEY}.pub" "''${CERTS_DIR}/"
+                ssh-keygen \
+                    -t ed25519 \
+                    -C "intermediate CA user key ''${DATETIME}" \
+                    -f "''${SSH_USER_KEY}" \
+                    -N "$(cat "''${PASSWORD_FILE}")"
+                info 'moving .pub file for user key to expected place'
+                mv -v "''${SSH_USER_KEY}.pub" "''${CERTS_DIR}/"
+
+                ROOT_KEY="''${SECRETS}/root_ca_key"
+                info "creating a root ca certificate at -> ''${ROOT_CERT}"
+                info "will be storing root key at -> ''${ROOT_KEY}"
+                SUBJECT="''${INSECURE:+"test "}mw-pki root CA"
+                if test -n "''${INSECURE-}"; then
+                    VALID_FOR='24h'
+                else
+                    VALID_FOR="$((24 * 365))h"
+                fi
+                step certificate create \
+                    "$SUBJECT" \
+                    "''${ROOT_CERT}" \
+                    "''${ROOT_KEY}" \
+                    --kty=OKP \
+                    --profile=root-ca \
+                    --password-file="''${PASSWORD_FILE}" \
+                    --not-before=-10m \
+                    --not-after="$VALID_FOR"
+
+                info "creating an intermediate ca certificate at -> ''${INTERMEDIATE_CERT}"
+                info "will be storing intermediate key at -> ''${INTERMEDIATE_KEY}"
+                step certificate create \
+                    'test pki Intermediate CA' \
+                    "''${INTERMEDIATE_CERT}" \
+                    "''${INTERMEDIATE_KEY}" \
+                    --kty=OKP \
+                    --profile=intermediate-ca \
+                    --password-file="''${PASSWORD_FILE}" \
+                    --not-before=-10m \
+                    --not-after="$VALID_FOR" \
+                    --ca="''${ROOT_CERT}" \
+                    --ca-key="''${ROOT_KEY}" \
+                    --ca-password-file="''${PASSWORD_FILE}"
+
+                info "creating a marker file so that this script isn't run a second time: $MARKER"
+                touch "''${MARKER}"
+                chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
+                chmod --changes a=r "''${MARKER}"
+              '';
+          };
       };
       enableStrictShellChecks = true;
       # I don't think this is necessary, since the script includes `runtimeInputs`
@@ -282,185 +457,6 @@ in {
       #  pkgs.step-ca
       #  pkgs.step-cli
       #];
-      script = let
-        script = pkgs.writeShellApplication {
-          name = "${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name}.sh";
-          runtimeInputs = [
-            pkgs.coreutils
-            pkgs.sops
-            pkgs.step-ca
-            pkgs.step-cli
-            pkgs.jq
-            pkgs.openssh
-          ];
-          runtimeEnv =
-            {
-              CONFIG_DIR = configDir;
-              EXPECTED_CREDENTIALS_DIRECTORY = CREDENTIALS_DIRECTORY;
-              inherit (cfg) rootCAKeyPasswordPath;
-              inherit rootCAKeyPasswordCredentialName;
-            }
-            // (
-              if cfg.insecure
-              then {INSECURE = "true";}
-              else {}
-            );
-          text = let
-            script_name = config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name;
-          in
-            /*
-            sh
-            */
-            ''
-              set -eu
-
-              # instead of passing as a shell argument, pass as a path so that
-              # shellcheck can follow it
-              . ${lib.escapeShellArg self.packages.${system}.log-sh}
-
-              STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
-
-              if EXPECTED_STATE_DIRECOTRY="$(systemd-path systemd-state-private)"; then
-                  if test "$STATE_DIRECTORY" != "$EXPECTED_STATE_DIRECOTRY"; then
-                      error "The directory that systemd uses for a units private state ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
-
-              While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
-
-                a) the value used in this script should be updated
-                b) the value used in this script shouldn't follow the systemd standard"
-                  else
-                      debug "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
-                      set | grep -E '^EXPECTED_STATE_DIRECOTRY='
-                      set | grep -E '^STATE_DIRECTORY='
-                  fi
-              fi
-
-              MARKER="''${STATE_DIRECTORY}/~${script_name}_was_run"
-              if test -f "''${MARKER}"; then
-                  info "marker file already exists: ''${MARKER}"
-                  info "exiting early"
-                  exit 0
-              fi
-
-              debug "current user is: $(id)"
-              debug "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
-              set -x
-              ls -alhR "''${STATE_DIRECTORY}/"
-              ls -anhR "''${STATE_DIRECTORY}/"
-              set +x
-
-              info 'clearing previous setup'
-              find -H "''${STATE_DIRECTORY}" \
-                  -mindepth 1 \
-                  -print \
-                  '(' \
-                      -delete \
-                      -o \
-                      -printf 'could not delete: %P\n' \
-                  ')'
-
-              CA_JSON="''${CONFIG_DIR:?"\$CONFIG_DIR not set"}/ca.json"
-              info "collecting info from ca.json at: $CA_JSON"
-              if ! test -f "''${CA_JSON}"; then
-                  error "\$CA_JSON expected and not found at -> ''${CA_JSON}"
-              fi
-              if ! SSH_HOST_KEY="$(jq --raw-output --exit-status '.ssh.hostKey' "''${CA_JSON}")"; then
-                  error "jq could not find host key path in ca.json -> ''${CA_JSON}"
-              fi
-              if ! SSH_USER_KEY="$(jq --raw-output --exit-status '.ssh.userKey' "''${CA_JSON}")"; then
-                  error "jq could not find user key path in ca.json -> ''${CA_JSON}"
-              fi
-              if ! ROOT_CERT="$(jq --raw-output --exit-status '.root' "''${CA_JSON}")"; then
-                  error "jq could not find root cert path in ca.json -> ''${CA_JSON}"
-              fi
-              if ! INTERMEDIATE_CERT="$(jq --raw-output --exit-status '.crt' "''${CA_JSON}")"; then
-                  error "jq could not find intermediate cert path in ca.json -> ''${CA_JSON}"
-              fi
-              if ! INTERMEDIATE_KEY="$(jq --raw-output --exit-status '.key' "''${CA_JSON}")"; then
-                  error "jq could not find intermediate key path in ca.json -> ''${CA_JSON}"
-              fi
-
-              # no -p because it should be an error if it already exists
-              mkdir -v "''${STATE_DIRECTORY}/db"
-              chmod --changes u=rwX,go= "''${STATE_DIRECTORY}"
-
-              STEPPATH="''${STEPPATH:-"$STATE_DIRECTORY"}"
-              export STEPPATH
-              info "\$STEPPATH -> ''${STEPPATH}"
-
-              SECRETS="''${STATE_DIRECTORY}/secrets"
-              mkdir -v "''${SECRETS}"
-
-              PASSWORD_FILE="''${CREDENTIALS_DIRECTORY:?"\$CREDENTIALS_DIRECTORY not set"}/''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}"
-              if ! test -r "$PASSWORD_FILE"; then
-                  error "cannot read \$PASSWORD_FILE at: $PASSWORD_FILE"
-              fi
-              info "\$PASSWORD_FILE -> ''${PASSWORD_FILE}"
-
-              DATETIME="$(date --iso-8601=seconds)"
-              info "\$DATETIME -> ''${DATETIME}"
-
-              CERTS_DIR="''${STEPPATH}/certs"
-              info "placing certificates and public keys in \$CERTS_DIR -> ''${CERTS_DIR}"
-              mkdir -v "''${CERTS_DIR}"
-
-              ssh-keygen \
-                  -t ed25519 \
-                  -C "intermediate CA host key @ ''${DATETIME}" \
-                  -f "''${SSH_HOST_KEY}" \
-                  -N "$(cat "''${PASSWORD_FILE}")"
-              info 'moving .pub file for host key out of /secrets to /certs'
-              mv -v "''${SSH_HOST_KEY}.pub" "''${CERTS_DIR}/"
-              ssh-keygen \
-                  -t ed25519 \
-                  -C "intermediate CA user key ''${DATETIME}" \
-                  -f "''${SSH_USER_KEY}" \
-                  -N "$(cat "''${PASSWORD_FILE}")"
-              info 'moving .pub file for user key to expected place'
-              mv -v "''${SSH_USER_KEY}.pub" "''${CERTS_DIR}/"
-
-              ROOT_KEY="''${SECRETS}/root_ca_key"
-              info "creating a root ca certificate at -> ''${ROOT_CERT}"
-              info "will be storing root key at -> ''${ROOT_KEY}"
-              SUBJECT="''${INSECURE:+"test "}mw-pki root CA"
-              if test -n "''${INSECURE-}"; then
-                  VALID_FOR='24h'
-              else
-                  VALID_FOR="$((24 * 365))h"
-              fi
-              step certificate create \
-                  "$SUBJECT" \
-                  "''${ROOT_CERT}" \
-                  "''${ROOT_KEY}" \
-                  --kty=OKP \
-                  --profile=root-ca \
-                  --password-file="''${PASSWORD_FILE}" \
-                  --not-before=-10m \
-                  --not-after="$VALID_FOR"
-
-              info "creating an intermediate ca certificate at -> ''${INTERMEDIATE_CERT}"
-              info "will be storing intermediate key at -> ''${INTERMEDIATE_KEY}"
-              step certificate create \
-                  'test pki Intermediate CA' \
-                  "''${INTERMEDIATE_CERT}" \
-                  "''${INTERMEDIATE_KEY}" \
-                  --kty=OKP \
-                  --profile=intermediate-ca \
-                  --password-file="''${PASSWORD_FILE}" \
-                  --not-before=-10m \
-                  --not-after="$VALID_FOR" \
-                  --ca="''${ROOT_CERT}" \
-                  --ca-key="''${ROOT_KEY}" \
-                  --ca-password-file="''${PASSWORD_FILE}"
-
-              info "creating a marker file so that this script isn't run a second time: $MARKER"
-              touch "''${MARKER}"
-              chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
-              chmod --changes a=r "''${MARKER}"
-            '';
-        };
-      in
-        lib.getExe script;
     };
 
     systemd.services.step-ca.enable = false;
