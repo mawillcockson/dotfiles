@@ -3,9 +3,9 @@
   config,
   pkgs,
   lib,
-  system ? pkgs.stdenv.hostPlatform.system,
   ...
 }: let
+  system = pkgs.stdenv.hostPlatform.system;
   cfg = config.services.mw-pki.rootCA;
   constants = import ./constants.nix;
   inherit (constants) configDir CREDENTIALS_DIRECTORY;
