@@ -6,18 +6,20 @@
 }: let
   myLaptop = {...}: {
     virtualisation.vlans = [1];
-    services.mw-pki.root-ca = {
+    services.mw-pki.rootCA = {
       enable = true;
       insecure = true;
     };
     imports = [self.nixosModules.mw-pki];
   };
-  intermediateCa = {...}: {
+  # make it clear how I want to run this
+  rootCA = myLaptop;
+  intermediateCA = {...}: {
     virtualisation.vlans = [
       1
       2
     ];
-    services.mw-pki.intermediate-ca.enable = true;
+    services.mw-pki.intermediateCA.enable = true;
     imports = [self.nixosModules.mw-pki];
   };
   server = {...}: {
@@ -35,7 +37,7 @@ in
     imports = [
       {
         name = "mw-pki tests";
-        nodes = {inherit myLaptop;};
+        nodes = {inherit rootCA;};
         testScript =
           /*
           python
@@ -47,14 +49,14 @@ in
       }
       {
         name = "mw-pki: intermediate CA";
-        nodes = {inherit myLaptop intermediateCa;};
+        nodes = {inherit myLaptop intermediateCA;};
         testScript =
           /*
           python
           */
           ''
-            intermediateCa.start(allow_reboot=True)
-            intermediateCa.wait_for_unit("ssh-ca.service")
+            intermediateCA.start(allow_reboot=True)
+            intermediateCA.wait_for_unit("ssh-ca.service")
           '';
       }
 
@@ -63,7 +65,7 @@ in
         nodes = {
           inherit
             myLaptop
-            intermediateCa
+            intermediateCA
             server
             client
             ;
@@ -79,7 +81,7 @@ in
           ''
             start_all()
             myLaptop.wait_for_unit("ssh-ca.service")
-            intermediateCa.wait_for_unit("ssh-ca.service")
+            intermediateCA.wait_for_unit("ssh-ca.service")
             server.wait_for_unit("ssh-ca.service")
             client.wait_for_unit("ssh-ca.service")
             # NOTE::IMPROVEMENT is there a way to pull the IP address in from

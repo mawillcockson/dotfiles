@@ -191,6 +191,7 @@
           # and for interactive python console, do e.g.
           # nix run .#checks.c86_64-linux.<check-name>.driverInteractive
           testUser = pkgs.callPackage ./profiles/test-user/tests {inherit self;};
+          mw-pki = pkgs.callPackage ./profiles/mw-pki/tests {inherit self;};
           #"queerpri.de" = pkgs.callPackage ./hosts/queerpri.de/tests {};
         };
       };
@@ -213,6 +214,10 @@
           testUser = ./profiles/test-user;
           setup-ssh-ca = ./packages/setup-ssh-ca.nix;
           helpers = ./lib;
+          mw-pki = {...}: {
+            _module.args = {inherit self;};
+            imports = [./profiles/mw-pki];
+          };
         };
       };
     };

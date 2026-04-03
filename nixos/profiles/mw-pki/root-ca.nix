@@ -1,189 +1,490 @@
 {
+  self,
   config,
-  lib,
   pkgs,
-  beInsecureRootCA ? true,
+  lib,
+  system ? pkgs.stdenv.hostPlatform.system,
   ...
 }: let
-  stateDirectory = "/var/lib/${config.systemd.services.step-ca.serviceConfig.StateDirectory}";
+  cfg = config.services.mw-pki.rootCA;
   # NOTE::BUG causes an infinite recursion
   #configDir = config.systemd.services.step-ca.restartTriggers |> builtins.head |> builtins.dirOf;
   configDir = "/etc/smallstep";
-  step-ca-init = pkgs.writeShellApplication {
-    name = "step-ca-init.sh";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.sops
-      pkgs.step-ca
-      pkgs.step-cli
-      pkgs.jq
-      pkgs.openssh
-    ];
-    runtimeEnv = {
-      CONFIG_DIR = configDir;
-      LOG_SH = log-sh;
-    };
-    text = builtins.readFile ./step-ca-init.sh;
-  };
-  step-ca-init-script = "${step-ca-init}/bin/${step-ca-init.name}";
-  step-ca-init-make-creds = pkgs.writeShellApplication {
-    name = "step-ca-init-make-creds.sh";
-    runtimeInputs = [
-      pkgs.systemd
-    ];
-    runtimeEnv = {
-      CONFIG_DIR = configDir;
-    };
-    text = builtins.readFile ./step-ca-init-make-creds.sh;
-  };
-  step-ca-init-make-creds-script = "${step-ca-init-make-creds}/bin/${step-ca-init-make-creds.name}";
-  step-ca.service = config.systemd.services.step-ca.name + ".service";
-  log-sh = pkgs.writeTextFile {
-    name = "log.sh";
-    executable = true;
-    preferLocalBuild = false;
-    allowSubstitutes = true;
-    text = builtins.readFile ../../../debian/usr/local/share/sh/log.sh;
-    checkPhase = ''
-      runHook preCheck
-      ${pkgs.stdenv.shellDryRun} "$target"
-      ${lib.getExe pkgs.shellcheck-minimal} --shell=sh "$target"
-      runHook postCheck
-    '';
-  };
+  # NOTE::DONE there's a note in systemd.exec(5) under LoadCredential
+  # about using `systemd-path` with an invocation like `systemd-run --collect
+  # --wait --pty -- systemd-path system-credential-store-encrypted` to get the specific path to the
+  # credentials directory, but it didn't work for me
+  # <https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#LoadCredential=ID:PATH>
+  # it looks like it IS just missing for me:
+  #
+  # debian 13 has `systemd-path --version` 257.9-1~deb13u1
+  # nixos-unstable has version 259
+  #
+  # It would be cool if this value maybe were derived from invoking
+  # `systemd-path system-credential-store-encrypted`, but that would be an
+  # import-from-derivation, so instead it can be validated at runtime against
+  # the output of that command.
+  # This is done by `mw-pki-rootCA-make-password.service`
+  CREDENTIALS_DIRECTORY = "/etc/credstore.encrypted";
+  # similar to the note for CREDENTIALS_DIRECTORY, this is checked in `mw-pki-rootCA-make-certs-and-secrets.service`
+  STATE_DIRECTORY = "/var/lib/${config.systemd.services.mw-pki-rootCA.serviceConfig.StateDirectory}";
+  # canonicalize it here instead of using `basename` in the script, so it's
+  # always the same
+  rootCAKeyPasswordCredentialName = baseNameOf cfg.rootCAKeyPasswordPath;
 in {
-  imports = [../server.nix];
+  options.services.mw-pki.rootCA = {
+    enable = lib.mkEnableOption "rootCA";
+    insecure = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "whether to generate a root key and cert using a plaintext password, or load them from sops-nix";
+      example = lib.literalExpression "true";
+    };
+    rootCAKeyPasswordPath = lib.mkOption {
+      type = lib.types.externalPath;
+      default = "${CREDENTIALS_DIRECTORY}/mw-pki/rootCAKeyPassword";
+      description = "where the password for the root ca key will be stored; this is encrypted with systemd-creds";
+      example = lib.literalExpression "/etc/credstore.encrypted/step-ca-root-key-password";
+    };
+  };
+  config = lib.mkIf (cfg.enable) {
+    services.step-ca = {
+      enable = true;
+      openFirewall = true;
+      address = "127.0.0.1";
+      port = let
+        port = 52086;
+      in
+        lib.throwIf (
+          port > 65535 - (config.services.mw-pki |> builtins.attrNames |> builtins.length)
+        ) "the port used for the rootCA should have enough ports after it for all other pki services"
+        port;
+      # NOTE::IMPROVEMENT how do I keep up with the defaults of the generated
+      # ca.json?
+      # I could run `step ca init` and do checks on the output vs what I have
+      # here. I could also apply transformations to get these values, and then
+      # periodically (after each update to `step`) perform the transformation
+      # using nix's wonderful build isolation chamber and compare the output to
+      # what I have here, and note any changes as an error pointing to
+      # configuration drift that should be addressed.
+      settings = {
+        db = {
+          badgerFileLoadingMode = "";
+          dataSource = "${STATE_DIRECTORY}/db";
+          type = "badgerv2";
+        };
+        # The following are created by mw-pki-rootCA-make-certs-and-secrets.service, prior to mw-pki-rootCA.service running:
+        # - root
+        # - crt
+        # - key
+        # - ssh
+        root = "${STATE_DIRECTORY}/certs/root_ca.crt";
+        crt = "${STATE_DIRECTORY}/certs/intermediate_ca.crt";
+        key = "${STATE_DIRECTORY}/secrets/intermediate_ca_key";
+        ssh = {
+          hostKey = "${STATE_DIRECTORY}/secrets/ssh_host_ca_key";
+          userKey = "${STATE_DIRECTORY}/secrets/ssh_user_ca_key";
+        };
+        dnsNames = ["localhost"];
+        federatedRoots = null;
+        insecureAddress = "";
+        logger = {
+          format = "text";
+        };
+        tls = {
+          cipherSuites = [
+            "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
+            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+          ];
+          maxVersion = 1.3;
+          minVersion = 1.2;
+          renegotiation = false;
+        };
+      };
+    };
 
-  services.step-ca = {
-    settings = {
-      db = {
-        badgerFileLoadingMode = "";
-        dataSource = "${stateDirectory}/db";
-        type = "badgerv2";
+    systemd.services.mw-pki-rootCA-make-password = {
+      name = "mw-pki-rootCA-make-password.service";
+      description = "create credentials for ${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.script.name}";
+      wantedBy = ["multi-user.target"];
+      wants = ["first-boot-complete.target"];
+      before = [
+        "first-boot-complete.target"
+        config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name
+      ];
+      unitConfig = {
+        ConditionFirstBoot = true;
       };
-      # I don't think I like setting these here, though I think having this could help
-      # with monitoring drift between the default settings at the time I was
-      # writing this file, and the current default ca.json settings.
-      # The following are created by step-ca-init.service, prior to step-ca.service running:
-      # - root
-      # - crt
-      # - key
-      # - ssh
-      root = "${stateDirectory}/certs/root_ca.crt";
-      crt = "${stateDirectory}/certs/intermediate_ca.crt";
-      key = "${stateDirectory}/secrets/intermediate_ca_key";
-      ssh = {
-        hostKey = "${stateDirectory}/secrets/ssh_host_ca_key";
-        userKey = "${stateDirectory}/secrets/ssh_user_ca_key";
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = false;
+        # used only for marking if the script has run already, so it doesn't
+        # overwrite the password file
+        StateDirectory = config.systemd.services.mw-pki-rootCA-make-password.name;
       };
-      dnsNames = ["localhost"];
-      federatedRoots = null;
-      insecureAddress = "";
-      logger = {
-        format = "text";
-      };
-      tls = {
-        cipherSuites = [
-          "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
-          "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+      script = let
+        script_name = config.systemd.services.mw-pki-rootCA-make-password.name;
+      in
+        pkgs.writeShellApplication {
+          name = "${script_name}.sh";
+          runtimeInputs = [
+            # for systemd-creds
+            pkgs.systemd
+          ];
+          runtimeEnv =
+            {
+              CONFIG_DIR = configDir;
+              inherit CREDENTIALS_DIRECTORY rootCAKeyPasswordCredentialName;
+              inherit (cfg) rootCAKeyPasswordPath;
+            }
+            // (
+              if cfg.insecure
+              then {INSECURE = "true";}
+              else {}
+            );
+          text =
+            /*
+            sh
+            */
+            ''
+              set -eu
+
+              MARKER="''${STATE_DIRECTORY:?"\$STATE_DIRECTORY not set"}/~${script_name}_was_run"
+              if test -f "$MARKER"; then
+                  info "marker file already exists: $MARKER"
+                  info "exiting early"
+                  exit 0
+              fi
+
+              . ${lib.escapeShellArg self.packages.${system}.log-sh}
+
+              if test "$(id -u)" -ne 0; then
+                  error "expected script to be run as root (uid 0), but got: $(id -un) (uid $(id -u))"
+              fi
+
+              # `umask` sets the file permissions we don't want on any newly created files and directories.
+              # 377 disables write(2) and execute(1) for the user, and
+              # read(4), write(2), and execute(1) for group and other.
+              # This ensures that any newly created files can't be read by
+              # anyone but root, since that's what this script will be running
+              # as
+              info 'setting umask to 377'
+              umask 377
+
+              if test -z "''${CREDENTIALS_DIRECTORY:-}"; then
+                  error 'expected $CREDENTIALS_DIRECTORY to be set in the environment that this script is run in'
+              fi
+              if EXPECTED_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store-encrypted)"; then
+                  if test "$CREDENTIALS_DIRECTORY" != "$EXPECTED_CREDENTIALS_DIRECTORY"; then
+                      error "The directory that systemd uses for encrypted credentials ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
+
+              While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
+
+                a) the value used in this script should be updated
+                b) the value used in this script shouldn't follow the systemd standard"
+                  else
+                      debug "\$EXPECTED_CREDENTIALS_DIRECTORY matches \$CREDENTIALS_DIRECTORY"
+                      set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY='
+                      set | grep -E '^CREDENTIALS_DIRECTORY='
+                  fi
+              fi
+
+              # read as: if removing the $CREDENTIALS_DIRECTORY from the
+              # beginning of the $rootCAKeyPasswordPath results in the same
+              # $rootCAKeyPasswordPath, then nothing was removed, meaning
+              # $CREDENTIALS_DIRECTORY wasn't a prefix of
+              # $rootCAKeyPasswordPath
+              #
+              # the comparison order is reversed from how it's stated above, so
+              # that `shellcheck` sees that the existence of
+              # $rootCAKeyPasswordPath is assured, before using it in parameter
+              # expansion
+              if test \
+                  "''${rootCAKeyPasswordPath:?"\$rootCAKeyPasswordPath is not set"}" \
+                  = \
+                  "''${rootCAKeyPasswordPath#"$CREDENTIALS_DIRECTORY"}"
+              then
+                  error "the \$rootCAKeyPasswordPath ($rootCAKeyPasswordPath) is not in the \$CREDENTIALS_DIRECTORY ($CREDENTIALS_DIRECTORY)"
+              fi
+
+              info 'making $CREDENTIALS_DIRECTORY'
+              mkdir -vp "''${CREDENTIALS_DIRECTORY}"
+
+              if test -n "''${INSECURE:+"set"}"; then
+                  PASSWORD='insecure'
+                  info "using \"$PASSWORD\" as the root ca key password"
+                  # the maximum age of this credential is supposed to be long
+                  # enough that it'll eventually fail if accidentally used in
+                  # production, but also long enough to use in a test
+                  printf '%s' 'insecure' \
+                      | systemd-creds encrypt \
+                          --with-key=auto \
+                          --not-after=+6h \
+                          --name=''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"} \
+                          - \
+                          "''${rootCAKeyPasswordPath}"
+              else
+                  error "secure storage of the password file for the root CA key has not been implemented yet; I intend to use sops-nix for that"
+              fi
+              chown --changes root:root -R "''${CREDENTIALS_DIRECTORY}"
+              chmod --changes u=r,go= -R "''${CREDENTIALS_DIRECTORY}"
+
+              info "creating a marker file so that this script isn't run a second time: $MARKER"
+              touch "''${MARKER}"
+              chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
+              chmod --changes a=r "''${MARKER}"
+            '';
+        };
+      enableStrictShellChecks = true;
+    };
+
+    systemd.services.mw-pki-rootCA-make-certs-and-secrets = {
+      name = "mw-pki-rootCA-make-certs-and-secrets.service";
+      description = "like `step ca init`, but with ed25519 keys";
+      wantedBy = ["multi-user.target"];
+      wants = [
+        "first-boot-complete.target"
+        config.systemd.services.mw-pki-rootCA.name
+      ];
+      before = [
+        "first-boot-complete.target"
+        config.systemd.services.mw-pki-rootCA.name
+      ];
+      unitConfig = {
+        ConditionFirstBoot = true;
+        JoinsNamespaceOf = [
+          config.systemd.services.mw-pki-rootCA.name
         ];
-        maxVersion = 1.3;
-        minVersion = 1.2;
-        renegotiation = false;
+      };
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = false;
+        User = config.systemd.services.step-ca.serviceConfig.User;
+        Group = config.systemd.services.step-ca.serviceConfig.Group;
+        DynamicUser = true;
+        ExecStartPre = ["systemd-creds list"];
+        # this name is chosen based on the description of how secrets are named
+        # if a directory is given for the path argument:
+        # from <https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#LoadCredential=ID:PATH>:
+        # If an absolute path referring to a directory is specified, every file
+        # in that directory (recursively) will be loaded as a separate
+        # credential. The ID for each credential will be the provided ID
+        # suffixed with "_$FILENAME" (e.g., "Key_file1"). When loading from a
+        # directory, symlinks will be ignored.
+        LoadCredentialEncrypted = "${rootCAKeyPasswordCredentialName}:${cfg.rootCAKeyPasswordPath}";
+        StateDirectory = config.systemd.services.mw-pki-rootCA.serviceConfig.StateDirectory;
+        # Is this necessary?
+        #ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
+      };
+      enableStrictShellChecks = true;
+      # I don't think this is necessary, since the script includes `runtimeInputs`
+      #path = [
+      #  pkgs.step-ca
+      #  pkgs.step-cli
+      #];
+      script = pkgs.writeShellApplication {
+        name = "${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name}.sh";
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.sops
+          pkgs.step-ca
+          pkgs.step-cli
+          pkgs.jq
+          pkgs.openssh
+        ];
+        runtimeEnv =
+          {
+            CONFIG_DIR = configDir;
+            EXPECTED_CREDENTIALS_DIRECTORY = CREDENTIALS_DIRECTORY;
+            inherit (cfg) rootCAKeyPasswordPath;
+            inherit rootCAKeyPasswordCredentialName;
+          }
+          // (
+            if cfg.insecure
+            then {INSECURE = "true";}
+            else {}
+          );
+        text = let
+          script_name = config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name;
+        in
+          /*
+          sh
+          */
+          ''
+            set -eu
+
+            # instead of passing as a shell argument, pass as a path so that
+            # shellcheck can follow it
+            . ${lib.escapeShellArg self.packages.${system}.log-sh}
+
+            STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
+
+            if EXPECTED_STATE_DIRECOTRY="$(systemd-path systemd-state-private)"; then
+                if test "$STATE_DIRECTORY" != "$EXPECTED_STATE_DIRECOTRY"; then
+                    error "The directory that systemd uses for a units private state ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
+
+            While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
+
+              a) the value used in this script should be updated
+              b) the value used in this script shouldn't follow the systemd standard"
+                else
+                    debug "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
+                    set | grep -E '^EXPECTED_STATE_DIRECOTRY='
+                    set | grep -E '^STATE_DIRECTORY='
+                fi
+            fi
+
+            MARKER="''${STATE_DIRECTORY}/~${script_name}_was_run"
+            if test -f "''${MARKER}"; then
+                info "marker file already exists: ''${MARKER}"
+                info "exiting early"
+                exit 0
+            fi
+
+            debug "current user is: $(id)"
+            debug "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
+            set -x
+            ls -alhR "''${STATE_DIRECTORY}/"
+            ls -anhR "''${STATE_DIRECTORY}/"
+            set +x
+
+            info 'clearing previous setup'
+            find -H "''${STATE_DIRECTORY}" \
+                -mindepth 1 \
+                -print \
+                '(' \
+                    -delete \
+                    -o \
+                    -printf 'could not delete: %P\n' \
+                ')'
+
+            CA_JSON="''${CONFIG_DIR:?"\$CONFIG_DIR not set"}/ca.json"
+            info "collecting info from ca.json at: $CA_JSON"
+            if ! test -f "''${CA_JSON}"; then
+                error "\$CA_JSON expected and not found at -> ''${CA_JSON}"
+            fi
+            if ! SSH_HOST_KEY="$(jq --raw-output --exit-status '.ssh.hostKey' "''${CA_JSON}")"; then
+                error "jq could not find host key path in ca.json -> ''${CA_JSON}"
+            fi
+            if ! SSH_USER_KEY="$(jq --raw-output --exit-status '.ssh.userKey' "''${CA_JSON}")"; then
+                error "jq could not find user key path in ca.json -> ''${CA_JSON}"
+            fi
+            if ! ROOT_CERT="$(jq --raw-output --exit-status '.root' "''${CA_JSON}")"; then
+                error "jq could not find root cert path in ca.json -> ''${CA_JSON}"
+            fi
+            if ! INTERMEDIATE_CERT="$(jq --raw-output --exit-status '.crt' "''${CA_JSON}")"; then
+                error "jq could not find intermediate cert path in ca.json -> ''${CA_JSON}"
+            fi
+            if ! INTERMEDIATE_KEY="$(jq --raw-output --exit-status '.key' "''${CA_JSON}")"; then
+                error "jq could not find intermediate key path in ca.json -> ''${CA_JSON}"
+            fi
+
+            # no -p because it should be an error if it already exists
+            mkdir -v "''${STATE_DIRECTORY}/db"
+            chmod --changes u=rwX,go= "''${STATE_DIRECTORY}"
+
+            STEPPATH="''${STEPPATH:-"$STATE_DIRECTORY"}"
+            export STEPPATH
+            info "\$STEPPATH -> ''${STEPPATH}"
+
+            SECRETS="''${STATE_DIRECTORY}/secrets"
+            mkdir -v "''${SECRETS}"
+
+            PASSWORD_FILE="''${CREDENTIALS_DIRECTORY:?"\$CREDENTIALS_DIRECTORY not set"}/''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}"
+            if ! test -r "$PASSWORD_FILE"; then
+                error "cannot read \$PASSWORD_FILE at: $PASSWORD_FILE"
+            fi
+            info "\$PASSWORD_FILE -> ''${PASSWORD_FILE}"
+
+            DATETIME="$(date --iso-8601=seconds)"
+            info "\$DATETIME -> ''${DATETIME}"
+
+            CERTS_DIR="''${STEPPATH}/certs"
+            info "placing certificates and public keys in \$CERTS_DIR -> ''${CERTS_DIR}"
+            mkdir -v "''${CERTS_DIR}"
+
+            ssh-keygen \
+                -t ed25519 \
+                -C "intermediate CA host key @ ''${DATETIME}" \
+                -f "''${SSH_HOST_KEY}" \
+                -N "$(cat "''${PASSWORD_FILE}")"
+            info 'moving .pub file for host key out of /secrets to /certs'
+            mv -v "''${SSH_HOST_KEY}.pub" "''${CERTS_DIR}/"
+            ssh-keygen \
+                -t ed25519 \
+                -C "intermediate CA user key ''${DATETIME}" \
+                -f "''${SSH_USER_KEY}" \
+                -N "$(cat "''${PASSWORD_FILE}")"
+            info 'moving .pub file for user key to expected place'
+            mv -v "''${SSH_USER_KEY}.pub" "''${CERTS_DIR}/"
+
+            ROOT_KEY="''${SECRETS}/root_ca_key"
+            info "creating a root ca certificate at -> ''${ROOT_CERT}"
+            info "will be storing root key at -> ''${ROOT_KEY}"
+            SUBJECT="''${INSECURE:+"test "}mw-pki root CA"
+            if test -n "''${INSECURE-}"; then
+                VALID_FOR='24h'
+            else
+                VALID_FOR="$((24 * 365))h"
+            fi
+            step certificate create \
+                "$SUBJECT" \
+                "''${ROOT_CERT}" \
+                "''${ROOT_KEY}" \
+                --kty=OKP \
+                --profile=root-ca \
+                --password-file="''${PASSWORD_FILE}" \
+                --not-before=-10m \
+                --not-after="$VALID_FOR"
+
+            info "creating an intermediate ca certificate at -> ''${INTERMEDIATE_CERT}"
+            info "will be storing intermediate key at -> ''${INTERMEDIATE_KEY}"
+            step certificate create \
+                'test pki Intermediate CA' \
+                "''${INTERMEDIATE_CERT}" \
+                "''${INTERMEDIATE_KEY}" \
+                --kty=OKP \
+                --profile=intermediate-ca \
+                --password-file="''${PASSWORD_FILE}" \
+                --not-before=-10m \
+                --not-after="$VALID_FOR" \
+                --ca="''${ROOT_CERT}" \
+                --ca-key="''${ROOT_KEY}" \
+                --ca-password-file="''${PASSWORD_FILE}"
+
+            info "creating a marker file so that this script isn't run a second time: $MARKER"
+            touch "''${MARKER}"
+            chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
+            chmod --changes a=r "''${MARKER}"
+          '';
       };
     };
-    enable = true;
-    openFirewall = true;
-    address = "127.0.0.1";
-    port = 52086;
-  };
 
-  systemd.services.step-ca = {
-    serviceConfig = {
-      # services.step-ca overrides the upstread one, which itself uses
-      # ReadWriteDirectories, which I don't know about
-      ReadWritePaths = [
-        ""
-        stateDirectory
-      ];
-      ReadOnlyPaths = [
-        configDir
-        #"%d"
-      ];
-      LoadCredentialEncrypted = "step-ca_password";
-      ExecStartPre = ["systemd-creds list"];
-      ExecStart = [
-        ""
-        "${config.services.step-ca.package}/bin/step-ca ${
-          config.systemd.services.step-ca.restartTriggers |> builtins.head
-        } --password-file=\${CREDENTIALS_DIRECTORY}/step-ca_password"
-      ];
-    };
-  };
-
-  systemd.services.step-ca-init = {
-    name = "step-ca-init.service";
-    description = "setup step-ca for the test environment";
-    wantedBy = ["multi-user.target"];
-    wants = ["first-boot-complete.target"];
-    before = [
-      "first-boot-complete.target"
-      step-ca.service
-    ];
-    unitConfig = {
-      #ConditionFirstBoot = true;
-      JoinsNamespaceOf = [step-ca.service];
-    };
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      User = config.systemd.services.step-ca.serviceConfig.User;
-      Group = config.systemd.services.step-ca.serviceConfig.Group;
-      DynamicUser = true;
-      ExecStartPre = ["systemd-creds list"];
-      LoadCredentialEncrypted = "step-ca_password";
-      StateDirectory = config.systemd.services.step-ca.serviceConfig.StateDirectory;
-      # Is this necessary?
-      #ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
-    };
-    script = step-ca-init-script;
-    enableStrictShellChecks = true;
-    # I don't think this is necessary, since the script includes `runtimeInputs`
-    #path = [
-    #  pkgs.step-ca
-    #  pkgs.step-cli
-    #];
-  };
-
-  systemd.services.step-ca-init-make-creds = {
-    name = "step-ca-init-make-creds.service";
-    description = "create credentials for step-ca-init.sh";
-    wantedBy = ["multi-user.target"];
-    wants = ["first-boot-complete.target"];
-    before = [
-      "first-boot-complete.target"
-      config.systemd.services.step-ca-init.name
-    ];
-    unitConfig = {
-      #ConditionFirstBoot = true;
-    };
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      StateDirectory = config.systemd.services.step-ca-init-make-creds.name;
-    };
-    script = step-ca-init-make-creds-script;
-    enableStrictShellChecks = true;
-  };
-
-  #virtualisation.vmVariant = vmVariant;
-  #virtualisation.vmVariantWithBootLoader = vmVariant;
-
-  # I think services.step-ca.enable pulls in the necessary packages already
-  environment = {
-    systemPackages = [
-      pkgs.step-ca
-      pkgs.step-cli
-    ];
+    systemd.services.step-ca.enable = false;
+    systemd.services.mw-pki-rootCA =
+      config.systemd.services.step-ca
+      // {
+        enable = true;
+        serviceConfig = {
+          # services.step-ca overrides the upstread one, which itself uses
+          # ReadWriteDirectories, which I don't know about
+          ReadWritePaths = [
+            ""
+            STATE_DIRECTORY
+          ];
+          ReadOnlyPaths = [
+            configDir
+            #"%d"
+          ];
+          LoadCredentialEncrypted = "step-ca_password";
+          ExecStartPre = ["systemd-creds list"];
+          ExecStart = [
+            ""
+            "${lib.getExe config.services.step-ca.package} ${
+              config.systemd.services.step-ca.restartTriggers |> builtins.head
+            } --password-file=\${CREDENTIALS_DIRECTORY}/step-ca_password"
+          ];
+        };
+      };
   };
 }
