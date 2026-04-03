@@ -133,6 +133,7 @@
                       _module.args = {inherit self;};
                       imports = [./profiles/mw-pki/root-ca.nix];
                       services.mw-pki.rootCA.enable = true;
+                      services.mw-pki.rootCA.insecure = true;
                     }
                   )
                 ];
