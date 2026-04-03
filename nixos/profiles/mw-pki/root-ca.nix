@@ -309,7 +309,7 @@ in {
                 set -eu
 
                 # instead of passing as a shell argument, pass as a path so that
-                # shellcheck can follow it
+                # `shellcheck` can follow it
                 . ${lib.escapeShellArg self.packages.${system}.log-sh}
 
                 STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
