@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 if ! command -v command; then
     echo 'builtin command -v is not POSIX compliant'
     echo 'this is the case for posh < v0.14.1, for example'

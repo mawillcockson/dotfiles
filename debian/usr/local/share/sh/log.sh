@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 log() {
     case "$#" in
         1)
