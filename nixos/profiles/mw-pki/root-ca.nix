@@ -449,6 +449,7 @@ in {
     systemd.services.mw-pki-rootCA =
       config.systemd.services.step-ca
       // {
+        name = "mw-pki-rootCA.service";
         enable = true;
         serviceConfig = {
           # services.step-ca overrides the upstread one, which itself uses
