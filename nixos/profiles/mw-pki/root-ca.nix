@@ -207,7 +207,7 @@ in {
                     error "expected script to be run as root (uid 0), but got: $(id -un) (uid $(id -u))"
                 fi
 
-                # `umask` sets the file permissions we don't want on any newly created files and directories.
+                # `umask` sets the file permissions I don't want on any newly created files and directories.
                 # 377 disables write(2) and execute(1) for the user, and
                 # read(4), write(2), and execute(1) for group and other.
                 # This ensures that any newly created files can't be read by
