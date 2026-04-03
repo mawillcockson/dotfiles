@@ -26,12 +26,15 @@
   LoadCredentialEncrypted = "${rootCAKeyPasswordCredentialName}:${cfg.rootCAKeyPasswordPath}";
 
   settingsFormat = pkgs.formats.json {};
-  configFile = settingsFormat.generate "ca.json" (
-    cfg.settings
-    // {
-      address = cfg.address + ":" + toString cfg.port;
-    }
-  );
+  configFile = let
+    cfg = config.services.step-ca;
+  in
+    settingsFormat.generate "ca.json" (
+      cfg.settings
+      // {
+        address = cfg.address + ":" + toString cfg.port;
+      }
+    );
 in {
   options.services.mw-pki.rootCA = {
     enable = lib.mkEnableOption "rootCA";
