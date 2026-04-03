@@ -6,6 +6,9 @@
   ...
 }: let
   system = pkgs.stdenv.hostPlatform.system;
+  shell-support = {
+    log-sh = self.packages.${system}.log-sh;
+  };
   cfg = config.services.mw-pki.rootCA;
   constants = import ./constants.nix;
   inherit (constants) configDir CREDENTIALS_DIRECTORY;
@@ -147,6 +150,10 @@ in {
                 then {INSECURE = "true";}
                 else {}
               );
+            extraShellCheckFlags = [
+              "--external-sources"
+              shell-support.log-sh
+            ];
             text =
               /*
               sh
@@ -161,7 +168,7 @@ in {
                     exit 0
                 fi
 
-                . ${lib.escapeShellArg self.packages.${system}.log-sh}
+                . ${lib.escapeShellArg shell-support.log-sh}
 
                 if test "$(id -u)" -ne 0; then
                     error "expected script to be run as root (uid 0), but got: $(id -un) (uid $(id -u))"
@@ -299,6 +306,10 @@ in {
                 then {INSECURE = "true";}
                 else {}
               );
+            extraShellCheckFlags = [
+              "--external-sources"
+              shell-support.log-sh
+            ];
             text = let
               script_name = config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name;
             in
@@ -310,7 +321,7 @@ in {
 
                 # instead of passing as a shell argument, pass as a path so that
                 # `shellcheck` can follow it
-                . ${lib.escapeShellArg self.packages.${system}.log-sh}
+                . ${lib.escapeShellArg shell-support.log-sh}
 
                 STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
 
