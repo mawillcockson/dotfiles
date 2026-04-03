@@ -15,6 +15,15 @@
   # canonicalize it here instead of using `basename` in the script, so it's
   # always the same
   rootCAKeyPasswordCredentialName = baseNameOf cfg.rootCAKeyPasswordPath;
+  # this name is chosen based on the description of how secrets are named
+  # if a directory is given for the path argument:
+  # from <https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#LoadCredential=ID:PATH>:
+  # If an absolute path referring to a directory is specified, every file
+  # in that directory (recursively) will be loaded as a separate
+  # credential. The ID for each credential will be the provided ID
+  # suffixed with "_$FILENAME" (e.g., "Key_file1"). When loading from a
+  # directory, symlinks will be ignored.
+  LoadCredentialEncrypted = "${rootCAKeyPasswordCredentialName}:${cfg.rootCAKeyPasswordPath}";
 in {
   options.services.mw-pki.rootCA = {
     enable = lib.mkEnableOption "rootCA";
@@ -247,15 +256,7 @@ in {
         Group = config.systemd.services.step-ca.serviceConfig.Group;
         DynamicUser = true;
         ExecStartPre = ["systemd-creds list"];
-        # this name is chosen based on the description of how secrets are named
-        # if a directory is given for the path argument:
-        # from <https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#LoadCredential=ID:PATH>:
-        # If an absolute path referring to a directory is specified, every file
-        # in that directory (recursively) will be loaded as a separate
-        # credential. The ID for each credential will be the provided ID
-        # suffixed with "_$FILENAME" (e.g., "Key_file1"). When loading from a
-        # directory, symlinks will be ignored.
-        LoadCredentialEncrypted = "${rootCAKeyPasswordCredentialName}:${cfg.rootCAKeyPasswordPath}";
+        inherit LoadCredentialEncrypted;
         StateDirectory = config.systemd.services.mw-pki-rootCA.serviceConfig.StateDirectory;
         # Is this necessary?
         #ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
@@ -460,7 +461,7 @@ in {
             configDir
             #"%d"
           ];
-          LoadCredentialEncrypted = "step-ca_password";
+          inherit LoadCredentialEncrypted;
           ExecStartPre = ["systemd-creds list"];
           ExecStart = [
             ""
