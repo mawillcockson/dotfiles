@@ -1,4 +1,5 @@
 {
+  self,
   lib,
   pkgs,
   ...
@@ -6,8 +7,8 @@
   imports = [
     ./hardware-configuration.nix
     ../common
-    ../../profiles/git-host.nix
-    ../../profiles/ssh-ca
+    #self.nixosModules.git-host
+    #self.nixosModules.mw-pki
   ];
 
   networking.hostName = "queerpri";

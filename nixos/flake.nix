@@ -120,10 +120,19 @@
             program = let
               configuration = self.nixosConfigurations."queerpri.de".extendModules {
                 modules = [
-                  self.nixosModules.testUser
                   (
                     {...}: {
+                      imports = [
+                        self.nixosModules.testUser
+                      ];
                       services.testUser.enable = true;
+                    }
+                  )
+                  (
+                    {...}: {
+                      _module.args = {inherit self;};
+                      imports = [./profiles/mw-pki/root-ca.nix];
+                      services.mw-pki.rootCA.enable = true;
                     }
                   )
                 ];
@@ -131,7 +140,7 @@
               scriptsDir = configuration.config.system.build.vm;
               inherit (configuration.config.networking) hostName;
             in "${scriptsDir}/bin/run-${hostName}-vm";
-            meta.description = "run the queerpri.de config's vm script (config.system.build.vm)";
+            meta.description = "run the queerpri.de config's vm script (config.system.build.vm) with a test user";
           };
           #"queerpri.de-vmWithBootLoader" = {
           #  type = "app";
@@ -203,13 +212,14 @@
           #default = self.nixosConfigurations."queerpri.de";
           "queerpri.de" = nixpkgs.lib.nixosSystem {
             modules = [
-              sops-nix.nixosModules.sops
               self.nixosModules."queerpri.de"
             ];
             system = "x86_64-linux";
           };
         };
         nixosModules = {
+          sops-nix = sops-nix.nixosModules.sops;
+
           "queerpri.de" = ./hosts/queerpri.de/configuration.nix;
           testUser = ./profiles/test-user;
           setup-ssh-ca = ./packages/setup-ssh-ca.nix;
