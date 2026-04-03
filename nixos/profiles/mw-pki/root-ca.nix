@@ -184,7 +184,7 @@ in {
                 umask 377
 
                 if test -z "''${CREDENTIALS_DIRECTORY:-}"; then
-                    error 'expected $CREDENTIALS_DIRECTORY to be set in the environment that this script is run in'
+                    error "expected \$CREDENTIALS_DIRECTORY to be set in the environment that this script is run in"
                 fi
                 if EXPECTED_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store-encrypted)"; then
                     if test "$CREDENTIALS_DIRECTORY" != "$EXPECTED_CREDENTIALS_DIRECTORY"; then
@@ -219,7 +219,7 @@ in {
                     error "the \$rootCAKeyPasswordPath ($rootCAKeyPasswordPath) is not in the \$CREDENTIALS_DIRECTORY ($CREDENTIALS_DIRECTORY)"
                 fi
 
-                info 'making $CREDENTIALS_DIRECTORY'
+                info "making \$CREDENTIALS_DIRECTORY"
                 mkdir -vp "''${CREDENTIALS_DIRECTORY}"
 
                 if test -n "''${INSECURE:+"set"}"; then
