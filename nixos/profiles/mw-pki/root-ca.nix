@@ -156,7 +156,8 @@ in {
         config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name
       ];
       unitConfig = {
-        ConditionFirstBoot = true;
+        # NOTE::TESTING The vm isn't recreated each time, right now
+        #ConditionFirstBoot = true;
       };
       serviceConfig = {
         Type = "oneshot";
@@ -299,7 +300,8 @@ in {
         config.systemd.services.mw-pki-rootCA.name
       ];
       unitConfig = {
-        ConditionFirstBoot = true;
+        # NOTE::TESTING the vm isn't recreated each time right now
+        #ConditionFirstBoot = true;
         JoinsNamespaceOf = [
           config.systemd.services.mw-pki-rootCA.name
         ];
