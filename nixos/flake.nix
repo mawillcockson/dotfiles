@@ -67,7 +67,7 @@
             ];
             text = builtins.readFile ./profiles/ssh-ca/step-ca-init.sh;
           };
-          setup-ssh-ca = pkgs.callPackage self.nixosModules.setup-ssh-ca {};
+          #setup-ssh-ca = pkgs.callPackage self.nixosModules.setup-ssh-ca {};
           # I would like to write actual tests for writeNuApplication, to check all the options
           testNuApp = (pkgs.callPackage ./lib/needs-pkgs.nix {}).writeNuApplication {
             name = "test.nu";
