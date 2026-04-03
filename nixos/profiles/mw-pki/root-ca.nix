@@ -252,8 +252,8 @@ in {
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = false;
-        User = config.systemd.services.step-ca.serviceConfig.User;
-        Group = config.systemd.services.step-ca.serviceConfig.Group;
+        User = config.systemd.services.mw-pki-rootCA.serviceConfig.User;
+        Group = config.systemd.services.mw-pki-rootCA.serviceConfig.Group;
         DynamicUser = true;
         ExecStartPre = ["systemd-creds list"];
         inherit LoadCredentialEncrypted;
