@@ -248,6 +248,10 @@
   degree (unicode °)
   celsius (unicode ℃)
   fahrenheit (unicode ℉)
+  cent (unicode ¢)
+  euro (unicode €)
+  genericcurrency (unicode ¤)
+  smalldollar (unicode ﹩)
 
   smile (unicode 😄)
   smile2 (macro (unicode ☺) @vs16)
@@ -527,6 +531,7 @@
   1 (tap-dance $tt ((unicode ❗) (unicode ‼)))
   Quote (tap-dance $tt ((unicode “) (unicode ”)))
   p (tap-dance $tt (@penis @penis-with-emission))
+  $ (tap-dance $tt (@euro @cent @genericcurrency @smalldollar))
 )
 
 (deflayermap (vim-directions-arrows)
