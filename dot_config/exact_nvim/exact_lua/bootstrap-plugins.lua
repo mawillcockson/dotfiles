@@ -1,11 +1,6 @@
 local this_filename = "bootstrap-plugins.lua"
 -- This file is meant to be run like `nvim -l bootstrap-plugins.lua`, a feature added in nvim 0.9x
 --
--- NOTE::OUTDATED
--- This file is not automatically read at startup. Instead, an autocommand is
--- setup to watch for changes to plugins/plugin-spec.lua and do the appropriate
--- things in response to that.
---
 -- Inspired by the packer.nvim readme:
 -- https://github.com/wbthomason/packer.nvim/blob/afab89594f4f702dc3368769c95b782dbdaeaf0a/README.md#bootstrapping
 local ERROR = vim.log.levels.ERROR
