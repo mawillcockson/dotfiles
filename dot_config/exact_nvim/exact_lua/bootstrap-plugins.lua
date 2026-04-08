@@ -171,7 +171,11 @@ glob /run/user/(id -u)/nvim.* | where {($in | path type) == 'socket'} | first | 
 		local lockfile = require("utils").join_path(vim.fn.stdpath("config"), "lazy-lock.json")
 		if luv.fs_stat(lockfile) then
 			vim.notify("(lazy.nvim) restoring plugins as described in lockfile -> " .. tostring(lockfile), INFO, {})
-			lazy.restore({ wait = true, show = not headless })
+			if vim.g.lazy_update_plugins then
+				lazy.update({ wait = true, show = not headless })
+			else
+				lazy.restore({ wait = true, show = not headless })
+			end
 		else
 			vim.notify("lockfile not found in -> " .. tostring(vim.fn.stdpath("config")), DEBUG, {})
 			vim.notify("(lazy.nvim) installing only new plugins; use :Lazy to update existing ones as well", INFO, {})
