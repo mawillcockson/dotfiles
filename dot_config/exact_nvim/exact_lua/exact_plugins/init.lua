@@ -26,7 +26,7 @@ return {
 		config = function(opts)
 			-- vim.g.catppuccin_debug = true
 			require("catppuccin").setup(opts.opts)
-			vim.cmd.colorscheme("catppuccin")
+			vim.cmd.colorscheme("catppuccin-nvim")
 		end,
 	},
 	{
