@@ -531,7 +531,7 @@
   1 (tap-dance $tt ((unicode ❗) (unicode ‼)))
   Quote (tap-dance $tt ((unicode “) (unicode ”)))
   p (tap-dance $tt (@penis @penis-with-emission))
-  $ (tap-dance $tt (@euro @cent @genericcurrency @smalldollar))
+  Digit4 (tap-dance $tt (@euro @cent @genericcurrency @smalldollar))
 )
 
 (deflayermap (vim-directions-arrows)
