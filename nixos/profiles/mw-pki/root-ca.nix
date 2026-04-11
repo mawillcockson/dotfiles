@@ -253,22 +253,25 @@ in {
                 fi
 
                 info "making \$CREDENTIALS_DIRECTORY"
-                mkdir -vp "''${CREDENTIALS_DIRECTORY}"
+                mkdir -vp "$CREDENTIALS_DIRECTORY"
+                rootCAKeyPasswordDir="''${rootCAKeyPasswordPath%/*}"
+                info "making directory for \$rootCAKeyPasswordPath -> $rootCAKeyPasswordDir"
+                mkdir -vp "$rootCAKeyPasswordDir"
 
                 if test -n "''${INSECURE:+"set"}"; then
                     PASSWORD='insecure'
                     info "using \"$PASSWORD\" as the root ca key password"
+                    info "encrypting that to a file for other services: $rootCAKeyPasswordPath"
                     # the maximum age of this credential is supposed to be long
                     # enough that it'll eventually fail if accidentally used in
                     # production, but also long enough to use in a test
-                    # NOTE::CONTINUE add logging saying where the key is being saved to
                     printf '%s' 'insecure' \
                         | systemd-creds encrypt \
                             --with-key=auto \
                             --not-after=+6h \
                             --name=''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"} \
                             - \
-                            "''${rootCAKeyPasswordPath}"
+                            "$rootCAKeyPasswordPath"
                 else
                     error "secure storage of the password file for the root CA key has not been implemented yet; I intend to use sops-nix for that"
                 fi
