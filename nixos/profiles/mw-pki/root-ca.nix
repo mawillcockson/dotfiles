@@ -321,203 +321,212 @@ in {
         #ReadWritePaths = ["%S/${config.systemd.services.step-ca-init.serviceConfig.StateDirectory}"];
         ExecStart =
           lib.getExe
-          <| pkgs.writeShellApplication {
-            name = "${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name}.sh";
-            runtimeInputs = [
-              pkgs.coreutils
-              pkgs.sops
-              pkgs.step-ca
-              pkgs.step-cli
-              pkgs.jq
-              pkgs.openssh
-            ];
-            runtimeEnv =
-              {
-                CONFIG_DIR = configDir;
-                EXPECTED_CREDENTIALS_DIRECTORY = CREDENTIALS_DIRECTORY;
-                inherit (cfg) rootCAKeyPasswordPath;
-                inherit rootCAKeyPasswordCredentialName;
-              }
-              // (
-                if cfg.insecure
-                then {INSECURE = "true";}
-                else {}
-              );
-            extraShellCheckFlags = [
-              "--external-sources"
-              shell-support.log-sh
-            ];
-            text = let
-              script_name = config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name;
-            in
-              /*
-              sh
-              */
-              ''
-                set -eu
+          <| pkgs.writeShellApplication (
+            let
+              script_name = "${config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name}.sh";
+            in {
+              name = script_name;
+              runtimeInputs = [
+                pkgs.coreutils
+                pkgs.sops
+                pkgs.step-ca
+                pkgs.step-cli
+                pkgs.jq
+                pkgs.openssh
+                pkgs.coreutils # sha256sum
+              ];
+              runtimeEnv =
+                {
+                  CONFIG_DIR = configDir;
+                  EXPECTED_CREDENTIALS_DIRECTORY = CREDENTIALS_DIRECTORY;
+                  inherit (cfg) rootCAKeyPasswordPath;
+                  inherit rootCAKeyPasswordCredentialName;
+                  SCRIPT_NAME = script_name;
+                }
+                // (
+                  if cfg.insecure
+                  then {INSECURE = "true";}
+                  else {}
+                );
+              extraShellCheckFlags = [
+                "--external-sources"
+                shell-support.log-sh
+              ];
+              text =
+                /*
+                sh
+                */
+                ''
+                  set -eu
 
-                # instead of passing as a shell argument, pass as a path so that
-                # `shellcheck` can follow it
-                . ${lib.escapeShellArg shell-support.log-sh}
+                  # instead of passing as a shell argument, pass as a path so that
+                  # `shellcheck` can follow it
+                  . ${lib.escapeShellArg shell-support.log-sh}
 
-                STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
+                  STATE_DIRECTORY="''${STATE_DIRECTORY:?"\''$STATE_DIRECTORY not set"}"
 
-                if EXPECTED_STATE_DIRECOTRY="$(systemd-path systemd-state-private)"; then
-                    if test "$STATE_DIRECTORY" != "$EXPECTED_STATE_DIRECOTRY"; then
-                        error "The directory that systemd uses for a units private state ($EXPECTED_CREDENTIALS_DIRECTORY) does not match the one set for this script ($CREDENTIALS_DIRECTORY).
+                  if EXPECTED_STATE_DIRECOTRY="$(systemd-path system-state-private)"; then
+                      if test "$STATE_DIRECTORY" != "$EXPECTED_STATE_DIRECOTRY"; then
+                          error "The directory that systemd uses for a units private state ($STATE_DIRECTORY) does not match the one set for this script ($EXPECTED_STATE_DIRECOTRY).
 
-                While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
+                  While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
 
-                  a) the value used in this script should be updated
-                  b) the value used in this script shouldn't follow the systemd standard"
-                    else
-                        info "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
-                        set | grep -E '^EXPECTED_STATE_DIRECOTRY='
-                        set | grep -E '^STATE_DIRECTORY='
-                    fi
-                fi
+                    a) the value used in this script should be updated
+                    b) the value used in this script shouldn't follow the systemd standard"
+                      else
+                          info "\$EXPECTED_STATE_DIRECOTRY matches \$STATE_DIRECTORY"
+                          set | grep -E '^EXPECTED_STATE_DIRECOTRY='
+                          set | grep -E '^STATE_DIRECTORY='
+                      fi
+                  fi
 
-                MARKER="''${STATE_DIRECTORY}/~${script_name}_was_run"
-                if test -f "''${MARKER}"; then
-                    info "marker file already exists: ''${MARKER}"
-                    info "exiting early"
-                    exit 0
-                fi
+                  SCRIPT_NAME="''${0##*/}"
+                  if test "$SCRIPT_NAME" != "''${EXPECTED_SCRIPT_NAME:?"\$EXPECTED_SCRIPT_NAME not set"}"; then
+                      error "\$SCRIPT_NAME ($SCRIPT_NAME), derived \$0 ($0), was expected to end in $EXPECTED_SCRIPT_NAME, but doesn't"
+                  fi
+                  HASH="$(sha256sum "$0")"
+                  MARKER="''${STATE_DIRECTORY}/~''${SCRIPT_NAME}_was_run_''${HASH}"
+                  if test -f "''${MARKER}"; then
+                      info "marker file already exists: ''${MARKER}"
+                      info "exiting early"
+                      exit 0
+                  fi
 
-                info "current user is: $(id)"
-                info "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
-                set -x
-                ls -alhR "''${STATE_DIRECTORY}/"
-                ls -anhR "''${STATE_DIRECTORY}/"
-                set +x
+                  info "current user is: $(id)"
+                  info "\$STATE_DIRECTORY is: $STATE_DIRECTORY"
+                  set -x
+                  ls -alhR "''${STATE_DIRECTORY}/"
+                  ls -anhR "''${STATE_DIRECTORY}/"
+                  set +x
 
-                info 'clearing previous setup'
-                find -H "''${STATE_DIRECTORY}" \
-                    -mindepth 1 \
-                    -print \
-                    '(' \
-                        -delete \
-                        -o \
-                        -printf 'could not delete: %P\n' \
-                    ')'
+                  info 'clearing previous setup'
+                  find -H "''${STATE_DIRECTORY}" \
+                      -mindepth 1 \
+                      -print \
+                      '(' \
+                          -delete \
+                          -o \
+                          -printf 'could not delete: %P\n' \
+                      ')'
 
-                CA_JSON="''${CONFIG_DIR:?"\$CONFIG_DIR not set"}/ca.json"
-                info "collecting info from ca.json at: $CA_JSON"
-                if ! test -f "''${CA_JSON}"; then
-                    error "\$CA_JSON expected and not found at -> ''${CA_JSON}"
-                fi
-                if ! SSH_HOST_KEY="$(jq --raw-output --exit-status '.ssh.hostKey' "''${CA_JSON}")"; then
-                    error "jq could not find host key path in ca.json -> ''${CA_JSON}"
-                fi
-                if ! SSH_USER_KEY="$(jq --raw-output --exit-status '.ssh.userKey' "''${CA_JSON}")"; then
-                    error "jq could not find user key path in ca.json -> ''${CA_JSON}"
-                fi
-                if ! ROOT_CERT="$(jq --raw-output --exit-status '.root' "''${CA_JSON}")"; then
-                    error "jq could not find root cert path in ca.json -> ''${CA_JSON}"
-                fi
-                if ! INTERMEDIATE_CERT="$(jq --raw-output --exit-status '.crt' "''${CA_JSON}")"; then
-                    error "jq could not find intermediate cert path in ca.json -> ''${CA_JSON}"
-                fi
-                if ! INTERMEDIATE_KEY="$(jq --raw-output --exit-status '.key' "''${CA_JSON}")"; then
-                    error "jq could not find intermediate key path in ca.json -> ''${CA_JSON}"
-                fi
+                  CA_JSON="''${CONFIG_DIR:?"\$CONFIG_DIR not set"}/ca.json"
+                  info "collecting info from ca.json at: $CA_JSON"
+                  if ! test -f "''${CA_JSON}"; then
+                      error "\$CA_JSON expected and not found at -> ''${CA_JSON}"
+                  fi
+                  if ! SSH_HOST_KEY="$(jq --raw-output --exit-status '.ssh.hostKey' "''${CA_JSON}")"; then
+                      error "jq could not find host key path in ca.json -> ''${CA_JSON}"
+                  fi
+                  if ! SSH_USER_KEY="$(jq --raw-output --exit-status '.ssh.userKey' "''${CA_JSON}")"; then
+                      error "jq could not find user key path in ca.json -> ''${CA_JSON}"
+                  fi
+                  if ! ROOT_CERT="$(jq --raw-output --exit-status '.root' "''${CA_JSON}")"; then
+                      error "jq could not find root cert path in ca.json -> ''${CA_JSON}"
+                  fi
+                  if ! INTERMEDIATE_CERT="$(jq --raw-output --exit-status '.crt' "''${CA_JSON}")"; then
+                      error "jq could not find intermediate cert path in ca.json -> ''${CA_JSON}"
+                  fi
+                  if ! INTERMEDIATE_KEY="$(jq --raw-output --exit-status '.key' "''${CA_JSON}")"; then
+                      error "jq could not find intermediate key path in ca.json -> ''${CA_JSON}"
+                  fi
 
-                # no -p because it should be an error if it already exists
-                mkdir -v "''${STATE_DIRECTORY}/db"
-                chmod --changes u=rwX,go= "''${STATE_DIRECTORY}"
+                  # no -p because it should be an error if it already exists
+                  mkdir -v "''${STATE_DIRECTORY}/db"
+                  chmod --changes u=rwX,go= "''${STATE_DIRECTORY}"
 
-                STEPPATH="''${STEPPATH:-"$STATE_DIRECTORY"}"
-                export STEPPATH
-                info "\$STEPPATH -> ''${STEPPATH}"
+                  STEPPATH="''${STEPPATH:-"$STATE_DIRECTORY"}"
+                  export STEPPATH
+                  info "\$STEPPATH -> ''${STEPPATH}"
 
-                SECRETS="''${STATE_DIRECTORY}/secrets"
-                mkdir -v "''${SECRETS}"
+                  SECRETS="''${STATE_DIRECTORY}/secrets"
+                  mkdir -v "''${SECRETS}"
 
-                PASSWORD_FILE="''${CREDENTIALS_DIRECTORY:?"\$CREDENTIALS_DIRECTORY not set"}/''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}"
-                if ! test -r "$PASSWORD_FILE"; then
-                    error "cannot read \$PASSWORD_FILE at: $PASSWORD_FILE"
-                fi
-                info "\$PASSWORD_FILE -> ''${PASSWORD_FILE}"
+                  PASSWORD_FILE="''${CREDENTIALS_DIRECTORY:?"\$CREDENTIALS_DIRECTORY not set"}/''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}"
+                  if ! test -r "$PASSWORD_FILE"; then
+                      error "cannot read \$PASSWORD_FILE at: $PASSWORD_FILE"
+                  fi
+                  info "\$PASSWORD_FILE -> ''${PASSWORD_FILE}"
 
-                DATETIME="$(date --iso-8601=seconds)"
-                info "\$DATETIME -> ''${DATETIME}"
+                  DATETIME="$(date --iso-8601=seconds)"
+                  info "\$DATETIME -> ''${DATETIME}"
 
-                CERTS_DIR="''${STEPPATH}/certs"
-                info "placing certificates and public keys in \$CERTS_DIR -> ''${CERTS_DIR}"
-                mkdir -v "''${CERTS_DIR}"
+                  CERTS_DIR="''${STEPPATH}/certs"
+                  info "placing certificates and public keys in \$CERTS_DIR -> ''${CERTS_DIR}"
+                  mkdir -v "''${CERTS_DIR}"
 
-                # This machine will be used to provide an intermediate CA key
-                # to a connecting client. Because of that, if it were to
-                # generate its own intermediate CA cert+key and sign the
-                # client's CSR with that, there would be a chain of 2 CAs, and
-                # smallstep's docs indicate that that isn't exactly the use
-                # case this was designed for. Instead, the root CA cert+key can
-                # be used as the intermediate one as well. That way, it's the
-                # root that's signing the CA, not an ephemeral intermediate CA.
-                #
-                # Alternatively, the ephemeral intermediate CA could be
-                # generated, and then one of the following could be done:
-                # a) the actual intermediate CA could request an SSH key and
-                #    log into to the root CA and copy the generated intermediate
-                #    CA cert+key
-                # b) the actual intermediate CA could use its cert to
-                #    download the cert+key from the root CA, over a temporary
-                #    HTTPS connection, using client authentication
-                ssh-keygen \
-                    -t ed25519 \
-                    -C "intermediate CA host key @ ''${DATETIME}" \
-                    -f "''${SSH_HOST_KEY}" \
-                    -N "$(cat "''${PASSWORD_FILE}")"
-                info 'moving .pub file for host key out of /secrets to /certs'
-                mv -v "''${SSH_HOST_KEY}.pub" "''${CERTS_DIR}/"
-                ssh-keygen \
-                    -t ed25519 \
-                    -C "intermediate CA user key ''${DATETIME}" \
-                    -f "''${SSH_USER_KEY}" \
-                    -N "$(cat "''${PASSWORD_FILE}")"
-                info 'moving .pub file for user key to expected place'
-                mv -v "''${SSH_USER_KEY}.pub" "''${CERTS_DIR}/"
+                  # This machine will be used to provide an intermediate CA key
+                  # to a connecting client. Because of that, if it were to
+                  # generate its own intermediate CA cert+key and sign the
+                  # client's CSR with that, there would be a chain of 2 CAs, and
+                  # smallstep's docs indicate that that isn't exactly the use
+                  # case this was designed for. Instead, the root CA cert+key can
+                  # be used as the intermediate one as well. That way, it's the
+                  # root that's signing the CA, not an ephemeral intermediate CA.
+                  #
+                  # Alternatively, the ephemeral intermediate CA could be
+                  # generated, and then one of the following could be done:
+                  # a) the actual intermediate CA could request an SSH key and
+                  #    log into to the root CA and copy the generated intermediate
+                  #    CA cert+key
+                  # b) the actual intermediate CA could use its cert to
+                  #    download the cert+key from the root CA, over a temporary
+                  #    HTTPS connection, using client authentication
+                  ssh-keygen \
+                      -t ed25519 \
+                      -C "intermediate CA host key @ ''${DATETIME}" \
+                      -f "''${SSH_HOST_KEY}" \
+                      -N "$(cat "''${PASSWORD_FILE}")"
+                  info 'moving .pub file for host key out of /secrets to /certs'
+                  mv -v "''${SSH_HOST_KEY}.pub" "''${CERTS_DIR}/"
+                  ssh-keygen \
+                      -t ed25519 \
+                      -C "intermediate CA user key ''${DATETIME}" \
+                      -f "''${SSH_USER_KEY}" \
+                      -N "$(cat "''${PASSWORD_FILE}")"
+                  info 'moving .pub file for user key to expected place'
+                  mv -v "''${SSH_USER_KEY}.pub" "''${CERTS_DIR}/"
 
-                ROOT_KEY="''${SECRETS}/root_ca_key"
-                info "creating a root ca certificate at -> ''${ROOT_CERT}"
-                info "will be storing root key at -> ''${ROOT_KEY}"
-                SUBJECT="''${INSECURE:+"test "}mw-pki root CA"
-                if test -n "''${INSECURE-}"; then
-                    VALID_FOR='24h'
-                else
-                    VALID_FOR="$((24 * 365))h"
-                fi
-                step certificate create \
-                    "$SUBJECT" \
-                    "''${ROOT_CERT}" \
-                    "''${ROOT_KEY}" \
-                    --kty=OKP \
-                    --profile=root-ca \
-                    --password-file="''${PASSWORD_FILE}" \
-                    --not-before=-10m \
-                    --not-after="$VALID_FOR"
+                  ROOT_KEY="''${SECRETS}/root_ca_key"
+                  info "creating a root ca certificate at -> ''${ROOT_CERT}"
+                  info "will be storing root key at -> ''${ROOT_KEY}"
+                  SUBJECT="''${INSECURE:+"test "}mw-pki root CA"
+                  if test -n "''${INSECURE-}"; then
+                      VALID_FOR='24h'
+                  else
+                      VALID_FOR="$((24 * 365))h"
+                  fi
+                  step certificate create \
+                      "$SUBJECT" \
+                      "''${ROOT_CERT}" \
+                      "''${ROOT_KEY}" \
+                      --kty=OKP \
+                      --profile=root-ca \
+                      --password-file="''${PASSWORD_FILE}" \
+                      --not-before=-10m \
+                      --not-after="$VALID_FOR"
 
-                info "creating an intermediate ca certificate at -> ''${INTERMEDIATE_CERT}"
-                info "will be storing intermediate key at -> ''${INTERMEDIATE_KEY}"
-                step certificate create \
-                    'test pki Intermediate CA' \
-                    "''${INTERMEDIATE_CERT}" \
-                    "''${INTERMEDIATE_KEY}" \
-                    --kty=OKP \
-                    --profile=intermediate-ca \
-                    --password-file="''${PASSWORD_FILE}" \
-                    --not-before=-10m \
-                    --not-after="$VALID_FOR" \
-                    --ca="''${ROOT_CERT}" \
-                    --ca-key="''${ROOT_KEY}" \
-                    --ca-password-file="''${PASSWORD_FILE}"
+                  info "creating an intermediate ca certificate at -> ''${INTERMEDIATE_CERT}"
+                  info "will be storing intermediate key at -> ''${INTERMEDIATE_KEY}"
+                  step certificate create \
+                      'test pki Intermediate CA' \
+                      "''${INTERMEDIATE_CERT}" \
+                      "''${INTERMEDIATE_KEY}" \
+                      --kty=OKP \
+                      --profile=intermediate-ca \
+                      --password-file="''${PASSWORD_FILE}" \
+                      --not-before=-10m \
+                      --not-after="$VALID_FOR" \
+                      --ca="''${ROOT_CERT}" \
+                      --ca-key="''${ROOT_KEY}" \
+                      --ca-password-file="''${PASSWORD_FILE}"
 
-                info "creating a marker file so that this script isn't run a second time: $MARKER"
-                touch "''${MARKER}"
-                chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
-                chmod --changes a=r "''${MARKER}"
-              '';
-          };
+                  info "creating a marker file so that this script isn't run a second time: $MARKER"
+                  touch "''${MARKER}"
+                  chown --changes "$(id -un):$(id -gn)" "''${MARKER}"
+                  chmod --changes a=r "''${MARKER}"
+                '';
+            }
+          );
       };
       enableStrictShellChecks = true;
       # I don't think this is necessary, since the script includes `runtimeInputs`
