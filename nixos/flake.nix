@@ -114,8 +114,8 @@
         # from:
         # https://gist.github.com/FlakM/0535b8aa7efec56906c5ab5e32580adf?permalink_comment_id=5167381#gistcomment-5167381
         apps = {
-          default = self'.apps."queerpri.de-vm";
-          "queerpri.de-vm" = {
+          default = self'.apps."mw-pki-test-vm";
+          "mw-pki-test-vm" = {
             type = "app";
             program = let
               configuration = self.nixosConfigurations."queerpri.de".extendModules {
@@ -134,6 +134,10 @@
                       imports = [./profiles/mw-pki/root-ca.nix];
                       services.mw-pki.rootCA.enable = true;
                       services.mw-pki.rootCA.insecure = true;
+                      systemd.services.mw-pki-rootCA.unitConfig.ConditionFirstBoot = pkgs.lib.mkForce "";
+                      systemd.services.mw-pki-rootCA-make-password.unitConfig.ConditionFirstBoot = pkgs.lib.mkForce "";
+                      systemd.services.mw-pki-rootCA-make-certs-and-secrets.unitConfig.ConditionFirstBoot =
+                        pkgs.lib.mkForce "";
                     }
                   )
                 ];
@@ -141,7 +145,7 @@
               scriptsDir = configuration.config.system.build.vm;
               inherit (configuration.config.networking) hostName;
             in "${scriptsDir}/bin/run-${hostName}-vm";
-            meta.description = "run the queerpri.de config's vm script (config.system.build.vm) with a test user";
+            meta.description = "run the queerpri.de config's vm script (config.system.build.vm) with modules for testing mw-pki";
           };
           #"queerpri.de-vmWithBootLoader" = {
           #  type = "app";

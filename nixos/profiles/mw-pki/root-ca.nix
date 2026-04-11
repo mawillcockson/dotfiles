@@ -156,8 +156,7 @@ in {
         config.systemd.services.mw-pki-rootCA-make-certs-and-secrets.name
       ];
       unitConfig = {
-        # NOTE::TESTING The vm isn't recreated each time, right now
-        #ConditionFirstBoot = true;
+        ConditionFirstBoot = true;
       };
       serviceConfig = {
         Type = "oneshot";
@@ -301,10 +300,7 @@ in {
         config.systemd.services.mw-pki-rootCA.name
       ];
       unitConfig = {
-        # NOTE::TESTING the vm isn't recreated each time right now
-        # NOTE::CONTINUE maybe this can be overridden at the site using the
-        # module, and not here?
-        #ConditionFirstBoot = true;
+        ConditionFirstBoot = true;
         JoinsNamespaceOf = [
           config.systemd.services.mw-pki-rootCA.name
         ];
