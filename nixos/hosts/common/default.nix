@@ -28,7 +28,6 @@
     # NOTE::WORKAROUND this is because stage-2.nix directly inserts this string into stage-2-init.sh
     |> (s: ''"${lib.escapeShellArg s}"'');
 
-
   # Only allow members of the wheel group to execute sudo by setting the
   # executable’s permissions accordingly. This prevents users that are not
   # members of wheel from exploiting vulnerabilities in sudo such as
@@ -52,5 +51,6 @@
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
+    "pipe-operators"
   ];
 }
