@@ -29,8 +29,8 @@
   # import-from-derivation, so instead it can be validated at runtime against
   # the output of that command.
   # This is done by `mw-pki-rootCA-make-password.service`
-  ENCRYPTED_CREDENTIALS_DIRECTORY = "/etc/credstore.encrypted";
-  CREDENTIALS_DIRECTORY = "/etc/credstore";
+  EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY = "/etc/credstore.encrypted";
+  EXPECTED_CREDENTIALS_DIRECTORY = "/etc/credstore";
   # similar to the note for CREDENTIALS_DIRECTORY in constants.nix, this is
   # checked in `mw-pki-rootCA-make-certs-and-secrets.service`
   EXPECTED_STATE_DIRECTORY = "/var/lib/${config.systemd.services.step-ca.name}";
@@ -43,27 +43,22 @@
   LoadCredentialRootCAKey = "${rootCAKeyCredentialName}:${cfg.rootCAKeyPath}";
 
   intermediateCAKeyPath = config.services.step-ca.settings.key;
-  intermediateCAKeyCredentialName = baseNameOf intermediateCAKeyPasswordPath;
+  intermediateCAKeyCredentialName = baseNameOf cfg.intermediateCAKeyPasswordPath;
   LoadCredentialEncryptedIntermediateCAKey = "${intermediateCAKeyCredentialName}:${intermediateCAKeyPath}";
-  intermediateCAKeyPasswordCredentialName = baseNameOf intermediateCAKeyPasswordPath;
-  LoadCredentialEncryptedIntermediateCAKeyPassword = "${intermediateCAKeyPasswordCredentialName}:${intermediateCAKeyPasswordPath}";
+  intermediateCAKeyPasswordCredentialName = baseNameOf cfg.intermediateCAKeyPasswordPath;
+  LoadCredentialEncryptedIntermediateCAKeyPassword = "${intermediateCAKeyPasswordCredentialName}:${cfg.intermediateCAKeyPasswordPath}";
 
   filterNull = builtins.filter (x: isNull x -> false);
-
-  isRootCA =
-    if isNull cfg.rootCAKeyPasswordPath
-    then false
-    else true;
 
   LoadCredential =
     [
       (
-        if isRootCA
+        if cfg.beRootCA
         then LoadCredentialRootCAKeyPassword
         else null
       )
       (
-        if isRootCA
+        if cfg.beRootCA
         then LoadCredentialRootCAKey
         else null
       )
@@ -72,12 +67,12 @@
   LoadCredentialEncrypted =
     [
       (
-        if isRootCA
+        if cfg.beRootCA
         then null
         else LoadCredentialEncryptedIntermediateCAKeyPassword
       )
       (
-        if isRootCA
+        if cfg.beRootCA
         then null
         else LoadCredentialEncryptedIntermediateCAKey
       )
@@ -86,15 +81,13 @@
 in {
   options.services.mw-pki.intermediateCA = {
     enable = lib.mkEnableOption "intermediateCA";
+    beRootCA = lib.mkEnableOption "rootCA";
     rootCAKeyPasswordPath = lib.mkOption {
       type = lib.types.nullOr lib.types.externalPath;
       default = null;
       description = ''
         where the password for the root ca key is stored
         this must be outside the nix store
-        if this is set, the following attributes should also be set:
-        - rootCAKeyPath
-        - rootCACertPath
       '';
       example = lib.literalExpression ''"/etc/credstore.encrypted/mw-pki-root-key-password"'';
     };
@@ -104,9 +97,6 @@ in {
       description = ''
         where the root ca key is stored
         this must be outside the nix store
-        if this is set, the following attributes should also be set:
-        - rootCAKeyPasswordPath
-        - rootCACertPath
       '';
       example = lib.literalExpression ''"/etc/credstore.encrypted/mw-pki-root-key"'';
     };
@@ -148,13 +138,13 @@ in {
         root = cfg.rootCACertPath; # "${EXPECTED_STATE_DIRECTORY}/certs/root_ca.crt";
         # the rest are retrieved from the rootCA, and may not yet exist
         crt =
-          if isRootCA
+          if cfg.beRootCA
           then cfg.rootCACertPath
           else "${EXPECTED_STATE_DIRECTORY}/certs/intermediate_ca.crt";
         key =
-          if isRootCA
+          if cfg.beRootCA
           then cfg.rootCAKeyPath
-          else "${EXPECTED_STATE_DIRECTORY}/secrets/intermediate_ca_key";
+          else "${EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY}/secrets/intermediate_ca_key";
         ssh = {
           hostKey = "${EXPECTED_STATE_DIRECTORY}/secrets/ssh_host_ca_key";
           userKey = "${EXPECTED_STATE_DIRECTORY}/secrets/ssh_user_ca_key";
@@ -186,12 +176,15 @@ in {
       };
     };
 
-    systemd.services.mw-pki-check-paths = let
+    systemd.services.mw-pki-init = let
       step-ca.service = config.systemd.services.step-ca.name;
       step-ca-serviceConfig = config.systemd.services.step-ca.serviceConfig;
     in {
-      name = "mw-pki-check-paths.service";
-      description = "checks that all the paths specified conform as best as possible to `systemd-path`";
+      name = "mw-pki-init.service";
+      description = ''
+        checks that all the paths specified conform as best as possible to `systemd-path`
+        encrypts credentials with systemd-creds
+      '';
       wantedBy = ["multi-user.target"];
       wants = [
         step-ca.service
@@ -212,6 +205,9 @@ in {
         Group = step-ca-serviceConfig.Group;
         DynamicUser = true;
 
+        # these won't exist until after the script, because the script creates
+        # these, but I'm hoping their presence will cause the
+        # $CREDENTIALS_DIRECTORY variable to be set in the environment
         inherit LoadCredential LoadCredentialEncrypted;
 
         StateDirectory = step-ca-serviceConfig.StateDirectory;
@@ -236,16 +232,17 @@ in {
               runtimeEnv =
                 {
                   CONFIG_DIR = configDir;
-                  EXPECTED_CREDENTIALS_DIRECTORY = CREDENTIALS_DIRECTORY;
-                  EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY = ENCRYPTED_CREDENTIALS_DIRECTORY;
                   SCRIPT_NAME = script_name;
-                  inherit EXPECTED_STATE_DIRECTORY;
+                  inherit
+                    EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY
+                    EXPECTED_CREDENTIALS_DIRECTORY
+                    EXPECTED_STATE_DIRECTORY
+                    ;
                 }
                 // (
-                  if isRootCA
+                  if cfg.beRootCA
                   then {
-                    inherit isRootCA;
-                    inherit (cfg) rootCAKeyPasswordPath rootCAKeyPath;
+                    inherit (cfg) beRootCA rootCAKeyPasswordPath rootCAKeyPath;
                   }
                   else {
                     inherit (cfg) intermediateCAKeyPasswordPath;
@@ -327,7 +324,7 @@ in {
                       warn 'systemd-path returned an error for `system-credential-store-encrypted`'
                   fi
 
-                  if test -n "''${isRootCA:-}"; then
+                  if test -n "''${beRootCA:-}"; then
                     # read as: if removing the $CREDENTIALS_DIRECTORY from the
                     # beginning of the $rootCAKeyPasswordPath results in the same
                     # $rootCAKeyPasswordPath, then nothing was removed, meaning
@@ -411,6 +408,21 @@ in {
                   fi
 
                   checkMarkedError "error(s) encountered while checking paths"
+
+                  if test -n "''${beRootCA:+"set"}"; then
+                      systemd-creds \
+                          --with-key=auto \
+                          --no-after=+24h \
+                          --name="''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}" \
+                          encrypt \
+                          "''${rootCAKeyPasswordPath:?"\$rootCAKeyPasswordPath not set"}"
+                  else
+                      systemd-creds \
+                          --with-key=auto \
+                          --no-after=+1y \
+                          --name="''${intermediateCAKeyPasswordPath:?"\$intermediateCAKeyPasswordPath not set"}" \
+                          encrypt
+                  fi
                 '';
             }
           );
@@ -432,9 +444,28 @@ in {
         LoadCredential =
           [
             (
-              if isRootCA
+              if cfg.beRootCA
               then LoadCredentialRootCAKeyPassword
               else null # load intermediateCAKeyPassword
+            )
+            (
+              if cfg.beRootCA
+              then LoadCredentialRootCAKey
+              else null
+            )
+          ]
+          |> filterNull;
+        LoadCredentialEncrypted =
+          [
+            (
+              if cfg.beRootCA
+              then null
+              else LoadCredentialEncryptedIntermediateCAKeyPassword
+            )
+            (
+              if cfg.beRootCA
+              then null
+              else LoadCredentialEncryptedIntermediateCAKey
             )
           ]
           |> filterNull;
@@ -444,10 +475,10 @@ in {
           "" # override upstream
           "${lib.getExe config.services.step-ca.package} ${
             config.systemd.services.step-ca.restartTriggers |> builtins.head
-          } --password-file=${
-            if isRootCA
-            then cfg.rootCAKeyPasswordPath
-            else cfg.intermediateCAKeyPasswordPath |> lib.escapeShellArg
+          } --password-file=\$CREDENTIALS_DIRECTORY/${
+            if cfg.beRootCA
+            then rootCAKeyPasswordCredentialName
+            else intermediateCAKeyPasswordCredentialName |> lib.escapeShellArg
           }"
         ];
       };
