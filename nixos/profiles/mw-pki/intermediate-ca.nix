@@ -310,12 +310,17 @@ in {
 
                   if test -z "''${EXPECTED_CREDENTIALS_DIRECTORY:+"set"}"; then
                       markError "expected \$EXPECTED_CREDENTIALS_DIRECTORY to be set in the environment that this script is run in"
+                  else
+                      info "\$EXPECTED_CREDENTIALS_DIRECTORY=$EXPECTED_CREDENTIALS_DIRECTORY"
                   fi
-                  # NOTE::CONTINUE add into these path checks, the checks for
-                  # the password and key paths as well, doubling as checks that
-                  # the variables exist
-                  if SYSTEMD_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store)"; then
-                      if test "''${EXPECTED_CREDENTIALS_DIRECTORY-}" != "$SYSTEMD_CREDENTIALS_DIRECTORY"; then
+                  if ! SYSTEMD_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store)"; then
+                      markError 'systemd-path returned an error for `system-credetial-store`'
+                  else
+                      if \
+                          test "''${EXPECTED_CREDENTIALS_DIRECTORY-}" \
+                          != \
+                          "''${SYSTEMD_CREDENTIALS_DIRECTORY:?"\$SYSTEMD_CREDENTIALS_DIRECTORY is not set or empty"}"
+                      then
                           markError "The directory that systemd uses for credentials ($SYSTEMD_CREDENTIALS_DIRECTORY) does not match the one that the mw-pki configuration expects to be used (''${EXPECTED_CREDENTIALS_DIRECTORY-}).
 
                   While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
@@ -328,15 +333,22 @@ in {
                       fi
                       set | grep -E '^SYSTEMD_CREDENTIALS_DIRECTORY=' || echo 'SYSTEMD_CREDENTIALS_DIRECTORY='
                       set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_CREDENTIALS_DIRECTORY='
-                  else
-                      warn 'systemd-path returned an error for `system-credetial-store`'
                   fi
 
                   if test -z "''${EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY:+"set"}"; then
                       markError "expected \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY to be set in the environment that this script is run in"
+                  else
+                      info "\$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
                   fi
                   if SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY="$(systemd-path system-credential-store-encrypted)"; then
-                      if test "''${EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY-}" != "$SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY"; then
+                      markError 'systemd-path returned an error for `system-credential-store-encrypted`'
+                  else
+                      if \
+                          test \
+                          "''${EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY-}" \
+                          != \
+                          "''${SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY:?"\$SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY is not set or empty"}"
+                      then
                           markError "The directory that systemd uses for encrypted credentials ($SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY) does not match the one that the mw-pki configuration expects to be used (''${EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY-}).
 
                   While this won't cause any problems, I decided a while ago that it is probably best for the two to match. Now is a time to decide between:
@@ -349,88 +361,7 @@ in {
                       fi
                       set | grep -E '^SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'SYSTEMD_ENCRYPTED_CREDENTIALS_DIRECTORY='
                       set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
-                  else
-                      markError 'systemd-path returned an error for `system-credential-store-encrypted`'
                   fi
-
-                  if test -n "''${beRootCA:+"set"}"; then
-                      if test -z "''${rootCAKeyPasswordPath:+"set"}"; then
-                          markError "\$rootCAKeyPasswordPath not set"
-                      else
-                      # read as: if removing the $CREDENTIALS_DIRECTORY from the
-                      # beginning of the $rootCAKeyPasswordPath results in the same
-                      # $rootCAKeyPasswordPath, then nothing was removed, meaning
-                      # $CREDENTIALS_DIRECTORY wasn't a prefix of
-                      # $rootCAKeyPasswordPath
-                      #
-                      # the comparison order is reversed from how it's stated above, so
-                      # that `shellcheck` sees that the existence of
-                      # $rootCAKeyPasswordPath is assured, before using it in parameter
-                      # expansion
-                          if
-                            test \
-                              "''${rootCAKeyPasswordPath:?"\$rootCAKeyPasswordPath is not set"}" \
-                              = \
-                              "''${rootCAKeyPasswordPath#"$EXPECTED_CREDENTIALS_DIRECTORY"}"
-                          then
-                              markError "the \$rootCAKeyPasswordPath is not in the \$EXPECTED_CREDENTIALS_DIRECTORY"
-                          else
-                              info "the \$rootCAKeyPasswordPath is in the \$EXPECTED_CREDENTIALS_DIRECTORY"
-                          fi
-                      fi
-                      set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_CREDENTIALS_DIRECTORY='
-                      set | grep -E '^rootCAKeyPasswordPath=' || echo 'rootCAKeyPasswordPath='
-
-                      if test -z "''${rootCAKeyPath:+"set"}"; then
-                          markError "\$rootCAKeyPath not set"
-                      else
-                          if test \
-                              "''${rootCAKeyPath:?"\$rootCAKeyPath is not set"}" \
-                              = \
-                              "''${rootCAKeyPath#"$EXPECTED_CREDENTIALS_DIRECTORY"}"
-                          then
-                              markError "the \$rootCAKeyPath is not in the \$EXPECTED_CREDENTIALS_DIRECTORY"
-                          else
-                              info "the \$rootCAKeyPath is in the \$EXPECTED_CREDENTIALS_DIRECTORY"
-                          fi
-                      fi
-                      set | grep -E '^EXPECTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_CREDENTIALS_DIRECTORY='
-                      set | grep -E '^rootCAKeyPath=' || echo 'rootCAKeyPath='
-                  fi
-
-                  # these are always tested, because they're always used
-                  if test -z "''${intermediateCAKeyPasswordPath:+"set"}"; then
-                      markError "\$intermediateCAKeyPasswordPath not set"
-                  else
-                      if test \
-                          "''${intermediateCAKeyPasswordPath:?"\$intermediateCAKeyPasswordPath is not set"}" \
-                          = \
-                          "''${intermediateCAKeyPasswordPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
-                      then
-                          markError "the \$intermediateCAKeyPasswordPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
-                      else
-                          info "the \$intermediateCAKeyPasswordPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
-                      fi
-                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
-                      set | grep -E '^intermediateCAKeyPasswordPath=' || echo 'intermediateCAKeyPasswordPath='
-                  fi
-
-                  if test -z "''${intermediateCAKeyPath:+"set"}"; then
-                      markError "\$intermediateCAKeyPath not set"
-                  else
-                      if test \
-                          "''${intermediateCAKeyPath:?"\$intermediateCAKeyPath is not set"}" \
-                          = \
-                          "''${intermediateCAKeyPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
-                      then
-                          markError "the \$intermediateCAKeyPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
-                      else
-                          info "the \$intermediateCAKeyPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
-                      fi
-                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
-                      set | grep -E '^intermediateCAKeyPath=' || echo 'intermediateCAKeyPath='
-                  fi
-                  # NOTE::CONTINUE also need to check the user and host ssh ca key paths
 
                   if test -z "''${STATE_DIRECTORY:+"set"}"; then
                       markError "expected \$STATE_DIRECTORY to be set in the environment that this script is run in"
@@ -455,28 +386,233 @@ in {
                       set | grep -E '^SYSTEMD_STATE_DIRECTORY=' || echo 'SYSTEMD_STATE_DIRECTORY='
                   fi
 
-                  if test -n "''${ENCOUNTERED_ERROR:+"set"}"; then
-                      reportMarkedError "error(s) encountered while checking paths"
-                  else
-                      info "all paths are okay"
-                  fi
-
-                  # NOTE::CONTINUE do these "variable existence checks" while
-                  # also checking the contents, with the above
                   if test -n "''${beRootCA:+"set"}"; then
-                      info "\$rootCAKeyPasswordPath=''${rootCAKeyPasswordPath:?"\$rootCAKeyPasswordPath not set"}"
+                      if test -z "''${rootCAKeyPasswordPath:+"set"}"; then
+                          markError "\$rootCAKeyPasswordPath not set"
+                      else
+                          : "shellcheck ''${rootCAKeyPasswordPath:?"impossible"}"
+                      fi
+                      set | grep -E '^rootCAKeyPasswordPath=' || echo 'rootCAKeyPasswordPath='
                       # not needed, because the credential isn't provided through
                       # systemd's Load/SetCredential, so the credential name is
                       # never needed
                       #info "\$rootCAKeyPasswordCredentialName=''${rootCAKeyPasswordCredentialName:?"\$rootCAKeyPasswordCredentialName not set"}"
-                      info "\$rootCAKeyPath=''${rootCAKeyPath:?"\$rootCAKeyPath not set"}"
+
+                      if test -z "''${rootCAKeyPath:+"set"}"; then
+                          markError "\$rootCAKeyPath not set"
+                      else
+                          : "shellcheck ''${rootCAKeyPath:?"impossible"}"
+                      fi
+                      set | grep -E '^rootCAKeyPath=' || echo 'rootCAKeyPath='
                       #info "\$rootCAKeyCredentialName=''${rootCAKeyCredentialName:?"\$rootCAKeyCredentialName not set"}"
                   fi
-                  info "\$intermediateCAKeyPasswordPath=''${intermediateCAKeyPasswordPath:?"\$intermediateCAKeyPasswordPath not set"}"
-                  info "\$intermediateCAKeyPasswordCredentialName=''${intermediateCAKeyPasswordCredentialName:?"\$intermediateCAKeyPasswordCredentialName not set"}"
-                  info "\$intermediateCAKeyPath=''${intermediateCAKeyPath:?"\$intermediateCAKeyPath not set"}"
-                  info "\$intermediateCAKeyCredentialName=''${intermediateCAKeyCredentialName:?"\$intermediateCAKeyCredentialName not set"}"
-                  info "\$intermediateCACertPath=''${intermediateCACertPath:?"\$intermediateCACertPath it not set"}"
+                  if test -z "''${rootCACertPath:+"set"}"; then
+                      markError "\$rootCACertPath not set"
+                  else
+                      if test "''${rootCACertPath}" = "''${rootCACertPath#"$STATE_DIRECTORY"}"; then
+                          # prefix not removed
+                          markError "\$rootCACertPath not in \$STATE_DIRECTORY"
+                      else
+                          # prefix removed
+                          info "\$rootCACertPath is in \$STATE_DIRECTORY"
+                      fi
+                      set | grep -E '^STATE_DIRECTORY=' || echo 'STATE_DIRECTORY='
+                      set | grep -E '^rootCACertPath=' || echo 'rootCACertPath='
+                  fi
+
+                  # these are always tested, because they're always used
+                  if test -z "''${intermediateCAKeyPasswordPath:+"set"}"; then
+                      markError "\$intermediateCAKeyPasswordPath not set"
+                  else
+                      # read as: if removing the $CREDENTIALS_DIRECTORY from
+                      # the beginning of the $intermediateCAKeyPasswordPath
+                      # results in the same $intermediateCAKeyPasswordPath,
+                      # then nothing was removed, meaning
+                      # $CREDENTIALS_DIRECTORY wasn't a prefix of
+                      # $intermediateCAKeyPasswordPath
+                      #
+                      # the comparison order is reversed from how it's stated
+                      # above, so that `shellcheck` sees that the existence of
+                      # $intermediateCAKeyPasswordPath is assured, before using
+                      # it in parameter expansion
+                      if test \
+                          "''${intermediateCAKeyPasswordPath:?"\$intermediateCAKeyPasswordPath is not set"}" \
+                          = \
+                          "''${intermediateCAKeyPasswordPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
+                      then
+                          markError "the \$intermediateCAKeyPasswordPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      else
+                          info "the \$intermediateCAKeyPasswordPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      fi
+                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
+                      set | grep -E '^intermediateCAKeyPasswordPath=' || echo 'intermediateCAKeyPasswordPath='
+                  fi
+                  if test -z "''${intermediateCAKeyPasswordCredentialName:+"set"}"; then
+                      markError "\$intermediateCAKeyPasswordCredentialName is not set"
+                  else
+                      if ! INTERMEDIATE_CA_KEY_PASSWORD_CREDENTIAL_NAME="$(basename "$intermediateCAKeyPasswordPath")"; then
+                          markError "problem using 'basename' on \$intermediateCAKeyPasswordPath=$intermediateCAKeyPasswordPath"
+                      elif test \
+                          "$intermediateCAKeyPasswordCredentialName" \
+                          = \
+                          "$INTERMEDIATE_CA_KEY_PASSWORD_CREDENTIAL_NAME";
+                      then
+                          info "\$intermediateCAKeyPasswordCredentialName matches what GNU coreutils 'basename' produced"
+                      else
+                          warn "'basename' on \$intermediateCAKeyPasswordPath produced different result"
+                      fi
+                      set | grep -E '^INTERMEDIATE_CA_KEY_PASSWORD_CREDENTIAL_NAME=' \
+                          || warn "could not show \$INTERMEDIATE_CA_KEY_PASSWORD_CREDENTIAL_NAME"
+                      set | grep -E '^intermediateCAKeyPasswordPath=' || warn "could not show \$intermediateCAKeyPasswordPath"
+                  fi
+
+                  if test -z "''${intermediateCAKeyPath:+"set"}"; then
+                      markError "\$intermediateCAKeyPath not set"
+                  else
+                      if test \
+                          "''${intermediateCAKeyPath:?"\$intermediateCAKeyPath is not set"}" \
+                          = \
+                          "''${intermediateCAKeyPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
+                      then
+                          markError "the \$intermediateCAKeyPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      else
+                          info "the \$intermediateCAKeyPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      fi
+                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
+                      set | grep -E '^intermediateCAKeyPath=' || echo 'intermediateCAKeyPath='
+                  fi
+                  if test -z "''${intermediateCAKeyCredentialName:+"set"}"; then
+                      markError "\$intermediateCAKeyCredentialName not set"
+                  else
+                      if ! INTERMEDIATE_CA_KEY_CREDENTIAL_NAME="$(basename "$intermediateCAKeyPath")"; then
+                          markError "problem using 'basename' on \$intermediateCAKeyPath=$intermediateCAKeyPath"
+                      elif test \
+                          "$intermediateCAKeyCredentialName" \
+                          = \
+                          "$INTERMEDIATE_CA_KEY_CREDENTIAL_NAME";
+                      then
+                          info "\$intermediateCAKeyCredentialName matches what GNU coreutils 'basename' produced"
+                      else
+                          warn "'basename' on \$intermediateCAKeyCredentialName produced different result"
+                      fi
+                      set | grep -E '^INTERMEDIATE_CA_KEY_CREDENTIAL_NAME=' || warn "could not show \$INTERMEDIATE_CA_KEY_CREDENTIAL_NAME"
+                      set | grep -E '^intermediateCAKeyCredentialName=' || warn "could not show \$intermediateCAKeyCredentialName"
+                  fi
+
+                  if test -z "''${intermediateCACertPath:+"set"}"; then
+                      markError "\$intermediateCACertPath not set"
+                  else
+                      if test \
+                          "''${intermediateCACertPath}" \
+                          = \
+                          "''${intermediateCACertPath#"$STATE_DIRECTORY"}"
+                      then
+                          markError "the \$intermediateCACertPath is not in the \$STATE_DIRECTORY"
+                      else
+                          info "the \$intermediateCACertPath is in \$STATE_DIRECTORY"
+                      fi
+                      set | grep -E '^STATE_DIRECTORY=' || echo 'STATE_DIRECTORY='
+                      set | grep -E '^intermediateCAKeyPath=' || echo 'intermediateCAKeyPath='
+                  fi
+
+                  if test -z "''${sshHostCAKeyPath:+"set"}"; then
+                      markError "\$sshHostCAKeyPath not set"
+                  else
+                      if test \
+                          "''${sshHostCAKeyPath}" \
+                          = \
+                          "''${sshHostCAKeyPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
+                      then
+                          markError "the \$sshHostCAKeyPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      else
+                          info "the \$sshHostCAKeyPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      fi
+                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
+                      set | grep -E '^sshHostCAKeyPath=' || echo 'sshHostCAKeyPath='
+                  fi
+                  if test -z "''${sshHostCAKeyCredentialName:+"set"}"; then
+                      markError "\$sshHostCAKeyCredentialName not set"
+                  else
+                      if ! SSH_HOST_CA_KEY_CREDENTIAL_NAME="$(basename "$sshHostCAKeyPath")"; then
+                          markError "problem using 'basename' on \$sshHostCAKeyPath=$sshHostCAKeyPath"
+                      elif test \
+                          "$sshHostCAKeyCredentialName" \
+                          = \
+                          "$SSH_HOST_CA_KEY_CREDENTIAL_NAME";
+                      then
+                          info "\$sshHostCAKeyCredentialName matches what GNU coreutils 'basename' produced"
+                      else
+                          warn "'basename' on \$sshHostCAKeyCredentialName produced different result"
+                      fi
+                      set | grep -E '^SSH_HOST_CA_KEY_CREDENTIAL_NAME=' || warn "could not show \$SSH_HOST_CA_KEY_CREDENTIAL_NAME"
+                      set | grep -E '^sshHostCAKeyCredentialName=' || warn "could not show \$sshHostCAKeyCredentialName"
+                  fi
+
+                  if test -z "''${sshUserCAKeyPath:+"set"}"; then
+                      markError "\$sshUserCAKeyPath not set"
+                  else
+                      if test \
+                          "''${sshUserCAKeyPath}" \
+                          = \
+                          "''${sshUserCAKeyPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
+                      then
+                          markError "the \$sshUserCAKeyPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      else
+                          info "the \$sshUserCAKeyPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      fi
+                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
+                      set | grep -E '^sshUserCAKeyPath=' || echo 'sshUserCAKeyPath='
+                  fi
+                  if test -z "''${sshUserCAKeyCredentialName:+"set"}"; then
+                      markError "\$sshUserCAKeyCredentialName not set"
+                  else
+                      if ! SSH_USER_CA_KEY_CREDENTIAL_NAME="$(basename "$sshUserCAKeyPath")"; then
+                          markError "problem using 'basename' on \$sshUserCAKeyPath=$sshUserCAKeyPath"
+                      elif test \
+                          "$sshUserCAKeyCredentialName" \
+                          = \
+                          "$SSH_USER_CA_KEY_CREDENTIAL_NAME";
+                      then
+                          info "\$sshUserCAKeyCredentialName matches what GNU coreutils 'basename' produced"
+                      else
+                          warn "'basename' on \$sshUserCAKeyCredentialName produced different result"
+                      fi
+                      set | grep -E '^SSH_USER_CA_KEY_CREDENTIAL_NAME=' || warn "could not show \$SSH_USER_CA_KEY_CREDENTIAL_NAME"
+                      set | grep -E '^sshUserCAKeyCredentialName=' || warn "could not show \$sshUserCAKeyCredentialName"
+                  fi
+
+                  if test -z "''${sshHostKeyPath:+"set"}"; then
+                      markError "\$sshHostKeyPath not set"
+                  else
+                      if test \
+                          "''${sshHostKeyPath}" \
+                          = \
+                          "''${sshHostKeyPath#"$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"}"
+                      then
+                          markError "the \$sshHostKeyPath is not in the \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      else
+                          info "the \$sshHostKeyPath is in \$EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY"
+                      fi
+                      set | grep -E '^EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY=' || echo 'EXPECTED_ENCRYPTED_CREDENTIALS_DIRECTORY='
+                      set | grep -E '^sshHostKeyPath=' || echo 'sshHostKeyPath='
+                  fi
+                  if test -z "''${sshHostKeyCredentialName:+"set"}"; then
+                      markError "\$sshHostKeyCredentialName not set"
+                  else
+                      if ! SSH_HOST_KEY_CREDENTIAL_NAME="$(basename "$sshHostKeyPath")"; then
+                          markError "problem using 'basename' on \$sshHostKeyPath=$sshHostKeyPath"
+                      elif test \
+                          "$sshHostKeyCredentialName" \
+                          = \
+                          "$SSH_HOST_KEY_CREDENTIAL_NAME";
+                      then
+                          info "\$sshHostKeyCredentialName matches what GNU coreutils 'basename' produced"
+                      else
+                          warn "'basename' on \$sshHostKeyCredentialName produced different result"
+                      fi
+                      set | grep -E '^SSH_HOST_KEY_CREDENTIAL_NAME=' || warn "could not show \$SSH_HOST_KEY_CREDENTIAL_NAME"
+                      set | grep -E '^sshHostKeyCredentialName=' || warn "could not show \$sshHostKeyCredentialName"
+                  fi
 
                   if test -n "''${beRootCA:+"set"}"; then
                       # either the root ca key and password files both exist, or are both missing
@@ -506,6 +642,9 @@ in {
                       markError "invalid state with \$intermediateCAKeyPasswordPath and \$intermediateCAKeyPath"
                       ls --directory -lh "$intermediateCAKeyPasswordPath" "$intermediateCAKeyPath" || true
                   fi
+
+                  # the existence and validity of the root ca certificate is
+                  # always checked, because it must always be present
                   if ROOT_CERT_FINGERPRINT="$(step certificate fingerprint "''${rootCACertPath:?"\$rootCACertPath not set"}")"; then
                       info "the fingerprint for the root certificate is: $ROOT_CERT_FINGERPRINT"
                   else
@@ -515,7 +654,7 @@ in {
                   if test -n "''${ENCOUNTERED_ERROR:+"set"}"; then
                       reportMarkedError "error(s) encountered while checking paths"
                   else
-                      info "all paths so far appear to be okay"
+                      info "all paths are okay"
                   fi
 
                   ## key and password validity checks ##
@@ -721,13 +860,6 @@ in {
                   # - request a user ssh key
                   # - scp both the user and host ca keys over
                   # - encrypt both
-
-                  info "\$sshHostCAKeyPath=''${sshHostCAKeyPath:?"\$sshHostCAKeyPath not set"}"
-                  info "\$sshHostCAKeyCredentialName=''${sshHostCAKeyCredentialName:?"\$sshHostCAKeyCredentialName not set"}"
-                  info "\$sshUserCAKeyPath=''${sshUserCAKeyPath:?"\$sshUserCAKeyPath not set"}"
-                  info "\$sshUserCAKeyCredentialName=''${sshUserCAKeyCredentialName:?"\$sshUserCAKeyCredentialName not set"}"
-                  info "\$sshHostKeyPath=''${sshHostKeyPath:?"\$sshHostKeyPath not set"}"
-                  info "\$sshHostKeyCredentialName=''${sshHostKeyCredentialName:?"\$sshHostKeyCredentialName not set"}"
                 '';
             }
           );
