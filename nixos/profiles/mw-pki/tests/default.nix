@@ -21,7 +21,7 @@ rootCACertPath = "root_ca.crt";
           --not-after="24h"
       # ${lib.getExe pkgs.step-cli} certificate create "Example Intermediate CA 1" $out/intermediate_ca.crt $out/intermediate_ca.key --password-file=$out/intermediate-password-file --ca-password-file=$out/root-password-file --profile intermediate-ca --ca $out/root_ca.crt --ca-key $out/root_ca.key
     '';
-  rootCA = {...}: {
+  rootCA = {config', ...}: {
     virtualisation.vlans = [1];
     services.mw-pki.intermediateCA = {
       enable = true;
@@ -29,8 +29,14 @@ rootCACertPath = "root_ca.crt";
       rootCAKeyPasswordPath = "${test-certificates}/${rootCAKeyPasswordPath}";
       rootCAKeyPath = "${test-certificates}/${rootCAKeyPath}";
       rootCACertPath = "${test-certificates}/${rootCACertPath}";
+      root-ca-url = "https://myLaptop:${config'.services.step-ca.port}";
+      sshHostAllowedDomainNames = ["intermediateCA.local"];
+      x509AllowedDomainNames = ["intermediateCA.local"];
     };
-    services.step-ca.settings.dnsNames = ["myLaptop"];
+    services.step-ca.settings.dnsNames = [
+      "localhost"
+      "myLaptop"
+    ];
     imports = [self.nixosModules.mw-pki];
   };
   # make it clear how I want to run this

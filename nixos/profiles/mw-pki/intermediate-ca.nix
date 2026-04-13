@@ -84,6 +84,24 @@ in {
       description = "URL the root ca is reachable at";
       example = lib.literalExpression ''"https://ca.example.com:8229"'';
     };
+    sshHostAllowedDomainNames = lib.mkOption {
+      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      default = null;
+      description = "dns names to allow in ssh host certificates";
+      example = lib.literalExpression ''["example.com"]'';
+    };
+    sshUserAllowedPrincipals = lib.mkOption {
+      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      default = null;
+      description = "principals to allow in ssh user certificates";
+      example = lib.literalExpression ''["root"]'';
+    };
+    x509AllowedDomainNames = lib.mkOption {
+      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      default = null;
+      description = "dns names to allow in x509 certificates";
+      example = lib.literalExpression ''["example.com"]'';
+    };
   };
 
   config = lib.mkIf (cfg.enable) {
@@ -117,6 +135,31 @@ in {
         dnsNames = ["localhost"];
         federatedRoots = null;
         insecureAddress = "";
+
+        authority =
+          {
+          }
+          // (
+            if isNull cfg.x509AllowedDomainNames
+            then {}
+            else {
+              x509.allow.dns = cfg.x509AllowedDomainNames;
+            }
+          )
+          // (
+            if isNull cfg.sshHostAllowedDomainNames
+            then {}
+            else {
+              ssh.host.allow.dns = cfg.sshHostAllowedDomainNames;
+            }
+          )
+          // (
+            if isNull cfg.sshUserAllowedPrincipals
+            then {}
+            else {
+              ssh.user.allow.principal = cfg.sshUserAllowedPrincipals;
+            }
+          );
 
         db = {
           badgerFileLoadingMode = "";
