@@ -657,21 +657,32 @@ in {
                       info "all paths are okay"
                   fi
 
-                  ## key and password validity checks ##
+                  ## key and password validity checks and creation logic ##
                   # 1) if the intermediate ca password and key paths do exist
                   #   b) check that they decrypt using the expected names
-                  #   a) if we're a root ca, decrypt and warn if either the
-                  #   provided password or key differ from the (unencrypted)
-                  #   root ca equivalent's existing ones
+                  #   a) if we're a root ca
+                  #     i)   decrypt
+                  #     ii)  check if they can be used
+                  #     iii) verify that the certificate was signed by the root ca certificate
                   # 2) if the intermediate ca password and key paths don't exist
-                  #   a) if we're a root ca, encrypt the provided root ca password and key to the intermediate paths
-                  #   b) if we're an intermediate ca
+                  #   a) generate a password for the intermediate key
+                  #   b) if we're a root ca
+                  #      i)   create a key and certificate for the intermediate ca
+                  #      ii)  encrypt them to the intermediate paths
+                  #      iii) configure an x5c provisioner, using the root
+                  #           certificate and key so that a certificate issued
+                  #           through acme is also valid for x5c
+                  #   c) if we're an intermediate ca
                   #     i)   run bootstrap using the root ca cert (always provided)
-                  #     ii)  generate a password for the intermediate key
-                  #     iii) create an intermediate key and certificate signing request
-                  #     iv)  submit a CSR for the certificate to the root ca
-                  #     v)   encrypt and store the password and key
-                  #     vi)  store the signed certificate
+                  #     ii)  use acme to request a certificate from the root ca
+                  #     iii) use x5c and the previous certificate to request an
+                  #          ssh host key from the root ca
+                  #     iv)  use ssh host key to retrieve the root ca's
+                  #          intermediate key password, key, certificate, and
+                  #          the ssh host and user ca keys
+                  #     v)   verify ssh keys work by changing password from
+                  #          blank to blank
+                  #     vi)  encrypt all to appropriate paths
 
                   # 1) if the intermediate ca password and key paths do exist
                   if \
