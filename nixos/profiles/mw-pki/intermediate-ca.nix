@@ -34,9 +34,6 @@
   # similar to the note for CREDENTIALS_DIRECTORY in constants.nix, this is
   # checked in `mw-pki-rootCA-make-certs-and-secrets.service`
   EXPECTED_STATE_DIRECTORY = "/var/lib/${config.systemd.services.step-ca.name}";
-
-  LoadCredentialEncryptedIntermediateCAKey = "${baseNameOf config.services.step-ca.settings.key}:${config.services.step-ca.settings.key}";
-  LoadCredentialEncryptedIntermediateCAKeyPassword = "${baseNameOf cfg.intermediateCAKeyPasswordPath}:${cfg.intermediateCAKeyPasswordPath}";
 in {
   options.services.mw-pki.intermediateCA = {
     enable = lib.mkEnableOption "intermediateCA";
@@ -707,9 +704,17 @@ in {
           #"%d"
         ];
 
-        LoadCredentialEncrypted = [
-          LoadCredentialEncryptedIntermediateCAKeyPassword
-          LoadCredentialEncryptedIntermediateCAKey
+        LoadCredentialEncrypted = let
+          makeCred = path: "${baseNameOf path}:${path}";
+          intermediateCAKey = makeCred config.services.step-ca.settings.key;
+          intermediateCAKeyPassword = makeCred cfg.intermediateCAKeyPasswordPath;
+          sshHostCAKey = makeCred config.services.step-ca.settings.ssh.hostKey;
+          sshUserCAKey = makeCred config.services.step-ca.settings.ssh.hostKey;
+        in [
+          intermediateCAKey
+          intermediateCAKeyPassword
+          sshHostCAKey
+          sshUserCAKey
         ];
 
         ExecStartPre = [
