@@ -138,6 +138,19 @@ in {
 
         authority =
           {
+            provisioners = [
+              {
+                name = "acme";
+                type = "ACME";
+              }
+              {
+                name = "sshpop";
+                type = "SSHPOP";
+                claims = {
+                  enableSSHCA = true;
+                };
+              }
+            ];
           }
           // (
             if isNull cfg.x509AllowedDomainNames
