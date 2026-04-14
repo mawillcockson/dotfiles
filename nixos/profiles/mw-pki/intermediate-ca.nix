@@ -84,6 +84,14 @@ in {
       description = "URL the root ca is reachable at";
       example = lib.literalExpression ''"https://ca.example.com:8229"'';
     };
+    intermediate-ca-fqdn = lib.mkOption {
+      type = lib.type.str;
+      description = ''
+        The Fully Qualified Domain Name of the intermediate ca
+        will be used to verify it over ACME
+      '';
+      example = lib.literalExpression ''"ca.example.com"'';
+    };
     sshHostAllowedDomainNames = lib.mkOption {
       type = lib.types.nullOr (lib.types.listOf lib.types.str);
       default = null;
@@ -140,12 +148,90 @@ in {
           {
             provisioners = [
               {
-                name = "acme";
                 type = "ACME";
+                name = "acme";
+                # currently, my version of step-ca is v0.29.0
+                # That version uses smallstep/crypto v0.74.0:
+                # https://github.com/smallstep/certificates/blob/v0.29.0/go.mod#L40
+                # These are the default templates for that version:
+                # https://github.com/smallstep/crypto/blob/v0.74.0/x509util/templates.go#L140-L151
+                options = {
+                  x509.template =
+                    if cfg.beRootCA
+                    then
+                      /*
+                      json
+                      */
+                      ''
+                        {{ if .Subject | eq "${cfg.intermediate-ca-fqdn}" }}
+                        {
+                          "subject": {{ toJson .Subject }},
+                          "keyUsage": ["certSign", "crlSign"],
+                          "basicConstraints": {
+                            "isCA": true,
+                            "maxPathLen": 0
+                          }
+                        }
+                        {{ else }}
+                        {{ fail "this ca is only used for signing certificates for the intermediate ca ${cfg.intermediate-ca-fqdn}" }}
+                        {{ end }}
+
+                        {{- if not "leaf" -}}
+                        {
+                          "subject": {{ toJson .Subject }},
+                          "sans": {{ toJson .SANs }},
+                        {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+                          "keyUsage": ["keyEncipherment", "digitalSignature"],
+                        {{- else }}
+                          "keyUsage": ["digitalSignature"],
+                        {{- end }}
+                          "extKeyUsage": ["serverAuth", "clientAuth"]
+                        }
+                        {{- end -}}
+                        {{- if not "intermediate" -}}
+                        {
+                          "subject": {{ toJson .Subject }},
+                          "keyUsage": ["certSign", "crlSign"],
+                          "basicConstraints": {
+                            "isCA": true,
+                            "maxPathLen": 0
+                          }
+                        }
+                        {{- end -}}
+                        {{- if not "root" -}}
+                        {
+                          "subject": {{ toJson .Subject }},
+                          "issuer": {{ toJson .Subject }},
+                          "keyUsage": ["certSign", "crlSign"],
+                          "basicConstraints": {
+                            "isCA": true,
+                            "maxPathLen": 1
+                          }
+                        }
+                        {{- end -}}
+                      ''
+                    else
+                      /*
+                      json
+                      */
+                      ''
+                        {
+                          "subject": {{ toJson .Subject }},
+                          "sans": {{ toJson .SANs }},
+                        {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+                          {{ fail "I don't like RSA keys" }}
+                          "keyUsage": ["keyEncipherment", "digitalSignature"],
+                        {{- else }}
+                          "keyUsage": ["digitalSignature"],
+                        {{- end }}
+                          "extKeyUsage": ["serverAuth", "clientAuth"]
+                        }
+                      '';
+                };
               }
               {
-                name = "sshpop";
                 type = "SSHPOP";
+                name = "sshpop";
                 claims = {
                   enableSSHCA = true;
                 };
@@ -189,6 +275,42 @@ in {
           minVersion = 1.2;
           renegotiation = false;
         };
+
+        # step-ca does not seem to mind having this extra key here
+        templates.custom =
+          if cfg.beRootCA
+          then {
+            root =
+              /*
+              json
+              */
+              ''
+                {
+                  "subject": {{ toJson .Subject }},
+                  "issuer": {{ toJson .Subject }},
+                  "keyUsage": ["certSign", "crlSign"],
+                  "basicConstraints": {
+                    "isCA": true,
+                    "maxPathLen": 2
+                  }
+                }
+              '';
+            intermediate =
+              /*
+              json
+              */
+              ''
+                {
+                  "subject": {{ toJson .Subject }},
+                  "keyUsage": ["certSign", "crlSign"],
+                  "basicConstraints": {
+                    "isCA": true,
+                    "maxPathLen": 1
+                  }
+                }
+              '';
+          }
+          else {};
       };
     };
 
