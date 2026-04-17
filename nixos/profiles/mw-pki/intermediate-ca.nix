@@ -520,6 +520,55 @@ in {
                   info 'setting umask to 377'
                   umask 377
 
+                  if ! TMPDIR="''${TMPDIR:-"$(mktemp -td)"}"; then
+                      error "cannot define \$TMPDIR; issue with mktemp"
+                  elif ! mkdir -vp "$TMPDIR"; then
+                      error "cannot create \$TMPDIR; issue with mkdir"
+                  elif ! touch "$TMPDIR/test.txt"; then
+                      error "cannot create a file test.txt in \$TMPDIR=$TMPDIR; issue with touch"
+                  else
+                      info "using \$TMPDIR=$TMPDIR"
+                  fi
+
+                  if test -z "''${CA_CONFIG:+"set"}"; then
+                      markError "\$CA_CONFIG not set"
+                  elif ! test -r "$CA_CONFIG"; then
+                      markError "cannot read the ca configuration file at \$CA_CONFIG=$CA_CONFIG"
+                  elif ! jq -ne -- . "$CA_CONFIG" >/dev/null; then
+                      markError "jq could not read the ca configuration file at \$CA_CONFIG=$CA_CONFIG"
+                  else
+                      info "using the ca configuration file at \$CA_CONFIG=$CA_CONFIG"
+                  fi
+
+                  if ! DATETIME="$(date --iso-8601=seconds)"; then
+                      markError "could not set \$DATETIME; problem with 'date'"
+                  else
+                      info "\$DATETIME -> ''${DATETIME}"
+                  fi
+
+                  if test -z "''${ROOT_CA_URL:+"set"}"; then
+                      markError "\$ROOT_CA_URL not set"
+                  else
+                      info "using this as the root ca url: ''${ROOT_CA_URL:?"\$ROOT_CA_URL not set"}"
+                  fi
+
+                  if test -z "''${INTERMEDIATE_CA_FQDN:+"set"}"; then
+                      markError "\$INTERMEDIATE_CA_FQDN not set"
+                  else
+                      info "using this as the intermediate ca's fully qualified domain name, and certificate Subject: ''${INTERMEDIATE_CA_FQDN:?"\$INTERMEDIATE_CA_FQDN not set"}"
+                  fi
+
+                  if test -z "''${STEP_VALIDITY_NOT_BEFORE:+"set"}"; then
+                      markError "\$STEP_VALIDITY_NOT_BEFORE not set"
+                  else
+                      info "all step certificates won't be valid before: \$STEP_VALIDITY_NOT_BEFORE=$STEP_VALIDITY_NOT_BEFORE"
+                  fi
+                  if test -z "''${STEP_VALIDITY_NOT_AFTER:+"set"}"; then
+                      markError "\$STEP_VALIDITY_NOT_AFTER not set"
+                  else
+                      info "all step certificates won't be valid after: \$STEP_VALIDITY_NOT_AFTER=$STEP_VALIDITY_NOT_AFTER"
+                  fi
+
                   if test -z "''${EXPECTED_CREDENTIALS_DIRECTORY:+"set"}"; then
                       markError "expected \$EXPECTED_CREDENTIALS_DIRECTORY to be set in the environment that this script is run in"
                   else
@@ -618,7 +667,7 @@ in {
                       if test -z "''${rootCAKeyPasswordPath:+"set"}"; then
                           markError "\$rootCAKeyPasswordPath not set"
                       else
-                          : "shellcheck ''${rootCAKeyPasswordPath:?"impossible"}"
+                          info "root ca key password path is: ''${rootCAKeyPasswordPath:?"impossible"}"
                       fi
                       set | grep -E '^rootCAKeyPasswordPath=' || echo 'rootCAKeyPasswordPath='
                       # not needed, because the credential isn't provided through
@@ -629,7 +678,7 @@ in {
                       if test -z "''${rootCAKeyPath:+"set"}"; then
                           markError "\$rootCAKeyPath not set"
                       else
-                          : "shellcheck ''${rootCAKeyPath:?"impossible"}"
+                          info "root ca key path is: ''${rootCAKeyPath:?"impossible"}"
                       fi
                       set | grep -E '^rootCAKeyPath=' || echo 'rootCAKeyPath='
                       #info "\$rootCAKeyCredentialName=''${rootCAKeyCredentialName:?"\$rootCAKeyCredentialName not set"}"
@@ -644,9 +693,9 @@ in {
                           # prefix removed
                           info "\$rootCACertPath is in \$STATE_DIRECTORY"
                       fi
-                      set | grep -E '^STATE_DIRECTORY=' || echo 'STATE_DIRECTORY='
-                      set | grep -E '^rootCACertPath=' || echo 'rootCACertPath='
                   fi
+                  set | grep -E '^STATE_DIRECTORY=' || echo 'STATE_DIRECTORY='
+                  set | grep -E '^rootCACertPath=' || echo 'rootCACertPath='
 
                   # these are always tested, because they're always used
                   if test -z "''${intermediateCAKeyPasswordPath:+"set"}"; then
