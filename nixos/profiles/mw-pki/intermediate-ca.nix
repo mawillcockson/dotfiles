@@ -11,6 +11,17 @@
   };
   cfg = config.services.mw-pki.intermediateCA;
 
+  base64-root-ca-crt =
+    pkgs.runCommandLocal "base64-root-ca-crt"
+    {
+      inherit (cfg) rootCACertPath;
+      nativeBuildInputs = [pkgs.coreutils];
+    }
+    ''
+      set -eu
+      base64 "$rootCACertPath" | tr -d '\n' > "$out"
+    '';
+
   # NOTE::BUG causes an infinite recursion
   #configDir = config.systemd.services.step-ca.restartTriggers |> builtins.head |> builtins.dirOf;
   configDir = "/etc/smallstep";
@@ -166,7 +177,7 @@ in {
                         {{ if .Subject | eq "${cfg.intermediate-ca-fqdn}" }}
                         {
                           "subject": {{ toJson .Subject }},
-                          "keyUsage": ["certSign", "crlSign"],
+                          "keyUsage": ["certSign", "crlSign", "digitalSignature"],
                           "basicConstraints": {
                             "isCA": true,
                             "maxPathLen": 0
@@ -235,6 +246,35 @@ in {
                 claims = {
                   enableSSHCA = true;
                 };
+              }
+              {
+                type = "X5C";
+                name = "x5c";
+                roots = base64-root-ca-crt;
+                claims = {
+                  allowRenewalAfterExpiry = false;
+                  disableRenewal = false;
+                  disableSmallstepExtensions = false;
+                  enableSSHCA = true;
+                };
+                options.x509.template =
+                  /*
+                  json
+                  */
+                  ''
+                    {
+                      "subject": {{ toJson .Subject }},
+                      "sans": {{ toJson .SANs }},
+                    {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+                      "keyUsage": ["keyEncipherment", "digitalSignature"],
+                    {{- else }}
+                      "keyUsage": ["digitalSignature"],
+                    {{- end }}
+                      "uris": ["https://worked.example"],
+                      "extKeyUsage": ["serverAuth", "clientAuth"]
+                    }
+                  '';
+                # options.ssh.template = /* json */ '''';
               }
             ];
           }
