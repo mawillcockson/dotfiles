@@ -138,11 +138,11 @@ in
           python
           */
           ''
-          myLaptop.execute("systemctl is-system-running --wait")
-          myLaptop.execute("test.sh >&2 &")
-          myLaptop.wait_until_succeeds("pgrep step-ca", timeout=30)
-          intermediateCA.execute("systemctl is-system-running --wait")
-          intermediateCA.execute("test.sh")
+            myLaptop.execute("systemctl is-system-running --wait")
+            myLaptop.execute("test.sh >&2 &")
+            myLaptop.wait_until_succeeds("pgrep step-ca", timeout=30)
+            intermediateCA.execute("systemctl is-system-running --wait")
+            intermediateCA.execute("test.sh")
           '';
         #''
         #  intermediateCA.start()
