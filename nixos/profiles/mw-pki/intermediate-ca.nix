@@ -446,7 +446,7 @@ in {
               ];
               runtimeEnv =
                 {
-                  CONFIG_DIR = configDir;
+                  CA_CONFIG = "${configDir}/ca.json";
                   STEP_VALIDITY_NOT_BEFORE = cfg.stepNotBefore;
                   STEP_VALIDITY_NOT_AFTER = cfg.stepNotAfter;
                   SCRIPT_NAME = script_name;
