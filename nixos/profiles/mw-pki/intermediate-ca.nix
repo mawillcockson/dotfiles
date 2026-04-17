@@ -935,28 +935,22 @@ in {
                   fi
 
                   ## key and password validity checks and creation logic ##
-                  # 1) if the intermediate ca password and key paths do exist
-                  #   b) check that they decrypt using the expected names
-                  #   a) if we're a root ca
-                  #     i)   decrypt
-                  #     ii)  check if they can be used
-                  #     iii) verify that the certificate was signed by the root ca certificate
+                  # 1) if the intermediate ca password, key, and cert paths do exist
+                  #   a) check that they decrypt using the expected names
+                  #   b) verify that the certificate was signed by the root ca certificate
+                  #   c) sign something to check that the key and password can be used
                   # 2) if the intermediate ca password and key paths don't exist
                   #   a) generate a password for the intermediate key
                   #   b) if we're a root ca
                   #      i)   create a key and certificate for the intermediate ca
-                  #      ii)  encrypt them to the intermediate paths
-                  #      iii) configure an x5c provisioner, using the root
-                  #           certificate and key so that a certificate issued
-                  #           through acme is also valid for x5c
+                  #      ii)  encrypt them and the password to the intermediate paths
                   #   c) if we're an intermediate ca
                   #     i)   run bootstrap using the root ca cert (always provided)
                   #     ii)  use acme to request a certificate from the root ca
                   #     iii) use x5c and the previous certificate to request an
                   #          ssh host key from the root ca
                   #     iv)  use ssh host key to retrieve the root ca's
-                  #          intermediate key password, key, certificate, and
-                  #          the ssh host and user ca keys
+                  #          ssh host and user ca keys
                   #     v)   verify ssh keys work by changing password from
                   #          blank to blank
                   #     vi)  encrypt all to appropriate paths
@@ -966,7 +960,7 @@ in {
                       test -r "$intermediateCAKeyPasswordPath" && \
                       test -r "$intermediateCAKeyPath"
                   then
-                      # 1.b) check that the intermediate ca key password decrypts using the expected name
+                      # 1.a) check that the intermediate ca key password decrypts using the expected name
                       if ! systemd-creds \
                           --with-name="$intermediateCAKeyPasswordCredentialName" \
                           decrypt \
@@ -978,7 +972,7 @@ in {
                           info "intermediate ca key password decrypts correctly"
                       fi
 
-                      # 1.b) check that the intermediate ca key decrypts using the expected name
+                      # 1.a) check that the intermediate ca key decrypts using the expected name
                       if ! systemd-creds \
                           --with-name="$intermediateCAKeyCredentialName" \
                           decrypt \
@@ -989,146 +983,182 @@ in {
                       else
                           info "intermediate ca key decrypts correctly"
                       fi
-                      # 1.a) if we're a root ca, decrypt and warn if either the
-                      # provided password or key differ from the (unencrypted)
-                      # root ca equivalent's existing ones
-                      if test -n "''${beRootCA:+"set"}"; then
-                          if ! INTERMEDIATE_PASSWORD_HASH="$(systemd-creds \
-                              --with-name="$intermediateCAKeyPasswordCredentialName" \
-                              decrypt \
-                              "$intermediateCAKeyPasswordPath" \
-                              | cksum \
-                                  --algorithm=sha2 \
-                                  --length=512 \
-                                  --base64 \
-                                  --tag \
-                                  -
-                          )"
-                          then
-                              error "issue with hashing the intermediate ca key password"
-                          # using file redirection so that cksum can read from
-                          # standard input, because it includes the filename in its
-                          # output, and that would be different, even if the hashes
-                          # were the same
-                          elif ! ROOT_PASSWORD_HASH="$(cksum \
-                              --algorithm=sha2 \
-                              --length=512 \
-                              --base64 \
-                              --tag \
-                              - \
-                              < "$rootCAKeyPasswordPath")"
-                          then
-                              error "issue hashing root ca key password"
-                          elif test "$INTERMEDIATE_PASSWORD_HASH" = "$ROOT_PASSWORD_HASH"; then
-                              info "intermediate and root ca key passwords hash to the same value"
-                          else
-                              error "an error was encountered while checking if the intermediate and root ca key passwords hash to the same value"
-                          fi
 
-                          if ! INTERMEDIATE_KEY_HASH="$(systemd-creds \
-                              --with-name="$intermediateCAKeyCredentialName" \
-                              decrypt \
-                              "$intermediateCAKeyPath" \
-                              | cksum \
-                                  --algorithm=sha2 \
-                                  --length=512 \
-                                  --base64 \
-                                  --tag \
-                                  -
-                          )"
-                          then
-                              error "issue with hashing the intermediate ca key"
-                          # using file redirection so that cksum can read from
-                          # standard input, because it includes the filename in its
-                          # output, and that would be different, even if the hashes
-                          # were the same
-                          elif ! ROOT_KEY_HASH="$(cksum \
-                              --algorithm=sha2 \
-                              --length=512 \
-                              --base64 \
-                              --tag \
-                              - \
-                              < "$rootCAKeyPath")"
-                          then
-                              error "issue hashing root ca key"
-                          elif test "$INTERMEDIATE_KEY_HASH" = "$ROOT_KEY_HASH"; then
-                              info "intermediate and root ca keys hash to the same value"
-                          else
-                              error "an error was encountered while checking if the intermediate and root ca keys hash to the same value"
-                          fi
+                      # 1.b) verify that the root ca certificate signed the
+                      # intermediate ca certificate
+                      if ! step certificate verify \
+                          "$intermediateCACertPath" \
+                          --roots="$rootCACertPath" \
+                          --verbose
+                      then
+                          markError "intermediate ca certificate didn't validate against the root cert"
+                          set | grep -E '^intermediateCACertPath=' || echo 'intermediateCACertPath='
+                          set | grep -E '^rootCACertPath=' || echo 'rootCACertPath='
                       fi
-                  # 2.a) if the intermediate ca password and key paths don't
-                  # exist, if we're a root ca, encrypt the provided root ca
-                  # password and key to the intermediate paths
-                  elif ! {
-                      test -r "$intermediateCAKeyPasswordPath" \
-                      && \
-                      test -r "$intermediateCAKeyPath"
-                  } && test -n "''${beRootCA:+"set"}"; then
-                      info "encrypting the root ca key password (\$rootCAKeyPasswordPath=$rootCAKeyPasswordPath) and storing it as the intermediate ca key password (\$intermediateCAKeyPasswordPath=$intermediateCAKeyPasswordPath)"
-                      systemd-creds \
-                          --with-key=auto \
-                          --not-after=+24h \
-                          --name="$intermediateCAKeyPasswordCredentialName" \
-                          encrypt \
-                          "$rootCAKeyPasswordPath"
-                          "$intermediateCAKeyPasswordPath"
-                      info "encrypting the root ca key (\$rootCAKeyPath=$rootCAKeyPath) and storing it as the intermediate ca key (\$intermediateCAKeyPath=$intermediateCAKeyPath)"
-                      systemd-creds \
-                          --with-key=auto \
-                          --not-after=+24h \
-                          --name="$intermediateCAKeyCredentialName" \
-                          encrypt \
-                          "$rootCAKeyPath"
-                          "$intermediateCAKeyPath"
-                  # 2.b) if the intermediate ca password and key paths don't exist, and we're an intermediate ca
-                  elif ! {
-                      test -r "$intermediateCAKeyPasswordPath" \
-                      && \
-                      test -r "$intermediateCAKeyPath"
-                  } && test -z "''${beRootCA:+"set"}"; then
-                      # 2.b.i) run bootstrap using the root ca cert (always provided)
-                      # I don't know if this is necessary
-                      info "bootstrapping step clients with \$STEPPATH=''${STEPPATH:?"\$STEPPATH not set"}"
-                      export STEPPATH
-                      step ca bootstrap \
-                          --ca-url="''${ROOT_CA_URL:?"\$ROOT_CA_URL not set"}" \
-                          --fingerprint="$ROOT_CERT_FINGERPRINT"
 
-                      # 2.b.ii) generate a password for the intermediate key
+                      # 1.c) sign something with the intermediate key to check
+                      # that both it and the password are valid
+                      info "creating a test certificate to verify intermediate ca works"
+                      TEST_CERT_DIR="$TMPDIR/test_cert"
+                      mkdir -vp "$TEST_CERT_DIR"
+                      TEST_PASSWORD_PATH="$TEST_CERT_DIR/test_key_password"
+                      info "using test password in: $TEST_PASSWORD_PATH"
+                      echo 'insecure' > "$TEST_PASSWORD_PATH"
+                      step certificate create \
+                          'test.example.test' \
+                          "$TEST_CERT_DIR/test.crt" \
+                          "$TEST_CERT_DIR/test_key" \
+                          --password-file="$TEST_CERT_DIR/test_key_password" \
+                          --kty=OKP --curve=Ed25519 \
+                          --profile=leaf \
+                          --not-before=+1y \
+                          --not-after=-1y \
+                          --ca="$intermediateCACertPath" \
+                          --ca-key="$intermediateCAKeyPath" \
+                          --ca-password-file="$intermediateCAKeyPasswordPath"
+                      step certificate verify "$TEST_CERT_DIR/test.crt" --roots="$intermediateCACertPath" --verbose
+                      rm -rf "$TEST_CERT_DIR"
+
+                  # 2.a) if the intermediate ca password and key paths don't exist...
+                  elif ! {
+                      test -r "$intermediateCAKeyPasswordPath" \
+                      && \
+                      test -r "$intermediateCAKeyPath"
+                  }; then
+                      # 2.a) generate a password for the intermediate key
                       INTERMEDIATE_CA_KEY_PASSWORD_PATH="$STATE_DIRECTORY/secrets/unencrypted-intermediate-ca-key-password"
                       export INTERMEDIATE_CA_KEY_PASSWORD_PATH
                       mkdir -p "$(dirname "$INTERMEDIATE_CA_KEY_PASSWORD_PATH")"
                       info "generating a password for the intermediate ca key at: $INTERMEDIATE_CA_KEY_PASSWORD_PATH"
                       step crypto rand 32 --format=ascii > "$INTERMEDIATE_CA_KEY_PASSWORD_PATH"
 
-                      # 2.b.iii) create an intermediate key and certificate
-                      INTERMEDIATE_CA_CSR="$STATE_DIRECTORY/csr/intermediate-csr"
-                      export INTERMEDIATE_CA_CSR
-                      if test -e "$INTERMEDIATE_CA_CSR"; then
-                          error "found an existing certificate signing request for the intermediate ca at: $INTERMEDIATE_CA_CSR"
-                      fi
-                      INTERMEDIATE_CA_KEY_PATH="$STATE_DIRECTORY/secrets/intermediate-ca-key"
-                      if test -e "$INTERMEDIATE_CA_KEY_PATH"; then
-                          error "found an existing intermediate ca kay at $INTERMEDIATE_CA_KEY_PATH"
-                      fi
-                      info "creating a key for the intermediate ca at: $INTERMEDIATE_CA_KEY_PATH"
-                      info "also creating a csr at: $INTERMEDIATE_CA_CSR"
-                      step certificate create \
-                          'mw pki Intermediate CA' \
-                          "$INTERMEDIATE_CA_CSR" \
-                          "$INTERMEDIATE_CA_KEY_PATH" \
-                          --csr \
-                          --kty=OKP \
-                          --profile=intermediate-ca \
-                          --password-file="$INTERMEDIATE_CA_KEY_PASSWORD_PATH" \
-                          --not-before=-10m \
-                          --not-after="$((24 * 365))h"
+                      if test -n "''${beRootCA:+"set"}"; then
+                          # 2.b.i) create a key and certificate for the intermediate ca, using the root ca
+                          INTERMEDIATE_CA_TEMPLATE="$TMPDIR/intermediate_ca.tmpl"
+                          info "extracting the intermediate ca template in $CA_CONFIG to: $INTERMEDIATE_CA_TEMPLATE"
+                          jq \
+                              --null-input \
+                              --exit-status \
+                              --raw-output \
+                              -- \
+                              '.templates.custom.intermediate' \
+                              "$CA_CONFIG" \
+                              > "$INTERMEDIATE_CA_TEMPLATE"
+                          info "this is the template that will be used to create the intermediate ca:"
+                          jq --monochrome-output --null-input . "$INTERMEDIATE_CA_TEMPLATE"
+                          INTERMEDIATE_CA_KEY_PATH="$STATE_DIRECTORY/secrets/unencrypted-intermediate-ca-key"
+                          if test -e "$INTERMEDIATE_CA_KEY_PATH"; then
+                              error "found an existing intermediate ca kay at $INTERMEDIATE_CA_KEY_PATH"
+                          else
+                              info "using this as the temporary intermediate ca key path: $INTERMEDIATE_CA_KEY_PATH"
+                          fi
+                          info "creating an intermediate ca key at: $INTERMEDIATE_CA_KEY_PATH"
+                          info "and creating an intermediate ca certificate at: $intermediateCACertPath"
+                          step certificate create \
+                              "$ROOT_CA_URL" \
+                              "$intermediateCACertPath" \
+                              "$INTERMEDIATE_CA_KEY_PATH" \
+                              --password-file="$INTERMEDIATE_CA_KEY_PASSWORD_PATH" \
+                              --kty=OKP --curve=Ed25519 \
+                              --template="$INTERMEDIATE_CA_TEMPLATE" \
+                              --not-before="$STEP_VALIDITY_NOT_BEFORE" \
+                              --not-after="$STEP_VALIDITY_NOT_AFTER" \
+                              --ca="$rootCACertPath" \
+                              --ca-key="$rootCAKeyPath" \
+                              --ca-password-file="$rootCAKeyPasswordPath"
 
-                      # 2.b.iv) submit a CSR for the certificate to the root ca
-                      # NOTE::CONTINUE
-                      # 2.b.v) encrypt and store the password and key
-                      # 2.b.vi) store the signed certificate
+                          # 2.b.ii) if the intermediate key and certificate are
+                          # missing, and we're a root ca, encrypt the
+                          # intermediate ca password and key to the
+                          # intermediate paths
+                          info "encrypting the intermediate ca key password (\$INTERMEDIATE_CA_KEY_PASSWORD_PATH=$INTERMEDIATE_CA_KEY_PASSWORD_PATH) and storing it here: \$intermediateCAKeyPasswordPath=$intermediateCAKeyPasswordPath)"
+                          systemd-creds \
+                              --with-key=auto \
+                              --not-after=+24h \
+                              --name="$intermediateCAKeyPasswordCredentialName" \
+                              encrypt \
+                              "$INTERMEDIATE_CA_KEY_PASSWORD_PATH"
+                              "$intermediateCAKeyPasswordPath"
+                          # NOTE::CONTINUE check that the credentials decrypt
+                          # to the same hash as the unencrypted, then delete
+                          # the unencrypted ones
+                          info "encrypting the intermediate ca key (\$INTERMEDIATE_CA_KEY_PATH=$INTERMEDIATE_CA_KEY_PATH) and storing it here (\$intermediateCAKeyPath=$intermediateCAKeyPath)"
+                          systemd-creds \
+                              --with-key=auto \
+                              --not-after=+24h \
+                              --name="$intermediateCAKeyCredentialName" \
+                              encrypt \
+                              "$INTERMEDIATE_CA_KEY_PATH"
+                              "$intermediateCAKeyPath"
+                      else
+                          # 2.c.i) if the intermediate ca password and key are
+                          # missing, and we're an intermediate ca, run
+                          # bootstrap using the always-available root
+                          # certificate
+                          # NOTE::QUESTION I don't know if this is necessary
+                          info "bootstrapping step clients with \$STEPPATH=$STEPPATH"
+                          step ca bootstrap \
+                              --ca-url="''${ROOT_CA_URL:?"\$ROOT_CA_URL not set"}" \
+                              --fingerprint="$ROOT_CERT_FINGERPRINT"
+
+                          # 2.b.ii) if the intermediate ca password and ket are
+                          # missing, and we're an intermediate ca, use acme to
+                          # request an intermediate ca certificate from the
+                          # root ca's intermediate ca
+                          INTERMEDIATE_CA_KEY_PATH="$STATE_DIRECTORY/secrets/unencrypted-intermediate-ca-key"
+                          if test -e "$INTERMEDIATE_CA_KEY_PATH"; then
+                              error "found an existing intermediate ca kay at $INTERMEDIATE_CA_KEY_PATH"
+                          else
+                              info "using this as the temporary intermediate ca key path: $INTERMEDIATE_CA_KEY_PATH"
+                          fi
+                          step ca certificate \
+                              "$INTERMEDIATE_CA_FQDN" \
+                              "$intermediateCACertPath" \
+                              "$INTERMEDIATE_CA_KEY_PATH" \
+                              --password-file="$INTERMEDIATE_CA_KEY_PASSWORD_PATH" \
+                              --kty=OKP --curve=Ed25519 \
+                              --not-before="$STEP_VALIDITY_NOT_BEFORE" \
+                              --not-after="$STEP_VALIDITY_NOT_AFTER" \
+                              --provisioner=${
+                    cfg.settings.authority
+                    |> builtins.filter (x: x.type == "ACME")
+                    |> builtins.getAttr "name"
+                    |> lib.escapeShellArg
+                  } \
+                              --standalone \
+                              --contact=${lib.escapeShellArg cfg.contactEmail} \
+                              --console
+
+                          # 2.c.iii) if the intermediate ca password and key are missing, and we're an intermediate ca, use x5c and the previous certificate to request an ssh host key from the root ca
+                          SSH_HOST_KEY="$STATE_DIRECTORY/secrets/unencrypted-ssh-host-key"
+                          if test -e "$SSH_HOST_KEY"; then
+                              error "found an existing ssh host key (not ca): $SSH_HOST_KEY"
+                          else
+                              info "creating an unencrypted ssh host key (not ca): $SSH_HOST_KEY"
+                          fi
+                          step ssh certificate \
+                              "$INTERMEDIATE_CA_FQDN@$DATETIME" \
+                              "$SSH_HOST_KEY" \
+                              --no-password --insecure \
+                              --kty=OKP --curve=Ed25519 \
+                              --host \
+                              --host-id=machine \
+                              --principal="$INTERMEDIATE_CA_FQDN" \
+                              --commane="$INTERMEDIATE_CA_FQDN@$DATETIME" \
+                              --not-before="$STEP_VALIDITY_NOT_BEFORE" \
+                              --not-after="$STEP_VALIDITY_NOT_AFTER" \
+                              --console \
+                              --provisioner=${
+                    cfg.settings.authority
+                    |> builtins.filter (x: x.type == "X5C")
+                    |> builtins.getAttr "name"
+                    |> lib.escapeShellArg
+                  } \
+                              --x5c-cert="$intermediateCACertPath" \
+                              --x5c-key="$INTERMEDIATE_CA_KEY_PATH" \
+                              --no-agent \
+
+                      fi
                   else
                       error "in ensuring that the intermediate ca password and key exist, some combination of conditions was not accounted for"
                   fi
