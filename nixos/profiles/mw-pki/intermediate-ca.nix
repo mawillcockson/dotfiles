@@ -424,6 +424,7 @@ in {
         #SetCredential = "example-credential-name:example-credential-value";
 
         StateDirectory = step-ca-serviceConfig.StateDirectory;
+        Environment = ["STEPPATH=%S"];
         # Is this necessary?
         #ReadWritePaths = ["%S/${step-ca-serviceConfig.StateDirectory}"];
         ExecStart =
@@ -594,6 +595,22 @@ in {
                       set | grep -E '^STATE_DIRECTORY=' || echo 'STATE_DIRECTORY='
                       set | grep -E '^EXPECTED_STATE_DIRECTORY=' || echo 'EXPECTED_STATE_DIRECTORY='
                       set | grep -E '^SYSTEMD_STATE_DIRECTORY=' || echo 'SYSTEMD_STATE_DIRECTORY='
+                  fi
+
+                  if test -z "''${STEPPATH:+"set"}"; then
+                      markError "\$STEPPATH not set"
+                  elif test \
+                      "''${STEPPATH:?"\$STEPPATH not set"}" \
+                      != \
+                      "''${STEPPATH#"$STATE_DIRECTORY"}"
+                  then
+                      markError "\$STEPPATH not in \$STATE_DIRECTORY"
+                  else
+                      info "using this as \$STEPPATH=$STEPPATH"
+                  fi
+                  set | grep -E '^STATE_DIRECTORY=' || echo 'STATE_DIRECTORY='
+                  set | grep -E '^STEPPATH=' || echo 'STEPPATH='
+
                   fi
 
                   if test -n "''${beRootCA:+"set"}"; then
