@@ -91,12 +91,12 @@ in {
       example = lib.literalExpression ''"/etc/credstore.encrypted/sshHostKey"'';
     };
     root-ca-url = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nonEmptyStr;
       description = "URL the root ca is reachable at";
       example = lib.literalExpression ''"https://ca.example.com:8229"'';
     };
     intermediate-ca-fqdn = lib.mkOption {
-      type = lib.type.str;
+      type = lib.type.nonEmptyStr;
       description = ''
         The Fully Qualified Domain Name of the intermediate ca
         will be used to verify it over ACME
@@ -104,19 +104,19 @@ in {
       example = lib.literalExpression ''"ca.example.com"'';
     };
     sshHostAllowedDomainNames = lib.mkOption {
-      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      type = lib.types.nullOr (lib.types.listOf lib.types.nonEmptyStr);
       default = null;
       description = "dns names to allow in ssh host certificates";
       example = lib.literalExpression ''["example.com"]'';
     };
     sshUserAllowedPrincipals = lib.mkOption {
-      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      type = lib.types.nullOr (lib.types.listOf lib.types.nonEmptyStr);
       default = null;
       description = "principals to allow in ssh user certificates";
       example = lib.literalExpression ''["root"]'';
     };
     x509AllowedDomainNames = lib.mkOption {
-      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      type = lib.types.nullOr (lib.types.listOf lib.types.nonEmptyStr);
       default = null;
       description = "dns names to allow in x509 certificates";
       example = lib.literalExpression ''["example.com"]'';
