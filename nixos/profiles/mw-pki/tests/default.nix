@@ -7,20 +7,42 @@
   rootCAKeyPasswordPath = "root-password-file";
   rootCAKeyPath = "root_ca.key";
   rootCACertPath = "root_ca.crt";
-  test-certificates = pkgs.runCommandLocal "test-certificates" {} ''
-    mkdir -p "$out"
-    printf '%s' 'insecure-root-password' > "$out/${rootCAKeyPasswordPath}"
-    ${lib.getExe pkgs.step-cli} certificate create \
-        "Example Root CA" \
-        "$out/${rootCACertPath}" \
-        "$out/${rootCAKeyPath}" \
-        --kty=OKP \
-        --profile=root-ca \
-        --password-file="$out/${rootCAKeyPasswordPath}" \
-        --not-before=-10m \
-        --not-after="24h"
-    # ${lib.getExe pkgs.step-cli} certificate create "Example Intermediate CA 1" $out/intermediate_ca.crt $out/intermediate_ca.key --password-file=$out/intermediate-password-file --ca-password-file=$out/root-password-file --profile intermediate-ca --ca $out/root_ca.crt --ca-key $out/root_ca.key
-  '';
+  ssh_host_ca_key = "ssh_host_ca_key";
+  ssh_user_ca_key = "ssh_user_ca_key";
+  test-certificates =
+    pkgs.runCommandLocal "test-certificates"
+    {
+      nativeBuildInputs = [
+        pkgs.step-cli
+        pkgs.openssh
+      ];
+    }
+    ''
+      mkdir -p "$out"
+      printf '%s' 'insecure-root-password' > "$out/${rootCAKeyPasswordPath}"
+      step certificate create \
+          "Example Root CA" \
+          "$out/${rootCACertPath}" \
+          "$out/${rootCAKeyPath}" \
+          --kty=OKP \
+          --profile=root-ca \
+          --password-file="$out/${rootCAKeyPasswordPath}" \
+          --not-before=-10m \
+          --not-after="24h"
+      # step certificate create "Example Intermediate CA 1" $out/intermediate_ca.crt $out/intermediate_ca.key --password-file=$out/intermediate-password-file --ca-password-file=$out/root-password-file --profile intermediate-ca --ca $out/root_ca.crt --ca-key $out/root_ca.key
+      ssh-keygen \
+          -t ed25519 \
+          -C "ssh host ca key @ $DATETIME" \
+          -f "$out/${ssh_host_ca_key}" # \
+          # -N "$(cat "$PASSWORD_FILE")"
+      ssh-keygen \
+          -t ed25519 \
+          -C "ssh user ca key @ $DATETIME" \
+          -f "$out/${ssh_user_ca_key}" # \
+          # -N "$(cat "$PASSWORD_FILE")"
+      info 'moving .pub file for user key to expected place'
+      mv -v "''${SSH_USER_KEY}.pub" "''${CERTS_DIR}/"
+    '';
   rootCA = {config', ...}: {
     #virtualisation.vlans = [1];
     #services.mw-pki.intermediateCA = {
