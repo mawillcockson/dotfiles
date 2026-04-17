@@ -442,6 +442,7 @@ in {
                 pkgs.coreutils
                 pkgs.step-ca
                 pkgs.step-cli
+                pkgs.jq
               ];
               runtimeEnv =
                 {
