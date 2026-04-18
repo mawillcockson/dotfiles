@@ -1079,9 +1079,54 @@ in {
                               encrypt \
                               "$INTERMEDIATE_CA_KEY_PASSWORD_PATH"
                               "$intermediateCAKeyPasswordPath"
-                          # NOTE::CONTINUE check that the credentials decrypt
-                          # to the same hash as the unencrypted, then delete
-                          # the unencrypted ones
+
+                          if ! systemd-creds \
+                              --name="$intermediateCAKeyPasswordCredentialName" \
+                              decrypt \
+                              "$intermediateCAKeyPasswordPath" \
+                              > /dev/null
+                          then
+                              error "could not decrypt \$intermediateCAKeyPasswordPath=$intermediateCAKeyPasswordPath"
+
+                          elif ! INTERMEDIATE_CA_KEY_PASSWORD_HASH="$(systemd-creds \
+                              --name="$intermediateCAKeyPasswordCredentialName" \
+                              decrypt \
+                              "$intermediateCAKeyPasswordPath" \
+                              | cksum \
+                                  --algorithm=sha2 \
+                                  --length=512 \
+                                  --base64 \
+                                  --tag \
+                                  -)"
+                          then
+                              error "error hashing decrypted intermediate ca key password: $intermediateCAKeyPasswordPath"
+                          # using file redirection so that cksum can read from
+                          # standard input, because it includes the filename in its
+                          # output, and that would be different, even if the hashes
+                          # were the same
+                          elif ! INTERMEDIATE_CA_KEY_UNENCRYPTED_PASSWORD_HASH="$(cksum \
+                              --algorithm=sha2 \
+                              --length=512 \
+                              --base64 \
+                              --tage \
+                              - \
+                              < "$INTERMEDIATE_CA_KEY_PASSWORD_PATH")"
+                          then
+                              error "error hashing unencrypted intermediate ca key password: $INTERMEDIATE_CA_KEY_PASSWORD_PATH"
+                          elif test "$INTERMEDIATE_CA_KEY_PASSWORD_HASH" != "$INTERMEDIATE_CA_KEY_UNENCRYPTED_PASSWORD_HASH"; then
+                              warn "unencrypted intermediate ca key password has this hash"
+                              warn "\$INTERMEDIATE_CA_KEY_UNENCRYPTED_PASSWORD_HASH=$INTERMEDIATE_CA_KEY_UNENCRYPTED_PASSWORD_HASH"
+                              warn "\$INTERMEDIATE_CA_KEY_PASSWORD_PATH=$INTERMEDIATE_CA_KEY_PASSWORD_PATH"
+                              warn "encrypted intermediate ca key password has this hash"
+                              warn "\$INTERMEDIATE_CA_KEY_PASSWORD_HASH=$INTERMEDIATE_CA_KEY_PASSWORD_HASH"
+                              warn "\$intermediateCAKeyPasswordPath=$intermediateCAKeyPasswordPath"
+                              error "the hashes of the unencrypted and decrypted passwords do not match"
+                          else
+                              info "the hashes of the unencrypted and decrypted intermediate ca key passwords match"
+                              info "deleting the unencrypted intermediate ca key password: $INTERMEDIATE_CA_KEY_PASSWORD_PATH"
+                              rm -v "$INTERMEDIATE_CA_KEY_PASSWORD_PATH"
+                          fi
+
                           info "encrypting the intermediate ca key (\$INTERMEDIATE_CA_KEY_PATH=$INTERMEDIATE_CA_KEY_PATH) and storing it here (\$intermediateCAKeyPath=$intermediateCAKeyPath)"
                           systemd-creds \
                               --with-key=auto \
@@ -1090,6 +1135,52 @@ in {
                               encrypt \
                               "$INTERMEDIATE_CA_KEY_PATH"
                               "$intermediateCAKeyPath"
+
+                          if ! systemd-creds \
+                              --name="$intermediateCAKeyCredentialName" \
+                              decrypt \
+                              "$intermediateCAKeyPath" \
+                              > /dev/null
+                          then
+                              error "could not decrypt \$intermediateCAKeyPath=$intermediateCAKeyPath"
+                          elif ! INTERMEDIATE_CA_KEY_HASH="$(systemd-creds \
+                              --name="$intermediateCAKeyCredentialName" \
+                              decrypt \
+                              "$intermediateCAKeyPath" \
+                              | cksum \
+                                  --algorithm=sha2 \
+                                  --length=512 \
+                                  --base64 \
+                                  --tag \
+                                  -)"
+                          then
+                              error "error hashing decrypted intermediate ca key: $intermediateCAKeyPath"
+                          # using file redirection so that cksum can read from
+                          # standard input, because it includes the filename in its
+                          # output, and that would be different, even if the hashes
+                          # were the same
+                          elif ! INTERMEDIATE_CA_UNENCRYPTED_KEY_HASH="$(cksum \
+                              --algorithm=sha2 \
+                              --length=512 \
+                              --base64 \
+                              --tage \
+                              - \
+                              < "$INTERMEDIATE_CA_KEY_PATH")"
+                          then
+                              error "error hashing unencrypted intermediate ca key: $INTERMEDIATE_CA_KEY_PATH"
+                          elif test "$INTERMEDIATE_CA_KEY_HASH" != "$INTERMEDIATE_CA_UNENCRYPTED_KEY_HASH"; then
+                              warn "unencrypted intermediate ca key has this hash"
+                              warn "\$INTERMEDIATE_CA_UNENCRYPTED_KEY_HASH=$INTERMEDIATE_CA_UNENCRYPTED_KEY_HASH"
+                              warn "\$INTERMEDIATE_CA_KEY_PATH=$INTERMEDIATE_CA_KEY_PATH"
+                              warn "encrypted intermediate ca key has this hash"
+                              warn "\$INTERMEDIATE_CA_KEY_HASH=$INTERMEDIATE_CA_KEY_HASH"
+                              warn "\$intermediateCAKeyPath=$intermediateCAKeyPath"
+                              error "the hashes of the unencrypted and decrypted intermediate ca keys do not match"
+                          else
+                              info "the hashes of the unencrypted and decrypted intermediate ca keys match"
+                              info "deleting the unencrypted intermediate ca key: $INTERMEDIATE_CA_KEY_PATH"
+                              rm -v "$INTERMEDIATE_CA_KEY_PATH"
+                          fi
                       else
                           # 2.c.i) if the intermediate ca password and key are
                           # missing, and we're an intermediate ca, run
@@ -1129,7 +1220,30 @@ in {
                               --contact=${lib.escapeShellArg cfg.contactEmail} \
                               --console
 
-                          # 2.c.iii) if the intermediate ca password and key are missing, and we're an intermediate ca, use x5c and the previous certificate to request an ssh host key from the root ca
+                          # 2.c.iii) if the intermediate ca password and key
+                          # are missing, and we're an intermediate ca, use x5c
+                          # and the previous certificate to request an ssh host
+                          # key from the root ca
+                          INTERMEDIATE_AND_ROOT_CERT="$STATE_DIRECTORY/certs/intermediate_and_root.crt"
+                          cat "$intermediateCACertPath" "$rootCACertPath" > "$INTERMEDIATE_AND_ROOT_CERT"
+                          # NOTE::IMPROVEMENT::SECURITY could add
+                          # not-after and not-before for the token
+                          if ! TOKEN="$(step ca token \
+                              "$INTERMEDIATE_CA_FQDN" \
+                              --ssh \
+                              --host \
+                              --provisioner=x5c \
+                              --x5c-cert="$INTERMEDIATE_AND_ROOT_CERT" \
+                              --x5c-key="$INTERMEDIATE_CA_KEY_PATH" \
+                              --password-file="$INTERMEDIATE_CA_KEY_PASSWORD_PATH" \
+                              --ca-url="$ROOT_CA_URL" \
+                              --root="$rootCACertPath")"
+                          then
+                              error "could not retrieve token from root ca (\$ROOT_CA_URL=$ROOT_CA_URL) using the intermediate ca's certificate (\$intermediateCACertPath=$intermediateCACertPath) and key (\$INTERMEDIATE_CA_KEY_PATH=$INTERMEDIATE_CA_KEY_PATH)"
+                          else
+                              info "received a token for authenticating with X5C to the root ca"
+                          fi
+
                           SSH_HOST_KEY="$STATE_DIRECTORY/secrets/unencrypted-ssh-host-key"
                           if test -e "$SSH_HOST_KEY"; then
                               error "found an existing ssh host key (not ca): $SSH_HOST_KEY"
@@ -1139,25 +1253,49 @@ in {
                           step ssh certificate \
                               "$INTERMEDIATE_CA_FQDN@$DATETIME" \
                               "$SSH_HOST_KEY" \
-                              --no-password --insecure \
                               --kty=OKP --curve=Ed25519 \
+                              --no-password --insecure \
                               --host \
                               --host-id=machine \
                               --principal="$INTERMEDIATE_CA_FQDN" \
-                              --commane="$INTERMEDIATE_CA_FQDN@$DATETIME" \
+                              --comment="$INTERMEDIATE_CA_FQDN@$DATETIME" \
+                              --console \
                               --not-before="$STEP_VALIDITY_NOT_BEFORE" \
                               --not-after="$STEP_VALIDITY_NOT_AFTER" \
-                              --console \
                               --provisioner=${
                     cfg.settings.authority
                     |> builtins.filter (x: x.type == "X5C")
                     |> builtins.getAttr "name"
                     |> lib.escapeShellArg
                   } \
-                              --x5c-cert="$intermediateCACertPath" \
+                              --x5c-cert="$INTERMEDIATE_AND_ROOT_CERT" \
                               --x5c-key="$INTERMEDIATE_CA_KEY_PATH" \
                               --no-agent \
+                              --ca-url="$ROOT_CA_URL" \
+                              --root="$rootCACertPath" \
+                              --token="$TOKEN"
 
+                          info "moving public key and certificate to: $STEPPATH/certs"
+                          SSH_HOST_PUBKEY="$STEPPATH/certs/ssh_host_key.pub"
+                          SSH_HOST_CERT="$STEPPATH/certs/ssh_host_key-cert.pub"
+                          mv -v "''${SSH_HOST_KEY}.pub" "$SSH_HOST_PUBKEY"
+                          mv -v "''${SSH_HOST_KEY}-cert.pub" "$SSH_HOST_CERT"
+
+                          step ssh inspect "$SSH_HOST_CERT"
+
+                          # NOTE::CONTINUE
+                          # 2.c.iv) if the intermediate ca password and key are
+                          # missing, and we're an intermediate ca, use the ssh
+                          # host key to retrieve the root ca's ssh host and
+                          # user ca keys
+                          # 2.c.v) if the intermediate ca password and key are
+                          # missing, and we're an intermediate ca, verify both
+                          # ssh keys work by changing the password from blank
+                          # to blank
+                          # 2.c.vi) if the intermediate ca password and key are
+                          # missing, and we're an intermediate ca, encrypt
+                          # every secret with systemd-creds and delete the
+                          # originals
                       fi
                   else
                       error "in ensuring that the intermediate ca password and key exist, some combination of conditions was not accounted for"
