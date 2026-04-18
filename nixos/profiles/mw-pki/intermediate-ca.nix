@@ -113,6 +113,7 @@ in {
       '';
       example = lib.literalExpression ''"ca.example.com"'';
     };
+    # NOTE::IMPROVEMENT these Allowed keys aren't currently used
     sshHostAllowedDomainNames = lib.mkOption {
       type = lib.types.nullOr (lib.types.listOf lib.types.nonEmptyStr);
       default = null;
@@ -418,6 +419,9 @@ in {
         #Group = step-ca-serviceConfig.Group;
         #DynamicUser = true;
 
+        # NOTE::IMPROVEMENT::SECURITY could announce only the necessary
+        # capabilities and read/write paths
+
         # don't need $CREDENTIALS_DIRECTORY, don't need to check it
         ## need a credential, in order for $CREDENTIALS_DIRECTORY to be set in
         ## the script's environment
@@ -427,6 +431,9 @@ in {
         Environment = ["STEPPATH=%S"];
         # Is this necessary?
         #ReadWritePaths = ["%S/${step-ca-serviceConfig.StateDirectory}"];
+        # NOTE::IMPROVEMENT I'm positive this would be shorter, would repeat
+        # less, and would be easier to maintain if it were a type-checked
+        # python application, or even a nushell script
         ExecStart =
           lib.getExe
           <| pkgs.writeShellApplication (
