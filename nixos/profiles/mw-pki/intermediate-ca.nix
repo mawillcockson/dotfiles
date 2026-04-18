@@ -1199,15 +1199,15 @@ in {
                               --ca-url="''${ROOT_CA_URL:?"\$ROOT_CA_URL not set"}" \
                               --fingerprint="$ROOT_CERT_FINGERPRINT"
 
-                          # 2.b.ii) if the intermediate ca password and ket are
+                          # 2.b.ii) if the intermediate ca password and key are
                           # missing, and we're an intermediate ca, use acme to
                           # request an intermediate ca certificate from the
                           # root ca's intermediate ca
                           INTERMEDIATE_CA_KEY_PATH="$STATE_DIRECTORY/secrets/unencrypted-intermediate-ca-key"
                           if test -e "$INTERMEDIATE_CA_KEY_PATH"; then
-                              error "found an existing intermediate ca kay at $INTERMEDIATE_CA_KEY_PATH"
+                              error "found an existing unencrypted intermediate ca kay at $INTERMEDIATE_CA_KEY_PATH"
                           else
-                              info "using this as the temporary intermediate ca key path: $INTERMEDIATE_CA_KEY_PATH"
+                              info "using this as the temporary unencrypted intermediate ca key path: $INTERMEDIATE_CA_KEY_PATH"
                           fi
                           step ca certificate \
                               "$INTERMEDIATE_CA_FQDN" \
