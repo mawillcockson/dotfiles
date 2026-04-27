@@ -18,7 +18,10 @@ scroll_exits = false
 
 search_mode = 'fuzzy'
 # can press ctrl-r again when in the search view to cycle through filter modes
-filter_mode = 'host'
+filter_mode = 'session-preload'
+# This flag enables a pseudo filter-mode named "workspace": the filter is automatically activated when you are in a git repository.
+# With workspace filtering enabled, Atuin will filter for commands executed in any directory within a git repository tree.
+workspaces = true
 search_mode_shell_up_key_binding = 'fuzzy'
 filter_mode_shell_up_key_binding = 'directory'
 
