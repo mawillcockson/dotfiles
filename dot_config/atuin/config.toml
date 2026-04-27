@@ -29,6 +29,9 @@ filter_mode_shell_up_key_binding = 'directory'
 history_filter = [
     '# atuin:ignore$',
 ]
+cwd_filter = [
+    '/no[-_]atuin((/.*)?)$',
+]
 
 [sync]
 records = true
