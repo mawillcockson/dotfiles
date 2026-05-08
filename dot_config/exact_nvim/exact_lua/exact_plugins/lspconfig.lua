@@ -93,6 +93,8 @@ return {
 			-- typescript and javascript
 			if executable("vtsls") or mason_installed("vtsls") then
 				vim.lsp.enable("vtsls")
+			elseif executable("typescript-language-server") or mason_installed("typescript-language-server") then
+				vim.lsp.enable("ts_ls")
 			end
 
 			-- toml
