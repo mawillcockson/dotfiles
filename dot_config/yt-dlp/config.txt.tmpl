@@ -1,5 +1,7 @@
 {{- /* disabled until it's needed */ -}}
 {{ if .chezmoi.os | eq "windows" }}
+# To download age-gated videos from Instagram:
+# --cookies-from-browser=firefox::Facebook
 --cookies-from-browser "firefox"
 --path "home:{{ joinPath (env "OneDrive") "Videos" }}"
 --path "temp:{{ joinPath (env "TEMP") }}"
