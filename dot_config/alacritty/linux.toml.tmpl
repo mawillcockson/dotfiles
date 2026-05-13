@@ -22,7 +22,7 @@ terminal.shell.program = {{ toToml $shell }}
 key = "M"
 mods = "Control|Shift"
 mode = "~Search"
-command = { program = "alacritty", args = ["--command", "bash -il"]}
+command = { program = "alacritty", args = ["--command", "bash", "-il"]}
 {{ else }}
 [[keyboard.bindings]]
 key = "M"
