@@ -670,6 +670,7 @@ export def yx [...urls: string]: [nothing -> nothing] {
             compact --empty |
             first
         },
+        _ => {return (error make {msg: $'platform not implemented yet: ($platform)'})},
     }
     yt-dlp --path $"home:($music_dir)" -x ...($urls)
 }
