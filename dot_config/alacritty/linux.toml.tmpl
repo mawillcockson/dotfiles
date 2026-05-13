@@ -9,12 +9,19 @@
 terminal.shell.program = {{ toToml $shell }}
 {{ end }}
 
-{{ if findExecutable "bash" (list $egetBin (env "PATH")) }}
+{{ if deepCopy . |
+    merge (dict "exes" (list
+        "bash"
+        "sh"
+    )) |
+    includeTemplate "findExe" |
+    eq "bash"
+}}
 [[keyboard.bindings]]
 key = "M"
 mods = "Control|Shift"
 mode = "~Search"
-command = { program = "alacritty", args = ["--command", "bash"]}
+command = { program = "alacritty", args = ["--command", "bash -il"]}
 {{ else }}
 [[keyboard.bindings]]
 key = "M"
