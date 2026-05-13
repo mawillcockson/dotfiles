@@ -1,6 +1,12 @@
-{{ $egetBin := joinPath (.chezmoi.config.destDir) "apps" "eget-bin" }}
-{{ if findExecutable "nu" (list $egetBin (env "PATH")) }}
-terminal.shell.program = "nu"
+{{ $shell := deepCopy . |
+    merge (dict "exes" (list
+        "nu"
+        "pwsh"
+    )) |
+    includeTemplate "findExe"
+}}
+{{ if $shell }}
+terminal.shell.program = {{ toToml $shell }}
 {{ end }}
 
 {{ if findExecutable "bash" (list $egetBin (env "PATH")) }}

@@ -1,9 +1,18 @@
-{{- concat
-    (joinPath .chezmoi.destDir "apps" "eget-bin" | list)
+{{-
+concat
+    (list
+        (joinPath .chezmoi.destDir ".nix-profile" "bin")
+        (joinPath .chezmoi.destDir ".local" "state" "nix" "profiles" "profile" "bin")
+        (joinPath .chezmoi.destDir "scoop" "shims")
+        (joinPath .chezmoi.destDir "scoop" "apps" "git" "current" "bin")
+        (joinPath .chezmoi.destDir "scoop" "apps" "git" "current" "usr" "bin")
+        (joinPath .chezmoi.destDir "scoop" "apps" "git" "current" "mingw64" "bin")
+        (joinPath .chezmoi.destDir "apps" "eget-bin")
+    )
     (env "PATH" | splitList .chezmoi.pathListSeparator)
     (list
         (joinPath .chezmoi.destDir ".local" "bin")
         .chezmoi.config.data.absBootstrapDir
     ) |
-    findOneExecutable .exes
+findOneExecutable .exes
 -}}
