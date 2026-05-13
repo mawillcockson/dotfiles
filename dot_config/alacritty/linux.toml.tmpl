@@ -15,6 +15,7 @@ terminal.shell.program = {{ toToml $shell }}
         "sh"
     )) |
     includeTemplate "findExe" |
+    osBase |
     eq "bash"
 }}
 [[keyboard.bindings]]
