@@ -603,7 +603,8 @@ export def "get-onedrive-dir" []: [
 ] {
     let platform_specific = match $platform {
         'windows' => {
-            powershell-safe -c '
+            try {
+              powershell-safe -c '
 # from:
 # https://learn.microsoft.com/en-us/windows/win32/shell/knownfolderid#FOLDERID_SkyDrive
 $OneDrive_GUID = "{A52BBA46-E9E1-435f-B3D9-28DAA648C0F6}"
@@ -637,7 +638,10 @@ Add-Type @"
 "@
 [shell32]::GetKnownFolderPath($OneDrive_GUID) | ConvertTo-Json
 ' |
-            from json
+              from json
+            } catch {
+              null
+            }
         },
         _ => {null},
     }
