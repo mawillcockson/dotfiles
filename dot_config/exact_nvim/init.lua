@@ -30,10 +30,10 @@ vim.g.maplocalleader = " "
 -- NOTE::FUTURE enables new (currently experimental; 2024-05) lua loader
 vim.loader.enable()
 
+local join_path = require("utils").join_path
 ---[=[ NOTE::PERF this is here for a little extra speed in case lazy.nvim
 -- doesn't need to be bootstrapped
 pcall(function()
-	local join_path = require("utils").join_path
 	vim.g.custom_lazypath = join_path(vim.fn.stdpath("data"), "lazy", "lazy.nvim")
 	-- plain substring search, so I don't have to worry about escaping `vim.g.custom_lazypath`
 	-- https://www.lua.org/manual/5.1/manual.html#pdf-string.find
@@ -112,10 +112,13 @@ vim.g.maplocalleader = " "
 -- <Space> isn't technically mapped, so unmapping does nothing (:help <Space>)
 --pcall(unmap, {"n", "v", "i"}, " ")
 
+local nix_xdg_dir = join_path(vim.env.XDG_STATE_HOME or "~/.local/state", "nix")
 -- PATH handling
 local path_additions = {
 	"~/apps/eget-bin",
 	"~/AppData/Local/Coursier/data/bin", -- scala
+	"~/.nix-profile/bin", -- nix
+	join_path(nix_xdg_dir, "profiles", "profile", "bin"), -- nix
 }
 local utils = require("utils")
 utils.add_to_path(path_additions)
