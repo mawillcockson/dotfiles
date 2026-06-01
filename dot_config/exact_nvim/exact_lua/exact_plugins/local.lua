@@ -96,6 +96,25 @@ return {
 		end,
 	},
 	{
+		name = "custom-filetypes",
+		dir = join_path(local_empty, "custom-filetypes"),
+		lazy = true,
+		event = "VeryLazy",
+		priority = load_order_add("custom-filetypes"),
+		config = function(_, _)
+			vim.notify("ran custom-filetypes", vim.log.levels.DEBUG, {})
+      -- from: https://til.io/posts/2025/09/26/neovim-syntax-highlighting-and-formatting-for-caddy/
+			vim.filetype.add({
+				extension = {
+					caddy = "caddy",
+				},
+				filename = {
+					Caddyfile = "caddy",
+				},
+			})
+		end,
+	},
+	{
 		dir = join_path(local_dir, "uis"),
 		lazy = false,
 		priority = load_order_add("uis"),

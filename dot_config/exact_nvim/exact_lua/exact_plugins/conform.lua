@@ -17,6 +17,13 @@ return {
 		},
 	},
 	opts = {
+		formatters = {
+			caddy = {
+				command = "caddy",
+				args = { "fmt", "-" },
+				stdin = true,
+			},
+		},
 		formatters_by_ft = {
 			lua = { "stylua" },
 			-- nvim-lint can handle mypy:
@@ -47,6 +54,7 @@ return {
 				-- for windows support
 				"alejandra",
 			},
+			caddy = { "caddy" },
 		},
 	},
 	config = function(_, opts)
