@@ -1,0 +1,11 @@
+# this file should be pointed to by $ENV so that if, when the shell starts up,
+# if the shell determines that it's interactive, it can source this file:
+# https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sh.html#tag_20_110_08
+
+# this is my environment variable that I use, and is completely redundant with
+# the POSIX "$-", which contains `i` when things are feeling interactive
+SHELL_IS_INTERACTIVE=true
+printf '%s\n' "shell is interactive!"
+# this should not be exported, as otherwise it would be imported into
+# non-interactive shells
+#export SHELL_IS_INTERACTIVE

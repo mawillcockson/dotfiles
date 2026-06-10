@@ -6,15 +6,19 @@ export const variable_names = [
     'XDG_CONFIG_HOME',
     'XDG_DATA_HOME',
     'NU_PATH',
+    'ENV',
 ]
 
 export const systemd_profile_d = '/etc/profile.d'
+export const interactive_profile_destination = '/etc/profile.interactive'
 
 export def main [
     # copy ones that can be copied
     --continue
     variable_names_: list<string> = $variable_names,
 ] {
+    main profile-interactive
+
     let vars = (
         $variable_names_ |
         wrap name |
@@ -83,4 +87,35 @@ export def main [
             'msg': 'encountered errors',
         })
     }
+}
+
+# place /etc/profile.interactive into place
+export def "main profile-interactive" []: nothing -> nothing {
+  let source_dir = (
+    chezmoi dump-config --format=json |
+    from json |
+    get sourceDir
+  )
+  let source = ($source_dir | path join 'debian' 'etc' 'profile.interactive')
+  if not ($source | path exists) {
+    return (error make {
+      msg: $'missing source profile.interactive: ($source)',
+    })
+  }
+
+  if ($interactive_profile_destination | path exists) {
+    let source_content = (open $source)
+    let destination_content = (open $interactive_profile_destination)
+    if ($source_content != $destination_content) {
+      return (error make {
+        msg: $'($destination_content) exists and is different from ($source)',
+      })
+    } else {
+      log info $'($interactive_profile_destination) -> same content, skipping'
+    }
+  } else {
+    sudo cp --verbose --no-clobber $source $interactive_profile_destination
+  }
+  # it doesn't need to be executable
+  sudo chmod --verbose u=rw,go=r $interactive_profile_destination
 }
