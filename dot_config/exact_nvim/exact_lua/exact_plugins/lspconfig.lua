@@ -97,6 +97,11 @@ return {
 				vim.lsp.enable("ts_ls")
 			end
 
+			-- svelte
+			if executable("svelteserver") or mason_installed("svelte") then
+				vim.lsp.enable("svelte")
+			end
+
 			-- toml
 			if executable("tombi") or mason_installed("tombi") then
 				vim.lsp.enable("tombi")
