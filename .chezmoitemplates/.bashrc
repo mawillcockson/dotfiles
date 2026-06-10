@@ -13,14 +13,13 @@ init_starship() {
     if ! [ -r "${STARSHIP_CONFIG}" ]; then
         printf '%s\n' "${STARSHIP_CONFIG} not found:"
     fi
-    if [ -z "${STARSHIP_SHELL:+"set"}" ]; then
-        if ! STARSHIP_INIT="$(starship init bash)"; then
-            echo 'problem starting starship'
-        else
-            eval "${STARSHIP_INIT}"
-        fi
+
+    # this is run during shell startup, so even if starship is already running
+    # elsewhere, we want to start it up again here
+    if ! STARSHIP_INIT="$(starship init bash)"; then
+        echo 'problem starting starship'
     else
-        : echo 'starship already running, so not configuring'
+        eval "${STARSHIP_INIT}"
     fi
 }
 
@@ -29,14 +28,13 @@ init_atuin() {
         printf '%s\n' 'atuin not found'
         return 0
     fi
-    if [ -z "${ATUIN_SESSION:+"set"}" ]; then
-        if ! ATUIN_INIT="$(atuin init bash)"; then
-            echo 'problem starting atuin'
-        else
-            eval "${ATUIN_INIT}"
-        fi
+
+    # this is run during shell startup, so even if atuin is already running
+    # elsewhere, we want to configure it again here
+    if ! ATUIN_INIT="$(atuin init bash)"; then
+        echo 'problem starting atuin'
     else
-        : echo 'atuin already running, so not configuring'
+        eval "${ATUIN_INIT}"
     fi
 }
 
