@@ -41,7 +41,7 @@ end
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		enabled = enable,
+		enabled = false,
 		lazy = false,
 		branch = "main",
 		-- This probably needs to track main, as releases are rarely cut
