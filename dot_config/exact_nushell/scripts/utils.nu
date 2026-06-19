@@ -727,3 +727,7 @@ export def "shrink-for-discord" [
     ffmpeg -y -i $input -r 24 -vf $'scale=-2:($vertical_height_)' -c:v libx265 -b:v $'($bitrate_kbps)k' -x265-params pass=2 -c:a copy $output
     ls $output | select name size | into record
 }
+
+export def "my-expand" [s: string]: nothing -> list<string> {
+    echo $s | str expand --path
+}
