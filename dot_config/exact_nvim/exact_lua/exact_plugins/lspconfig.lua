@@ -52,7 +52,16 @@ return {
 
 			local mason_registry = require("mason-registry")
 			local function mason_installed(name)
-				return mason_registry.get_package(name):is_installed()
+				local status, result = pcall(function()
+					return mason_registry.get_package(name):is_installed()
+				end)
+				if not status then
+					vim.notify(
+						"lspconfig.lua: probably not a valid mason package name: " .. tostring(name),
+						vim.log.levels.WARN
+					)
+				end
+				return status and result
 			end
 
 			-- pyhon
