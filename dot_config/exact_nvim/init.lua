@@ -30,7 +30,8 @@ vim.g.maplocalleader = " "
 -- NOTE::FUTURE enables new (currently experimental; 2024-05) lua loader
 vim.loader.enable()
 
-local join_path = require("utils").join_path
+local utils = require("utils")
+local join_path = utils.join_path
 ---[=[ NOTE::PERF this is here for a little extra speed in case lazy.nvim
 -- doesn't need to be bootstrapped
 pcall(function()
@@ -120,7 +121,6 @@ local path_additions = {
 	"~/.nix-profile/bin", -- nix
 	join_path(nix_xdg_dir, "profiles", "profile", "bin"), -- nix
 }
-local utils = require("utils")
 utils.add_to_path(path_additions)
 utils.try_add_nodejs()
 
