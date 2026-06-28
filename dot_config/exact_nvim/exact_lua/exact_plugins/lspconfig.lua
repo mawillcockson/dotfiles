@@ -107,7 +107,7 @@ return {
 			end
 
 			-- svelte
-			if executable("svelteserver") or mason_installed("svelte") then
+			if executable("svelteserver") or mason_installed("svelte-language-server") then
 				vim.lsp.enable("svelte")
 			end
 
