@@ -14,7 +14,7 @@ export const suggested_default_query = [
 export const default_query = []
 export const uni_cmd = [
     'uni',
-    '--compact',
+    '-compact',
     'emoji',
     '-gender', 'person',
     '-tone', 'light',
@@ -24,6 +24,11 @@ export def main [
     --start-terminal,
     ...query: string,
 ] {
+    if (which uni | is-empty) {
+        return (error make {
+            msg: "can't find uni (github.com/arp242/uni)",
+        })
+    }
     let query = (
         if ($query | is-empty) {
             $default_query | str join ' '
