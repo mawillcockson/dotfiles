@@ -64,7 +64,7 @@ return {
 				return status and result
 			end
 
-			-- pyhon
+			-- python
 			if executable("ruff") or mason_installed("ruff") then
 				vim.lsp.enable("ruff")
 			end
