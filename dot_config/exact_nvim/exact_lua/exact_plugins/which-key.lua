@@ -17,6 +17,12 @@ return {
 			{ "<C-w>", mode = { "t" } },
 		},
 		spec = {
+			{
+				"<leader>?",
+				function()
+					require("which-key").show({ global = true })
+				end,
+			},
 			{ "<leader>f", group = "Telescope files" },
 			{ "<leader>l", group = "Telescope LSP" },
 			-- NOTE::BUG mapping just the leader to something, and then mapping something
