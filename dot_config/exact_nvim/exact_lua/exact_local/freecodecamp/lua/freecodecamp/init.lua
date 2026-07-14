@@ -198,10 +198,9 @@ function M.setup(opts)
 	vim.api.nvim_create_user_command("FreeCodeCampNext", M.freeCodeCampNext, {})
 
 	local wk = require("which-key")
-	if opts.keys.next ~= nil then
-		wk.add({
-			{ opts.keys.next, M.freeCodeCampNext, desc = "freeCodeCamp: make the next challenge step files" },
-		})
+	if opts ~= nil and opts.keys.next ~= nil then
+		vim.notify("registering :FreeCodeCampNext hotkey -> " .. tostring(opts.keys.next), vim.log.levels.DEBUG)
+		wk.add({ { opts.keys.next, M.freeCodeCampNext, desc = "freeCodeCamp: make the next challenge step files" } })
 	end
 end
 

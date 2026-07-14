@@ -103,7 +103,7 @@ return {
 		priority = load_order_add("custom-filetypes"),
 		config = function(_, _)
 			vim.notify("ran custom-filetypes", vim.log.levels.DEBUG, {})
-      -- from: https://til.io/posts/2025/09/26/neovim-syntax-highlighting-and-formatting-for-caddy/
+			-- from: https://til.io/posts/2025/09/26/neovim-syntax-highlighting-and-formatting-for-caddy/
 			vim.filetype.add({
 				extension = {
 					caddy = "caddy",
@@ -123,9 +123,9 @@ return {
 	{
 		dir = join_path(local_dir, "freecodecamp"),
 		lazy = true,
-		event = "BufReadPost */learning-webdev/freeCodeCamp.org/*",
+		event = [[BufReadPost */learning-webdev/freeCodeCamp.org/*.{html,css,js}]],
 		cmd = "FreeCodeCampNext",
-		opts = { keys = { next = "<C-Enter>" } },
+		opts = { keys = { next = "<leader>cn" } },
 	},
 	{
 		name = "mw_package_test",
