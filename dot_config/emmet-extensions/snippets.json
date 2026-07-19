@@ -9,7 +9,13 @@
   "html": {
     "snippets": {
       "script:id": "script{\"use-strict\";\n((func) => \\{\n  if (document.readyState === \"loading\") \\{\n    document.addEventListener(\"DOMContentLoaded\", () => func(), \\{once: true\\});\n  \\} else \\{\n    func();\n  \\}\n\\})(() => \\{\n  ${1:// script}\n\\});}",
-      "doc": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}}+script:id)+body"
+      "script:inline-module": "script[type=\"module\"]",
+      "script:module": "script[type=\"module\"][src=\"${1:script}.js\"]{}",
+      "doc:old": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}}+script:id)+body",
+      "doc:separate": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${2:Title}}+link:css+script:module)+body{${1}}",
+      "doc:standalone": "{<!DOCTYPE html>}+html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${2:Title}}+style+script:inline-module)+body{${1}}",
+      "doc": "doc:separate",
+      "doc:s": "doc:standalone"
     }
   }
 }
