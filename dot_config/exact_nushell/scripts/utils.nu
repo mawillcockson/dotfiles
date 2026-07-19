@@ -578,13 +578,17 @@ export def "crlf-to-lf" [
     ...files: path, # files to convert
 ]: nothing -> nothing {
     for file in $files {
-        if ($file | path type) != 'file' {
+        mut type = ""
+        try {
+          $type = ($file | path type)
+        } catch {|err|}
+        if $type != 'file' {
             return (error make {
-                msg: $'expected files, not ($file | path type)',
-                labels: {
+                msg: $'expected files, not (if $type == "" {$file} else {$type})',
+                labels: [{
                     text: 'not a file',
                     span: (metadata $file).span,
-                },
+                }],
                 help: 'to work on each file in a directory, apply glob first',
             })
         }
